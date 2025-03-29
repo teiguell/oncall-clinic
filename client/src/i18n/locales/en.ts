@@ -362,6 +362,70 @@ const enTranslations = {
     missed: "Missed",
     rescheduled: "Rescheduled",
   },
+  
+  // Appointment progress map
+  appointment: {
+    status: {
+      scheduled: "Scheduled",
+      confirmed: "Confirmed",
+      en_route: "Doctor En Route",
+      arrived: "Doctor Arrived",
+      in_progress: "In Progress",
+      completed: "Completed",
+      canceled: "Canceled"
+    },
+    progress_map: "Appointment Progress",
+    current_status: "Current Status",
+    journey_title: "Your Appointment Journey",
+    scheduled_description: "Your appointment has been scheduled and is awaiting confirmation from the doctor.",
+    confirmed_description: "The doctor has confirmed your appointment and will arrive at the scheduled time.",
+    en_route_description: "The doctor is now en route to your location. They'll arrive shortly.",
+    arrived_description: "The doctor has arrived at your location and will begin the consultation soon.",
+    in_progress_description: "Your consultation is currently in progress.",
+    completed_description: "Your appointment has been completed successfully.",
+    canceled_description: "This appointment has been canceled. You can schedule a new appointment at any time.",
+    scheduled_for: "Scheduled for: {{date}}",
+    completed_at: "Completed at: {{date}}",
+    status_updated_at: "Updated at: {{date}}",
+    update_status: "Update Appointment Status",
+    select_next_status: "Select the next status for this appointment:",
+    status_updated: "Status Updated",
+    status_updated_to: "Appointment status updated to: {{status}}",
+    actions: {
+      confirm: "Confirm Appointment",
+      start_journey: "Start Journey",
+      mark_arrived: "Mark as Arrived",
+      start_appointment: "Start Consultation",
+      complete: "Complete Appointment",
+      cancel: "Cancel Appointment",
+      update: "Update Status"
+    }
+  },
+  
+  // Appointment journey map
+  appointments: {
+    journey_map: {
+      title: "Your Appointment Journey",
+      current: "Current step",
+      completed: "Completed",
+      scheduled_description: "Appointment has been booked and is awaiting confirmation from the doctor.",
+      confirmed_description: "Doctor has confirmed the appointment and will arrive at the scheduled time.",
+      en_route_description: "Doctor is on the way to your location.",
+      arrived_description: "Doctor has arrived at your location.",
+      in_progress_description: "Consultation is currently in progress.",
+      completed_description: "Appointment has been completed successfully.",
+      canceled_description: "This appointment has been canceled."
+    },
+    status: {
+      scheduled: "Scheduled",
+      confirmed: "Confirmed",
+      en_route: "Doctor En Route",
+      arrived: "Doctor Arrived",
+      in_progress: "In Progress",
+      completed: "Completed",
+      canceled: "Canceled"
+    }
+  },
 
   // Notifications
   notifications: {
@@ -481,6 +545,9 @@ const enTranslations = {
     paymentFailed: "Payment failed. Please try again with a different payment method.",
     sessionExpired: "Your session has expired. Please log in again.",
     updateFailed: "Failed to update. Please try again.",
+    status_update_failed: "Failed to update appointment status",
+    invalid_status_transition: "Invalid status transition",
+    appointment_not_found: "Appointment not found",
     websocket: {
       connectionFailed: "Could not connect to notification service",
       reconnecting: "Reconnecting to notification service...",

@@ -362,6 +362,70 @@ const esTranslations = {
     missed: "Perdida",
     rescheduled: "Reprogramada",
   },
+  
+  // Mapa de progreso de cita
+  appointment: {
+    status: {
+      scheduled: "Programada",
+      confirmed: "Confirmada",
+      en_route: "Médico en Camino",
+      arrived: "Médico Llegó",
+      in_progress: "En Progreso",
+      completed: "Completada",
+      canceled: "Cancelada"
+    },
+    progress_map: "Progreso de la Cita",
+    current_status: "Estado Actual",
+    journey_title: "Tu Recorrido de Cita",
+    scheduled_description: "Tu cita ha sido programada y está esperando confirmación del médico.",
+    confirmed_description: "El médico ha confirmado tu cita y llegará a la hora programada.",
+    en_route_description: "El médico está en camino a tu ubicación. Llegará en breve.",
+    arrived_description: "El médico ha llegado a tu ubicación y comenzará la consulta pronto.",
+    in_progress_description: "Tu consulta está actualmente en progreso.",
+    completed_description: "Tu cita se ha completado con éxito.",
+    canceled_description: "Esta cita ha sido cancelada. Puedes programar una nueva cita en cualquier momento.",
+    scheduled_for: "Programada para: {{date}}",
+    completed_at: "Completada el: {{date}}",
+    status_updated_at: "Actualizada el: {{date}}",
+    update_status: "Actualizar Estado de la Cita",
+    select_next_status: "Selecciona el siguiente estado para esta cita:",
+    status_updated: "Estado Actualizado",
+    status_updated_to: "Estado de la cita actualizado a: {{status}}",
+    actions: {
+      confirm: "Confirmar Cita",
+      start_journey: "Iniciar Viaje",
+      mark_arrived: "Marcar como Llegado",
+      start_appointment: "Iniciar Consulta",
+      complete: "Completar Cita",
+      cancel: "Cancelar Cita",
+      update: "Actualizar Estado"
+    }
+  },
+  
+  // Mapa de recorrido de cita
+  appointments: {
+    journey_map: {
+      title: "Tu Recorrido de Cita",
+      current: "Paso actual",
+      completed: "Completado",
+      scheduled_description: "La cita ha sido reservada y está esperando confirmación del médico.",
+      confirmed_description: "El médico ha confirmado la cita y llegará a la hora programada.",
+      en_route_description: "El médico está en camino a tu ubicación.",
+      arrived_description: "El médico ha llegado a tu ubicación.",
+      in_progress_description: "La consulta está actualmente en progreso.",
+      completed_description: "La cita se ha completado con éxito.",
+      canceled_description: "Esta cita ha sido cancelada."
+    },
+    status: {
+      scheduled: "Programada",
+      confirmed: "Confirmada",
+      en_route: "Médico en Camino",
+      arrived: "Médico Llegó",
+      in_progress: "En Progreso",
+      completed: "Completada",
+      canceled: "Cancelada"
+    }
+  },
 
   // Notificaciones
   notifications: {
@@ -481,6 +545,9 @@ const esTranslations = {
     paymentFailed: "El pago falló. Por favor, intenta con otro método de pago.",
     sessionExpired: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
     updateFailed: "No se pudo actualizar. Por favor, intenta de nuevo.",
+    status_update_failed: "No se pudo actualizar el estado de la cita",
+    invalid_status_transition: "Transición de estado inválida",
+    appointment_not_found: "Cita no encontrada",
     websocket: {
       connectionFailed: "No se pudo conectar al servicio de notificaciones",
       reconnecting: "Reconectando al servicio de notificaciones...",

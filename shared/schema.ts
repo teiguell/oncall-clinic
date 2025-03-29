@@ -92,12 +92,13 @@ export const appointments = pgTable("appointments", {
   doctorId: integer("doctor_id").notNull().references(() => users.id),
   appointmentDate: timestamp("appointment_date").notNull(),
   duration: integer("duration").notNull(), // in minutes
-  status: text("status").notNull(), // "scheduled", "completed", "canceled"
+  status: text("status").notNull(), // "scheduled", "confirmed", "en_route", "arrived", "in_progress", "completed", "canceled"
   reasonForVisit: text("reason_for_visit").notNull(),
   locationId: integer("location_id").notNull().references(() => locations.id),
   totalAmount: integer("total_amount").notNull(), // in cents
   paymentStatus: text("payment_status").notNull(), // "pending", "paid", "refunded"
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at"),
 });
 
 // Reviews

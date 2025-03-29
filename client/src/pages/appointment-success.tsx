@@ -16,6 +16,9 @@ import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import AppointmentProgressMap from "@/components/appointments/appointment-progress-map";
+import AppointmentJourneyMap from "@/components/appointments/appointment-journey-map";
+import AppointmentStatusControl from "@/components/appointments/appointment-status-control";
 
 interface AppointmentDetails {
   id: number;
@@ -109,7 +112,22 @@ export default function AppointmentSuccess() {
   };
   
   const handleViewDashboard = () => {
-    navigate("/patient/dashboard");
+    // Redirect to the correct dashboard based on user type
+    if (user?.userType === 'doctor') {
+      navigate("/doctor/dashboard");
+    } else {
+      navigate("/patient/dashboard");
+    }
+  };
+  
+  // Function to handle appointment status updates
+  const handleStatusUpdate = (newStatus: string) => {
+    if (appointment) {
+      setAppointment({
+        ...appointment,
+        status: newStatus
+      });
+    }
   };
   
   if (loading) {
@@ -163,7 +181,7 @@ export default function AppointmentSuccess() {
   
   return (
     <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-      <Card className="border-green-200 shadow-md">
+      <Card className="border-green-200 shadow-md mb-8">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <CheckCircle2 className="h-16 w-16 text-green-500" />
@@ -175,6 +193,15 @@ export default function AppointmentSuccess() {
             {t('appointment.booking_reference', { id: appointment.id })}
           </CardDescription>
         </CardHeader>
+        
+        {/* Mapa de recorrido del paciente */}
+        <div className="px-6 mb-8">
+          <AppointmentJourneyMap 
+            currentStatus={appointment.status as any}
+            appointmentDate={appointment.appointmentDate}
+            completedDate={appointment.status === 'completed' ? new Date().toISOString() : undefined}
+          />
+        </div>
         
         <CardContent className="space-y-6">
           <div className="flex items-start space-x-3">
@@ -260,6 +287,18 @@ export default function AppointmentSuccess() {
           </Button>
         </CardFooter>
       </Card>
+      
+      {/* Control de estado para doctores */}
+      {user?.userType === 'doctor' && appointment.doctorId === user?.id && (
+        <div className="mt-8">
+          <AppointmentStatusControl
+            appointmentId={appointment.id}
+            currentStatus={appointment.status as any}
+            onStatusUpdated={handleStatusUpdate}
+            className="shadow-md"
+          />
+        </div>
+      )}
       
       <div className="mt-8 text-center">
         <p className="text-sm text-muted-foreground">

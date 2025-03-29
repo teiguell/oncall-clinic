@@ -585,7 +585,8 @@ export class MemStorage implements IStorage {
   async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
     const id = this.currentAppointmentId++;
     const createdAt = new Date();
-    const newAppointment: Appointment = { ...appointment, id, createdAt };
+    const updatedAt = createdAt;
+    const newAppointment: Appointment = { ...appointment, id, createdAt, updatedAt };
     this.appointments.set(id, newAppointment);
     return newAppointment;
   }
@@ -594,7 +595,8 @@ export class MemStorage implements IStorage {
     const appointment = this.appointments.get(id);
     if (!appointment) return undefined;
     
-    const updatedAppointment = { ...appointment, ...data };
+    const updatedAt = new Date();
+    const updatedAppointment = { ...appointment, ...data, updatedAt };
     this.appointments.set(id, updatedAppointment);
     return updatedAppointment;
   }
