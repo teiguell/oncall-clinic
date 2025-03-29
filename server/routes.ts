@@ -24,6 +24,16 @@ import path from "path";
 import session from "express-session";
 import MemoryStore from "memorystore";
 
+// Define doctor search schema
+const doctorSearchSchema = z.object({
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  distance: z.number().optional().default(10),
+  specialtyId: z.number().optional(),
+  available: z.boolean().optional(),
+  verified: z.boolean().optional().default(true),
+});
+
 // Simple in-memory session store for demo purposes
 const sessions = new Map<string, {userId: number, userType: string}>();
 const verificationCodes = new Map<string, {code: string, email: string}>();
@@ -1060,8 +1070,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const specialtyId = req.query.specialty ? parseInt(req.query.specialty as string) : undefined;
       const isAvailable = req.query.available ? req.query.available === 'true' : undefined;
+      const isVerified = req.query.verified ? req.query.verified === 'true' : true; // Default to verified doctors
       
-      let doctors = await storage.searchDoctors(specialtyId, isAvailable);
+      // Check if location parameters are provided
+      const lat = req.query.lat ? parseFloat(req.query.lat as string) : undefined;
+      const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined;
+      const distance = req.query.distance ? parseFloat(req.query.distance as string) : 10; // Default 10km radius
+      
+      let doctors = [];
+      
+      // If we have latitude and longitude, use location-based search
+      if (lat !== undefined && lng !== undefined) {
+        doctors = await storage.searchDoctorsByLocation(
+          lat,
+          lng,
+          distance,
+          specialtyId ? String(specialtyId) : undefined
+        );
+      } else {
+        // Otherwise use regular search
+        doctors = await storage.searchDoctors(specialtyId, isAvailable, isVerified);
+      }
       
       // Enrich doctor profiles with user data
       const enrichedDoctors = await Promise.all(doctors.map(async (doctor) => {
@@ -1074,8 +1103,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return {
           ...doctor,
-          user: userWithoutPassword,
-          specialty
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          specialty,
+          // Include distance if it was a location-based search
+          ...(doctor.distance !== undefined && {distance: doctor.distance})
         };
       }));
       
@@ -1282,14 +1316,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Validar los datos de entrada
       const searchParams = doctorSearchSchema.parse(req.body);
-      const { location, maxDistance, specialtyName } = searchParams;
       
       // Buscar médicos cercanos
       const doctors = await storage.searchDoctorsByLocation(
-        location.lat, 
-        location.lng, 
-        maxDistance,
-        specialtyName
+        searchParams.lat || 0, 
+        searchParams.lng || 0, 
+        searchParams.distance, 
+        searchParams.specialtyId ? String(searchParams.specialtyId) : undefined
       );
       
       // Enriquecer los resultados con información del usuario

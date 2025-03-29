@@ -1,174 +1,240 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
-  CalendarCheck,
-  ThumbsUp,
-  Car,
-  DoorOpen,
-  Stethoscope,
-  CheckCircle,
-  Clock
+  CalendarIcon, 
+  CheckCircleIcon, 
+  XCircleIcon, 
+  TruckIcon, 
+  HomeIcon, 
+  ActivityIcon, 
+  CheckIcon 
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
+// Status mapping:
+// "scheduled" → "confirmed" → "en_route" → "arrived" → "in_progress" → "completed"
+// or "canceled" at any point
 
 type AppointmentStatus = 
-  'scheduled' | 
-  'confirmed' | 
-  'en_route' | 
-  'arrived' | 
-  'in_progress' | 
-  'completed' | 
-  'canceled';
-
-interface StatusStep {
-  status: AppointmentStatus;
-  icon: React.ReactNode;
-  label: string;
-  description: string;
-}
+  | 'scheduled' 
+  | 'confirmed' 
+  | 'en_route' 
+  | 'arrived' 
+  | 'in_progress' 
+  | 'completed' 
+  | 'canceled';
 
 interface AppointmentJourneyMapProps {
-  currentStatus: AppointmentStatus;
-  appointmentDate: string;
-  completedDate?: string;
-  className?: string;
+  status: AppointmentStatus;
+  isMobile?: boolean;
+  appointmentTime?: Date;
+  arrivalTime?: Date | null;
+  completionTime?: Date | null;
+  estimatedArrival?: string | null;
+  doctorName?: string;
+  patientName?: string;
+  userType: 'patient' | 'doctor';
 }
 
-export function AppointmentJourneyMap({ 
-  currentStatus,
-  appointmentDate,
-  completedDate,
-  className 
+export default function AppointmentJourneyMap({
+  status,
+  isMobile = false,
+  appointmentTime,
+  arrivalTime,
+  completionTime,
+  estimatedArrival,
+  doctorName,
+  patientName,
+  userType
 }: AppointmentJourneyMapProps) {
   const { t } = useTranslation();
+  const [activeStep, setActiveStep] = useState<number>(0);
   
-  if (currentStatus === 'canceled') {
-    return (
-      <div className={cn("w-full p-6 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 dark:border-red-800", className)}>
-        <h3 className="text-lg font-semibold text-red-800 dark:text-red-300 mb-2">
-          {t('appointment.status.canceled')}
-        </h3>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {t('appointment.canceled_description')}
-        </p>
-      </div>
-    );
-  }
-  
-  const statusSteps: StatusStep[] = [
+  const steps = [
     {
       status: 'scheduled',
-      icon: <CalendarCheck className="h-6 w-6" />,
-      label: t('appointment.status.scheduled'),
-      description: t('appointment.scheduled_description')
+      title: t('appointment.status.scheduled'),
+      icon: <CalendarIcon className="h-5 w-5" />,
+      isComplete: ['scheduled', 'confirmed', 'en_route', 'arrived', 'in_progress', 'completed'].includes(status),
+      isCurrent: status === 'scheduled',
     },
     {
       status: 'confirmed',
-      icon: <ThumbsUp className="h-6 w-6" />,
-      label: t('appointment.status.confirmed'),
-      description: t('appointment.confirmed_description')
+      title: t('appointment.status.confirmed'),
+      icon: <CheckCircleIcon className="h-5 w-5" />,
+      isComplete: ['confirmed', 'en_route', 'arrived', 'in_progress', 'completed'].includes(status),
+      isCurrent: status === 'confirmed',
     },
     {
       status: 'en_route',
-      icon: <Car className="h-6 w-6" />,
-      label: t('appointment.status.en_route'),
-      description: t('appointment.en_route_description')
+      title: t('appointment.status.en_route'),
+      icon: <TruckIcon className="h-5 w-5" />,
+      isComplete: ['en_route', 'arrived', 'in_progress', 'completed'].includes(status),
+      isCurrent: status === 'en_route',
     },
     {
       status: 'arrived',
-      icon: <DoorOpen className="h-6 w-6" />,
-      label: t('appointment.status.arrived'),
-      description: t('appointment.arrived_description')
+      title: t('appointment.status.arrived'),
+      icon: <HomeIcon className="h-5 w-5" />,
+      isComplete: ['arrived', 'in_progress', 'completed'].includes(status),
+      isCurrent: status === 'arrived',
     },
     {
       status: 'in_progress',
-      icon: <Stethoscope className="h-6 w-6" />,
-      label: t('appointment.status.in_progress'),
-      description: t('appointment.in_progress_description')
+      title: t('appointment.status.in_progress'),
+      icon: <ActivityIcon className="h-5 w-5" />,
+      isComplete: ['in_progress', 'completed'].includes(status),
+      isCurrent: status === 'in_progress',
     },
     {
       status: 'completed',
-      icon: <CheckCircle className="h-6 w-6" />,
-      label: t('appointment.status.completed'),
-      description: t('appointment.completed_description')
-    }
+      title: t('appointment.status.completed'),
+      icon: <CheckIcon className="h-5 w-5" />,
+      isComplete: ['completed'].includes(status),
+      isCurrent: status === 'completed',
+    },
   ];
-  
-  // Find current step index
-  const currentStatusIndex = statusSteps.findIndex(step => step.status === currentStatus);
-  
-  return (
-    <div className={cn("w-full p-6 bg-background rounded-lg border", className)}>
-      <h3 className="text-lg font-semibold mb-6">
-        {t('appointment.journey_title')}
-      </h3>
-      
-      <div className="space-y-8">
-        {statusSteps.map((step, index) => {
-          const isCompleted = index <= currentStatusIndex;
-          const isCurrent = index === currentStatusIndex;
-          
-          return (
-            <div key={step.status} className="relative">
-              {/* Connector line */}
-              {index < statusSteps.length - 1 && (
+
+  // Find active step based on status
+  useEffect(() => {
+    if (status === 'canceled') {
+      setActiveStep(-1); // Special case for canceled
+    } else {
+      const activeIndex = steps.findIndex(step => step.status === status);
+      setActiveStep(activeIndex >= 0 ? activeIndex : 0);
+    }
+  }, [status, steps]);
+
+  if (status === 'canceled') {
+    return (
+      <Card className="bg-red-50 border-red-200">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center">
+            <XCircleIcon className="h-8 w-8 text-red-500 mr-2" />
+            <div>
+              <h3 className="font-semibold text-red-700">{t('appointment.status.canceled')}</h3>
+              <p className="text-sm text-red-600">
+                {userType === 'patient' 
+                  ? t('appointment.canceled.patientMessage', { doctorName }) 
+                  : t('appointment.canceled.doctorMessage', { patientName })}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isMobile) {
+    // Mobile layout (vertical)
+    return (
+      <div className="space-y-4 px-2 py-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium text-lg">{t('appointment.journey.title')}</h3>
+          <Badge variant={status === 'completed' ? 'default' : 'outline'}>
+            {t(`appointment.status.${status}`)}
+          </Badge>
+        </div>
+        
+        <div className="space-y-4">
+          {steps.map((step, index) => (
+            <div 
+              key={step.status} 
+              className={`flex items-start ${index <= activeStep ? '' : 'opacity-40'}`}
+            >
+              <div className="flex flex-col items-center mr-4">
                 <div 
-                  className={cn(
-                    "absolute left-6 top-10 w-0.5 h-12 -ml-[1px]",
-                    isCompleted ? "bg-primary" : "bg-border"
-                  )}
-                />
-              )}
-              
-              {/* Step content */}
-              <div className="flex items-start gap-4">
-                <div 
-                  className={cn(
-                    "flex items-center justify-center w-12 h-12 rounded-full shrink-0",
-                    isCompleted 
-                      ? "bg-primary text-primary-foreground" 
-                      : "bg-muted text-muted-foreground"
-                  )}
+                  className={`
+                    rounded-full p-2 flex items-center justify-center
+                    ${step.isComplete ? 'bg-primary text-primary-foreground' : 
+                      step.isCurrent ? 'bg-primary/20 text-primary border border-primary' : 
+                      'bg-neutral-100 text-neutral-400'}
+                  `}
                 >
                   {step.icon}
                 </div>
-                
-                <div>
-                  <h4 className={cn(
-                    "text-base font-medium flex items-center gap-2",
-                    isCompleted ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    {step.label}
-                    {isCurrent && <Clock className="h-4 w-4 text-primary animate-pulse" />}
-                  </h4>
-                  
-                  <p className={cn(
-                    "text-sm mt-1",
-                    isCompleted ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    {step.description}
+                {index < steps.length - 1 && (
+                  <div 
+                    className={`w-0.5 h-8 ${
+                      index < activeStep ? 'bg-primary' : 'bg-neutral-200'
+                    }`}
+                  />
+                )}
+              </div>
+              <div className="pt-1">
+                <p className="font-medium">{step.title}</p>
+                {step.isCurrent && estimatedArrival && step.status === 'en_route' && (
+                  <p className="text-sm text-neutral-500">
+                    {t('appointment.journey.eta')}: {estimatedArrival}
                   </p>
-                  
-                  {/* Timestamp for the current step */}
-                  {isCurrent && (
-                    <p className="text-xs text-primary mt-2">
-                      {
-                        step.status === 'scheduled' 
-                          ? t('appointment.scheduled_for', { date: new Date(appointmentDate).toLocaleString() })
-                          : step.status === 'completed' && completedDate
-                            ? t('appointment.completed_at', { date: new Date(completedDate).toLocaleString() })
-                            : t('appointment.status_updated_at', { date: new Date().toLocaleString() })
-                      }
-                    </p>
-                  )}
-                </div>
+                )}
+                {step.status === 'arrived' && arrivalTime && (
+                  <p className="text-sm text-neutral-500">
+                    {t('appointment.journey.arrivedAt')}: {arrivalTime.toLocaleTimeString()}
+                  </p>
+                )}
+                {step.status === 'completed' && completionTime && (
+                  <p className="text-sm text-neutral-500">
+                    {t('appointment.journey.completedAt')}: {completionTime.toLocaleTimeString()}
+                  </p>
+                )}
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  // Desktop layout (horizontal)
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-medium text-lg">{t('appointment.journey.title')}</h3>
+          <Badge variant={status === 'completed' ? 'default' : 'outline'}>
+            {t(`appointment.status.${status}`)}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          {steps.map((step, index) => (
+            <div key={step.status} className="flex flex-col items-center relative">
+              <div 
+                className={`
+                  rounded-full p-3 flex items-center justify-center mb-2
+                  ${step.isComplete ? 'bg-primary text-primary-foreground' : 
+                    step.isCurrent ? 'bg-primary/20 text-primary border border-primary' : 
+                    'bg-neutral-100 text-neutral-400'}
+                `}
+              >
+                {step.icon}
+              </div>
+              <p className={`text-sm font-medium ${index <= activeStep ? 'text-neutral-900' : 'text-neutral-400'}`}>
+                {step.title}
+              </p>
+              
+              {/* Additional time info */}
+              {step.isCurrent && estimatedArrival && step.status === 'en_route' && (
+                <p className="text-xs text-neutral-500 absolute -bottom-5 whitespace-nowrap">
+                  ETA: {estimatedArrival}
+                </p>
+              )}
+              
+              {/* Connect steps with lines */}
+              {index < steps.length - 1 && (
+                <div 
+                  className={`absolute top-5 left-full w-full h-0.5 -ml-2 ${
+                    index < activeStep ? 'bg-primary' : 'bg-neutral-200'
+                  }`} 
+                  style={{ width: 'calc(100% - 20px)' }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
-
-export default AppointmentJourneyMap;
