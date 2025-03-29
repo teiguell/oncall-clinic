@@ -1,16 +1,21 @@
 import { Search, Calendar, Home } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function HowItWorks() {
+  const { t } = useTranslation();
+
   return (
     <div className="bg-primary-50 py-16" id="how-it-works">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:text-center">
-          <h2 className="text-base text-primary-500 font-semibold tracking-wide uppercase">Proceso simple</h2>
+          <h2 className="text-base text-primary-500 font-semibold tracking-wide uppercase">
+            {t('common.brand')}
+          </h2>
           <p className="mt-2 text-3xl leading-8 font-bold tracking-tight text-neutral-900 sm:text-4xl">
-            Cómo funciona MediHome
+            {t('home.howItWorks.title')}
           </p>
           <p className="mt-4 max-w-2xl text-xl text-neutral-500 lg:mx-auto">
-            Atención médica a domicilio en solo unos pasos
+            {t('common.tagline')}
           </p>
         </div>
 
@@ -21,9 +26,9 @@ export default function HowItWorks() {
                 <Search className="h-6 w-6" />
               </div>
               <div className="ml-16">
-                <h3 className="text-lg leading-6 font-medium text-neutral-900">1. Busca un médico</h3>
+                <h3 className="text-lg leading-6 font-medium text-neutral-900">1. {t('home.howItWorks.step1.title')}</h3>
                 <p className="mt-2 text-base text-neutral-500">
-                  Ingresa tu ubicación, selecciona la especialidad que necesitas y la fecha deseada para la consulta.
+                  {t('home.howItWorks.step1.description')}
                 </p>
               </div>
             </div>
@@ -33,9 +38,9 @@ export default function HowItWorks() {
                 <Calendar className="h-6 w-6" />
               </div>
               <div className="ml-16">
-                <h3 className="text-lg leading-6 font-medium text-neutral-900">2. Agenda tu cita</h3>
+                <h3 className="text-lg leading-6 font-medium text-neutral-900">2. {t('home.howItWorks.step2.title')}</h3>
                 <p className="mt-2 text-base text-neutral-500">
-                  Selecciona el médico que prefieras y reserva una cita en el horario que mejor te convenga.
+                  {t('home.howItWorks.step2.description')}
                 </p>
               </div>
             </div>
@@ -45,9 +50,9 @@ export default function HowItWorks() {
                 <Home className="h-6 w-6" />
               </div>
               <div className="ml-16">
-                <h3 className="text-lg leading-6 font-medium text-neutral-900">3. Recibe atención en casa</h3>
+                <h3 className="text-lg leading-6 font-medium text-neutral-900">3. {t('home.howItWorks.step4.title')}</h3>
                 <p className="mt-2 text-base text-neutral-500">
-                  El médico llegará a tu domicilio en la fecha y hora acordadas. Recibirás un recordatorio previo a la cita.
+                  {t('home.howItWorks.step4.description')}
                 </p>
               </div>
             </div>
