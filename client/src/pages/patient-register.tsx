@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { OAuthButton } from '@/components/auth/oauth-button';
 
 // Utils
 import { apiRequest } from '@/lib/queryClient';
@@ -462,16 +463,43 @@ export default function PatientRegister() {
           </Form>
           
           <div className="mt-6">
-            <Separator className="my-4">
-              <span className="px-2 text-xs text-muted-foreground">{t('login.orContinueWith')}</span>
-            </Separator>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  {t('auth.orContinueWith')}
+                </span>
+              </div>
+            </div>
             
-            <div className="grid grid-cols-1 gap-2">
-              <Button variant="outline" className="w-full" disabled>
-                Google
-              </Button>
+            <div className="mt-6 space-y-4">
+              <OAuthButton 
+                provider="google" 
+                onSuccess={(data) => {
+                  toast.success(t('login.success'));
+                  // Redirigir al dashboard de paciente
+                  setLocation('/patient-dashboard');
+                }}
+                isDisabled={isLoading}
+                userType="patient"
+              />
+              
+              {/* Comentado hasta implementar Apple OAuth */}
+              {/* <OAuthButton 
+                provider="apple" 
+                onSuccess={(data) => {
+                  toast.success(t('login.success'));
+                  setLocation('/patient-dashboard');
+                }}
+                isDisabled={isLoading}
+                userType="patient"
+              /> */}
             </div>
           </div>
+          
+
         </CardContent>
         <CardFooter className="flex flex-col space-y-3">
           <p className="text-sm text-center">

@@ -73,6 +73,7 @@ const esTranslations = {
     accountType: "Tipo de Cuenta",
     patient: "Paciente",
     doctor: "Médico",
+    orContinueWith: "O CONTINUAR CON",
     verification: {
       title: "Verifica tu Correo Electrónico",
       code: "Código de Verificación",

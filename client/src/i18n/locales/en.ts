@@ -73,6 +73,7 @@ const enTranslations = {
     accountType: "Account Type",
     patient: "Patient",
     doctor: "Doctor",
+    orContinueWith: "OR CONTINUE WITH",
     verification: {
       title: "Verify Your Email",
       code: "Verification Code",

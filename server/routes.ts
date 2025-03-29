@@ -36,7 +36,7 @@ function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function generateSessionId(): string {
+export function generateSessionId(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
@@ -632,6 +632,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // OAuth login
+  app.post('/api/auth/oauth-login', async (req, res) => {
+    try {
+      // Importar el manejador de OAuth desde el módulo auth/oauth
+      const { handleOAuthLogin } = await import('./auth/oauth');
+      await handleOAuthLogin(req, res);
+    } catch (error) {
+      console.error('Error en OAuth login:', error);
+      res.status(500).json({ 
+        message: 'Error al procesar la autenticación con OAuth',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  });
+
   // Login
   app.post('/api/auth/login', async (req, res) => {
     try {

@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, LogIn, Check, RefreshCw } from 'lucide-react';
+import { OAuthButton } from '@/components/auth/oauth-button';
 
 // Utils
 import { apiRequest } from '@/lib/queryClient';
@@ -477,16 +478,41 @@ export default function Login() {
           </Form>
           
           <div className="mt-6">
-            <Separator className="my-4">
-              <span className="px-2 text-xs text-muted-foreground">{t('login.orContinueWith')}</span>
-            </Separator>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  {t('auth.orContinueWith')}
+                </span>
+              </div>
+            </div>
             
-            <div className="grid grid-cols-1 gap-2">
-              <Button variant="outline" className="w-full" disabled>
-                Google
-              </Button>
+            <div className="mt-6 space-y-4">
+              <OAuthButton 
+                provider="google" 
+                onSuccess={(data) => {
+                  // Redirigir a la página correspondiente según el tipo de usuario
+                  const redirectTo = new URLSearchParams(params).get('redirect') || 
+                                    (data.user.userType === 'patient' ? '/patient-dashboard' : 
+                                     data.user.userType === 'doctor' ? '/doctor-dashboard' : 
+                                     '/');
+                  setLocation(redirectTo);
+                }}
+                isDisabled={isLoading}
+              />
+              
+              {/* Comentado hasta implementar Apple OAuth */}
+              {/* <OAuthButton 
+                provider="apple" 
+                onSuccess={handleOAuthSuccess}
+                isDisabled={isLoading}
+              /> */}
             </div>
           </div>
+          
+
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-center">
