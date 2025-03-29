@@ -277,3 +277,63 @@ export const doctorVerificationSchema = z.object({
 });
 
 export type DoctorVerification = z.infer<typeof doctorVerificationSchema>;
+
+// Verification code schema
+export const verificationCodes = pgTable("verification_codes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  code: text("code").notNull(),
+  type: text("type").notNull(), // "signup", "login", "password_reset"
+  method: text("method").notNull(), // "email", "sms", "whatsapp", "totp"
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  usedAt: timestamp("used_at"),
+});
+
+export const insertVerificationCodeSchema = createInsertSchema(verificationCodes).omit({
+  id: true,
+  createdAt: true,
+  usedAt: true,
+});
+
+export type VerificationCode = typeof verificationCodes.$inferSelect;
+export type InsertVerificationCode = z.infer<typeof insertVerificationCodeSchema>;
+
+// Patient registration schema
+export const patientRegistrationSchema = z.object({
+  // User information
+  email: z.string().email("Correo electrónico inválido"),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  confirmPassword: z.string(),
+  firstName: z.string().min(2, "Nombre demasiado corto"),
+  lastName: z.string().min(2, "Apellido demasiado corto"),
+  phoneNumber: z.string().min(9, "Número de teléfono inválido"),
+  
+  // Optional fields
+  address: z.string().optional(),
+  city: z.string().optional(), 
+  postalCode: z.string().optional(),
+  dob: z.string().optional(), // fecha de nacimiento (string para facilitar manejo en frontend)
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+});
+
+export type PatientRegistration = z.infer<typeof patientRegistrationSchema>;
+
+// Verification code validation schema
+export const verifyCodeSchema = z.object({
+  verificationId: z.string(),
+  code: z.string().length(6, "El código debe tener 6 dígitos"),
+});
+
+export type VerifyCodeData = z.infer<typeof verifyCodeSchema>;
+
+// Login schema
+export const loginSchema = z.object({
+  email: z.string().email("Correo electrónico inválido"),
+  password: z.string().min(1, "Por favor, ingrese su contraseña"),
+  remember: z.boolean().optional(),
+});
+
+export type LoginData = z.infer<typeof loginSchema>;

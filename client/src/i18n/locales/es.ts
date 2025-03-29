@@ -64,6 +64,8 @@ const esTranslations = {
     register: "Registrarse",
     forgotPassword: "¿Olvidaste tu contraseña?",
     resetPassword: "Restablecer Contraseña",
+    recoverPassword: "Recuperar Contraseña",
+    forgotPasswordQuestion: "¿Olvidaste tu contraseña?",
     email: "Correo Electrónico",
     username: "Nombre de Usuario",
     password: "Contraseña",

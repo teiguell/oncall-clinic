@@ -1,0 +1,51 @@
+Quiero implementar el flujo de registro e inicio de sesión para pacientes en mi aplicación web usando React + Node.js + MongoDB.
+
+📌 Requisitos clave:
+- Registro con email + contraseña.
+- Alternativamente, iniciar sesión con cuenta de Google o Apple (OAuth2).
+- Requiere verificación en dos pasos (2FA) mediante email o SMS al iniciar sesión o registrarse.
+
+🎯 Funcionalidad esperada:
+
+1. Frontend:
+   - Formulario de registro con:
+     - Nombre completo (obligatorio)
+     - Email (que actuará como nombre de usuario)
+     - Contraseña
+     - Opción de registrarse con Google o Apple.
+   - Validación básica (email válido, contraseña segura).
+   - Al registrarse, enviar código de verificación por email o SMS.
+   - Pantalla para ingresar el código de verificación (2FA).
+   - Solo se permite el acceso tras verificación exitosa.
+   - Pantalla de login con las mismas opciones.
+
+2. Backend:
+   - Endpoint `POST /api/register/patient` para crear paciente.
+     - Generar código de verificación aleatorio (por ejemplo, 6 dígitos).
+     - Enviar código por email o SMS (puedes simular por ahora).
+     - Guardar en base de datos como `verificationCode` + `expiresAt`.
+   - Endpoint `POST /api/verify-code` para validar el código recibido.
+     - Si el código es correcto y no ha expirado → activar cuenta.
+   - Guardar paciente con estructura:
+     ```ts
+     {
+       fullName: string,
+       email: string,
+       passwordHash: string,
+       isVerified: boolean,
+       createdAt: Date
+     }
+     ```
+   - Soporte de autenticación con JWT.
+   - Login con email/contraseña o con Google/Apple OAuth2.
+
+3. Seguridad:
+   - Encriptar contraseñas con bcrypt.
+   - El código de verificación debe tener expiración (ej. 10 minutos).
+   - No permitir login si `isVerified: false`.
+
+4. Escalabilidad:
+   - El sistema debe ser compatible con futuros métodos de verificación (por ejemplo, WhatsApp o TOTP).
+   - En el futuro se podrá añadir dirección, teléfono y foto de perfil, pero no es obligatorio ahora.
+
+Organiza el código con buenas prácticas y separación por módulos (`auth`, `patients`, `verification`, etc.).

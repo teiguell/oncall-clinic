@@ -23,7 +23,9 @@ import LanguageSwitcher from "./components/ui/language-switcher";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import Register from "./pages/register";
+import PatientRegister from "./pages/patient-register";
 import Verify from "./pages/verify";
+import ForgotPassword from "./pages/forgot-password";
 import DoctorSearch from "./pages/doctor-search";
 import DoctorProfile from "./pages/doctor-profile";
 import AppointmentBooking from "./pages/appointment-booking";
@@ -44,7 +46,9 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Route path="/register/patient" component={PatientRegister} />
           <Route path="/verify" component={Verify} />
+          <Route path="/forgot-password" component={ForgotPassword} />
           <Route path="/doctors" component={DoctorSearch} />
           <Route path="/doctors/:id" component={DoctorProfile} />
           <Route path="/appointment/new/:doctorId" component={AppointmentBooking} />

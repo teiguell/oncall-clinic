@@ -64,6 +64,8 @@ const enTranslations = {
     register: "Register",
     forgotPassword: "Forgot Password?",
     resetPassword: "Reset Password",
+    recoverPassword: "Recover Password",
+    forgotPasswordQuestion: "Forgot your password?",
     email: "Email Address",
     username: "Username",
     password: "Password",

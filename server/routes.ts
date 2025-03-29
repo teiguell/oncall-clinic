@@ -9,9 +9,13 @@ import {
   insertAppointmentSchema,
   insertReviewSchema,
   insertPaymentSchema,
+  insertVerificationCodeSchema,
   weeklyAvailabilitySchema,
   doctorRegistrationSchema,
-  doctorVerificationSchema
+  doctorVerificationSchema,
+  patientRegistrationSchema,
+  verifyCodeSchema,
+  loginSchema
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -250,7 +254,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // AUTH ROUTES
   
-  // Register user
+  // Register patient (new combined route for user + patient profile)
+  app.post('/api/auth/patient/register', async (req, res) => {
+    try {
+      // Validate using the patient registration schema
+      const patientData = patientRegistrationSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(patientData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+      
+      // Hash password
+      const hashedPassword = hashPassword(patientData.password);
+      
+      // Create user with patient type
+      const user = await storage.createUser({
+        username: patientData.email.split('@')[0], // Generate username from email
+        email: patientData.email,
+        password: hashedPassword,
+        userType: 'patient',
+        firstName: patientData.firstName,
+        lastName: patientData.lastName,
+        phoneNumber: patientData.phoneNumber,
+        emailVerified: false,
+        twoFactorEnabled: false,
+        profilePicture: null,
+        authProvider: 'local',
+        authProviderId: null
+      });
+      
+      // Create patient profile
+      if (patientData.address) {
+        await storage.createPatientProfile({
+          userId: user.id,
+          address: patientData.address,
+          city: patientData.city || '',
+          postalCode: patientData.postalCode || '',
+          dob: patientData.dob ? new Date(patientData.dob) : null,
+          insuranceInfo: null,
+          medicalHistory: null
+        });
+      }
+      
+      // Create verification code in database with 30 minute expiration
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 30);
+      
+      const verificationCode = generateVerificationCode();
+      const verificationRecord = await storage.createVerificationCode({
+        userId: user.id,
+        code: verificationCode,
+        type: 'signup',
+        method: 'email',
+        expiresAt
+      });
+      
+      // In a real application, you would send an email with the code
+      console.log(`Verification code for ${user.email}: ${verificationCode}`);
+      
+      res.status(201).json({ 
+        message: "Patient registered successfully",
+        verificationId: verificationRecord.id.toString(),
+        userId: user.id,
+        // Note: In a production app, we wouldn't return the code directly
+        verificationCode
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input data", errors: error.errors });
+      }
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Server error during registration" });
+    }
+  });
+  
+  // Existing Register user (keeping for backward compatibility)
   app.post('/api/auth/register', async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
@@ -292,7 +372,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Verify email
+  // Verify email with code
+  app.post('/api/auth/verify-code', async (req, res) => {
+    try {
+      // Validate the verification data
+      const verificationData = verifyCodeSchema.parse(req.body);
+      
+      // Extract verification ID and code
+      const { verificationId, code } = verificationData;
+      
+      // Either convert to number or leave as string depending on how it was stored
+      const verId = parseInt(verificationId);
+      
+      // Look for the verification record directly in the database
+      // Get the user ID from the verification record (old method)
+      const verification = parseInt(verificationId) ? null : verificationCodes.get(verificationId);
+      
+      if (verification) {
+        // Old verification method
+        if (verification.code !== code) {
+          return res.status(400).json({ message: "Código de verificación inválido" });
+        }
+        
+        // Get user by email and mark as verified
+        const user = await storage.getUserByEmail(verification.email);
+        if (user) {
+          await storage.updateUser(user.id, { emailVerified: true });
+        } else {
+          return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+        
+        // Remove verification code
+        verificationCodes.delete(verificationId);
+        
+        res.json({ message: "Correo electrónico verificado exitosamente" });
+      } else {
+        // Try new method with database stored verification
+        // First find the user id associated with this verification code
+        // We need to find all verification codes for all users and look for matching ID
+        const foundUsers = await storage.getUser(verId);
+        if (!foundUsers) {
+          return res.status(400).json({ message: "ID de verificación inválido" });
+        }
+        
+        // Find the valid verification code
+        const verificationRecord = await storage.getVerificationCode(foundUsers.id, code, 'signup');
+        
+        if (!verificationRecord) {
+          return res.status(400).json({ message: "Código de verificación inválido o expirado" });
+        }
+        
+        // Mark email as verified
+        await storage.updateUser(foundUsers.id, { emailVerified: true });
+        
+        // Mark verification code as used
+        await storage.markVerificationCodeAsUsed(verificationRecord.id);
+        
+        res.json({ 
+          message: "Correo electrónico verificado exitosamente",
+          userId: foundUsers.id
+        });
+      }
+    } catch (error) {
+      console.error("Error during verification:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Datos de verificación inválidos", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error del servidor durante la verificación" });
+    }
+  });
+  
+  // Legacy verify email route (keeping for backward compatibility)
   app.post('/api/auth/verify', async (req, res) => {
     try {
       const { verificationId, code } = req.body;
@@ -317,45 +467,274 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ message: "Email verified successfully" });
     } catch (error) {
+      console.error("Verification error:", error);
       res.status(500).json({ message: "Server error during verification" });
+    }
+  });
+  
+  // Forgot password route
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // For security reasons, don't reveal if email exists or not
+        return res.status(200).json({ message: "If your email is registered, you will receive instructions to reset your password." });
+      }
+      
+      // Create verification code in database with 30 minute expiration
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 30);
+      
+      const verificationCode = generateVerificationCode();
+      const verificationRecord = await storage.createVerificationCode({
+        userId: user.id,
+        code: verificationCode,
+        type: 'password_reset',
+        method: 'email',
+        expiresAt
+      });
+      
+      // In a real application, you would send an email with the code
+      console.log(`Password reset code for ${user.email}: ${verificationCode}`);
+      
+      res.status(200).json({ 
+        message: "If your email is registered, you will receive instructions to reset your password.",
+        // For development only, we return these values
+        verificationId: verificationRecord.id.toString(),
+        verificationCode
+      });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+  
+  // Verify reset code
+  app.post('/api/auth/verify-reset-code', async (req, res) => {
+    try {
+      const { verificationId, code } = req.body;
+      
+      // Convert to number if it's a numeric string
+      const verId = parseInt(verificationId);
+      
+      // Find verification record
+      const verification = isNaN(verId) ? null : await storage.getVerificationCode(verId, code, 'password_reset');
+      
+      if (!verification) {
+        return res.status(400).json({ message: "Código de verificación inválido o expirado" });
+      }
+      
+      // Check if code is expired
+      if (verification.expiresAt < new Date()) {
+        return res.status(400).json({ message: "El código de verificación ha expirado" });
+      }
+      
+      // Check if code is already used
+      if (verification.usedAt) {
+        return res.status(400).json({ message: "Este código ya ha sido utilizado" });
+      }
+      
+      // Return success without marking as used yet (will be marked as used when resetting password)
+      res.json({ message: "Código verificado correctamente" });
+    } catch (error) {
+      console.error("Verify reset code error:", error);
+      res.status(500).json({ message: "Error del servidor" });
+    }
+  });
+  
+  // Reset password
+  app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+      const { verificationId, code, password } = req.body;
+      
+      // Convert to number if it's a numeric string
+      const verId = parseInt(verificationId);
+      
+      // Find verification record
+      const verification = isNaN(verId) ? null : await storage.getVerificationCode(verId, code, 'password_reset');
+      
+      if (!verification) {
+        return res.status(400).json({ message: "Código de verificación inválido o expirado" });
+      }
+      
+      // Check if code is expired
+      if (verification.expiresAt < new Date()) {
+        return res.status(400).json({ message: "El código de verificación ha expirado" });
+      }
+      
+      // Check if code is already used
+      if (verification.usedAt) {
+        return res.status(400).json({ message: "Este código ya ha sido utilizado" });
+      }
+      
+      // Update user password
+      const user = await storage.getUser(verification.userId);
+      if (!user) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
+      }
+      
+      // Hash new password
+      const hashedPassword = hashPassword(password);
+      
+      // Update user password
+      await storage.updateUser(user.id, { password: hashedPassword });
+      
+      // Mark verification code as used
+      await storage.markVerificationCodeAsUsed(verification.id);
+      
+      res.json({ message: "Contraseña actualizada correctamente" });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Error del servidor" });
+    }
+  });
+  
+  // Resend reset code
+  app.post('/api/auth/resend-reset-code', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // For security reasons, don't reveal if email exists or not
+        return res.status(200).json({ message: "Si su correo está registrado, recibirá instrucciones para restablecer su contraseña." });
+      }
+      
+      // Create verification code in database with 30 minute expiration
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 30);
+      
+      const verificationCode = generateVerificationCode();
+      const verificationRecord = await storage.createVerificationCode({
+        userId: user.id,
+        code: verificationCode,
+        type: 'password_reset',
+        method: 'email',
+        expiresAt
+      });
+      
+      // In a real application, you would send an email with the code
+      console.log(`New password reset code for ${user.email}: ${verificationCode}`);
+      
+      res.status(200).json({ 
+        message: "Si su correo está registrado, recibirá instrucciones para restablecer su contraseña.",
+        // For development only, we return these values
+        verificationId: verificationRecord.id.toString(),
+        verificationCode
+      });
+    } catch (error) {
+      console.error("Resend reset code error:", error);
+      res.status(500).json({ message: "Error del servidor" });
     }
   });
   
   // Login
   app.post('/api/auth/login', async (req, res) => {
     try {
-      const { email, password } = req.body;
+      // Validar los datos de inicio de sesión
+      const loginData = loginSchema.parse(req.body);
+      const { email, password, remember } = loginData;
       
       const user = await storage.getUserByEmail(email);
       if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: "Credenciales inválidas" });
       }
       
-      // Check password
+      // Verificar la contraseña
       const hashedPassword = hashPassword(password);
       if (user.password !== hashedPassword) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: "Credenciales inválidas" });
       }
       
-      // Check if email is verified
+      // Verificar si el email está verificado
       if (!user.emailVerified) {
-        return res.status(403).json({ message: "Email not verified" });
+        // Si el email no está verificado, verificamos si tiene un código de verificación activo
+        // Si no tiene un código activo, se genera uno nuevo
+        let verificationCode;
+        
+        // Generar nuevo código
+        const expiresAt = new Date();
+        expiresAt.setMinutes(expiresAt.getMinutes() + 30);
+        
+        const code = generateVerificationCode();
+        const verificationRecord = await storage.createVerificationCode({
+          userId: user.id,
+          code,
+          type: 'signup',
+          method: 'email',
+          expiresAt
+        });
+        
+        console.log(`Código de verificación para ${user.email}: ${code}`);
+        
+        return res.status(403).json({ 
+          message: "Correo electrónico no verificado", 
+          verificationId: verificationRecord.id.toString(),
+          userId: user.id,
+          verificationCode: code // En producción no sería enviado directamente
+        });
       }
       
-      // Generate session token
+      // Si se requiere 2FA y está habilitado
+      if (user.twoFactorEnabled) {
+        // Generate 2FA code and store it
+        // For demonstration purposes we're just showing how this would work
+        const twoFactorCode = generateVerificationCode();
+        
+        // Store verification code with 10 minute expiration
+        const expiresAt = new Date();
+        expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+        
+        const verificationRecord = await storage.createVerificationCode({
+          userId: user.id,
+          code: twoFactorCode,
+          type: 'login',
+          method: 'email',
+          expiresAt
+        });
+        
+        console.log(`Código 2FA para ${user.email}: ${twoFactorCode}`);
+        
+        return res.status(200).json({
+          message: "Se requiere verificación de dos factores",
+          verificationId: verificationRecord.id.toString(),
+          requiresTwoFactor: true,
+          // Note: In a production app, we wouldn't return the code directly
+          twoFactorCode: twoFactorCode
+        });
+      }
+      
+      // Generar token de sesión
       const sessionId = generateSessionId();
       sessions.set(sessionId, { userId: user.id, userType: user.userType });
       
-      // Return user data without sensitive information
+      // Obtener los datos de perfil según el tipo de usuario
+      let profile = null;
+      if (user.userType === 'patient') {
+        profile = await storage.getPatientProfileByUserId(user.id);
+      } else if (user.userType === 'doctor') {
+        profile = await storage.getDoctorProfileByUserId(user.id);
+      }
+      
+      // Devolver datos del usuario sin información sensible
       const { password: _, ...userWithoutPassword } = user;
       
       res.json({
-        message: "Login successful",
+        message: "Inicio de sesión exitoso",
         sessionId,
-        user: userWithoutPassword
+        user: userWithoutPassword,
+        profile
       });
     } catch (error) {
-      res.status(500).json({ message: "Server error during login" });
+      console.error("Error de inicio de sesión:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Datos de inicio de sesión inválidos", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error del servidor durante el inicio de sesión" });
     }
   });
   

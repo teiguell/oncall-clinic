@@ -9,6 +9,7 @@ import {
   reviews, type Review, type InsertReview,
   notifications, type Notification, type InsertNotification,
   payments, type Payment, type InsertPayment,
+  verificationCodes, type VerificationCode, type InsertVerificationCode,
   type WeeklyAvailability
 } from "@shared/schema";
 import crypto from "crypto";
@@ -26,6 +27,11 @@ export interface IStorage {
   getPatientProfileByUserId(userId: number): Promise<PatientProfile | undefined>;
   createPatientProfile(profile: InsertPatientProfile): Promise<PatientProfile>;
   updatePatientProfile(id: number, data: Partial<PatientProfile>): Promise<PatientProfile | undefined>;
+  
+  // Verification Codes
+  createVerificationCode(data: InsertVerificationCode): Promise<VerificationCode>;
+  getVerificationCode(userId: number, code: string, type: string): Promise<VerificationCode | undefined>;
+  markVerificationCodeAsUsed(id: number): Promise<VerificationCode | undefined>;
   
   // Doctor Profiles
   getDoctorProfile(id: number): Promise<DoctorProfile | undefined>;
@@ -97,6 +103,7 @@ export class MemStorage implements IStorage {
   private reviews: Map<number, Review>;
   private notifications: Map<number, Notification>;
   private payments: Map<number, Payment>;
+  private verificationCodes: Map<number, VerificationCode>;
   
   private currentUserId: number;
   private currentPatientProfileId: number;
@@ -108,6 +115,7 @@ export class MemStorage implements IStorage {
   private currentReviewId: number;
   private currentNotificationId: number;
   private currentPaymentId: number;
+  private currentVerificationCodeId: number;
   
   constructor() {
     this.users = new Map();
@@ -120,6 +128,7 @@ export class MemStorage implements IStorage {
     this.reviews = new Map();
     this.notifications = new Map();
     this.payments = new Map();
+    this.verificationCodes = new Map();
     
     this.currentUserId = 1;
     this.currentPatientProfileId = 1;
@@ -131,6 +140,7 @@ export class MemStorage implements IStorage {
     this.currentReviewId = 1;
     this.currentNotificationId = 1;
     this.currentPaymentId = 1;
+    this.currentVerificationCodeId = 1;
     
     // Initialize with some specialties and an admin user
     this.initializeSpecialties();
@@ -242,6 +252,31 @@ export class MemStorage implements IStorage {
     const updatedProfile = { ...profile, ...data };
     this.patientProfiles.set(id, updatedProfile);
     return updatedProfile;
+  }
+  
+  // Verification Codes
+  async createVerificationCode(data: InsertVerificationCode): Promise<VerificationCode> {
+    const id = this.currentVerificationCodeId++;
+    const createdAt = new Date();
+    const newCode: VerificationCode = { ...data, id, createdAt, usedAt: null };
+    this.verificationCodes.set(id, newCode);
+    return newCode;
+  }
+  
+  async getVerificationCode(userId: number, code: string, type: string): Promise<VerificationCode | undefined> {
+    return Array.from(this.verificationCodes.values()).find(
+      (vc) => vc.userId === userId && vc.code === code && vc.type === type && !vc.usedAt && new Date() < new Date(vc.expiresAt)
+    );
+  }
+  
+  async markVerificationCodeAsUsed(id: number): Promise<VerificationCode | undefined> {
+    const code = this.verificationCodes.get(id);
+    if (!code) return undefined;
+    
+    const usedAt = new Date();
+    const updatedCode = { ...code, usedAt };
+    this.verificationCodes.set(id, updatedCode);
+    return updatedCode;
   }
   
   // Doctor Profiles
