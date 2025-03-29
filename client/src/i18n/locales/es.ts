@@ -1,284 +1,483 @@
-const es = {
-  translation: {
-    nav: {
-      home: "Inicio",
-      doctors: "Médicos",
-      dashboard: "Panel",
-      profile: "Mi Perfil",
-      logout: "Cerrar sesión",
-      login: "Iniciar sesión",
-      register: "Registrarse",
-      language: "Idioma"
-    },
-    home: {
-      hero: {
-        title: "Atención médica en la puerta de tu casa",
-        subtitle: "Conecta con médicos cualificados que pueden visitarte en casa",
-        cta: "Encuentra un médico ahora"
-      },
-      features: {
-        title: "Cómo funciona",
-        feature1: {
-          title: "Encuentra un Médico",
-          description: "Busca médicos por especialidad, ubicación o disponibilidad"
-        },
-        feature2: {
-          title: "Reserva una Visita",
-          description: "Programa una visita a domicilio en tu horario y ubicación preferidos"
-        },
-        feature3: {
-          title: "Recibe Tratamiento",
-          description: "Recibe atención médica de calidad en la comodidad de tu hogar"
-        }
-      },
-      testimonials: {
-        title: "Lo que dicen nuestros usuarios",
-        testimonial1: {
-          text: "El médico llegó puntualmente y fue muy profesional. No tuve que salir de casa cuando me sentía tan mal.",
-          author: "Sara J."
-        },
-        testimonial2: {
-          text: "Como padre ocupado, este servicio ha sido una salvación. ¡No más salas de espera con niños enfermos!",
-          author: "Miguel T."
-        },
-        testimonial3: {
-          text: "La aplicación es fácil de usar y pude encontrar un especialista el mismo día. ¡Muy recomendable!",
-          author: "Elena R."
-        }
-      }
-    },
-    doctors: {
-      search: {
-        title: "Encuentra un Médico",
-        specialtyLabel: "Especialidad",
-        specialtyPlaceholder: "Selecciona especialidad",
-        locationLabel: "Ubicación",
-        locationPlaceholder: "Ingresa tu dirección",
-        dateLabel: "Fecha",
-        datePlaceholder: "Selecciona fecha",
-        searchButton: "Buscar",
-        noResults: "No se encontraron médicos. Prueba con diferentes criterios de búsqueda."
-      },
-      card: {
-        availability: "Disponible",
-        unavailable: "No disponible",
-        rating: "Calificación",
-        viewProfile: "Ver Perfil",
-        bookAppointment: "Reservar Cita"
-      }
-    },
-    profile: {
-      title: "Mi Perfil",
-      personalInfo: {
-        title: "Información Personal",
-        firstName: "Nombre",
-        lastName: "Apellidos",
-        email: "Correo Electrónico",
-        phone: "Número de Teléfono",
-        update: "Actualizar Perfil"
-      },
-      locations: {
-        title: "Mis Ubicaciones",
-        add: "Añadir Nueva Ubicación",
-        default: "Predeterminada",
-        makeDefault: "Establecer como Predeterminada",
-        remove: "Eliminar"
-      },
-      password: {
-        title: "Cambiar Contraseña",
-        current: "Contraseña Actual",
-        new: "Nueva Contraseña",
-        confirm: "Confirmar Nueva Contraseña",
-        update: "Actualizar Contraseña"
-      }
-    },
-    doctor: {
-      dashboard: {
-        title: "Panel del Médico",
-        upcoming: "Próximas Citas",
-        today: "Hoy",
-        tomorrow: "Mañana",
-        future: "Citas Futuras",
-        past: "Citas Pasadas",
-        noAppointments: "No se encontraron citas."
-      },
-      profile: {
-        title: "Perfil del Médico",
-        experience: "Experiencia",
-        education: "Educación",
-        specialties: "Especialidades",
-        languages: "Idiomas",
-        pricing: "Tarifas",
-        reviews: "Opiniones de Pacientes",
-        availability: "Disponibilidad"
-      },
-      availability: {
-        title: "Gestionar Disponibilidad",
-        days: {
-          monday: "Lunes",
-          tuesday: "Martes",
-          wednesday: "Miércoles",
-          thursday: "Jueves",
-          friday: "Viernes",
-          saturday: "Sábado",
-          sunday: "Domingo"
-        },
-        start: "Hora de Inicio",
-        end: "Hora de Fin",
-        add: "Añadir Franja Horaria",
-        remove: "Eliminar"
-      }
-    },
-    patient: {
-      dashboard: {
-        title: "Panel del Paciente",
-        upcoming: "Próximas Citas",
-        past: "Citas Pasadas",
-        noAppointments: "No se encontraron citas.",
-        bookNew: "Reservar Nueva Cita"
-      },
-      booking: {
-        title: "Reservar una Cita",
-        doctor: "Médico",
-        location: "Ubicación",
-        date: "Fecha",
-        time: "Hora",
-        reason: "Motivo de la Visita",
-        book: "Confirmar Reserva",
-        paymentDetails: "Detalles de Pago",
-        cardName: "Nombre en la Tarjeta",
-        cardNumber: "Número de Tarjeta",
-        expiry: "Fecha de Caducidad",
-        cvv: "CVV",
-        pay: "Pagar y Confirmar"
-      }
-    },
-    appointment: {
-      status: {
-        scheduled: "Programada",
-        confirmed: "Confirmada",
-        en_route: "En Camino",
-        arrived: "Llegó",
-        in_progress: "En Progreso",
-        completed: "Completada",
-        cancelled: "Cancelada",
-        canceled: "Cancelada"
-      },
-      details: {
-        title: "Detalles de la Cita",
-        doctor: "Médico",
-        patient: "Paciente",
-        date: "Fecha",
-        time: "Hora",
-        location: "Ubicación",
-        status: "Estado",
-        reason: "Motivo de la Visita",
-        notes: "Notas del Médico",
-        cancel: "Cancelar Cita",
-        reschedule: "Reprogramar"
-      },
-      review: {
-        title: "Dejar una Opinión",
-        rating: "Calificación",
-        comment: "Comentario",
-        submit: "Enviar Opinión"
-      }
-    },
-    notifications: {
-      title: "Notificaciones",
-      markAllRead: "Marcar Todas como Leídas",
-      noNotifications: "No hay notificaciones.",
-      unknown: "desconocido",
-      titleLabels: {
-        statusUpdate: "Actualización de Estado",
-        newAppointment: "Nueva Cita",
-        reminder: "Recordatorio de Cita",
-        paymentSuccess: "Pago Exitoso",
-        newReview: "Nueva Opinión"
-      },
-      appointment: {
-        confirmed: "Tu cita ha sido confirmada.",
-        cancelled: "Tu cita ha sido cancelada.",
-        rescheduled: "Tu cita ha sido reprogramada.",
-        reminder: "Recordatorio: Tienes una cita próximamente.",
-        enRoute: "Tu médico está en camino.",
-        arrived: "Tu médico ha llegado.",
-        completed: "Tu cita ha sido completada.",
-        statusUpdate: "El estado de tu cita ha sido actualizado a {{status}}.",
-        new: "Tienes una nueva cita."
-      },
-      payment: {
-        success: "Tu pago ha sido exitoso."
-      },
-      review: {
-        received: "Has recibido una nueva opinión."
-      }
-    },
-    auth: {
-      login: {
-        title: "Iniciar Sesión",
-        email: "Correo Electrónico",
-        password: "Contraseña",
-        forgotPassword: "¿Olvidaste la Contraseña?",
-        loginButton: "Iniciar Sesión",
-        noAccount: "¿No tienes una cuenta?",
-        signUp: "Regístrate",
-        googleLogin: "Iniciar sesión con Google"
-      },
-      register: {
-        title: "Crear una Cuenta",
-        firstName: "Nombre",
-        lastName: "Apellidos",
-        email: "Correo Electrónico",
-        password: "Contraseña",
-        confirmPassword: "Confirmar Contraseña",
-        userType: "Soy un",
-        patient: "Paciente",
-        doctor: "Médico",
-        termsAgree: "Acepto los",
-        terms: "Términos y Condiciones",
-        registerButton: "Registrarse",
-        haveAccount: "¿Ya tienes una cuenta?",
-        logIn: "Iniciar Sesión"
-      },
-      verify: {
-        title: "Verifica tu Correo Electrónico",
-        message: "Hemos enviado un código de verificación a tu correo electrónico.",
-        code: "Código de Verificación",
-        verifyButton: "Verificar",
-        resend: "Reenviar Código"
-      },
-      forgotPassword: {
-        title: "Contraseña Olvidada",
-        email: "Correo Electrónico",
-        sendButton: "Enviar Enlace de Restablecimiento",
-        backToLogin: "Volver a Iniciar Sesión"
-      },
-      resetPassword: {
-        title: "Restablecer Contraseña",
-        newPassword: "Nueva Contraseña",
-        confirmPassword: "Confirmar Nueva Contraseña",
-        resetButton: "Restablecer Contraseña"
-      }
-    },
-    payment: {
-      status: {
-        pending: "Pendiente",
-        paid: "Pagado",
-        refunded: "Reembolsado"
-      }
+const esTranslations = {
+  // Términos comunes
+  common: {
+    brand: "Oncall Clinic",
+    tagline: "Atención médica en la puerta de tu casa",
+    loading: "Cargando...",
+    save: "Guardar",
+    cancel: "Cancelar",
+    submit: "Enviar",
+    confirm: "Confirmar",
+    back: "Atrás",
+    next: "Siguiente",
+    search: "Buscar",
+    filter: "Filtrar",
+    viewAll: "Ver Todo",
+    welcome: "Bienvenido/a",
+    success: "Éxito",
+    error: "Error",
+    warning: "Advertencia",
+    info: "Información",
+    yes: "Sí",
+    no: "No",
+    na: "N/A",
+    logout: "Cerrar Sesión",
+    profile: "Perfil",
+    settings: "Configuración",
+  },
+
+  // Navegación
+  nav: {
+    home: "Inicio",
+    doctors: "Buscar Médicos",
+    appointments: "Citas",
+    dashboard: "Panel",
+    login: "Iniciar Sesión",
+    register: "Registrarse",
+    about: "Sobre Nosotros",
+    contact: "Contacto",
+    terms: "Términos",
+    privacy: "Privacidad",
+  },
+
+  // Autenticación
+  auth: {
+    login: "Iniciar Sesión",
+    register: "Registrarse",
+    forgotPassword: "¿Olvidaste tu contraseña?",
+    resetPassword: "Restablecer Contraseña",
+    email: "Correo Electrónico",
+    username: "Nombre de Usuario",
+    password: "Contraseña",
+    confirmPassword: "Confirmar Contraseña",
+    accountType: "Tipo de Cuenta",
+    patient: "Paciente",
+    doctor: "Médico",
+    verification: {
+      title: "Verifica tu Correo Electrónico",
+      code: "Código de Verificación",
+      instructions: "Hemos enviado un código de verificación a tu correo. Por favor, ingrésalo a continuación.",
+      submit: "Verificar",
+      resend: "Reenviar Código",
+      success: "¡Correo electrónico verificado con éxito!",
+      redirecting: "Redirigiendo a inicio de sesión...",
     },
     errors: {
-      general: "Algo salió mal. Por favor, inténtalo de nuevo.",
-      auth: {
-        invalidCredentials: "Correo electrónico o contraseña inválidos.",
-        emailInUse: "El correo electrónico ya está en uso.",
-        weakPassword: "La contraseña es demasiado débil.",
-        mismatchPasswords: "Las contraseñas no coinciden.",
-        invalidVerificationCode: "Código de verificación inválido."
-      }
+      invalidCredentials: "Correo electrónico o contraseña inválidos",
+      emailExists: "Este correo electrónico ya está registrado",
+      passwordMismatch: "Las contraseñas no coinciden",
+      weakPassword: "La contraseña debe tener al menos 8 caracteres con números y símbolos",
+      invalidVerificationCode: "Código de verificación inválido",
+      expiredVerificationCode: "El código de verificación ha caducado. Por favor, solicita uno nuevo.",
     }
+  },
+
+  // Página de inicio
+  home: {
+    hero: {
+      title: "Atención médica, llevada a tu hogar",
+      subtitle: "Conéctate con médicos calificados para visitas a domicilio a tu conveniencia",
+      cta: "Encuentra un Médico Ahora",
+      loginCta: "¿Ya estás registrado? Inicia Sesión",
+    },
+    features: {
+      title: "¿Por qué elegir Oncall Clinic?",
+      convenience: {
+        title: "Comodidad",
+        description: "Atención médica en la puerta de tu casa, sin necesidad de viajar cuando estás enfermo",
+      },
+      qualifiedDoctors: {
+        title: "Médicos Calificados",
+        description: "Todos nuestros médicos son especialistas certificados con credenciales verificadas",
+      },
+      quickResponse: {
+        title: "Respuesta Rápida",
+        description: "Recibe atención médica en horas, no en días",
+      },
+      securePlatform: {
+        title: "Plataforma Segura",
+        description: "Tu información de salud está encriptada y es estrictamente confidencial",
+      },
+    },
+    howItWorks: {
+      title: "Cómo Funciona",
+      step1: {
+        title: "Busca un Médico",
+        description: "Encuentra médicos por especialidad, disponibilidad y ubicación",
+      },
+      step2: {
+        title: "Reserva una Cita",
+        description: "Selecciona un horario que te convenga",
+      },
+      step3: {
+        title: "Recibe Confirmación",
+        description: "Recibe confirmación de la cita y los detalles del médico",
+      },
+      step4: {
+        title: "Recibe Atención",
+        description: "El médico visita tu hogar para consulta y tratamiento",
+      },
+    },
+    testimonials: {
+      title: "Lo que Dicen Nuestros Pacientes",
+    },
+    cta: {
+      title: "¿Listo para experimentar la atención médica en casa?",
+      subtitle: "Únete a miles de pacientes satisfechos hoy",
+      button: "Comenzar",
+    },
+  },
+
+  // Búsqueda de médicos
+  doctorSearch: {
+    title: "Encuentra un Médico",
+    searchPlaceholder: "Busca por nombre, especialidad o ubicación",
+    filters: {
+      title: "Filtros",
+      specialty: "Especialidad",
+      availability: "Disponibilidad",
+      rating: "Calificación",
+      price: "Rango de Precio",
+      distance: "Distancia",
+      clear: "Limpiar Filtros",
+      apply: "Aplicar Filtros",
+      anySpecialty: "Cualquier Especialidad",
+      anyAvailability: "Cualquier Disponibilidad",
+      anyRating: "Cualquier Calificación",
+      anyPrice: "Cualquier Precio",
+      anyDistance: "Cualquier Distancia",
+    },
+    results: {
+      found: "{{count}} médicos encontrados",
+      noResults: "No se encontraron médicos que coincidan con tus criterios",
+      tryAgain: "Intenta ajustar tus filtros o términos de búsqueda",
+    },
+    sortBy: {
+      label: "Ordenar por",
+      relevance: "Relevancia",
+      rating: "Mayor Calificación",
+      price: "Menor Precio",
+      distance: "Más Cercano",
+      availability: "Disponible Antes",
+    },
+  },
+
+  // Perfil de médico
+  doctorProfile: {
+    about: "Acerca de",
+    education: "Educación",
+    experience: "Experiencia",
+    specialties: "Especialidades",
+    services: "Servicios",
+    languages: "Idiomas",
+    ratings: "Calificaciones y Reseñas",
+    availability: "Disponibilidad",
+    fees: "Honorarios de Consulta",
+    location: "Ubicaciones de Servicio",
+    bookAppointment: "Reservar Cita",
+    years: "{{count}} años de experiencia",
+    viewMore: "Ver Más",
+    viewLess: "Ver Menos",
+    reviews: {
+      title: "Reseñas de Pacientes",
+      overall: "Calificación General",
+      basedOn: "Basado en {{count}} reseñas",
+      seeAll: "Ver todas las reseñas",
+      writeReview: "Escribir una Reseña",
+      sort: {
+        recent: "Más Recientes",
+        highest: "Mayor Calificación",
+        lowest: "Menor Calificación",
+      },
+      noReviews: "Aún no hay reseñas",
+    },
+  },
+
+  // Reserva de citas
+  appointmentBooking: {
+    title: "Reserva una Cita con Dr. {{name}}",
+    selectDate: "Seleccionar Fecha",
+    selectTime: "Seleccionar Hora",
+    yourDetails: "Tus Datos",
+    patientDetails: "Datos del Paciente",
+    reasonForVisit: "Motivo de la Visita",
+    additionalNotes: "Notas Adicionales (Opcional)",
+    symptoms: "Síntomas",
+    existingConditions: "Condiciones Médicas Existentes",
+    medications: "Medicamentos Actuales",
+    allergies: "Alergias",
+    address: "Dirección de la Cita",
+    useProfileAddress: "Usar Dirección del Perfil",
+    addNewAddress: "Añadir Nueva Dirección",
+    payment: {
+      title: "Detalles de Pago",
+      method: "Método de Pago",
+      creditCard: "Tarjeta de Crédito",
+      debitCard: "Tarjeta de Débito",
+      paypal: "PayPal",
+      applePay: "Apple Pay",
+      googlePay: "Google Pay",
+      cardNumber: "Número de Tarjeta",
+      cardholderName: "Nombre del Titular",
+      expiryDate: "Fecha de Vencimiento",
+      cvv: "CVV",
+      saveCard: "Guardar tarjeta para pagos futuros",
+    },
+    termsCheckbox: "Acepto los términos y condiciones",
+    privacyCheckbox: "Doy mi consentimiento para compartir mi información médica con el médico",
+    reviewBooking: "Revisar Reserva",
+    confirmBooking: "Confirmar Reserva",
+    noAvailableSlots: "No hay horarios disponibles en esta fecha",
+    tryAnotherDay: "Por favor, intenta otro día",
+    appointmentSummary: "Resumen de la Cita",
+    doctorInfo: "Información del Médico",
+    dateAndTime: "Fecha y Hora",
+    consultationFee: "Tarifa de Consulta",
+    taxAndFees: "Impuestos y Tarifas",
+    totalAmount: "Monto Total",
+    editDetails: "Editar Detalles",
+    successMessage: "¡Tu cita ha sido reservada con éxito!",
+    appointmentID: "ID de Cita: {{id}}",
+    errorMessage: "Hubo un error al reservar tu cita. Por favor, inténtalo de nuevo.",
+  },
+
+  // Panel de paciente
+  patientDashboard: {
+    welcome: "Bienvenido/a, {{name}}",
+    upcomingAppointments: "Próximas Citas",
+    pastAppointments: "Citas Pasadas",
+    medicalRecords: "Registros Médicos",
+    prescriptions: "Recetas",
+    billing: "Facturación y Pagos",
+    noUpcomingAppointments: "No hay próximas citas",
+    noPastAppointments: "No hay citas pasadas",
+    bookNew: "Reservar una Nueva Cita",
+    appointmentCard: {
+      with: "con Dr. {{name}}",
+      specialty: "{{specialty}}",
+      date: "Fecha: {{date}}",
+      time: "Hora: {{time}}",
+      address: "Dirección: {{address}}",
+      status: "Estado: {{status}}",
+      viewDetails: "Ver Detalles",
+      cancelAppointment: "Cancelar Cita",
+      reschedule: "Reprogramar",
+    },
+    cancelConfirmation: {
+      title: "Cancelar Cita",
+      message: "¿Estás seguro de que deseas cancelar esta cita?",
+      warning: "Se puede aplicar una tarifa de cancelación si se cancela dentro de las 24 horas previas a la cita.",
+      confirm: "Sí, Cancelar",
+      cancel: "No, Mantener Cita",
+    },
+  },
+
+  // Panel de médico
+  doctorDashboard: {
+    welcome: "Bienvenido/a, Dr. {{name}}",
+    todayAppointments: "Citas de Hoy",
+    upcomingAppointments: "Próximas Citas",
+    pastAppointments: "Citas Pasadas",
+    patientRecords: "Registros de Pacientes",
+    earnings: "Ganancias",
+    performance: "Rendimiento y Reseñas",
+    schedule: "Administrar Horario",
+    noAppointmentsToday: "No hay citas programadas para hoy",
+    patientCard: {
+      appointment: "Cita con {{name}}",
+      age: "Edad: {{age}}",
+      gender: "Género: {{gender}}",
+      reason: "Motivo: {{reason}}",
+      time: "Hora: {{time}}",
+      address: "Dirección: {{address}}",
+      viewDetails: "Ver Detalles del Paciente",
+      startAppointment: "Iniciar Cita",
+      completeAppointment: "Completar Cita",
+      cancelAppointment: "Cancelar Cita",
+    },
+    appointmentDetails: {
+      title: "Detalles de la Cita",
+      patientInfo: "Información del Paciente",
+      medicalHistory: "Historial Médico",
+      currentMedications: "Medicamentos Actuales",
+      allergies: "Alergias",
+      previousVisits: "Visitas Anteriores",
+      addNotes: "Añadir Notas Médicas",
+      prescribeMedication: "Recetar Medicamento",
+      requestTests: "Solicitar Pruebas Médicas",
+    },
+  },
+
+  // Estados de cita
+  appointmentStatus: {
+    scheduled: "Programada",
+    confirmed: "Confirmada",
+    en_route: "Médico en Camino",
+    arrived: "Médico Llegó",
+    in_progress: "En Progreso",
+    completed: "Completada",
+    cancelled: "Cancelada",
+    missed: "Perdida",
+    rescheduled: "Reprogramada",
+  },
+
+  // Notificaciones
+  notifications: {
+    title: "Notificaciones",
+    markAllAsRead: "Marcar Todas como Leídas",
+    clearAll: "Borrar Todas",
+    noNotifications: "No hay notificaciones",
+    newAppointment: "Nueva cita programada con {{name}}",
+    appointmentReminder: "Recordatorio: Cita con {{name}} en {{time}}",
+    appointmentCancelled: "La cita con {{name}} ha sido cancelada",
+    appointmentRescheduled: "La cita con {{name}} ha sido reprogramada",
+    doctorEnRoute: "Dr. {{name}} está en camino a tu ubicación",
+    doctorArrived: "Dr. {{name}} ha llegado a tu ubicación",
+    appointmentStarted: "Tu cita con Dr. {{name}} ha comenzado",
+    appointmentCompleted: "Tu cita con Dr. {{name}} ha sido completada",
+    newMessage: "Nuevo mensaje de {{name}}",
+    newReview: "{{name}} dejó una reseña para ti",
+    paymentSuccess: "El pago de {{amount}} fue exitoso",
+    paymentFailed: "El pago de {{amount}} falló",
+    titleLabels: {
+      appointment: "Actualización de Cita",
+      payment: "Actualización de Pago",
+      system: "Notificación del Sistema",
+      newReview: "Nueva Reseña",
+    },
+    status: {
+      updated: "Estado de la cita actualizado a {{status}}",
+    },
+    review: {
+      received: "Has recibido una nueva reseña",
+    },
+  },
+
+  // Perfil
+  profile: {
+    personalInfo: "Información Personal",
+    contactInfo: "Información de Contacto",
+    medicalInfo: "Información Médica",
+    accountSettings: "Configuración de la Cuenta",
+    paymentMethods: "Métodos de Pago",
+    addresses: "Direcciones",
+    changePassword: "Cambiar Contraseña",
+    deleteAccount: "Eliminar Cuenta",
+    saveChanges: "Guardar Cambios",
+    fields: {
+      name: "Nombre Completo",
+      email: "Correo Electrónico",
+      phone: "Número de Teléfono",
+      dob: "Fecha de Nacimiento",
+      gender: "Género",
+      bloodType: "Tipo de Sangre",
+      height: "Altura",
+      weight: "Peso",
+      allergies: "Alergias",
+      chronicConditions: "Condiciones Crónicas",
+      medications: "Medicamentos Actuales",
+      emergencyContact: "Contacto de Emergencia",
+      language: "Idioma Preferido",
+      profilePicture: "Foto de Perfil",
+      uploadNew: "Subir Nueva Foto",
+      removeCurrentPicture: "Eliminar Foto Actual",
+      address: {
+        line1: "Dirección Línea 1",
+        line2: "Dirección Línea 2",
+        city: "Ciudad",
+        state: "Estado/Provincia",
+        country: "País",
+        postalCode: "Código Postal",
+        saveAsDefault: "Guardar como Dirección Predeterminada",
+      },
+    },
+  },
+
+  // Configuración
+  settings: {
+    title: "Configuración",
+    account: "Configuración de la Cuenta",
+    notifications: "Configuración de Notificaciones",
+    privacy: "Configuración de Privacidad",
+    preferences: "Preferencias",
+    language: "Idioma",
+    theme: "Tema",
+    lightMode: "Modo Claro",
+    darkMode: "Modo Oscuro",
+    systemDefault: "Predeterminado del Sistema",
+    emailNotifications: "Notificaciones por Correo",
+    pushNotifications: "Notificaciones Push",
+    smsNotifications: "Notificaciones SMS",
+    notifyFor: {
+      appointments: "Citas",
+      reminders: "Recordatorios",
+      cancellations: "Cancelaciones",
+      promotions: "Promociones",
+      systemUpdates: "Actualizaciones del Sistema",
+    },
+  },
+
+  // Errores y mensajes
+  errors: {
+    general: "Algo salió mal. Por favor, intenta de nuevo.",
+    network: "Error de red. Por favor, verifica tu conexión a internet.",
+    server: "Error del servidor. Por favor, intenta más tarde.",
+    notFound: "El recurso solicitado no fue encontrado.",
+    unauthorized: "No estás autorizado para realizar esta acción.",
+    validation: "Por favor, verifica el formulario para errores.",
+    required: "Este campo es obligatorio.",
+    invalidEmail: "Por favor, ingresa una dirección de correo electrónico válida.",
+    invalidPhone: "Por favor, ingresa un número de teléfono válido.",
+    invalidDate: "Por favor, ingresa una fecha válida.",
+    passwordLength: "La contraseña debe tener al menos 8 caracteres.",
+    passwordMatch: "Las contraseñas no coinciden.",
+    invalidCode: "Código de verificación inválido.",
+    expiredCode: "El código de verificación ha caducado.",
+    alreadyExists: "Este registro ya existe.",
+    appointmentConflict: "Ya hay una cita programada en este horario.",
+    noAvailableSlots: "No hay horarios disponibles para los criterios seleccionados.",
+    paymentFailed: "El pago falló. Por favor, intenta con otro método de pago.",
+    sessionExpired: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+    websocket: {
+      connectionFailed: "No se pudo conectar al servicio de notificaciones",
+      reconnecting: "Reconectando al servicio de notificaciones...",
+    }
+  },
+
+  // Mensajes de éxito
+  success: {
+    profileUpdated: "Perfil actualizado con éxito.",
+    passwordChanged: "Contraseña cambiada con éxito.",
+    emailVerified: "Correo electrónico verificado con éxito.",
+    appointmentBooked: "Cita reservada con éxito.",
+    appointmentCancelled: "Cita cancelada con éxito.",
+    appointmentRescheduled: "Cita reprogramada con éxito.",
+    paymentSuccessful: "Pago procesado con éxito.",
+    reviewSubmitted: "Reseña enviada con éxito.",
+    messageSent: "Mensaje enviado con éxito.",
+    passwordResetSent: "Instrucciones para restablecer contraseña enviadas a tu correo.",
+    passwordResetSuccess: "Contraseña restablecida con éxito.",
+    addressAdded: "Dirección añadida con éxito.",
+    addressUpdated: "Dirección actualizada con éxito.",
+    paymentMethodAdded: "Método de pago añadido con éxito.",
+    paymentMethodRemoved: "Método de pago eliminado con éxito.",
+  },
+
+  // Pie de página
+  footer: {
+    about: "Acerca de Oncall Clinic",
+    careers: "Carreras",
+    press: "Prensa",
+    blog: "Blog",
+    contact: "Contáctanos",
+    help: "Centro de Ayuda",
+    legal: "Legal",
+    terms: "Términos de Servicio",
+    privacy: "Política de Privacidad",
+    cookies: "Política de Cookies",
+    copyright: "© {{year}} Oncall Clinic. Todos los derechos reservados.",
+    socialmedia: "Síguenos",
   }
 };
 
-export default es;
+export default esTranslations;

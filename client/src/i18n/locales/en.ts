@@ -1,284 +1,483 @@
-const en = {
-  translation: {
-    nav: {
-      home: "Home",
-      doctors: "Doctors",
-      dashboard: "Dashboard",
-      profile: "My Profile",
-      logout: "Log out",
-      login: "Log in",
-      register: "Sign up",
-      language: "Language"
-    },
-    home: {
-      hero: {
-        title: "Medical care at your doorstep",
-        subtitle: "Connect with qualified doctors who can visit you at home",
-        cta: "Find a doctor now"
-      },
-      features: {
-        title: "How it works",
-        feature1: {
-          title: "Find a Doctor",
-          description: "Search for doctors by specialty, location, or availability"
-        },
-        feature2: {
-          title: "Book a Visit",
-          description: "Schedule a house call at your preferred time and location"
-        },
-        feature3: {
-          title: "Get Treatment",
-          description: "Receive quality medical care in the comfort of your home"
-        }
-      },
-      testimonials: {
-        title: "What our users say",
-        testimonial1: {
-          text: "The doctor arrived promptly and was very professional. I didn't have to leave my home when I was feeling so ill.",
-          author: "Sarah J."
-        },
-        testimonial2: {
-          text: "As a busy parent, this service has been a lifesaver. No more waiting rooms with sick children!",
-          author: "Michael T."
-        },
-        testimonial3: {
-          text: "The app is easy to use and I was able to find a specialist the same day. Highly recommended!",
-          author: "Elena R."
-        }
-      }
-    },
-    doctors: {
-      search: {
-        title: "Find a Doctor",
-        specialtyLabel: "Specialty",
-        specialtyPlaceholder: "Select specialty",
-        locationLabel: "Location",
-        locationPlaceholder: "Enter your address",
-        dateLabel: "Date",
-        datePlaceholder: "Select date",
-        searchButton: "Search",
-        noResults: "No doctors found. Try different search criteria."
-      },
-      card: {
-        availability: "Available",
-        unavailable: "Unavailable",
-        rating: "Rating",
-        viewProfile: "View Profile",
-        bookAppointment: "Book Appointment"
-      }
-    },
-    profile: {
-      title: "My Profile",
-      personalInfo: {
-        title: "Personal Information",
-        firstName: "First Name",
-        lastName: "Last Name",
-        email: "Email",
-        phone: "Phone Number",
-        update: "Update Profile"
-      },
-      locations: {
-        title: "My Locations",
-        add: "Add New Location",
-        default: "Default",
-        makeDefault: "Make Default",
-        remove: "Remove"
-      },
-      password: {
-        title: "Change Password",
-        current: "Current Password",
-        new: "New Password",
-        confirm: "Confirm New Password",
-        update: "Update Password"
-      }
-    },
-    doctor: {
-      dashboard: {
-        title: "Doctor Dashboard",
-        upcoming: "Upcoming Appointments",
-        today: "Today",
-        tomorrow: "Tomorrow",
-        future: "Future Appointments",
-        past: "Past Appointments",
-        noAppointments: "No appointments found."
-      },
-      profile: {
-        title: "Doctor Profile",
-        experience: "Experience",
-        education: "Education",
-        specialties: "Specialties",
-        languages: "Languages",
-        pricing: "Pricing",
-        reviews: "Patient Reviews",
-        availability: "Availability"
-      },
-      availability: {
-        title: "Manage Availability",
-        days: {
-          monday: "Monday",
-          tuesday: "Tuesday",
-          wednesday: "Wednesday",
-          thursday: "Thursday",
-          friday: "Friday",
-          saturday: "Saturday",
-          sunday: "Sunday"
-        },
-        start: "Start Time",
-        end: "End Time",
-        add: "Add Time Slot",
-        remove: "Remove"
-      }
-    },
-    patient: {
-      dashboard: {
-        title: "Patient Dashboard",
-        upcoming: "Upcoming Appointments",
-        past: "Past Appointments",
-        noAppointments: "No appointments found.",
-        bookNew: "Book New Appointment"
-      },
-      booking: {
-        title: "Book an Appointment",
-        doctor: "Doctor",
-        location: "Location",
-        date: "Date",
-        time: "Time",
-        reason: "Reason for Visit",
-        book: "Confirm Booking",
-        paymentDetails: "Payment Details",
-        cardName: "Name on Card",
-        cardNumber: "Card Number",
-        expiry: "Expiry Date",
-        cvv: "CVV",
-        pay: "Pay and Confirm"
-      }
-    },
-    appointment: {
-      status: {
-        scheduled: "Scheduled",
-        confirmed: "Confirmed",
-        en_route: "En Route",
-        arrived: "Arrived",
-        in_progress: "In Progress",
-        completed: "Completed",
-        cancelled: "Cancelled",
-        canceled: "Cancelled"
-      },
-      details: {
-        title: "Appointment Details",
-        doctor: "Doctor",
-        patient: "Patient",
-        date: "Date",
-        time: "Time",
-        location: "Location",
-        status: "Status",
-        reason: "Reason for Visit",
-        notes: "Doctor's Notes",
-        cancel: "Cancel Appointment",
-        reschedule: "Reschedule"
-      },
-      review: {
-        title: "Leave a Review",
-        rating: "Rating",
-        comment: "Comment",
-        submit: "Submit Review"
-      }
-    },
-    notifications: {
-      title: "Notifications",
-      markAllRead: "Mark All as Read",
-      noNotifications: "No notifications.",
-      unknown: "unknown",
-      titleLabels: {
-        statusUpdate: "Status Update",
-        newAppointment: "New Appointment",
-        reminder: "Appointment Reminder",
-        paymentSuccess: "Payment Successful",
-        newReview: "New Review"
-      },
-      appointment: {
-        confirmed: "Your appointment has been confirmed.",
-        cancelled: "Your appointment has been cancelled.",
-        rescheduled: "Your appointment has been rescheduled.",
-        reminder: "Reminder: You have an upcoming appointment.",
-        enRoute: "Your doctor is on the way.",
-        arrived: "Your doctor has arrived.",
-        completed: "Your appointment has been completed.",
-        statusUpdate: "Your appointment status has been updated to {{status}}.",
-        new: "You have a new appointment."
-      },
-      payment: {
-        success: "Your payment was successful."
-      },
-      review: {
-        received: "You received a new review."
-      }
-    },
-    auth: {
-      login: {
-        title: "Log In",
-        email: "Email",
-        password: "Password",
-        forgotPassword: "Forgot Password?",
-        loginButton: "Log In",
-        noAccount: "Don't have an account?",
-        signUp: "Sign Up",
-        googleLogin: "Log in with Google"
-      },
-      register: {
-        title: "Create an Account",
-        firstName: "First Name",
-        lastName: "Last Name",
-        email: "Email",
-        password: "Password",
-        confirmPassword: "Confirm Password",
-        userType: "I am a",
-        patient: "Patient",
-        doctor: "Doctor",
-        termsAgree: "I agree to the",
-        terms: "Terms and Conditions",
-        registerButton: "Sign Up",
-        haveAccount: "Already have an account?",
-        logIn: "Log In"
-      },
-      verify: {
-        title: "Verify Your Email",
-        message: "We've sent a verification code to your email.",
-        code: "Verification Code",
-        verifyButton: "Verify",
-        resend: "Resend Code"
-      },
-      forgotPassword: {
-        title: "Forgot Password",
-        email: "Email",
-        sendButton: "Send Reset Link",
-        backToLogin: "Back to Login"
-      },
-      resetPassword: {
-        title: "Reset Password",
-        newPassword: "New Password",
-        confirmPassword: "Confirm New Password",
-        resetButton: "Reset Password"
-      }
-    },
-    payment: {
-      status: {
-        pending: "Pending",
-        paid: "Paid",
-        refunded: "Refunded"
-      }
+const enTranslations = {
+  // Common terms
+  common: {
+    brand: "Oncall Clinic",
+    tagline: "Healthcare at your doorstep",
+    loading: "Loading...",
+    save: "Save",
+    cancel: "Cancel",
+    submit: "Submit",
+    confirm: "Confirm",
+    back: "Back",
+    next: "Next",
+    search: "Search",
+    filter: "Filter",
+    viewAll: "View All",
+    welcome: "Welcome",
+    success: "Success",
+    error: "Error",
+    warning: "Warning",
+    info: "Information",
+    yes: "Yes",
+    no: "No",
+    na: "N/A",
+    logout: "Logout",
+    profile: "Profile",
+    settings: "Settings",
+  },
+
+  // Navigation
+  nav: {
+    home: "Home",
+    doctors: "Find Doctors",
+    appointments: "Appointments",
+    dashboard: "Dashboard",
+    login: "Login",
+    register: "Register",
+    about: "About Us",
+    contact: "Contact",
+    terms: "Terms",
+    privacy: "Privacy",
+  },
+
+  // Authentication
+  auth: {
+    login: "Login",
+    register: "Register",
+    forgotPassword: "Forgot Password?",
+    resetPassword: "Reset Password",
+    email: "Email Address",
+    username: "Username",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+    accountType: "Account Type",
+    patient: "Patient",
+    doctor: "Doctor",
+    verification: {
+      title: "Verify Your Email",
+      code: "Verification Code",
+      instructions: "We've sent a verification code to your email. Please enter it below.",
+      submit: "Verify",
+      resend: "Resend Code",
+      success: "Email verified successfully!",
+      redirecting: "Redirecting to login...",
     },
     errors: {
-      general: "Something went wrong. Please try again.",
-      auth: {
-        invalidCredentials: "Invalid email or password.",
-        emailInUse: "Email is already in use.",
-        weakPassword: "Password is too weak.",
-        mismatchPasswords: "Passwords do not match.",
-        invalidVerificationCode: "Invalid verification code."
-      }
+      invalidCredentials: "Invalid email or password",
+      emailExists: "This email is already registered",
+      passwordMismatch: "Passwords do not match",
+      weakPassword: "Password must be at least 8 characters with numbers and symbols",
+      invalidVerificationCode: "Invalid verification code",
+      expiredVerificationCode: "Verification code has expired. Please request a new one.",
     }
+  },
+
+  // Home page
+  home: {
+    hero: {
+      title: "Healthcare, delivered to your home",
+      subtitle: "Connect with qualified doctors for house calls at your convenience",
+      cta: "Find a Doctor Now",
+      loginCta: "Already registered? Login",
+    },
+    features: {
+      title: "Why Choose Oncall Clinic",
+      convenience: {
+        title: "Convenience",
+        description: "Medical care at your doorstep, no traveling when you're sick",
+      },
+      qualifiedDoctors: {
+        title: "Qualified Doctors",
+        description: "All our doctors are certified specialists with verified credentials",
+      },
+      quickResponse: {
+        title: "Quick Response",
+        description: "Get medical attention within hours, not days",
+      },
+      securePlatform: {
+        title: "Secure Platform",
+        description: "Your health data is encrypted and strictly confidential",
+      },
+    },
+    howItWorks: {
+      title: "How It Works",
+      step1: {
+        title: "Search for a Doctor",
+        description: "Find doctors by specialty, availability, and location",
+      },
+      step2: {
+        title: "Book an Appointment",
+        description: "Select a time slot that works for you",
+      },
+      step3: {
+        title: "Get Confirmation",
+        description: "Receive appointment confirmation and doctor's details",
+      },
+      step4: {
+        title: "Receive Care",
+        description: "The doctor visits your home for consultation and treatment",
+      },
+    },
+    testimonials: {
+      title: "What Our Patients Say",
+    },
+    cta: {
+      title: "Ready to experience healthcare at home?",
+      subtitle: "Join thousands of satisfied patients today",
+      button: "Get Started",
+    },
+  },
+
+  // Doctor search
+  doctorSearch: {
+    title: "Find a Doctor",
+    searchPlaceholder: "Search by name, specialty or location",
+    filters: {
+      title: "Filters",
+      specialty: "Specialty",
+      availability: "Availability",
+      rating: "Rating",
+      price: "Price Range",
+      distance: "Distance",
+      clear: "Clear Filters",
+      apply: "Apply Filters",
+      anySpecialty: "Any Specialty",
+      anyAvailability: "Any Availability",
+      anyRating: "Any Rating",
+      anyPrice: "Any Price",
+      anyDistance: "Any Distance",
+    },
+    results: {
+      found: "{{count}} doctors found",
+      noResults: "No doctors found matching your criteria",
+      tryAgain: "Try adjusting your filters or search terms",
+    },
+    sortBy: {
+      label: "Sort by",
+      relevance: "Relevance",
+      rating: "Highest Rating",
+      price: "Lowest Price",
+      distance: "Nearest",
+      availability: "Earliest Available",
+    },
+  },
+
+  // Doctor profile
+  doctorProfile: {
+    about: "About",
+    education: "Education",
+    experience: "Experience",
+    specialties: "Specialties",
+    services: "Services",
+    languages: "Languages",
+    ratings: "Ratings & Reviews",
+    availability: "Availability",
+    fees: "Consultation Fees",
+    location: "Service Locations",
+    bookAppointment: "Book Appointment",
+    years: "{{count}} years of experience",
+    viewMore: "View More",
+    viewLess: "View Less",
+    reviews: {
+      title: "Patient Reviews",
+      overall: "Overall Rating",
+      basedOn: "Based on {{count}} reviews",
+      seeAll: "See all reviews",
+      writeReview: "Write a Review",
+      sort: {
+        recent: "Most Recent",
+        highest: "Highest Rating",
+        lowest: "Lowest Rating",
+      },
+      noReviews: "No reviews yet",
+    },
+  },
+
+  // Appointment booking
+  appointmentBooking: {
+    title: "Book an Appointment with Dr. {{name}}",
+    selectDate: "Select Date",
+    selectTime: "Select Time",
+    yourDetails: "Your Details",
+    patientDetails: "Patient Details",
+    reasonForVisit: "Reason for Visit",
+    additionalNotes: "Additional Notes (Optional)",
+    symptoms: "Symptoms",
+    existingConditions: "Existing Medical Conditions",
+    medications: "Current Medications",
+    allergies: "Allergies",
+    address: "Appointment Address",
+    useProfileAddress: "Use Address from Profile",
+    addNewAddress: "Add New Address",
+    payment: {
+      title: "Payment Details",
+      method: "Payment Method",
+      creditCard: "Credit Card",
+      debitCard: "Debit Card",
+      paypal: "PayPal",
+      applePay: "Apple Pay",
+      googlePay: "Google Pay",
+      cardNumber: "Card Number",
+      cardholderName: "Cardholder Name",
+      expiryDate: "Expiry Date",
+      cvv: "CVV",
+      saveCard: "Save card for future payments",
+    },
+    termsCheckbox: "I agree to the terms and conditions",
+    privacyCheckbox: "I consent to sharing my medical information with the doctor",
+    reviewBooking: "Review Booking",
+    confirmBooking: "Confirm Booking",
+    noAvailableSlots: "No available slots on this date",
+    tryAnotherDay: "Please try another day",
+    appointmentSummary: "Appointment Summary",
+    doctorInfo: "Doctor Information",
+    dateAndTime: "Date & Time",
+    consultationFee: "Consultation Fee",
+    taxAndFees: "Taxes & Fees",
+    totalAmount: "Total Amount",
+    editDetails: "Edit Details",
+    successMessage: "Your appointment has been booked successfully!",
+    appointmentID: "Appointment ID: {{id}}",
+    errorMessage: "There was an error booking your appointment. Please try again.",
+  },
+
+  // Patient dashboard
+  patientDashboard: {
+    welcome: "Welcome, {{name}}",
+    upcomingAppointments: "Upcoming Appointments",
+    pastAppointments: "Past Appointments",
+    medicalRecords: "Medical Records",
+    prescriptions: "Prescriptions",
+    billing: "Billing & Payments",
+    noUpcomingAppointments: "No upcoming appointments",
+    noPastAppointments: "No past appointments",
+    bookNew: "Book a New Appointment",
+    appointmentCard: {
+      with: "with Dr. {{name}}",
+      specialty: "{{specialty}}",
+      date: "Date: {{date}}",
+      time: "Time: {{time}}",
+      address: "Address: {{address}}",
+      status: "Status: {{status}}",
+      viewDetails: "View Details",
+      cancelAppointment: "Cancel Appointment",
+      reschedule: "Reschedule",
+    },
+    cancelConfirmation: {
+      title: "Cancel Appointment",
+      message: "Are you sure you want to cancel this appointment?",
+      warning: "A cancellation fee may apply if cancelled within 24 hours of the appointment.",
+      confirm: "Yes, Cancel",
+      cancel: "No, Keep Appointment",
+    },
+  },
+
+  // Doctor dashboard
+  doctorDashboard: {
+    welcome: "Welcome, Dr. {{name}}",
+    todayAppointments: "Today's Appointments",
+    upcomingAppointments: "Upcoming Appointments",
+    pastAppointments: "Past Appointments",
+    patientRecords: "Patient Records",
+    earnings: "Earnings",
+    performance: "Performance & Reviews",
+    schedule: "Manage Schedule",
+    noAppointmentsToday: "No appointments scheduled for today",
+    patientCard: {
+      appointment: "Appointment with {{name}}",
+      age: "Age: {{age}}",
+      gender: "Gender: {{gender}}",
+      reason: "Reason: {{reason}}",
+      time: "Time: {{time}}",
+      address: "Address: {{address}}",
+      viewDetails: "View Patient Details",
+      startAppointment: "Start Appointment",
+      completeAppointment: "Complete Appointment",
+      cancelAppointment: "Cancel Appointment",
+    },
+    appointmentDetails: {
+      title: "Appointment Details",
+      patientInfo: "Patient Information",
+      medicalHistory: "Medical History",
+      currentMedications: "Current Medications",
+      allergies: "Allergies",
+      previousVisits: "Previous Visits",
+      addNotes: "Add Medical Notes",
+      prescribeMedication: "Prescribe Medication",
+      requestTests: "Request Medical Tests",
+    },
+  },
+
+  // Appointment statuses
+  appointmentStatus: {
+    scheduled: "Scheduled",
+    confirmed: "Confirmed",
+    en_route: "Doctor En Route",
+    arrived: "Doctor Arrived",
+    in_progress: "In Progress",
+    completed: "Completed",
+    cancelled: "Cancelled",
+    missed: "Missed",
+    rescheduled: "Rescheduled",
+  },
+
+  // Notifications
+  notifications: {
+    title: "Notifications",
+    markAllAsRead: "Mark All as Read",
+    clearAll: "Clear All",
+    noNotifications: "No notifications",
+    newAppointment: "New appointment scheduled with {{name}}",
+    appointmentReminder: "Reminder: Appointment with {{name}} in {{time}}",
+    appointmentCancelled: "Appointment with {{name}} has been cancelled",
+    appointmentRescheduled: "Appointment with {{name}} has been rescheduled",
+    doctorEnRoute: "Dr. {{name}} is on the way to your location",
+    doctorArrived: "Dr. {{name}} has arrived at your location",
+    appointmentStarted: "Your appointment with Dr. {{name}} has started",
+    appointmentCompleted: "Your appointment with Dr. {{name}} has been completed",
+    newMessage: "New message from {{name}}",
+    newReview: "{{name}} left a review for you",
+    paymentSuccess: "Payment of {{amount}} was successful",
+    paymentFailed: "Payment of {{amount}} failed",
+    titleLabels: {
+      appointment: "Appointment Update",
+      payment: "Payment Update",
+      system: "System Notification",
+      newReview: "New Review",
+    },
+    status: {
+      updated: "Appointment status updated to {{status}}",
+    },
+    review: {
+      received: "You received a new review",
+    },
+  },
+
+  // Profile
+  profile: {
+    personalInfo: "Personal Information",
+    contactInfo: "Contact Information",
+    medicalInfo: "Medical Information",
+    accountSettings: "Account Settings",
+    paymentMethods: "Payment Methods",
+    addresses: "Addresses",
+    changePassword: "Change Password",
+    deleteAccount: "Delete Account",
+    saveChanges: "Save Changes",
+    fields: {
+      name: "Full Name",
+      email: "Email Address",
+      phone: "Phone Number",
+      dob: "Date of Birth",
+      gender: "Gender",
+      bloodType: "Blood Type",
+      height: "Height",
+      weight: "Weight",
+      allergies: "Allergies",
+      chronicConditions: "Chronic Conditions",
+      medications: "Current Medications",
+      emergencyContact: "Emergency Contact",
+      language: "Preferred Language",
+      profilePicture: "Profile Picture",
+      uploadNew: "Upload New Picture",
+      removeCurrentPicture: "Remove Current Picture",
+      address: {
+        line1: "Address Line 1",
+        line2: "Address Line 2",
+        city: "City",
+        state: "State/Province",
+        country: "Country",
+        postalCode: "Postal/ZIP Code",
+        saveAsDefault: "Save as Default Address",
+      },
+    },
+  },
+
+  // Settings
+  settings: {
+    title: "Settings",
+    account: "Account Settings",
+    notifications: "Notification Settings",
+    privacy: "Privacy Settings",
+    preferences: "Preferences",
+    language: "Language",
+    theme: "Theme",
+    lightMode: "Light Mode",
+    darkMode: "Dark Mode",
+    systemDefault: "System Default",
+    emailNotifications: "Email Notifications",
+    pushNotifications: "Push Notifications",
+    smsNotifications: "SMS Notifications",
+    notifyFor: {
+      appointments: "Appointments",
+      reminders: "Reminders",
+      cancellations: "Cancellations",
+      promotions: "Promotions",
+      systemUpdates: "System Updates",
+    },
+  },
+
+  // Errors and messages
+  errors: {
+    general: "Something went wrong. Please try again.",
+    network: "Network error. Please check your internet connection.",
+    server: "Server error. Please try again later.",
+    notFound: "The requested resource was not found.",
+    unauthorized: "You are not authorized to perform this action.",
+    validation: "Please check the form for errors.",
+    required: "This field is required.",
+    invalidEmail: "Please enter a valid email address.",
+    invalidPhone: "Please enter a valid phone number.",
+    invalidDate: "Please enter a valid date.",
+    passwordLength: "Password must be at least 8 characters long.",
+    passwordMatch: "Passwords do not match.",
+    invalidCode: "Invalid verification code.",
+    expiredCode: "Verification code has expired.",
+    alreadyExists: "This record already exists.",
+    appointmentConflict: "There is already an appointment scheduled at this time.",
+    noAvailableSlots: "No available slots for the selected criteria.",
+    paymentFailed: "Payment failed. Please try again with a different payment method.",
+    sessionExpired: "Your session has expired. Please log in again.",
+    websocket: {
+      connectionFailed: "Could not connect to notification service",
+      reconnecting: "Reconnecting to notification service...",
+    }
+  },
+
+  // Success messages
+  success: {
+    profileUpdated: "Profile updated successfully.",
+    passwordChanged: "Password changed successfully.",
+    emailVerified: "Email verified successfully.",
+    appointmentBooked: "Appointment booked successfully.",
+    appointmentCancelled: "Appointment cancelled successfully.",
+    appointmentRescheduled: "Appointment rescheduled successfully.",
+    paymentSuccessful: "Payment processed successfully.",
+    reviewSubmitted: "Review submitted successfully.",
+    messageSent: "Message sent successfully.",
+    passwordResetSent: "Password reset instructions sent to your email.",
+    passwordResetSuccess: "Password reset successfully.",
+    addressAdded: "Address added successfully.",
+    addressUpdated: "Address updated successfully.",
+    paymentMethodAdded: "Payment method added successfully.",
+    paymentMethodRemoved: "Payment method removed successfully.",
+  },
+
+  // Footer
+  footer: {
+    about: "About Oncall Clinic",
+    careers: "Careers",
+    press: "Press",
+    blog: "Blog",
+    contact: "Contact Us",
+    help: "Help Center",
+    legal: "Legal",
+    terms: "Terms of Service",
+    privacy: "Privacy Policy",
+    cookies: "Cookie Policy",
+    copyright: "© {{year}} Oncall Clinic. All rights reserved.",
+    socialmedia: "Follow Us",
   }
 };
 
-export default en;
+export default enTranslations;

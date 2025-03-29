@@ -2,8 +2,17 @@ import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./context/auth-context";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
+
+// Initialize i18n
+import "./i18n"; // Import the i18n configuration
+
+// Custom hooks
+import useWebSocketNotifications from "./hooks/useWebSocketNotifications";
 
 // Layout components
 import Navbar from "./components/layout/navbar";
@@ -50,11 +59,57 @@ function Router() {
 }
 
 function App() {
+  const { t } = useTranslation();
+  
+  // Mock function to get JWT token from localStorage or context
+  const getAuthToken = () => {
+    return localStorage.getItem('auth_token');
+  };
+  
+  // Use the WebSocket notifications hook
+  const { 
+    isConnected,
+    lastNotification 
+  } = useWebSocketNotifications(
+    getAuthToken(), // Pass the authentication token
+    '/ws', // WebSocket endpoint (relative to current host)
+    {
+      autoReconnect: true,
+      reconnectInterval: 3000,
+      maxReconnectAttempts: 5,
+      onConnected: () => {
+        console.log('✅ Connected to notification service');
+      },
+      onDisconnected: () => {
+        console.log('❌ Disconnected from notification service');
+      }
+    }
+  );
+  
+  // Log new notifications (optional)
+  useEffect(() => {
+    if (lastNotification) {
+      console.log('New notification received:', lastNotification);
+    }
+  }, [lastNotification]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router />
         <Toaster />
+        {/* ToastContainer for react-toastify */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </AuthProvider>
     </QueryClientProvider>
   );
