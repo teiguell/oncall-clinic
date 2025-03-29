@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
-import { Appointment } from "@/types";
+import { Appointment, Notification } from "@/types";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -13,91 +13,61 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { formatCurrency } from "@/lib/payment";
+import { subscribeToNotifications } from "@/lib/notifications";
+import { useToast } from "@/hooks/use-toast";
+import AppointmentStatusControls from "./appointment-status-controls";
+import { StatusBadge, PaymentBadge } from "@/components/ui/status-badge";
 import { 
-  Calendar, 
+  Calendar,
   Clock, 
   MapPin, 
   User, 
   FileText, 
-  CheckCircle, 
   XCircle,
   AlertCircle,
+  Bell,
   Loader2
 } from "lucide-react";
 
-// Status badge component
-const StatusBadge = ({ status }: { status: string }) => {
-  let variant: "default" | "secondary" | "destructive" | "outline" = "default";
-  let label = "";
-  let icon = null;
-
-  switch (status) {
-    case "scheduled":
-      variant = "default";
-      label = "Programada";
-      icon = <Calendar className="h-3 w-3 mr-1" />;
-      break;
-    case "completed":
-      variant = "secondary";
-      label = "Completada";
-      icon = <CheckCircle className="h-3 w-3 mr-1" />;
-      break;
-    case "canceled":
-      variant = "destructive";
-      label = "Cancelada";
-      icon = <XCircle className="h-3 w-3 mr-1" />;
-      break;
-    default:
-      variant = "outline";
-      label = status;
-  }
-
-  return (
-    <Badge variant={variant} className="flex items-center">
-      {icon}
-      {label}
-    </Badge>
-  );
-};
-
-// Payment status badge component
-const PaymentBadge = ({ status }: { status: string }) => {
-  let variant: "default" | "secondary" | "destructive" | "outline" = "default";
-  let label = "";
-
-  switch (status) {
-    case "paid":
-      variant = "secondary";
-      label = "Pagado";
-      break;
-    case "pending":
-      variant = "outline";
-      label = "Pendiente";
-      break;
-    case "refunded":
-      variant = "default";
-      label = "Reembolsado";
-      break;
-    default:
-      variant = "outline";
-      label = status;
-  }
-
-  return <Badge variant={variant}>{label}</Badge>;
-};
-
 export default function AppointmentList() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>("upcoming");
   const [cancelDialog, setCancelDialog] = useState<{ open: boolean, appointmentId: number | null }>({
     open: false,
     appointmentId: null
   });
+  
+  // Subscribe to real-time notifications
+  useEffect(() => {
+    // Only subscribe if user is authenticated
+    if (!user) return;
+    
+    // Set up notifications handler
+    const unsubscribe = subscribeToNotifications((notification: any) => {
+      // Handle appointment status notifications
+      if (notification.type === 'appointment_status') {
+        // Display toast notification
+        toast({
+          title: "Estado de cita actualizado",
+          description: notification.message,
+          duration: 5000,
+        });
+        
+        // Refresh appointments data
+        queryClient.invalidateQueries({ queryKey: ['/api/appointments'] });
+      }
+    });
+    
+    // Clean up subscription on unmount
+    return () => {
+      unsubscribe();
+    };
+  }, [user, toast]);
 
   // Fetch user's appointments
   const { data: appointments = [], isLoading } = useQuery<Appointment[]>({
@@ -292,6 +262,26 @@ function AppointmentCard({ appointment, userType, isPast = false, onCancel }: Ap
   
   // Check if appointment can be canceled (not canceled and not past)
   const canCancel = appointment.status !== 'canceled' && !isPast;
+  
+  // Format date
+  const formatAppointmentDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  // Format time
+  const formatAppointmentTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
     <Card>
@@ -309,8 +299,8 @@ function AppointmentCard({ appointment, userType, isPast = false, onCancel }: Ap
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <StatusBadge status={appointment.status} />
-            <PaymentBadge status={appointment.paymentStatus} />
+            <StatusBadge status={appointment.status as any} />
+            <PaymentBadge status={appointment.paymentStatus as any} />
           </div>
         </div>
       </CardHeader>
@@ -345,7 +335,13 @@ function AppointmentCard({ appointment, userType, isPast = false, onCancel }: Ap
         </div>
       </CardContent>
       <CardFooter className="pt-2">
-        <div className="flex justify-between w-full">
+        <div className="flex flex-wrap justify-between w-full gap-2">
+          {/* Doctor-specific status controls */}
+          {isDoctor && !isPast && appointment.status !== 'canceled' && (
+            <AppointmentStatusControls appointment={appointment} />
+          )}
+          
+          {/* Payment button for patients */}
           {appointment.status === 'scheduled' && appointment.paymentStatus === 'pending' && !isDoctor && (
             <Link href={`/appointment/success/${appointment.id}`}>
               <Button variant="outline">
@@ -354,12 +350,14 @@ function AppointmentCard({ appointment, userType, isPast = false, onCancel }: Ap
             </Link>
           )}
           
-          {canCancel && (
+          {/* Cancel button */}
+          {canCancel && onCancel && (
             <Button variant="outline" onClick={onCancel} className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
               Cancelar cita
             </Button>
           )}
           
+          {/* View profile button for completed appointments */}
           {appointment.status === 'completed' && (
             <Link href={`/doctors/${doctor?.id}`}>
               <Button variant="outline">

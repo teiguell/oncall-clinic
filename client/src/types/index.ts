@@ -74,7 +74,7 @@ export interface Appointment {
   doctorId: number;
   appointmentDate: string;
   duration: number;
-  status: 'scheduled' | 'completed' | 'canceled';
+  status: 'scheduled' | 'confirmed' | 'en_route' | 'arrived' | 'in_progress' | 'completed' | 'canceled';
   reasonForVisit: string;
   locationId: number;
   totalAmount: number;
@@ -104,6 +104,12 @@ export interface Notification {
   content: string;
   read: boolean;
   createdAt: string;
+  data?: {
+    appointmentId?: number;
+    status?: string;
+    timestamp?: string;
+    [key: string]: any;
+  };
 }
 
 export interface Payment {

@@ -12,7 +12,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import path from "path";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -90,6 +90,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     path: '/ws' 
   });
   
+  // Keep track of connections by userId for more reliable message delivery
+  const connectedClients = new Map<number, Set<WebSocket>>();
+  
+  // Ping interval to keep connections alive (30 seconds)
+  const pingInterval = setInterval(() => {
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.ping();
+      }
+    });
+  }, 30000);
+  
   // WebSocket for real-time notifications
   wss.on('connection', (ws) => {
     console.log('WebSocket connection established');
@@ -100,6 +112,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       message: 'Connected to Medical Services WebSocket Server'
     }));
     
+    // Set a ping timeout to detect dead connections
+    (ws as any).isAlive = true;
+    ws.on('pong', () => {
+      (ws as any).isAlive = true;
+    });
+    
     ws.on('message', (message) => {
       try {
         console.log('Received message:', message.toString());
@@ -109,14 +127,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (data.type === 'auth' && data.sessionId) {
           const session = sessions.get(data.sessionId);
           if (session) {
-            // Store userId in the websocket object
+            // Store userId and userType in the websocket object
             (ws as any).userId = session.userId;
+            (ws as any).userType = session.userType;
+            console.log(`User ${session.userId} (${session.userType}) authenticated with WebSocket`);
+            
+            // Add to connected clients map
+            if (!connectedClients.has(session.userId)) {
+              connectedClients.set(session.userId, new Set());
+            }
+            connectedClients.get(session.userId)?.add(ws);
+            
             ws.send(JSON.stringify({
               type: 'auth_response',
               success: true,
-              message: 'Authentication successful'
+              message: 'Authentication successful',
+              userId: session.userId,
+              userType: session.userType
             }));
           } else {
+            console.log('Invalid session for WebSocket authentication');
             ws.send(JSON.stringify({
               type: 'auth_response',
               success: false,
@@ -144,25 +174,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     ws.on('close', () => {
       console.log('WebSocket connection closed');
+      
+      // Remove from connected clients
+      if ((ws as any).userId) {
+        const userId = (ws as any).userId;
+        const userConnections = connectedClients.get(userId);
+        
+        if (userConnections) {
+          userConnections.delete(ws);
+          if (userConnections.size === 0) {
+            connectedClients.delete(userId);
+          }
+        }
+      }
+    });
+    
+    // Handle errors
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
     });
   });
+  
+  // Interval to check for dead connections (every 45 seconds)
+  const heartbeatInterval = setInterval(() => {
+    wss.clients.forEach(ws => {
+      if (!(ws as any).isAlive) {
+        return ws.terminate();
+      }
+      
+      (ws as any).isAlive = false;
+    });
+  }, 45000);
   
   // Helper function to send notifications
   const sendNotification = async (userId: number, notification: any) => {
     try {
       // Store notification in database
-      await storage.createNotification({
+      const dbNotification = await storage.createNotification({
         userId,
         type: notification.type,
-        content: notification.message
+        content: notification.message,
+        data: {
+          appointmentId: notification.appointmentId,
+          status: notification.status,
+          timestamp: notification.timestamp || new Date().toISOString()
+        }
       });
       
       // Send through WebSocket if user is connected
-      wss.clients.forEach((client) => {
-        if ((client as any).userId === userId) {
-          client.send(JSON.stringify(notification));
-        }
-      });
+      // Using the connectedClients map for more reliable delivery
+      const userConnections = connectedClients.get(userId);
+      
+      if (userConnections && userConnections.size > 0) {
+        const notificationPayload = JSON.stringify(notification);
+        
+        userConnections.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(notificationPayload);
+          }
+        });
+        
+        console.log(`Notification sent to user ${userId} (${userConnections.size} connections)`);
+      } else {
+        console.log(`User ${userId} not connected, notification stored in database only`);
+      }
+      
+      return dbNotification;
     } catch (error) {
       console.error('Failed to send notification:', error);
     }
@@ -639,8 +716,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const appointmentId = parseInt(req.params.id);
       const { status } = req.body;
       
-      if (!['scheduled', 'completed', 'canceled'].includes(status)) {
-        return res.status(400).json({ message: "Invalid status value" });
+      // Add real-time tracking status support
+      const validStatuses = [
+        'scheduled',    // Initial state after booking
+        'confirmed',    // Doctor confirmed appointment
+        'en_route',     // Doctor is on the way
+        'arrived',      // Doctor arrived at patient's location
+        'in_progress',  // Consultation in progress
+        'completed',    // Appointment completed 
+        'canceled'      // Appointment canceled
+      ];
+      
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ 
+          message: "Invalid status value", 
+          validValues: validStatuses 
+        });
       }
       
       const appointment = await storage.getAppointment(appointmentId);
@@ -656,17 +747,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Not authorized to update this appointment" });
       }
       
+      // Check for valid status transitions
+      if (auth.userType === 'doctor') {
+        // Only doctor can set these statuses
+        if (['confirmed', 'en_route', 'arrived', 'in_progress', 'completed'].includes(status)) {
+          // Valid transition
+        } else if (status === 'canceled') {
+          // Both doctor and patient can cancel
+        } else {
+          return res.status(400).json({ message: "Invalid status transition for doctor" });
+        }
+      } else if (auth.userType === 'patient') {
+        // Patient can only cancel or scheduled (re-schedule) appointments
+        if (!['canceled', 'scheduled'].includes(status)) {
+          return res.status(400).json({ message: "Invalid status transition for patient" });
+        }
+      }
+      
       const updatedAppointment = await storage.updateAppointment(appointmentId, { status });
+      
+      // Get patient and doctor information for notification
+      const patient = await storage.getUser(appointment.patientId);
+      const doctor = await storage.getUser(appointment.doctorId);
+      
+      if (!patient || !doctor) {
+        return res.status(500).json({ message: "Failed to retrieve user information" });
+      }
+      
+      // Prepare notification message based on status
+      let notificationMessage = '';
+      const doctorFullName = `Dr. ${doctor.firstName} ${doctor.lastName}`;
+      const patientFullName = `${patient.firstName} ${patient.lastName}`;
+      
+      switch (status) {
+        case 'confirmed':
+          notificationMessage = `${doctorFullName} confirmed your appointment for ${new Date(appointment.appointmentDate).toLocaleString()}`;
+          break;
+        case 'en_route':
+          notificationMessage = `${doctorFullName} is on the way to your location`;
+          break;
+        case 'arrived':
+          notificationMessage = `${doctorFullName} has arrived at your location`;
+          break;
+        case 'in_progress':
+          notificationMessage = `Your appointment with ${doctorFullName} is now in progress`;
+          break;
+        case 'completed':
+          notificationMessage = `Your appointment with ${doctorFullName} has been completed`;
+          break;
+        case 'canceled':
+          const canceledBy = auth.userType === 'patient' ? patientFullName : doctorFullName;
+          notificationMessage = `Appointment for ${new Date(appointment.appointmentDate).toLocaleString()} was canceled by ${canceledBy}`;
+          break;
+        default:
+          notificationMessage = `Appointment for ${new Date(appointment.appointmentDate).toLocaleString()} was updated to ${status}`;
+      }
       
       // Send notification to the other party
       const recipientId = auth.userType === 'patient' ? appointment.doctorId : appointment.patientId;
       await sendNotification(recipientId, {
-        type: 'appointment_update',
-        message: `Appointment for ${new Date(appointment.appointmentDate).toLocaleString()} was updated to ${status}`
+        type: 'appointment_status',
+        message: notificationMessage,
+        appointmentId: appointmentId,
+        status: status,
+        timestamp: new Date().toISOString()
       });
+      
+      // The WebSocket notification has already been sent by the sendNotification function above
+      // No additional code needed here
       
       res.json(updatedAppointment);
     } catch (error) {
+      console.error('Error updating appointment:', error);
       res.status(500).json({ message: "Server error updating appointment" });
     }
   });

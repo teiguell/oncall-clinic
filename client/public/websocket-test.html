@@ -1,251 +1,431 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebSocket Test Page</title>
+  <title>Prueba de WebSocket - OnCall Clinic</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 30px;
-      background-color: #f5f7fa;
-      color: #333;
-    }
-    .container {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       max-width: 800px;
       margin: 0 auto;
-      background-color: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 20px;
+      line-height: 1.6;
     }
     h1 {
       color: #2563eb;
-      margin-top: 0;
+      margin-bottom: 20px;
     }
     h2 {
       color: #4b5563;
       margin-top: 30px;
+      margin-bottom: 10px;
     }
-    button {
-      background-color: #2563eb;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #1d4ed8;
-    }
-    pre {
-      background-color: #f3f4f6;
-      padding: 15px;
-      border-radius: 4px;
-      overflow: auto;
-      max-height: 300px;
-    }
-    .success {
-      color: #10b981;
-      font-weight: bold;
-    }
-    .error {
-      color: #ef4444;
-      font-weight: bold;
-    }
-    .input-group {
-      margin-bottom: 15px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      margin-top: 5px;
+    .card {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #e5e7eb;
     }
     .connection-status {
       display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 5px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
     }
-    .connected {
-      background-color: #10b981;
+    .status-connected {
+      background: #dcfce7;
+      color: #166534;
     }
-    .disconnected {
-      background-color: #ef4444;
+    .status-disconnected {
+      background: #fee2e2;
+      color: #b91c1c;
     }
-    .connecting {
-      background-color: #f59e0b;
+    .status-connecting {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .control-section {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    input[type="text"] {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      width: 100%;
+      max-width: 400px;
+    }
+    .log-container {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      margin-top: 20px;
+    }
+    .log-entry {
+      margin-bottom: 5px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    .log-entry-time {
+      color: #94a3b8;
+      margin-right: 10px;
+    }
+    .log-entry-sent {
+      background: rgba(37, 99, 235, 0.2);
+    }
+    .log-entry-received {
+      background: rgba(22, 163, 74, 0.2);
+    }
+    .log-entry-system {
+      background: rgba(148, 163, 184, 0.2);
+    }
+    .log-entry-error {
+      background: rgba(220, 38, 38, 0.2);
+    }
+    .auth-section {
+      margin-top: 20px;
+    }
+    .auth-section label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .simulate-section {
+      margin-top: 30px;
+    }
+    .status-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .status-button {
+      background: #f3f4f6;
+      color: #4b5563;
+      border: 1px solid #d1d5db;
+    }
+    .status-button:hover {
+      background: #e5e7eb;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>WebSocket Test Page</h1>
-    <p>This page tests the WebSocket connection for real-time notifications.</p>
-    
-    <h2>Connection Status</h2>
-    <p>
-      <span id="connectionIndicator" class="connection-status disconnected"></span>
-      <span id="connectionStatus">Disconnected</span>
-    </p>
-    
+  <h1>Prueba de WebSocket - OnCall Clinic</h1>
+  
+  <div class="card">
+    <h2>Estado de conexión</h2>
     <div>
-      <button id="connectBtn">Connect</button>
-      <button id="disconnectBtn" disabled>Disconnect</button>
+      <span id="connectionStatus" class="connection-status status-disconnected">Desconectado</span>
     </div>
     
-    <h2>Send Message</h2>
-    <div class="input-group">
-      <label for="messageInput">Message:</label>
-      <textarea id="messageInput" rows="3" placeholder='{"type": "test", "message": "Hello WebSocket"}' disabled></textarea>
+    <div class="control-section">
+      <button id="connectBtn">Conectar</button>
+      <button id="disconnectBtn" disabled>Desconectar</button>
     </div>
-    <button id="sendBtn" disabled>Send Message</button>
+  </div>
+  
+  <div class="card auth-section">
+    <h2>Autenticación</h2>
+    <div>
+      <label for="sessionId">ID de sesión:</label>
+      <input type="text" id="sessionId" placeholder="Pega aquí tu ID de sesión...">
+    </div>
+    <div class="control-section">
+      <button id="authBtn" disabled>Autenticar</button>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>Enviar mensaje de prueba</h2>
+    <div>
+      <input type="text" id="testMessage" placeholder="Escribe un mensaje de prueba...">
+    </div>
+    <div class="control-section">
+      <button id="sendTestBtn" disabled>Enviar mensaje de prueba</button>
+    </div>
+  </div>
+  
+  <div class="card simulate-section">
+    <h2>Simular actualización de estado de cita</h2>
+    <div>
+      <label for="appointmentId">ID de cita:</label>
+      <input type="text" id="appointmentId" placeholder="ID de la cita">
+    </div>
+    <div class="status-buttons">
+      <button class="status-button" data-status="confirmed" disabled>Confirmar</button>
+      <button class="status-button" data-status="en_route" disabled>En camino</button>
+      <button class="status-button" data-status="arrived" disabled>He llegado</button>
+      <button class="status-button" data-status="in_progress" disabled>Iniciar consulta</button>
+      <button class="status-button" data-status="completed" disabled>Completar</button>
+    </div>
+  </div>
+  
+  <h2>Registro de mensajes</h2>
+  <div class="log-container" id="logContainer"></div>
+  
+  <script>
+    // Elements
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const authBtn = document.getElementById('authBtn');
+    const sendTestBtn = document.getElementById('sendTestBtn');
+    const sessionIdInput = document.getElementById('sessionId');
+    const testMessageInput = document.getElementById('testMessage');
+    const appointmentIdInput = document.getElementById('appointmentId');
+    const statusButtons = document.querySelectorAll('.status-button');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const logContainer = document.getElementById('logContainer');
     
-    <h2>Log</h2>
-    <pre id="logOutput">WebSocket log will appear here...</pre>
+    // WebSocket connection
+    let socket = null;
+    let isAuthenticated = false;
     
-    <script>
-      // DOM Elements
-      const connectBtn = document.getElementById('connectBtn');
-      const disconnectBtn = document.getElementById('disconnectBtn');
-      const messageInput = document.getElementById('messageInput');
-      const sendBtn = document.getElementById('sendBtn');
-      const logOutput = document.getElementById('logOutput');
-      const connectionStatus = document.getElementById('connectionStatus');
-      const connectionIndicator = document.getElementById('connectionIndicator');
+    // Log a message
+    function logMessage(message, type = 'system') {
+      const entry = document.createElement('div');
+      entry.classList.add('log-entry', `log-entry-${type}`);
       
-      // WebSocket connection
-      let socket = null;
+      const time = new Date().toLocaleTimeString();
+      const timeSpan = document.createElement('span');
+      timeSpan.classList.add('log-entry-time');
+      timeSpan.textContent = time;
       
-      // Add log entry
-      function log(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        let formattedMessage = `[${timestamp}] ${message}`;
-        
-        if (type === 'error') {
-          formattedMessage = `<span class="error">${formattedMessage}</span>`;
-        } else if (type === 'success') {
-          formattedMessage = `<span class="success">${formattedMessage}</span>`;
-        }
-        
-        logOutput.innerHTML = formattedMessage + '\n' + logOutput.innerHTML;
+      entry.appendChild(timeSpan);
+      
+      // If message is an object, stringify it
+      if (typeof message === 'object') {
+        entry.appendChild(document.createTextNode(JSON.stringify(message, null, 2)));
+      } else {
+        entry.appendChild(document.createTextNode(message));
       }
       
-      // Update connection status UI
-      function updateConnectionStatus(status) {
-        connectionStatus.textContent = status;
-        
-        if (status === 'Connected') {
-          connectionIndicator.className = 'connection-status connected';
-          connectBtn.disabled = true;
-          disconnectBtn.disabled = false;
-          messageInput.disabled = false;
-          sendBtn.disabled = false;
-        } else if (status === 'Connecting...') {
-          connectionIndicator.className = 'connection-status connecting';
-          connectBtn.disabled = true;
-          disconnectBtn.disabled = true;
-          messageInput.disabled = true;
-          sendBtn.disabled = true;
-        } else {
-          connectionIndicator.className = 'connection-status disconnected';
-          connectBtn.disabled = false;
-          disconnectBtn.disabled = true;
-          messageInput.disabled = true;
-          sendBtn.disabled = true;
-        }
+      logContainer.appendChild(entry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+    
+    // Update UI based on connection state
+    function updateConnectionUI(isConnected) {
+      if (isConnected) {
+        connectionStatus.className = 'connection-status status-connected';
+        connectionStatus.textContent = 'Conectado';
+        connectBtn.disabled = true;
+        disconnectBtn.disabled = false;
+        sessionIdInput.disabled = false;
+        authBtn.disabled = false;
+      } else {
+        connectionStatus.className = 'connection-status status-disconnected';
+        connectionStatus.textContent = 'Desconectado';
+        connectBtn.disabled = false;
+        disconnectBtn.disabled = true;
+        sessionIdInput.disabled = true;
+        authBtn.disabled = true;
+        sendTestBtn.disabled = true;
+        statusButtons.forEach(btn => btn.disabled = true);
+        isAuthenticated = false;
       }
-      
-      // Connect to WebSocket
-      function connect() {
-        if (socket) {
-          socket.close();
-        }
+    }
+    
+    // Update UI based on authentication state
+    function updateAuthUI(isAuth) {
+      isAuthenticated = isAuth;
+      if (isAuth) {
+        authBtn.textContent = 'Autenticado ✓';
+        authBtn.disabled = true;
+        sendTestBtn.disabled = false;
+        statusButtons.forEach(btn => btn.disabled = false);
+      } else {
+        authBtn.textContent = 'Autenticar';
+        authBtn.disabled = false;
+        sendTestBtn.disabled = true;
+        statusButtons.forEach(btn => btn.disabled = true);
+      }
+    }
+    
+    // Connect to WebSocket server
+    function connect() {
+      try {
+        connectionStatus.className = 'connection-status status-connecting';
+        connectionStatus.textContent = 'Conectando...';
         
-        updateConnectionStatus('Connecting...');
-        log('Connecting to WebSocket server...');
-        
-        // Create WebSocket connection using the correct protocol and path
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/ws`;
         
-        try {
-          socket = new WebSocket(wsUrl);
-          
-          socket.addEventListener('open', () => {
-            log('WebSocket connection established!', 'success');
-            updateConnectionStatus('Connected');
-          });
-          
-          socket.addEventListener('message', (event) => {
-            try {
-              const data = JSON.parse(event.data);
-              log(`Received: ${JSON.stringify(data, null, 2)}`, 'success');
-            } catch (error) {
-              log(`Received: ${event.data}`, 'success');
-            }
-          });
-          
-          socket.addEventListener('error', (error) => {
-            log(`WebSocket error: ${error.message || 'Unknown error'}`, 'error');
-          });
-          
-          socket.addEventListener('close', (event) => {
-            log(`WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`, event.wasClean ? 'info' : 'error');
-            updateConnectionStatus('Disconnected');
-            socket = null;
-          });
-        } catch (error) {
-          log(`Failed to create WebSocket connection: ${error.message}`, 'error');
-          updateConnectionStatus('Disconnected');
-        }
-      }
-      
-      // Disconnect WebSocket
-      function disconnect() {
-        if (socket) {
-          log('Closing WebSocket connection...');
-          socket.close();
-        }
-      }
-      
-      // Send message through WebSocket
-      function sendMessage() {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-          log('WebSocket not connected!', 'error');
-          return;
-        }
+        socket = new WebSocket(wsUrl);
         
-        try {
-          const message = messageInput.value.trim();
-          if (!message) {
-            log('Message cannot be empty!', 'error');
-            return;
+        socket.addEventListener('open', () => {
+          logMessage('Conexión WebSocket establecida');
+          updateConnectionUI(true);
+        });
+        
+        socket.addEventListener('message', (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            logMessage(data, 'received');
+            
+            // Handle authentication response
+            if (data.type === 'auth_response') {
+              updateAuthUI(data.success);
+            }
+          } catch (error) {
+            logMessage(`Error al parsear mensaje: ${error.message}`, 'error');
+            logMessage(event.data, 'received');
           }
-          
-          socket.send(message);
-          log(`Sent: ${message}`, 'info');
-        } catch (error) {
-          log(`Failed to send message: ${error.message}`, 'error');
-        }
+        });
+        
+        socket.addEventListener('close', () => {
+          logMessage('Conexión WebSocket cerrada');
+          updateConnectionUI(false);
+        });
+        
+        socket.addEventListener('error', (error) => {
+          logMessage(`Error de WebSocket: ${error}`, 'error');
+        });
+      } catch (error) {
+        logMessage(`Error al conectar: ${error.message}`, 'error');
+        updateConnectionUI(false);
+      }
+    }
+    
+    // Disconnect from WebSocket server
+    function disconnect() {
+      if (socket) {
+        socket.close();
+        socket = null;
+        logMessage('Desconectado manualmente');
+      }
+    }
+    
+    // Authenticate with session ID
+    function authenticate() {
+      const sessionId = sessionIdInput.value.trim();
+      if (!sessionId) {
+        logMessage('Por favor, introduce un ID de sesión válido', 'error');
+        return;
       }
       
-      // Event listeners
-      connectBtn.addEventListener('click', connect);
-      disconnectBtn.addEventListener('click', disconnect);
-      sendBtn.addEventListener('click', sendMessage);
+      const authData = {
+        type: 'auth',
+        sessionId: sessionId
+      };
       
-      // Initialize connection status
-      updateConnectionStatus('Disconnected');
-      log('WebSocket test initialized. Click "Connect" to start.', 'info');
-    </script>
-  </div>
+      sendMessage(authData);
+    }
+    
+    // Send test message
+    function sendTestMessage() {
+      const message = testMessageInput.value.trim() || 'Mensaje de prueba';
+      
+      const testData = {
+        type: 'test',
+        message: message
+      };
+      
+      sendMessage(testData);
+      testMessageInput.value = '';
+    }
+    
+    // Send status update
+    function sendStatusUpdate(status) {
+      const appointmentId = appointmentIdInput.value.trim();
+      if (!appointmentId) {
+        logMessage('Por favor, introduce un ID de cita válido', 'error');
+        return;
+      }
+      
+      // Normalize to make sure it's a number
+      const normalizedId = parseInt(appointmentId, 10);
+      if (isNaN(normalizedId)) {
+        logMessage('El ID de cita debe ser un número', 'error');
+        return;
+      }
+      
+      // In real application, you'd make an API call to update status
+      const url = `/api/appointments/${normalizedId}/status`;
+      const data = { status };
+      
+      logMessage(`Enviando actualización de estado a ${url}`, 'system');
+      logMessage({ status }, 'sent');
+      
+      fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionIdInput.value.trim()}`
+        },
+        body: JSON.stringify(data)
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          logMessage('Respuesta recibida:', 'system');
+          logMessage(data, 'received');
+        })
+        .catch(error => {
+          logMessage(`Error: ${error.message}`, 'error');
+        });
+    }
+    
+    // Send message through WebSocket
+    function sendMessage(data) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        logMessage('No hay conexión WebSocket abierta', 'error');
+        return;
+      }
+      
+      try {
+        const jsonData = JSON.stringify(data);
+        socket.send(jsonData);
+        logMessage(data, 'sent');
+      } catch (error) {
+        logMessage(`Error al enviar mensaje: ${error.message}`, 'error');
+      }
+    }
+    
+    // Event listeners
+    connectBtn.addEventListener('click', connect);
+    disconnectBtn.addEventListener('click', disconnect);
+    authBtn.addEventListener('click', authenticate);
+    sendTestBtn.addEventListener('click', sendTestMessage);
+    
+    statusButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const status = button.getAttribute('data-status');
+        sendStatusUpdate(status);
+      });
+    });
+    
+    // Initialize
+    updateConnectionUI(false);
+    logMessage('Página de prueba cargada. Haz clic en "Conectar" para iniciar.', 'system');
+  </script>
 </body>
 </html>

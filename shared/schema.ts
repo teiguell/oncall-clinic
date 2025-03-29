@@ -106,6 +106,7 @@ export const notifications = pgTable("notifications", {
   type: text("type").notNull(), // "appointment_reminder", "new_review", etc.
   content: text("content").notNull(),
   read: boolean("read").default(false),
+  data: jsonb("data"), // Additional data like appointmentId, status, etc.
   createdAt: timestamp("created_at").defaultNow(),
 });
 

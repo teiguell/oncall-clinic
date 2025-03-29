@@ -52,22 +52,22 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:ml-10 sm:flex space-x-8">
               <Link href="/">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                <span className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer ${
                   location === "/" 
                     ? "border-primary-500 text-primary-500" 
                     : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
                 }`}>
                   Inicio
-                </a>
+                </span>
               </Link>
               <Link href="/doctors">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                <span className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer ${
                   location.startsWith("/doctors") 
                     ? "border-primary-500 text-primary-500" 
                     : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
                 }`}>
                   Doctores
-                </a>
+                </span>
               </Link>
               <a href="#how-it-works" className="border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                 Cómo funciona
@@ -98,22 +98,18 @@ export default function Navbar() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={user?.userType === 'patient' ? '/dashboard/patient' : '/dashboard/doctor'}>
-                        <a className="cursor-pointer flex w-full items-center">
-                          <Calendar className="mr-2 h-4 w-4" />
-                          <span>Dashboard</span>
-                        </a>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile">
-                        <a className="cursor-pointer flex w-full items-center">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>Mi perfil</span>
-                        </a>
-                      </Link>
-                    </DropdownMenuItem>
+                    <Link href={user?.userType === 'patient' ? '/dashboard/patient' : '/dashboard/doctor'}>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </DropdownMenuItem>
+                    </Link>
+                    <Link href="/profile">
+                      <DropdownMenuItem className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Mi perfil</span>
+                      </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
@@ -158,22 +154,22 @@ export default function Navbar() {
       <div className={`${mobileMenuOpen ? 'block' : 'hidden'} sm:hidden`}>
         <div className="pt-2 pb-3 space-y-1">
           <Link href="/">
-            <a className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+            <span className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium cursor-pointer ${
               location === "/" 
                 ? "bg-primary-50 border-primary-500 text-primary-500" 
                 : "border-transparent text-neutral-500 hover:bg-neutral-50 hover:border-neutral-300 hover:text-neutral-700"
             }`}>
               Inicio
-            </a>
+            </span>
           </Link>
           <Link href="/doctors">
-            <a className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+            <span className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium cursor-pointer ${
               location.startsWith("/doctors") 
                 ? "bg-primary-50 border-primary-500 text-primary-500" 
                 : "border-transparent text-neutral-500 hover:bg-neutral-50 hover:border-neutral-300 hover:text-neutral-700"
             }`}>
               Doctores
-            </a>
+            </span>
           </Link>
           <a href="#how-it-works" className="border-transparent text-neutral-500 hover:bg-neutral-50 hover:border-neutral-300 hover:text-neutral-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
             Cómo funciona
@@ -205,14 +201,14 @@ export default function Navbar() {
               </div>
               <div className="mt-3 space-y-1">
                 <Link href={user?.userType === 'patient' ? '/dashboard/patient' : '/dashboard/doctor'}>
-                  <a className="block px-4 py-2 text-base font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100">
+                  <span className="block px-4 py-2 text-base font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 cursor-pointer">
                     Dashboard
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/profile">
-                  <a className="block px-4 py-2 text-base font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100">
+                  <span className="block px-4 py-2 text-base font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 cursor-pointer">
                     Mi perfil
-                  </a>
+                  </span>
                 </Link>
                 <button 
                   onClick={handleLogout}
@@ -223,22 +219,20 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center px-4">
-              <div className="flex-shrink-0">
-                <Link href="/login">
-                  <Button
-                    variant="outline"
-                    className="text-primary-500 border-primary-500 hover:bg-primary-50 mb-2 w-full"
-                  >
-                    Iniciar sesión
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button className="w-full">
-                    Registrarse
-                  </Button>
-                </Link>
-              </div>
+            <div className="flex flex-col items-center px-4">
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="text-primary-500 border-primary-500 hover:bg-primary-50 mb-2 w-full"
+                >
+                  Iniciar sesión
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button className="w-full">
+                  Registrarse
+                </Button>
+              </Link>
             </div>
           )}
         </div>
