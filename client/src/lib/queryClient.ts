@@ -7,33 +7,41 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-  options?: RequestInit,
-): Promise<Response> {
+export async function apiRequest<T = any>(
+  options: {
+    url: string;
+    method?: string;
+    data?: unknown;
+    headers?: Record<string, string>;
+    fetchOptions?: Omit<RequestInit, 'method' | 'body' | 'headers'>;
+  }
+): Promise<T> {
+  const { url, method = 'GET', data, headers = {}, fetchOptions = {} } = options;
+  
   // Merge headers, ensuring Content-Type is set for requests with data
-  const headers = {
+  const mergedHeaders = {
     ...(data ? { "Content-Type": "application/json" } : {}),
-    ...(options?.headers || {})
+    ...headers
   };
   
-  // Create request object without duplicating headers
+  // Create request object
   const requestConfig: RequestInit = {
     method,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
-    ...options
+    headers: mergedHeaders,
+    ...fetchOptions
   };
   
-  // Apply merged headers
-  requestConfig.headers = headers;
-  
   const res = await fetch(url, requestConfig);
-
   await throwIfResNotOk(res);
-  return res;
+  
+  // For HEAD or no content responses
+  if (method === 'HEAD' || res.status === 204) {
+    return {} as T;
+  }
+  
+  return res.json() as Promise<T>;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
