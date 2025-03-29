@@ -44,6 +44,7 @@ export interface IStorage {
   updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined>;
   verifyDoctor(doctorId: number, adminId: number, notes?: string): Promise<DoctorProfile | undefined>;
   searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]>;
+  searchDoctorsByLocation(lat: number, lng: number, maxDistance?: number, specialtyName?: string): Promise<Array<DoctorProfile & { distance: number }>>;
   updateDoctorBankAccount(doctorId: number, bankAccount: string): Promise<DoctorProfile | undefined>;
   getDoctorEarnings(doctorId: number): Promise<{
     totalEarnings: number;
@@ -399,6 +400,23 @@ export class MemStorage implements IStorage {
     };
   }
   
+  // Calcular distancia entre dos puntos geográficos usando la fórmula de Haversine
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radio de la Tierra en km
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+  
+  private deg2rad(deg: number): number {
+    return deg * (Math.PI/180);
+  }
+  
   async searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]> {
     let doctors = Array.from(this.doctorProfiles.values());
     
@@ -415,6 +433,66 @@ export class MemStorage implements IStorage {
     }
     
     return doctors;
+  }
+  
+  async searchDoctorsByLocation(
+    lat: number, 
+    lng: number, 
+    maxDistance: number = 10,
+    specialtyName?: string
+  ): Promise<Array<DoctorProfile & { distance: number }>> {
+    const doctors = await this.getAllDoctorProfiles();
+    let filteredDoctors = doctors.filter(d => d.isVerified && d.isAvailable);
+    
+    // Filtrar por especialidad si se proporciona
+    if (specialtyName) {
+      const specialties = await this.getAllSpecialties();
+      const specialty = specialties.find(s => 
+        s.name.toLowerCase().includes(specialtyName.toLowerCase())
+      );
+      
+      if (specialty) {
+        filteredDoctors = filteredDoctors.filter(d => d.specialtyId === specialty.id);
+      }
+    }
+    
+    // Para cada médico, necesitamos:
+    // 1. Obtener sus ubicaciones
+    // 2. Calcular la distancia desde la ubicación del paciente a cada ubicación del médico
+    // 3. Seleccionar la ubicación más cercana dentro del rango máximo
+    const result = await Promise.all(
+      filteredDoctors.map(async (doctor) => {
+        const doctorLocations = await this.getLocationsByUserId(doctor.userId);
+        
+        if (doctorLocations.length === 0) {
+          // El médico no tiene ubicaciones registradas
+          return null;
+        }
+        
+        // Calcular distancias a todas las ubicaciones del médico
+        const distances = doctorLocations.map(location => ({
+          location,
+          distance: this.calculateDistance(lat, lng, location.lat, location.lng)
+        }));
+        
+        // Ordenar por distancia y tomar la más cercana
+        distances.sort((a, b) => a.distance - b.distance);
+        const nearestLocation = distances[0];
+        
+        // Verificar si está dentro del rango máximo
+        if (nearestLocation.distance <= maxDistance) {
+          return {
+            ...doctor,
+            distance: nearestLocation.distance
+          };
+        }
+        
+        return null;
+      })
+    );
+    
+    // Filtrar los doctores que no tienen ubicaciones en el rango
+    return result.filter(doctor => doctor !== null) as Array<DoctorProfile & { distance: number }>;
   }
   
   // Specialties
@@ -440,7 +518,7 @@ export class MemStorage implements IStorage {
   
   async getAvailabilityByDoctorId(doctorProfileId: number): Promise<Availability[]> {
     return Array.from(this.availability.values()).filter(
-      (avail) => avail.doctorProfileId === doctorProfileId
+      avail => avail.doctorProfileId === doctorProfileId
     );
   }
   
@@ -467,7 +545,7 @@ export class MemStorage implements IStorage {
   
   async getLocationsByUserId(userId: number): Promise<Location[]> {
     return Array.from(this.locations.values()).filter(
-      (location) => location.userId === userId
+      location => location.userId === userId
     );
   }
   
@@ -494,13 +572,13 @@ export class MemStorage implements IStorage {
   
   async getAppointmentsByPatientId(patientId: number): Promise<Appointment[]> {
     return Array.from(this.appointments.values()).filter(
-      (appointment) => appointment.patientId === patientId
+      appointment => appointment.patientId === patientId
     );
   }
   
   async getAppointmentsByDoctorId(doctorId: number): Promise<Appointment[]> {
     return Array.from(this.appointments.values()).filter(
-      (appointment) => appointment.doctorId === doctorId
+      appointment => appointment.doctorId === doctorId
     );
   }
   
@@ -528,7 +606,7 @@ export class MemStorage implements IStorage {
   
   async getReviewsByRevieweeId(revieweeId: number): Promise<Review[]> {
     return Array.from(this.reviews.values()).filter(
-      (review) => review.revieweeId === revieweeId
+      review => review.revieweeId === revieweeId
     );
   }
   
@@ -543,7 +621,7 @@ export class MemStorage implements IStorage {
   // Notifications
   async getNotifications(userId: number): Promise<Notification[]> {
     return Array.from(this.notifications.values()).filter(
-      (notification) => notification.userId === userId
+      notification => notification.userId === userId
     );
   }
   
@@ -571,7 +649,7 @@ export class MemStorage implements IStorage {
   
   async getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined> {
     return Array.from(this.payments.values()).find(
-      (payment) => payment.appointmentId === appointmentId
+      payment => payment.appointmentId === appointmentId
     );
   }
   

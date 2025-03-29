@@ -1,134 +1,273 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/auth-context";
-import { Appointment } from "@/types";
-import PaymentForm from "@/components/payments/payment-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle2, Calendar, Clock, MapPin, FileText, User, DollarSign } from "lucide-react";
+import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+interface AppointmentDetails {
+  id: number;
+  doctorId: number;
+  patientId: number;
+  appointmentDate: string;
+  duration: number;
+  status: string;
+  reasonForVisit: string;
+  locationId: number;
+  createdAt: string;
+  doctor: {
+    id: number;
+    user: {
+      firstName: string;
+      lastName: string;
+    };
+    specialty: {
+      name: string;
+    };
+  };
+  location: {
+    address: string;
+    city: string;
+    postalCode: string;
+  };
+  payment: {
+    id: number;
+    amount: number;
+    status: string;
+  };
+}
 
 export default function AppointmentSuccess() {
-  const { isAuthenticated, user } = useAuth();
+  const { t, i18n } = useTranslation();
   const [location, navigate] = useLocation();
-  const [appointmentId, setAppointmentId] = useState<number | null>(null);
+  const { isAuthenticated, user } = useAuth();
+  const locale = i18n.language === 'es' ? es : enUS;
   
-  // Parse the appointment ID from the URL
+  const [appointmentId, setAppointmentId] = useState<number | null>(null);
+  const [appointment, setAppointment] = useState<AppointmentDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Extract appointment ID from URL
   useEffect(() => {
     const match = location.match(/\/appointment\/success\/(\d+)/);
     if (match && match[1]) {
       setAppointmentId(parseInt(match[1]));
+    } else {
+      setError(t('errors.invalid_appointment'));
     }
-  }, [location]);
-
-  // Redirect if not logged in
+  }, [location, t]);
+  
+  // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
     }
   }, [isAuthenticated, navigate]);
-
+  
   // Fetch appointment details
-  const { data: appointments = [], isLoading } = useQuery<Appointment[]>({
-    queryKey: ['/api/appointments'],
-    enabled: isAuthenticated && !!appointmentId,
-  });
-
-  // Find the specific appointment
-  const appointment = appointments.find(app => app.id === appointmentId);
-
-  if (!isAuthenticated) {
+  useEffect(() => {
+    if (!appointmentId) return;
+    
+    const fetchAppointment = async () => {
+      try {
+        setLoading(true);
+        
+        const response = await fetch(`/api/appointments/${appointmentId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setAppointment(data);
+      } catch (error) {
+        console.error("Error fetching appointment:", error);
+        setError(t('errors.appointment_fetch_failed'));
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAppointment();
+  }, [appointmentId, t]);
+  
+  const handleViewAppointments = () => {
+    navigate("/patient/appointments");
+  };
+  
+  const handleViewDashboard = () => {
+    navigate("/patient/dashboard");
+  };
+  
+  if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Debes iniciar sesión para ver los detalles de tu cita
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 flex justify-center items-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-        <span className="ml-2">Cargando detalles de la cita...</span>
-      </div>
-    );
-  }
-
-  if (!appointment) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            No encontramos la cita solicitada. Por favor, verifica el enlace e intenta de nuevo.
-          </AlertDescription>
-        </Alert>
-        <div className="mt-4 flex justify-center">
-          <Button onClick={() => navigate("/dashboard/patient")}>
-            Ir a mi dashboard
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle case when appointment is already paid
-  if (appointment.paymentStatus === 'paid') {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>¡Cita confirmada!</CardTitle>
-            <CardDescription>
-              Tu cita ha sido reservada y pagada correctamente
-            </CardDescription>
+      <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <Card className="border-green-200 shadow-md">
+          <CardHeader className="text-center">
+            <Skeleton className="h-10 w-3/4 mx-auto mb-4" />
+            <Skeleton className="h-4 w-1/2 mx-auto" />
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-6">
-              <div className="rounded-full bg-green-100 p-3 mb-4">
-                <CheckCircle className="h-10 w-10 text-green-600" />
+          <CardContent className="space-y-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="flex items-start space-x-3">
+                <Skeleton className="h-5 w-5 mt-0.5" />
+                <div>
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-3 w-40" />
+                </div>
               </div>
-              <h3 className="text-lg font-medium text-neutral-900 mb-2">¡Todo listo!</h3>
-              <p className="text-neutral-500 text-center mb-6">
-                Tu cita con {appointment.doctor?.firstName} {appointment.doctor?.lastName} está programada para el {new Date(appointment.appointmentDate).toLocaleDateString('es-ES', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
-                })} a las {new Date(appointment.appointmentDate).toLocaleTimeString('es-ES', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-              <Button onClick={() => navigate("/dashboard/patient")} className="mb-2">
-                Ver mis citas
-              </Button>
-              <Button variant="outline" onClick={() => navigate("/doctors")}>
-                Buscar más médicos
-              </Button>
-            </div>
+            ))}
           </CardContent>
         </Card>
       </div>
     );
   }
-
-  // Payment pending, show payment form
+  
+  if (error || !appointment) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <Alert variant="destructive">
+          <AlertTitle>{t('errors.error')}</AlertTitle>
+          <AlertDescription>
+            {error || t('errors.appointment_not_found')}
+          </AlertDescription>
+        </Alert>
+        <div className="mt-4 flex justify-center">
+          <Button onClick={() => navigate("/")}>
+            {t('general.back_to_home')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Format appointment date and time
+  const appointmentDate = new Date(appointment.appointmentDate);
+  const formattedDate = format(appointmentDate, 'PPP', { locale });
+  const formattedTime = format(appointmentDate, 'p', { locale });
+  const endTime = new Date(appointmentDate.getTime() + appointment.duration * 60000);
+  const formattedEndTime = format(endTime, 'p', { locale });
+  
   return (
-    <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <PaymentForm 
-          appointment={appointment} 
-          onSuccess={() => {
-            // This will be handled by the payment form's internal redirect
-          }} 
-        />
+    <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <Card className="border-green-200 shadow-md">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <CheckCircle2 className="h-16 w-16 text-green-500" />
+          </div>
+          <CardTitle className="text-2xl text-green-600">
+            {t('appointment.booking_success_title')}
+          </CardTitle>
+          <CardDescription>
+            {t('appointment.booking_reference', { id: appointment.id })}
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          <div className="flex items-start space-x-3">
+            <User className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="font-medium">{t('doctor.doctor')}</h4>
+              <p className="text-sm text-muted-foreground">
+                Dr. {appointment.doctor.user.firstName} {appointment.doctor.user.lastName} - {appointment.doctor.specialty.name}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <Calendar className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="font-medium">{t('appointment.date')}</h4>
+              <p className="text-sm text-muted-foreground">
+                {formattedDate}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <Clock className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="font-medium">{t('appointment.time')}</h4>
+              <p className="text-sm text-muted-foreground">
+                {formattedTime} - {formattedEndTime} ({appointment.duration} {t('appointment.minutes')})
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <MapPin className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="font-medium">{t('appointment.location')}</h4>
+              <p className="text-sm text-muted-foreground">
+                {appointment.location.address}, {appointment.location.city}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <FileText className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="font-medium">{t('appointment.reason')}</h4>
+              <p className="text-sm text-muted-foreground">
+                {appointment.reasonForVisit || t('appointment.not_provided')}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <DollarSign className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="font-medium">{t('appointment.payment')}</h4>
+              <p className="text-sm text-muted-foreground">
+                {new Intl.NumberFormat(i18n.language, { 
+                  style: 'currency', 
+                  currency: 'EUR' 
+                }).format(appointment.payment.amount / 100)} - 
+                <span className={appointment.payment.status === 'paid' ? 'text-green-600' : 'text-yellow-600'}>
+                  {' '}{t(`payment.status.${appointment.payment.status}`)}
+                </span>
+              </p>
+            </div>
+          </div>
+        </CardContent>
+        
+        <CardFooter className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <Button 
+            variant="outline" 
+            className="w-full sm:w-auto"
+            onClick={handleViewAppointments}
+          >
+            {t('appointment.view_all_appointments')}
+          </Button>
+          <Button 
+            className="w-full sm:w-auto"
+            onClick={handleViewDashboard}
+          >
+            {t('general.back_to_dashboard')}
+          </Button>
+        </CardFooter>
+      </Card>
+      
+      <div className="mt-8 text-center">
+        <p className="text-sm text-muted-foreground">
+          {t('appointment.confirmation_email')}
+        </p>
+        <p className="text-sm text-muted-foreground mt-1">
+          {t('appointment.questions_contact')}
+        </p>
       </div>
     </div>
   );

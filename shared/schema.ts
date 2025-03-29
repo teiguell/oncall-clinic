@@ -337,3 +337,28 @@ export const loginSchema = z.object({
 });
 
 export type LoginData = z.infer<typeof loginSchema>;
+
+// Schema para buscar médicos por ubicación
+export const doctorSearchSchema = z.object({
+  location: z.object({
+    lat: z.number(),
+    lng: z.number()
+  }),
+  maxDistance: z.number().default(10), // distancia máxima en kilómetros
+  specialtyName: z.string().default('medicina general')
+});
+
+export type DoctorSearchParams = z.infer<typeof doctorSearchSchema>;
+
+// Schema para crear cita
+export const appointmentBookingSchema = z.object({
+  doctorId: z.number(),
+  patientId: z.number(),
+  appointmentDate: z.string(), // ISO string format
+  duration: z.number().default(30), // duración en minutos por defecto 30
+  reasonForVisit: z.string(),
+  locationId: z.number(),
+  totalAmount: z.number() // en centavos
+});
+
+export type AppointmentBookingData = z.infer<typeof appointmentBookingSchema>;

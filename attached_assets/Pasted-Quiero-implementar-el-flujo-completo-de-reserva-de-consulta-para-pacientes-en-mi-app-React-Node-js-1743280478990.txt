@@ -1,0 +1,58 @@
+Quiero implementar el flujo completo de reserva de consulta para pacientes en mi app React + Node.js + MongoDB. 
+
+Condiciones:
+- Solo debe mostrar médicos generalistas (`specialty: 'medicina general'`).
+- Solo deben aparecer médicos con `isVerified: true` y `available: true`.
+- El paciente debe seleccionar su ubicación o usar geolocalización.
+
+Tecnologías:
+- React (frontend)
+- Node.js + Express (backend)
+- MongoDB
+- JWT para autenticación
+- Google Maps JavaScript API ya integrado
+
+Flujo esperado:
+
+1. **Búsqueda de médico (Frontend):**
+   - Mostrar input para seleccionar ubicación del paciente (autocompletado con Google Maps).
+   - Al hacer clic en "Buscar médicos", enviar `lat`, `lng` al backend.
+
+2. **API de búsqueda (Backend):**
+   - Crear endpoint `POST /api/search/doctors` que:
+     - Recibe `{ location: { lat, lng } }`
+     - Filtra médicos verificados, disponibles y con `specialty: 'medicina general'`
+     - Devuelve solo los que estén dentro de 10 km del paciente (usar fórmula Haversine o Google Distance Matrix).
+     - Devuelve nombre, foto, número de colegiado, distancia y `weeklyAvailability`.
+
+3. **Selección de franja (Frontend):**
+   - Mostrar calendario semanal visual del médico (ya implementado).
+   - El paciente escoge un día y una hora disponible.
+
+4. **Confirmación de cita (Frontend):**
+   - Mostrar resumen de la reserva:
+     - Médico seleccionado
+     - Día y hora
+     - Precio estimado (puede ser mock por ahora)
+   - Botón “Confirmar consulta”
+
+5. **Reserva (Backend):**
+   - Endpoint `POST /api/appointments`:
+     - Verifica que el horario seleccionado esté libre.
+     - Crea la cita en la base de datos con estado `pending`.
+     - Envía notificación al médico por WebSocket.
+
+6. **Confirmación visual (Frontend):**
+   - Mostrar mensaje de éxito.
+   - Opción de ver resumen de citas reservadas.
+
+Modelo de cita:
+```ts
+{
+  patientId: ObjectId,
+  doctorId: ObjectId,
+  startTime: Date,
+  endTime: Date,
+  status: 'pending' | 'accepted' | 'rejected' | 'completed',
+  createdAt: Date
+}

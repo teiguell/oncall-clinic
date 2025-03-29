@@ -1275,6 +1275,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // SPECIALTY ROUTES
   
+  // ROUTES FOR APPOINTMENT BOOKING / DOCTOR SEARCH
+  
+  // API para buscar médicos por ubicación
+  app.post('/api/search/doctors', async (req, res) => {
+    try {
+      // Validar los datos de entrada
+      const searchParams = doctorSearchSchema.parse(req.body);
+      const { location, maxDistance, specialtyName } = searchParams;
+      
+      // Buscar médicos cercanos
+      const doctors = await storage.searchDoctorsByLocation(
+        location.lat, 
+        location.lng, 
+        maxDistance,
+        specialtyName
+      );
+      
+      // Enriquecer los resultados con información del usuario
+      const enrichedDoctors = await Promise.all(
+        doctors.map(async (doctorWithDistance) => {
+          const user = await storage.getUser(doctorWithDistance.userId);
+          const specialty = await storage.getSpecialty(doctorWithDistance.specialtyId);
+          
+          if (!user) return null;
+          
+          const { password, ...userWithoutPassword } = user;
+          
+          return {
+            ...doctorWithDistance,
+            user: userWithoutPassword,
+            specialty
+          };
+        })
+      );
+      
+      // Filtrar resultados nulos
+      const validDoctors = enrichedDoctors.filter(doctor => doctor !== null);
+      
+      res.json(validDoctors);
+    } catch (error) {
+      console.error('Error en búsqueda de médicos:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Datos de búsqueda inválidos", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error del servidor durante la búsqueda de médicos" });
+    }
+  });
+  
+
+  
   // Get all specialties
   app.get('/api/specialties', async (req, res) => {
     try {
@@ -1286,6 +1336,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // LOCATION ROUTES
+  
+  // API para crear ubicaciones
+  app.post('/api/locations', async (req, res) => {
+    try {
+      // Verificar autenticación
+      const authResult = await isAuthenticated(req, res);
+      if (!authResult) {
+        return res.status(401).json({ error: 'No autenticado' });
+      }
+      
+      // Validar datos
+      const locationData = insertLocationSchema.parse({
+        ...req.body,
+        userId: authResult.userId
+      });
+      
+      // Crear ubicación
+      const location = await storage.createLocation(locationData);
+      
+      return res.status(201).json(location);
+    } catch (error) {
+      console.error('Error al crear ubicación:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Datos inválidos', details: error.format() });
+      }
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  });
+  
+  // API para obtener ubicaciones del usuario
+  app.get('/api/locations', async (req, res) => {
+    try {
+      // Verificar autenticación
+      const authResult = await isAuthenticated(req, res);
+      if (!authResult) {
+        return res.status(401).json({ error: 'No autenticado' });
+      }
+      
+      // Obtener ubicaciones
+      const locations = await storage.getLocationsByUserId(authResult.userId);
+      
+      return res.json(locations);
+    } catch (error) {
+      console.error('Error al obtener ubicaciones:', error);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  });
   
   // Add location
   app.post('/api/locations', async (req, res) => {
@@ -1416,6 +1513,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(enrichedAppointments);
     } catch (error) {
       res.status(500).json({ message: "Server error fetching appointments" });
+    }
+  });
+  
+  // Get single appointment by ID
+  app.get('/api/appointments/:id', async (req, res) => {
+    const auth = await isAuthenticated(req, res);
+    if (!auth) return;
+    
+    try {
+      const appointmentId = parseInt(req.params.id);
+      if (isNaN(appointmentId)) {
+        return res.status(400).json({ message: "Invalid appointment ID" });
+      }
+      
+      const appointment = await storage.getAppointment(appointmentId);
+      if (!appointment) {
+        return res.status(404).json({ message: "Appointment not found" });
+      }
+      
+      // Check if user is authorized to view this appointment
+      if (auth.userType !== 'admin' && 
+          auth.userId !== appointment.patientId && 
+          auth.userId !== appointment.doctorId) {
+        return res.status(403).json({ message: "Not authorized to view this appointment" });
+      }
+      
+      // Get doctor details including specialty
+      const doctor = await storage.getUser(appointment.doctorId);
+      if (!doctor) {
+        return res.status(500).json({ message: "Doctor information not found" });
+      }
+      
+      const doctorProfile = await storage.getDoctorProfileByUserId(doctor.id);
+      if (!doctorProfile) {
+        return res.status(500).json({ message: "Doctor profile not found" });
+      }
+      
+      const specialty = await storage.getSpecialty(doctorProfile.specialtyId);
+      
+      // Get location
+      const location = await storage.getLocation(appointment.locationId);
+      if (!location) {
+        return res.status(500).json({ message: "Location information not found" });
+      }
+      
+      // Get payment
+      const payment = await storage.getPaymentByAppointmentId(appointment.id);
+      
+      // Hide sensitive doctor data
+      const { password: doctorPassword, ...doctorData } = doctor;
+      
+      // Return enriched appointment data
+      res.json({
+        ...appointment,
+        doctor: {
+          id: doctorProfile.id,
+          user: doctorData,
+          specialty: specialty || { name: "Especialidad no especificada" }
+        },
+        location,
+        payment
+      });
+    } catch (error) {
+      console.error('Error fetching appointment details:', error);
+      res.status(500).json({ message: "Server error fetching appointment details" });
     }
   });
   
