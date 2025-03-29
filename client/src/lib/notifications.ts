@@ -1,249 +1,218 @@
-import { apiRequest } from "@/lib/queryClient";
-import { getStoredSession } from "@/lib/auth";
-import { Notification } from "@/types";
+import { Notification } from '@shared/schema';
+import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 
-// Interface for real-time WebSocket notifications
+// Interface for WebSocket notifications, which have a different structure
+// than database notifications
 interface WSNotification {
   type: string;
-  message: string;
+  message?: string;
   appointmentId?: number;
   status?: string;
   timestamp?: string;
   [key: string]: any;
 }
 
-// WebSocket connection for real-time notifications
+// Union type for handling both types of notifications
+type AnyNotification = Notification | WSNotification;
+
 let socket: WebSocket | null = null;
-let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
-const RECONNECT_DELAY = 3000; // 3 seconds
+const RECONNECT_DELAY_MS = 3000;
+const subscribers: ((notification: WSNotification) => void)[] = [];
 
-// Setup WebSocket connection
 export const setupNotificationsSocket = (): void => {
-  const sessionData = getStoredSession();
-  if (!sessionData) return;
-  
-  // Clear any existing reconnect timers
-  if (reconnectTimer) {
-    clearTimeout(reconnectTimer);
-    reconnectTimer = null;
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    return;
   }
-  
-  // Close existing connection if any
-  if (socket) {
-    socket.close();
-  }
-  
-  // Create new WebSocket connection
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   const wsUrl = `${protocol}//${window.location.host}/ws`;
   
-  socket = new WebSocket(wsUrl);
-  
-  socket.addEventListener('open', () => {
-    console.log('WebSocket connection established');
-    // Reset reconnect attempts on successful connection
-    reconnectAttempts = 0;
-    
-    // Authenticate the WebSocket connection
-    if (socket && sessionData) {
-      socket.send(JSON.stringify({
-        type: 'auth',
-        sessionId: sessionData.sessionId
-      }));
-    }
-  });
-  
-  socket.addEventListener('error', (error) => {
-    console.error('WebSocket error:', error);
-  });
-  
-  socket.addEventListener('close', (event) => {
-    console.log(`WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}`);
-    
-    // Attempt to reconnect if not a normal closure and we haven't exceeded max attempts
-    if (event.code !== 1000 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-      reconnectAttempts++;
-      console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+  try {
+    socket = new WebSocket(wsUrl);
+
+    socket.onopen = () => {
+      console.log('WebSocket connection established');
+      reconnectAttempts = 0;
       
-      reconnectTimer = setTimeout(() => {
-        setupNotificationsSocket();
-      }, RECONNECT_DELAY);
-    } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-      console.error('Maximum reconnection attempts reached. Please refresh the page.');
-    }
-  });
+      // Authenticate the WebSocket connection
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        const sessionId = localStorage.getItem('sessionToken');
+        if (sessionId) {
+          socket.send(JSON.stringify({ type: 'auth', sessionId }));
+        }
+      }
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        subscribers.forEach(callback => callback(data));
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    socket.onclose = (event) => {
+      console.log('WebSocket connection closed', event.code, event.reason);
+      
+      // Attempt to reconnect unless the connection was closed intentionally
+      if (event.code !== 1000) {
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          reconnectAttempts++;
+          console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+          setTimeout(setupNotificationsSocket, RECONNECT_DELAY_MS);
+        } else {
+          console.error('Maximum reconnection attempts reached');
+        }
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+  } catch (error) {
+    console.error('Error setting up WebSocket:', error);
+  }
 };
 
-// Close WebSocket connection
 export const closeNotificationsSocket = (): void => {
-  if (socket) {
-    socket.close();
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.close(1000, 'Closing connection intentionally');
     socket = null;
   }
 };
 
-// Subscribe to notifications
-export const subscribeToNotifications = (callback: (notification: WSNotification) => void): () => void => {
-  if (!socket) {
-    setupNotificationsSocket();
-  }
+export const subscribeToNotifications = (callback: (notification: AnyNotification) => void): () => void => {
+  subscribers.push(callback as (notification: WSNotification) => void);
   
   const handleMessage = (event: MessageEvent) => {
     try {
-      const data = JSON.parse(event.data) as WSNotification;
+      const data = JSON.parse(event.data);
       callback(data);
     } catch (error) {
       console.error('Error parsing notification:', error);
     }
   };
   
-  if (socket) {
-    socket.addEventListener('message', handleMessage);
-  }
-  
-  // Return unsubscribe function
   return () => {
-    if (socket) {
-      socket.removeEventListener('message', handleMessage);
+    const index = subscribers.indexOf(callback as (notification: WSNotification) => void);
+    if (index !== -1) {
+      subscribers.splice(index, 1);
     }
   };
 };
 
-// Get all notifications
 export const getNotifications = async (): Promise<Notification[]> => {
-  const sessionData = getStoredSession();
-  
-  if (!sessionData) {
-    throw new Error("Not authenticated");
-  }
-  
-  const response = await apiRequest("GET", "/api/notifications", undefined, {
-    headers: {
-      Authorization: `Bearer ${sessionData.sessionId}`
+  try {
+    const response = await fetch('/api/notifications');
+    if (!response.ok) {
+      throw new Error('Failed to fetch notifications');
     }
-  });
-  
-  return response.json();
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return [];
+  }
 };
 
-// Mark notification as read
 export const markNotificationAsRead = async (notificationId: number): Promise<Notification> => {
-  const sessionData = getStoredSession();
-  
-  if (!sessionData) {
-    throw new Error("Not authenticated");
-  }
-  
-  const response = await apiRequest("PATCH", `/api/notifications/${notificationId}/read`, {}, {
+  const response = await fetch(`/api/notifications/${notificationId}/read`, {
+    method: 'PATCH',
     headers: {
-      Authorization: `Bearer ${sessionData.sessionId}`
-    }
+      'Content-Type': 'application/json',
+    },
   });
   
-  return response.json();
+  if (!response.ok) {
+    throw new Error('Failed to mark notification as read');
+  }
+  
+  return await response.json();
 };
 
-// Format notification message for display
-export const formatNotification = (notification: Notification | WSNotification): {
+export const formatNotification = (notification: AnyNotification): {
   title: string;
   message: string;
-  icon: string;
+  time: string;
+  href?: string;
 } => {
-  // Default values
-  let title = "Notificación";
-  let icon = "notifications";
-  let message = "";
+  // Get the current i18next instance
+  const t = i18next.t.bind(i18next);
+
+  // Handle different notification structures
+  const timestamp = 'createdAt' in notification 
+    ? new Date(notification.createdAt)
+    : ('timestamp' in notification && notification.timestamp)
+      ? new Date(notification.timestamp) 
+      : new Date();
   
-  // Check notification source (websocket or database)
-  const isWebsocketNotification = 'message' in notification;
+  const time = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   
-  // Get the notification type
-  const type = notification.type;
+  let title = '';
+  let message = '';
+  let href = undefined;
   
-  // Get message from the correct property based on notification source
-  if (isWebsocketNotification) {
-    message = (notification as WSNotification).message;
-  } else {
-    message = (notification as Notification).content;
-  }
+  // Extract data from Notification structure
+  const notificationData = 'data' in notification 
+    ? (notification.data as any || {})
+    : {};
   
-  // Set appropriate icon and title based on notification type
-  switch (type) {
-    case 'new_appointment':
-      title = "Nueva cita";
-      icon = "calendar_today";
+  // Get message from different fields depending on notification structure
+  const notificationMessage = 'message' in notification 
+    ? notification.message 
+    : 'content' in notification 
+      ? notification.content
+      : '';
+  
+  // Get status and appointmentId depending on structure
+  const status = 'status' in notification 
+    ? notification.status 
+    : notificationData.status;
+  
+  const appointmentId = 'appointmentId' in notification 
+    ? notification.appointmentId 
+    : notificationData.appointmentId;
+  
+  const statusText = status ? t(`appointment.status.${status}`) : t('notifications.unknown');
+  
+  switch (notification.type) {
+    case 'appointment_status':
+      title = t('notifications.titleLabels.statusUpdate');
+      message = t('notifications.appointment.statusUpdate', { status: statusText });
+      href = appointmentId ? `/appointments/${appointmentId}` : undefined;
       break;
-    case 'appointment_update':
-      title = "Actualización de cita";
-      icon = "event_note";
+    case 'new_appointment':
+      title = t('notifications.titleLabels.newAppointment');
+      message = notificationMessage || t('notifications.appointment.new');
+      href = appointmentId ? `/appointments/${appointmentId}` : undefined;
       break;
     case 'appointment_reminder':
-      title = "Recordatorio de cita";
-      icon = "alarm";
-      break;
-    case 'appointment_status':
-      title = "Estado de cita actualizado";
-      
-      // Get status from the correct property
-      let status: string | undefined;
-      
-      if (isWebsocketNotification) {
-        status = (notification as WSNotification).status;
-      } else if ((notification as Notification).data) {
-        status = (notification as Notification).data?.status;
-      }
-      
-      // Use different icons based on status if available
-      if (status) {
-        switch (status) {
-          case 'confirmed':
-            icon = "check_circle";
-            break;
-          case 'en_route':
-            icon = "directions_car";
-            break;
-          case 'arrived':
-            icon = "location_on";
-            break;
-          case 'in_progress':
-            icon = "medical_services";
-            break;
-          case 'completed':
-            icon = "task_alt";
-            break;
-          case 'canceled':
-            icon = "cancel";
-            break;
-          default:
-            icon = "event_note";
-        }
-      } else {
-        icon = "event_note";
-      }
-      break;
-    case 'new_review':
-      title = "Nueva reseña";
-      icon = "star";
+      title = t('notifications.titleLabels.reminder');
+      message = notificationMessage || t('notifications.appointment.reminder');
+      href = appointmentId ? `/appointments/${appointmentId}` : undefined;
       break;
     case 'payment_success':
-      title = "Pago exitoso";
-      icon = "check_circle";
+      title = t('notifications.titleLabels.paymentSuccess');
+      message = notificationMessage || t('notifications.payment.success');
+      href = appointmentId ? `/appointments/${appointmentId}` : undefined;
       break;
-    case 'payment_failed':
-      title = "Error en el pago";
-      icon = "error";
+    case 'review_received':
+      title = t('notifications.titleLabels.newReview');
+      message = notificationMessage || t('notifications.review.received');
+      href = '/dashboard';
       break;
-    case 'appointment_paid':
-      title = "Cita pagada";
-      icon = "paid";
-      break;
+    default:
+      title = notification.type.replace(/_/g, ' ');
+      message = notificationMessage || '';
   }
   
   return {
     title,
     message,
-    icon
+    time,
+    href,
   };
 };

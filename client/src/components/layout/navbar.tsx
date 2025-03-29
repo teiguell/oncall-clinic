@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/context/auth-context";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import LanguageSwitcher from "@/components/ui/language-switcher";
 import { 
   Bell,
   Menu,
@@ -18,6 +20,7 @@ export default function Navbar() {
   const [location] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Close mobile menu when location changes
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function Navbar() {
                     ? "border-primary-500 text-primary-500" 
                     : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
                 }`}>
-                  Inicio
+                  {t('nav.home')}
                 </span>
               </Link>
               <Link href="/doctors">
@@ -66,11 +69,11 @@ export default function Navbar() {
                     ? "border-primary-500 text-primary-500" 
                     : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
                 }`}>
-                  Doctores
+                  {t('nav.doctors')}
                 </span>
               </Link>
               <a href="#how-it-works" className="border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                Cómo funciona
+                {t('home.features.title')}
               </a>
             </div>
           </div>
@@ -101,36 +104,38 @@ export default function Navbar() {
                     <Link href={user?.userType === 'patient' ? '/dashboard/patient' : '/dashboard/doctor'}>
                       <DropdownMenuItem className="cursor-pointer">
                         <Calendar className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
+                        <span>{t('nav.dashboard')}</span>
                       </DropdownMenuItem>
                     </Link>
                     <Link href="/profile">
                       <DropdownMenuItem className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" />
-                        <span>Mi perfil</span>
+                        <span>{t('nav.profile')}</span>
                       </DropdownMenuItem>
                     </Link>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Cerrar sesión</span>
+                      <span>{t('nav.logout')}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             ) : (
               <>
+                <LanguageSwitcher />
+                
                 <Link href="/login">
                   <Button
                     variant="outline"
-                    className="text-primary-500 border-primary-500 hover:bg-primary-50 mr-3"
+                    className="text-primary-500 border-primary-500 hover:bg-primary-50 mx-3"
                   >
-                    Iniciar sesión
+                    {t('nav.login')}
                   </Button>
                 </Link>
                 <Link href="/register">
                   <Button>
-                    Registrarse
+                    {t('nav.register')}
                   </Button>
                 </Link>
               </>
@@ -159,7 +164,7 @@ export default function Navbar() {
                 ? "bg-primary-50 border-primary-500 text-primary-500" 
                 : "border-transparent text-neutral-500 hover:bg-neutral-50 hover:border-neutral-300 hover:text-neutral-700"
             }`}>
-              Inicio
+              {t('nav.home')}
             </span>
           </Link>
           <Link href="/doctors">
@@ -168,12 +173,16 @@ export default function Navbar() {
                 ? "bg-primary-50 border-primary-500 text-primary-500" 
                 : "border-transparent text-neutral-500 hover:bg-neutral-50 hover:border-neutral-300 hover:text-neutral-700"
             }`}>
-              Doctores
+              {t('nav.doctors')}
             </span>
           </Link>
           <a href="#how-it-works" className="border-transparent text-neutral-500 hover:bg-neutral-50 hover:border-neutral-300 hover:text-neutral-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-            Cómo funciona
+            {t('home.features.title')}
           </a>
+          <div className="pl-3 pr-4 py-2 flex items-center">
+            <span className="mr-2">{t('nav.language')}:</span>
+            <LanguageSwitcher />
+          </div>
         </div>
         <div className="pt-4 pb-3 border-t border-neutral-200">
           {isAuthenticated ? (
@@ -202,19 +211,19 @@ export default function Navbar() {
               <div className="mt-3 space-y-1">
                 <Link href={user?.userType === 'patient' ? '/dashboard/patient' : '/dashboard/doctor'}>
                   <span className="block px-4 py-2 text-base font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 cursor-pointer">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </span>
                 </Link>
                 <Link href="/profile">
                   <span className="block px-4 py-2 text-base font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 cursor-pointer">
-                    Mi perfil
+                    {t('nav.profile')}
                   </span>
                 </Link>
                 <button 
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-base font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100"
                 >
-                  Cerrar sesión
+                  {t('nav.logout')}
                 </button>
               </div>
             </div>
@@ -225,12 +234,12 @@ export default function Navbar() {
                   variant="outline"
                   className="text-primary-500 border-primary-500 hover:bg-primary-50 mb-2 w-full"
                 >
-                  Iniciar sesión
+                  {t('nav.login')}
                 </Button>
               </Link>
               <Link href="/register">
                 <Button className="w-full">
-                  Registrarse
+                  {t('nav.register')}
                 </Button>
               </Link>
             </div>

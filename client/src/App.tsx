@@ -3,10 +3,12 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./context/auth-context";
+import { useTranslation } from "react-i18next";
 
 // Layout components
 import Navbar from "./components/layout/navbar";
 import Footer from "./components/layout/footer";
+import LanguageSwitcher from "./components/ui/language-switcher";
 
 // Pages
 import Home from "./pages/home";
