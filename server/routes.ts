@@ -59,9 +59,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/test', (req, res) => {
     res.sendFile(path.resolve(process.cwd(), 'client/public/test.html'));
   });
+  
+  // Add a WebSocket test page
+  app.get('/ws-test', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'client/public/websocket-test.html'));
+  });
 
   const httpServer = createServer(app);
-  const wss = new WebSocketServer({ server: httpServer });
   
   // Setup express-session with memorystore
   const MemoryStoreSession = MemoryStore(session);
@@ -80,19 +84,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
   
+  // Create WebSocket server with specific path to avoid conflict with Vite HMR
+  const wss = new WebSocketServer({ 
+    server: httpServer, 
+    path: '/ws' 
+  });
+  
   // WebSocket for real-time notifications
   wss.on('connection', (ws) => {
+    console.log('WebSocket connection established');
+    
+    // Send a welcome message
+    ws.send(JSON.stringify({
+      type: 'system',
+      message: 'Connected to Medical Services WebSocket Server'
+    }));
+    
     ws.on('message', (message) => {
-      const data = JSON.parse(message.toString());
-      
-      // Handle authentication
-      if (data.type === 'auth' && data.sessionId) {
-        const session = sessions.get(data.sessionId);
-        if (session) {
-          // Store userId in the websocket object
-          (ws as any).userId = session.userId;
+      try {
+        console.log('Received message:', message.toString());
+        const data = JSON.parse(message.toString());
+        
+        // Handle authentication
+        if (data.type === 'auth' && data.sessionId) {
+          const session = sessions.get(data.sessionId);
+          if (session) {
+            // Store userId in the websocket object
+            (ws as any).userId = session.userId;
+            ws.send(JSON.stringify({
+              type: 'auth_response',
+              success: true,
+              message: 'Authentication successful'
+            }));
+          } else {
+            ws.send(JSON.stringify({
+              type: 'auth_response',
+              success: false,
+              message: 'Invalid session'
+            }));
+          }
         }
+        
+        // Handle test messages
+        if (data.type === 'test') {
+          ws.send(JSON.stringify({
+            type: 'test_response',
+            message: `Echo: ${data.message || 'No message provided'}`,
+            timestamp: new Date().toISOString()
+          }));
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: 'Invalid message format'
+        }));
       }
+    });
+    
+    ws.on('close', () => {
+      console.log('WebSocket connection closed');
     });
   });
   

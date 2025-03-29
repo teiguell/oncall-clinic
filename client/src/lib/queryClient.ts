@@ -11,13 +11,26 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  options?: RequestInit,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  // Merge headers, ensuring Content-Type is set for requests with data
+  const headers = {
+    ...(data ? { "Content-Type": "application/json" } : {}),
+    ...(options?.headers || {})
+  };
+  
+  // Create request object without duplicating headers
+  const requestConfig: RequestInit = {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
-  });
+    ...options
+  };
+  
+  // Apply merged headers
+  requestConfig.headers = headers;
+  
+  const res = await fetch(url, requestConfig);
 
   await throwIfResNotOk(res);
   return res;
