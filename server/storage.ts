@@ -11,6 +11,7 @@ import {
   payments, type Payment, type InsertPayment,
   type WeeklyAvailability
 } from "@shared/schema";
+import crypto from "crypto";
 
 export interface IStorage {
   // Users
@@ -30,10 +31,19 @@ export interface IStorage {
   getDoctorProfile(id: number): Promise<DoctorProfile | undefined>;
   getDoctorProfileByUserId(userId: number): Promise<DoctorProfile | undefined>;
   getAllDoctorProfiles(): Promise<DoctorProfile[]>;
+  getUnverifiedDoctorProfiles(): Promise<DoctorProfile[]>;
   createDoctorProfile(profile: InsertDoctorProfile): Promise<DoctorProfile>;
   updateDoctorProfile(id: number, data: Partial<DoctorProfile>): Promise<DoctorProfile | undefined>;
   updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined>;
-  searchDoctors(specialtyId?: number, available?: boolean): Promise<DoctorProfile[]>;
+  verifyDoctor(doctorId: number, adminId: number, notes?: string): Promise<DoctorProfile | undefined>;
+  searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]>;
+  updateDoctorBankAccount(doctorId: number, bankAccount: string): Promise<DoctorProfile | undefined>;
+  getDoctorEarnings(doctorId: number): Promise<{
+    totalEarnings: number;
+    pendingEarnings: number;
+    commissionRate: number;
+    netEarnings: number;
+  } | undefined>;
   
   // Specialties
   getSpecialty(id: number): Promise<Specialty | undefined>;
@@ -122,8 +132,9 @@ export class MemStorage implements IStorage {
     this.currentNotificationId = 1;
     this.currentPaymentId = 1;
     
-    // Initialize with some specialties
+    // Initialize with some specialties and an admin user
     this.initializeSpecialties();
+    this.initializeAdminUser();
   }
   
   private initializeSpecialties() {
@@ -141,6 +152,35 @@ export class MemStorage implements IStorage {
       const id = this.currentSpecialtyId++;
       this.specialties.set(id, { id, ...specialty });
     });
+  }
+  
+  private initializeAdminUser() {
+    // Crear un usuario administrador para pruebas
+    const adminId = this.currentUserId++;
+    const hashedPassword = crypto.createHmac('sha256', 'salt').update('admin123').digest('hex');
+    
+    const adminUser: User = {
+      id: adminId,
+      username: 'admin',
+      email: 'admin@oncall.clinic',
+      password: hashedPassword,
+      userType: 'admin',
+      firstName: 'Admin',
+      lastName: 'User',
+      phoneNumber: '123456789',
+      emailVerified: true,
+      twoFactorEnabled: false,
+      profilePicture: null,
+      authProvider: 'local',
+      authProviderId: null,
+      createdAt: new Date()
+    };
+    
+    this.users.set(adminId, adminUser);
+    
+    console.log('Usuario administrador creado:');
+    console.log('- Email: admin@oncall.clinic');
+    console.log('- Contraseña: admin123');
   }
   
   // Users
@@ -219,9 +259,25 @@ export class MemStorage implements IStorage {
     return Array.from(this.doctorProfiles.values());
   }
   
+  async getUnverifiedDoctorProfiles(): Promise<DoctorProfile[]> {
+    return Array.from(this.doctorProfiles.values())
+      .filter(profile => profile.isVerified === false);
+  }
+  
   async createDoctorProfile(profile: InsertDoctorProfile): Promise<DoctorProfile> {
     const id = this.currentDoctorProfileId++;
-    const newProfile: DoctorProfile = { ...profile, id, averageRating: 0 };
+    const newProfile: DoctorProfile = { 
+      ...profile, 
+      id, 
+      averageRating: 0,
+      isAvailable: false,
+      isVerified: false,
+      totalEarnings: 0,
+      pendingEarnings: 0,
+      commissionRate: 15.0,
+      verificationDate: null,
+      verifiedBy: null
+    };
     this.doctorProfiles.set(id, newProfile);
     return newProfile;
   }
@@ -248,7 +304,60 @@ export class MemStorage implements IStorage {
     return updatedProfile;
   }
   
-  async searchDoctors(specialtyId?: number, available?: boolean): Promise<DoctorProfile[]> {
+  async verifyDoctor(doctorId: number, adminId: number, notes?: string): Promise<DoctorProfile | undefined> {
+    const profile = await this.getDoctorProfile(doctorId);
+    if (!profile) return undefined;
+    
+    // Verificar el perfil del médico
+    const verificationDate = new Date();
+    const updatedProfile = await this.updateDoctorProfile(profile.id, {
+      isVerified: true,
+      verificationDate,
+      verifiedBy: adminId
+    });
+    
+    if (updatedProfile) {
+      // Crear notificación para el médico
+      await this.createNotification({
+        userId: profile.userId,
+        type: "verification",
+        content: notes || "Su cuenta ha sido verificada. Ya puede comenzar a recibir solicitudes de citas.",
+        data: {
+          doctorId: profile.id,
+          verifiedBy: adminId,
+          verificationDate
+        } as any
+      });
+    }
+    
+    return updatedProfile;
+  }
+  
+  async updateDoctorBankAccount(doctorId: number, bankAccount: string): Promise<DoctorProfile | undefined> {
+    const profile = await this.getDoctorProfile(doctorId);
+    if (!profile) return undefined;
+    
+    return this.updateDoctorProfile(profile.id, { bankAccount });
+  }
+  
+  async getDoctorEarnings(doctorId: number): Promise<{
+    totalEarnings: number;
+    pendingEarnings: number;
+    commissionRate: number;
+    netEarnings: number;
+  } | undefined> {
+    const profile = await this.getDoctorProfile(doctorId);
+    if (!profile) return undefined;
+    
+    return {
+      totalEarnings: profile.totalEarnings,
+      pendingEarnings: profile.pendingEarnings,
+      commissionRate: profile.commissionRate,
+      netEarnings: Math.round(profile.totalEarnings * (1 - profile.commissionRate / 100))
+    };
+  }
+  
+  async searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]> {
     let doctors = Array.from(this.doctorProfiles.values());
     
     if (specialtyId !== undefined) {
@@ -257,6 +366,10 @@ export class MemStorage implements IStorage {
     
     if (available !== undefined) {
       doctors = doctors.filter(doctor => doctor.isAvailable === available);
+    }
+    
+    if (verified !== undefined) {
+      doctors = doctors.filter(doctor => doctor.isVerified === verified);
     }
     
     return doctors;

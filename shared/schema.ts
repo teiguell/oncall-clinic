@@ -8,13 +8,15 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  userType: text("user_type").notNull(), // "patient" or "doctor"
+  userType: text("user_type").notNull(), // "patient", "doctor", or "admin"
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   phoneNumber: text("phone_number").notNull(),
   emailVerified: boolean("email_verified").default(false),
   twoFactorEnabled: boolean("two_factor_enabled").default(false),
   profilePicture: text("profile_picture"),
+  authProvider: text("auth_provider").default("local"), // "local", "google", "apple"
+  authProviderId: text("auth_provider_id"), // ID from OAuth provider if applicable
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -35,14 +37,23 @@ export const doctorProfiles = pgTable("doctor_profiles", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   specialtyId: integer("specialty_id").notNull().references(() => specialties.id),
-  licenseNumber: text("license_number").notNull(),
+  licenseNumber: text("license_number").notNull(), // Número de colegiado
   education: text("education").notNull(),
   experience: integer("experience").notNull(), // years
   bio: text("bio").notNull(),
   basePrice: integer("base_price").notNull(), // in cents
-  isAvailable: boolean("is_available").default(true),
+  isAvailable: boolean("is_available").default(false), // Default to false until verified
+  isVerified: boolean("is_verified").default(false), // Admin verification status
+  identityDocFront: text("identity_doc_front"), // DNI frontal
+  identityDocBack: text("identity_doc_back"), // DNI reverso
+  bankAccount: text("bank_account"), // IBAN
   averageRating: doublePrecision("average_rating").default(0),
   weeklyAvailability: jsonb("weekly_availability"),
+  commissionRate: doublePrecision("commission_rate").default(15.0), // Platform commission percentage
+  totalEarnings: integer("total_earnings").default(0), // Total earnings in cents
+  pendingEarnings: integer("pending_earnings").default(0), // Earnings not yet transferred
+  verificationDate: timestamp("verification_date"), // When the doctor was verified
+  verifiedBy: integer("verified_by").references(() => users.id), // Admin who verified
 });
 
 // Specialties table
@@ -135,7 +146,12 @@ export const insertPatientProfileSchema = createInsertSchema(patientProfiles).om
 
 export const insertDoctorProfileSchema = createInsertSchema(doctorProfiles).omit({
   id: true,
-  averageRating: true
+  averageRating: true,
+  isVerified: true,
+  verificationDate: true,
+  verifiedBy: true,
+  totalEarnings: true,
+  pendingEarnings: true
 });
 
 export const insertSpecialtySchema = createInsertSchema(specialties).omit({
@@ -223,3 +239,41 @@ export const weeklyAvailabilitySchema = z.object({
 
 export type TimeSlot = z.infer<typeof timeSlotSchema>;
 export type WeeklyAvailability = z.infer<typeof weeklyAvailabilitySchema>;
+
+// Doctor registration specific schemas
+export const doctorRegistrationSchema = z.object({
+  // User information
+  email: z.string().email("Correo electrónico inválido"),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  confirmPassword: z.string(),
+  firstName: z.string().min(2, "Nombre demasiado corto"),
+  lastName: z.string().min(2, "Apellido demasiado corto"),
+  phoneNumber: z.string().min(9, "Número de teléfono inválido"),
+  
+  // Professional information
+  licenseNumber: z.string().min(4, "Número de colegiado inválido"),
+  specialtyId: z.number().int().positive("Debe seleccionar una especialidad"),
+  education: z.string().min(10, "Por favor, proporcione más detalles sobre su educación"),
+  experience: z.number().int().min(0, "La experiencia no puede ser negativa"),
+  bio: z.string().min(50, "La biografía debe tener al menos 50 caracteres"),
+  basePrice: z.number().int().positive("El precio base debe ser mayor que cero"),
+  
+  // Document uploads (as File objects in frontend, as strings in backend)
+  profilePhoto: z.any(),
+  identityDocFront: z.any(),
+  identityDocBack: z.any(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+});
+
+export type DoctorRegistration = z.infer<typeof doctorRegistrationSchema>;
+
+// Admin verification schema
+export const doctorVerificationSchema = z.object({
+  doctorId: z.number().int().positive(),
+  isVerified: z.boolean(),
+  adminNotes: z.string().optional(),
+});
+
+export type DoctorVerification = z.infer<typeof doctorVerificationSchema>;

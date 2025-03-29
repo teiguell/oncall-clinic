@@ -9,7 +9,9 @@ import {
   insertAppointmentSchema,
   insertReviewSchema,
   insertPaymentSchema,
-  weeklyAvailabilitySchema
+  weeklyAvailabilitySchema,
+  doctorRegistrationSchema,
+  doctorVerificationSchema
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -689,6 +691,191 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(validDoctors);
     } catch (error) {
       res.status(500).json({ message: "Server error searching doctors" });
+    }
+  });
+  
+  // DOCTOR REGISTRATION AND VERIFICATION ROUTES
+  
+  // API de registro de médicos
+  app.post('/api/doctor/register', async (req, res) => {
+    try {
+      // Validar datos de entrada con zod
+      const validationResult = doctorRegistrationSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Datos de registro inválidos',
+          details: validationResult.error.format()
+        });
+      }
+      
+      const registrationData = validationResult.data;
+      
+      // Verificar si el email ya existe
+      const existingUser = await storage.getUserByEmail(registrationData.email);
+      if (existingUser) {
+        return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
+      }
+      
+      // Crear usuario
+      const hashedPassword = hashPassword(registrationData.password);
+      const user = await storage.createUser({
+        username: registrationData.email.split('@')[0],
+        email: registrationData.email,
+        password: hashedPassword,
+        userType: 'doctor',
+        firstName: registrationData.firstName,
+        lastName: registrationData.lastName,
+        phoneNumber: registrationData.phoneNumber,
+        emailVerified: false,
+        profilePicture: null,
+        twoFactorEnabled: false,
+        authProvider: 'local',
+        authProviderId: null
+      });
+      
+      // Generar y guardar código de verificación
+      const verificationCode = generateVerificationCode();
+      const verificationId = generateSessionId();
+      
+      // Simular envío de email (en producción se enviaría un email real)
+      console.log(`Código de verificación para ${user.email}: ${verificationCode}`);
+      verificationCodes.set(verificationId, { code: verificationCode, email: user.email });
+      
+      // Crear perfil de médico
+      const doctorProfile = await storage.createDoctorProfile({
+        userId: user.id,
+        specialtyId: registrationData.specialtyId,
+        licenseNumber: registrationData.licenseNumber,
+        education: registrationData.education,
+        experience: registrationData.experience,
+        bio: registrationData.bio,
+        basePrice: registrationData.basePrice,
+        identityDocFront: typeof registrationData.identityDocFront === 'string' 
+          ? registrationData.identityDocFront 
+          : null,
+        identityDocBack: typeof registrationData.identityDocBack === 'string'
+          ? registrationData.identityDocBack
+          : null,
+        bankAccount: null
+      });
+      
+      // Crear notificación para el nuevo médico
+      await storage.createNotification({
+        userId: user.id,
+        type: 'welcome',
+        content: 'Bienvenido a OnCall Clinic. Tu perfil está siendo revisado por nuestro equipo. Te notificaremos cuando sea verificado.',
+        data: {
+          doctorProfileId: doctorProfile.id
+        } as any
+      });
+      
+      // Crear notificación para administradores de que hay un nuevo médico por verificar
+      const admins = Array.from((await storage.getAllDoctorProfiles()))
+        .filter(profile => profile.isVerified && profile.specialtyId === registrationData.specialtyId)
+        .map(profile => profile.userId);
+      
+      if (admins.length > 0) {
+        for (const adminId of admins) {
+          await storage.createNotification({
+            userId: adminId,
+            type: 'new_doctor',
+            content: `Nuevo médico por verificar: ${user.firstName} ${user.lastName}`,
+            data: {
+              doctorProfileId: doctorProfile.id,
+              specialtyId: registrationData.specialtyId
+            } as any
+          });
+        }
+      }
+      
+      res.status(201).json({ 
+        success: true,
+        userId: user.id,
+        doctorProfileId: doctorProfile.id,
+        verificationId,
+        verificationCode
+      });
+    } catch (error) {
+      console.error('Error en el registro de médico:', error);
+      res.status(500).json({ error: 'Error en el proceso de registro' });
+    }
+  });
+  
+  // API para verificar doctor (solo administradores)
+  app.post('/api/admin/verify-doctor', async (req, res) => {
+    try {
+      // Verificar autenticación
+      const authResult = await isAuthenticated(req, res);
+      if (!authResult || authResult.userType !== 'admin') {
+        return res.status(401).json({ error: 'No autorizado. Se requiere acceso de administrador.' });
+      }
+      
+      // Validar datos de entrada
+      const validationResult = doctorVerificationSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Datos de verificación inválidos',
+          details: validationResult.error.format()
+        });
+      }
+      
+      const verificationData = validationResult.data;
+      
+      // Verificar médico
+      const verifiedProfile = await storage.verifyDoctor(
+        verificationData.doctorId,
+        authResult.userId,
+        verificationData.adminNotes
+      );
+      
+      if (!verifiedProfile) {
+        return res.status(404).json({ error: 'Perfil de médico no encontrado' });
+      }
+      
+      res.json({ 
+        success: true,
+        doctorProfileId: verifiedProfile.id,
+        isVerified: verifiedProfile.isVerified,
+        verificationDate: verifiedProfile.verificationDate
+      });
+    } catch (error) {
+      console.error('Error al verificar médico:', error);
+      res.status(500).json({ error: 'Error al verificar médico' });
+    }
+  });
+  
+  // API para obtener médicos no verificados (solo administradores)
+  app.get('/api/admin/unverified-doctors', async (req, res) => {
+    try {
+      // Verificar autenticación
+      const authResult = await isAuthenticated(req, res);
+      if (!authResult || authResult.userType !== 'admin') {
+        return res.status(401).json({ error: 'No autorizado. Se requiere acceso de administrador.' });
+      }
+      
+      // Obtener médicos no verificados
+      const unverifiedDoctors = await storage.getUnverifiedDoctorProfiles();
+      
+      // Para cada médico, obtener información de usuario
+      const doctorsWithUserInfo = await Promise.all(unverifiedDoctors.map(async (doctor) => {
+        const user = await storage.getUser(doctor.userId);
+        const specialty = await storage.getSpecialty(doctor.specialtyId);
+        return {
+          ...doctor,
+          user: user ? {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber
+          } : null,
+          specialty: specialty ? specialty.name : null
+        };
+      }));
+      
+      res.json({ doctors: doctorsWithUserInfo });
+    } catch (error) {
+      console.error('Error al obtener médicos no verificados:', error);
+      res.status(500).json({ error: 'Error al obtener médicos no verificados' });
     }
   });
   

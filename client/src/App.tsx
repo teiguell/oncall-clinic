@@ -32,6 +32,8 @@ import PatientDashboard from "./pages/patient-dashboard";
 import DoctorDashboard from "./pages/doctor-dashboard";
 import Profile from "./pages/profile";
 import NotFound from "./pages/not-found";
+import DoctorRegister from "./pages/doctor-register";
+import AdminDoctorVerification from "./pages/admin-doctor-verification";
 
 function Router() {
   return (
@@ -50,6 +52,8 @@ function Router() {
           <Route path="/dashboard/patient" component={PatientDashboard} />
           <Route path="/dashboard/doctor" component={DoctorDashboard} />
           <Route path="/profile" component={Profile} />
+          <Route path="/register/doctor" component={DoctorRegister} />
+          <Route path="/admin/doctor-verification" component={AdminDoctorVerification} />
           <Route component={NotFound} />
         </Switch>
       </main>

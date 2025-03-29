@@ -1,0 +1,62 @@
+Quiero que me ayudes a implementar el flujo completo de registro de médicos para mi aplicación web (React + Node.js + MongoDB).
+
+🧩 Requisitos clave:
+- El registro de médicos debe hacerse mediante email y contraseña, o usando cuenta de Google o Apple (OAuth2).
+- Al registrarse, deben rellenar un formulario y subir documentos.
+- El médico no estará operativo hasta ser verificado manualmente por un administrador.
+- El paciente verá: nombre completo, número de colegiado y foto del médico.
+
+🎯 Estructura esperada:
+
+1. Frontend (React + Tailwind CSS):
+   - Formulario de registro dividido en secciones:
+     - Datos básicos: nombre completo, email, contraseña (o acceso con Google/Apple).
+     - Documentación:
+       - Foto tipo carné (upload).
+       - Foto DNI (frontal y reverso, dos campos de carga).
+       - Número de colegiado (campo obligatorio).
+     - Validación de campos y previsualización de archivos cargados.
+   - Botón de envío del registro → POST `/api/register/doctor`
+
+2. Backend (Node.js + Express + MongoDB):
+   - Endpoint para guardar los datos y documentos.
+   - Almacenar la información en la colección `doctors`, con estos campos:
+     ```ts
+     {
+       fullName: string,
+       email: string,
+       passwordHash: string,
+       dniFrontUrl: string,
+       dniBackUrl: string,
+       profilePhotoUrl: string,
+       colegiadoNumber: string,
+       isVerified: false,
+       createdAt: Date
+     }
+     ```
+   - Encriptar la contraseña con bcrypt.
+   - Guardar archivos en almacenamiento (por ahora simulado o usar Firebase/S3 en el futuro).
+
+3. Autenticación:
+   - Soporte para email/contraseña con JWT.
+   - OAuth2 con Google y Apple.
+   - Registro + login deben unificarse bajo un mismo sistema (`/api/auth`).
+
+4. Panel de administración (versión mínima):
+   - Lista de médicos pendientes de verificación (`isVerified: false`).
+   - Mostrar documentos cargados.
+   - Botón “Verificar médico”.
+   - Al hacer clic, cambiar `isVerified: true`.
+
+5. Área privada del médico (una vez verificado):
+   - Mostrar campo editable para añadir su IBAN.
+   - Mostrar resumen de ingresos acumulados (simulado por ahora), con desglose de:
+     - Total cobrado.
+     - Porcentaje de comisión aplicado por la plataforma.
+     - Total neto a recibir.
+
+6. Pacientes:
+   - Solo pueden ver médicos verificados (`isVerified: true`).
+   - En la ficha del médico mostrar: nombre, número de colegiado, foto.
+
+Organiza todo el código con buenas prácticas, usa DTOs y validaciones en backend, y crea componentes desacoplados en frontend.
