@@ -24,6 +24,8 @@ const esTranslations = {
     logout: "Cerrar Sesión",
     profile: "Perfil",
     settings: "Configuración",
+    updating: "Actualizando",
+    comingSoon: "Próximamente",
   },
 
   // Navegación
@@ -282,6 +284,8 @@ const esTranslations = {
     earnings: "Ganancias",
     performance: "Rendimiento y Reseñas",
     schedule: "Administrar Horario",
+    availabilityDesc: "Controla tu estado de disponibilidad",
+    scheduleFeature: "En el futuro, podrás establecer horas y días específicos de disponibilidad",
     noAppointmentsToday: "No hay citas programadas para hoy",
     patientCard: {
       appointment: "Cita con {{name}}",
@@ -438,6 +442,7 @@ const esTranslations = {
     noAvailableSlots: "No hay horarios disponibles para los criterios seleccionados.",
     paymentFailed: "El pago falló. Por favor, intenta con otro método de pago.",
     sessionExpired: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+    updateFailed: "No se pudo actualizar. Por favor, intenta de nuevo.",
     websocket: {
       connectionFailed: "No se pudo conectar al servicio de notificaciones",
       reconnecting: "Reconectando al servicio de notificaciones...",
@@ -461,6 +466,16 @@ const esTranslations = {
     addressUpdated: "Dirección actualizada con éxito.",
     paymentMethodAdded: "Método de pago añadido con éxito.",
     paymentMethodRemoved: "Método de pago eliminado con éxito.",
+  },
+  
+  // Estado de disponibilidad
+  available: "Ahora estás disponible para recibir consultas",
+  not_available: "Has desactivado tu disponibilidad",
+  availability: {
+    toggle: "Cambiar estado de disponibilidad",
+    available: "Disponible",
+    unavailable: "No disponible",
+    status: "Estado de Disponibilidad",
   },
 
   // Pie de página

@@ -24,6 +24,8 @@ const enTranslations = {
     logout: "Logout",
     profile: "Profile",
     settings: "Settings",
+    updating: "Updating",
+    comingSoon: "Coming Soon",
   },
 
   // Navigation
@@ -282,6 +284,8 @@ const enTranslations = {
     earnings: "Earnings",
     performance: "Performance & Reviews",
     schedule: "Manage Schedule",
+    availabilityDesc: "Control your availability status",
+    scheduleFeature: "In the future, you'll be able to set specific hours and days of availability",
     noAppointmentsToday: "No appointments scheduled for today",
     patientCard: {
       appointment: "Appointment with {{name}}",
@@ -438,6 +442,7 @@ const enTranslations = {
     noAvailableSlots: "No available slots for the selected criteria.",
     paymentFailed: "Payment failed. Please try again with a different payment method.",
     sessionExpired: "Your session has expired. Please log in again.",
+    updateFailed: "Failed to update. Please try again.",
     websocket: {
       connectionFailed: "Could not connect to notification service",
       reconnecting: "Reconnecting to notification service...",
@@ -461,6 +466,16 @@ const enTranslations = {
     addressUpdated: "Address updated successfully.",
     paymentMethodAdded: "Payment method added successfully.",
     paymentMethodRemoved: "Payment method removed successfully.",
+  },
+  
+  // Availability status
+  available: "You are now available for appointments",
+  not_available: "You are no longer available",
+  availability: {
+    toggle: "Toggle availability status",
+    available: "Available",
+    unavailable: "Unavailable",
+    status: "Availability Status",
   },
 
   // Footer

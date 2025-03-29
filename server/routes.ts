@@ -488,6 +488,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Update doctor availability
+  app.put('/api/availability', async (req, res) => {
+    const auth = await isAuthenticated(req, res);
+    if (!auth) return;
+    
+    try {
+      if (auth.userType !== 'doctor') {
+        return res.status(403).json({ message: "Only doctors can update availability" });
+      }
+      
+      const { available } = req.body;
+      if (typeof available !== 'boolean') {
+        return res.status(400).json({ message: "Availability status must be a boolean value" });
+      }
+      
+      // Get doctor profile
+      const doctorProfile = await storage.getDoctorProfileByUserId(auth.userId);
+      if (!doctorProfile) {
+        return res.status(404).json({ message: "Doctor profile not found" });
+      }
+      
+      // Update availability
+      const updatedProfile = await storage.updateDoctorProfile(doctorProfile.id, {
+        isAvailable: available
+      });
+      
+      if (!updatedProfile) {
+        return res.status(500).json({ message: "Failed to update availability" });
+      }
+      
+      // Get doctor details for notification
+      const doctor = await storage.getUser(auth.userId);
+      
+      // Broadcast a system notification to all connected clients
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'doctor_availability',
+            doctorId: doctorProfile.id,
+            doctorName: doctor ? `${doctor.firstName} ${doctor.lastName}` : `Dr. ${doctorProfile.id}`,
+            available,
+            specialtyId: doctorProfile.specialtyId,
+            timestamp: Date.now()
+          }));
+        }
+      });
+      
+      // Send a notification to the doctor
+      await sendNotification(auth.userId, {
+        type: 'system',
+        message: available ? 'You are now available for appointments' : 'You are no longer available',
+        timestamp: Date.now()
+      });
+      
+      res.json({ 
+        message: available ? "Availability updated to available" : "Availability updated to unavailable",
+        profile: updatedProfile
+      });
+    } catch (error) {
+      console.error('Error updating availability:', error);
+      res.status(500).json({ message: "Server error updating availability" });
+    }
+  });
+  
   // Get doctor by ID (public)
   app.get('/api/doctors/:id', async (req, res) => {
     try {

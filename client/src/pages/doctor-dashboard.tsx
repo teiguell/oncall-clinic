@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/auth-context";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { DoctorProfile } from "@shared/schema";
 import AppointmentList from "@/components/appointments/appointment-list";
+import AvailabilityToggle from "@/components/doctor/availability-toggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -10,8 +14,15 @@ import { Loader2, AlertCircle } from "lucide-react";
 
 export default function DoctorDashboard() {
   const { isAuthenticated, user, isLoading } = useAuth();
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("appointments");
+  
+  // Fetch doctor profile data
+  const { data: doctorProfile, isLoading: profileLoading } = useQuery<DoctorProfile>({
+    queryKey: ['/api/doctors/profile'],
+    enabled: isAuthenticated && user?.userType === 'doctor'
+  });
 
   // Redirect if not logged in or not a doctor
   useEffect(() => {
@@ -106,15 +117,35 @@ export default function DoctorDashboard() {
           <div className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Disponibilidad</CardTitle>
-                <CardDescription>Configura tus horas de trabajo</CardDescription>
+                <CardTitle>{t('availability.status')}</CardTitle>
+                <CardDescription>{t('doctorDashboard.availabilityDesc')}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="py-4 text-center text-neutral-500 text-sm">
-                  Esta función estará disponible próximamente
-                </p>
-                <Button variant="outline" className="w-full" disabled>
-                  Configurar horario
+                <div className="py-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-medium">{t('availability.toggle')}</h4>
+                      <p className="text-sm text-neutral-500">
+                        {profileLoading ? t('common.loading') : 
+                          doctorProfile?.isAvailable ? 
+                            t('availability.available') : 
+                            t('availability.unavailable')
+                        }
+                      </p>
+                    </div>
+                    <AvailabilityToggle 
+                      doctorProfile={doctorProfile} 
+                      isLoading={profileLoading}
+                      className="ml-auto"
+                    />
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setActiveTab("schedule")}
+                >
+                  {t('doctorDashboard.schedule')}
                 </Button>
               </CardContent>
             </Card>
@@ -126,12 +157,49 @@ export default function DoctorDashboard() {
           <Tabs defaultValue="appointments" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6">
               <TabsTrigger value="appointments">Mis citas</TabsTrigger>
+              <TabsTrigger value="schedule">Horario</TabsTrigger>
               <TabsTrigger value="patients">Mis pacientes</TabsTrigger>
               <TabsTrigger value="reviews">Reseñas recibidas</TabsTrigger>
             </TabsList>
 
             <TabsContent value="appointments">
               <AppointmentList />
+            </TabsContent>
+
+            <TabsContent value="schedule">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('doctorDashboard.schedule')}</CardTitle>
+                  <CardDescription>{t('doctorDashboard.availabilityDesc')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium mb-2">{t('availability.status')}</h3>
+                    <div className="flex items-center space-x-4 mb-4 p-4 border rounded-md">
+                      <div>
+                        <h4 className="text-sm font-medium mb-1">{t('availability.toggle')}</h4>
+                        <p className="text-sm text-neutral-500">
+                          {profileLoading ? t('common.loading') : 
+                            doctorProfile?.isAvailable ? 
+                              t('availability.available') : 
+                              t('availability.unavailable')
+                          }
+                        </p>
+                      </div>
+                      <AvailabilityToggle 
+                        doctorProfile={doctorProfile} 
+                        isLoading={profileLoading || false}
+                        className="ml-auto"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="py-6 text-center text-neutral-500">
+                    <p className="mb-2">{t('common.comingSoon')}</p>
+                    <p className="text-sm">{t('doctorDashboard.scheduleFeature')}</p>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="patients">
