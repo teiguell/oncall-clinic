@@ -48,7 +48,7 @@ export default function SearchSection() {
     // Prepare search params
     const searchParams = new URLSearchParams();
     
-    if (specialty) {
+    if (specialty && specialty !== "all") {
       searchParams.append("specialty", specialty);
     }
     
@@ -96,7 +96,7 @@ export default function SearchSection() {
                     <SelectValue placeholder="Todas las especialidades" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas las especialidades</SelectItem>
+                    <SelectItem value="all">Todas las especialidades</SelectItem>
                     {specialties.map((specialty) => (
                       <SelectItem key={specialty.id} value={specialty.id.toString()}>
                         {specialty.name}
