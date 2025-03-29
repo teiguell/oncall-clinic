@@ -29,8 +29,22 @@ import { apiRequest } from '@/lib/queryClient';
 import { patientRegistrationSchema } from '@shared/schema';
 
 // Form validation with refinements
-const registerFormSchema = patientRegistrationSchema.extend({
-  // We can extend the schema with additional validation if needed
+const registerFormSchema = z.object({
+  email: z.string().email("Correo electrónico inválido"),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  confirmPassword: z.string(),
+  firstName: z.string().min(2, "Nombre demasiado corto"),
+  lastName: z.string().min(2, "Apellido demasiado corto"),
+  phoneNumber: z.string().min(9, "Número de teléfono inválido"),
+  
+  // Optional fields
+  address: z.string().optional(),
+  city: z.string().optional(), 
+  postalCode: z.string().optional(),
+  dob: z.string().optional(), // fecha de nacimiento
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
 });
 
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
@@ -72,20 +86,17 @@ export default function PatientRegister() {
       setIsLoading(true);
       
       // Enviar datos al servidor
-      const response = await apiRequest('/api/auth/patient/register', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-          confirmPassword: values.confirmPassword,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          phoneNumber: values.phoneNumber,
-          address: values.address || '',
-          city: values.city || '',
-          postalCode: values.postalCode || '',
-          dob: values.dob || '',
-        }),
+      const response = await apiRequest('/api/auth/patient/register', 'POST', {
+        email: values.email,
+        password: values.password,
+        confirmPassword: values.confirmPassword,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phoneNumber: values.phoneNumber,
+        address: values.address || '',
+        city: values.city || '',
+        postalCode: values.postalCode || '',
+        dob: values.dob || '',
       });
 
       if (!response.ok) {
@@ -119,12 +130,9 @@ export default function PatientRegister() {
     try {
       setIsLoading(true);
       
-      const response = await apiRequest('/api/auth/verify-code', {
-        method: 'POST',
-        body: JSON.stringify({
-          verificationId: verificationData.userId?.toString() || verificationData.verificationId,
-          code: verificationCode,
-        }),
+      const response = await apiRequest('/api/auth/verify-code', 'POST', {
+        verificationId: verificationData.userId?.toString() || verificationData.verificationId,
+        code: verificationCode,
       });
 
       if (!response.ok) {
