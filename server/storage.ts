@@ -8,7 +8,8 @@ import {
   appointments, type Appointment, type InsertAppointment,
   reviews, type Review, type InsertReview,
   notifications, type Notification, type InsertNotification,
-  payments, type Payment, type InsertPayment
+  payments, type Payment, type InsertPayment,
+  type WeeklyAvailability
 } from "@shared/schema";
 
 export interface IStorage {
@@ -31,6 +32,7 @@ export interface IStorage {
   getAllDoctorProfiles(): Promise<DoctorProfile[]>;
   createDoctorProfile(profile: InsertDoctorProfile): Promise<DoctorProfile>;
   updateDoctorProfile(id: number, data: Partial<DoctorProfile>): Promise<DoctorProfile | undefined>;
+  updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined>;
   searchDoctors(specialtyId?: number, available?: boolean): Promise<DoctorProfile[]>;
   
   // Specialties
@@ -230,6 +232,19 @@ export class MemStorage implements IStorage {
     
     const updatedProfile = { ...profile, ...data };
     this.doctorProfiles.set(id, updatedProfile);
+    return updatedProfile;
+  }
+  
+  async updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined> {
+    // Primero obtenemos el perfil del doctor por ID de usuario
+    const doctorProfile = await this.getDoctorProfileByUserId(doctorId);
+    if (!doctorProfile) return undefined;
+    
+    // Actualizamos la disponibilidad semanal
+    const updatedProfile = await this.updateDoctorProfile(doctorProfile.id, {
+      weeklyAvailability: weeklyAvailability as any // Usamos 'any' para evitar problemas de tipos con jsonb
+    });
+    
     return updatedProfile;
   }
   

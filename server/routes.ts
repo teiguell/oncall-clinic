@@ -8,7 +8,8 @@ import {
   insertLocationSchema,
   insertAppointmentSchema,
   insertReviewSchema,
-  insertPaymentSchema
+  insertPaymentSchema,
+  weeklyAvailabilitySchema
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -549,6 +550,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error updating availability:', error);
       res.status(500).json({ message: "Server error updating availability" });
+    }
+  });
+  
+  // Update doctor weekly availability
+  app.put('/api/weekly-availability', async (req, res) => {
+    const auth = await isAuthenticated(req, res);
+    if (!auth) return;
+    
+    try {
+      if (auth.userType !== 'doctor') {
+        return res.status(403).json({ message: "Only doctors can update weekly availability" });
+      }
+      
+      // Validate the weekly availability data
+      const weeklyAvailability = weeklyAvailabilitySchema.parse(req.body);
+      
+      // Get doctor profile
+      const doctorProfile = await storage.getDoctorProfileByUserId(auth.userId);
+      if (!doctorProfile) {
+        return res.status(404).json({ message: "Doctor profile not found" });
+      }
+      
+      // Update weekly availability using the dedicated method
+      const updatedProfile = await storage.updateDoctorWeeklyAvailability(auth.userId, weeklyAvailability);
+      
+      if (!updatedProfile) {
+        return res.status(500).json({ message: "Failed to update weekly availability" });
+      }
+      
+      // Get doctor details for notification
+      const doctor = await storage.getUser(auth.userId);
+      
+      // Broadcast a system notification to all connected clients
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'doctor_weekly_availability_update',
+            doctorId: doctorProfile.id,
+            doctorName: doctor ? `${doctor.firstName} ${doctor.lastName}` : `Dr. ${doctorProfile.id}`,
+            timestamp: Date.now()
+          }));
+        }
+      });
+      
+      // Send a notification to the doctor
+      await sendNotification(auth.userId, {
+        type: 'system',
+        message: 'Your weekly availability schedule has been updated',
+        timestamp: Date.now()
+      });
+      
+      res.json({ 
+        message: "Weekly availability schedule updated successfully",
+        profile: updatedProfile
+      });
+    } catch (error) {
+      console.error('Error updating weekly availability:', error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid weekly availability data format", 
+          errors: error.errors 
+        });
+      }
+      
+      res.status(500).json({ message: "Server error updating weekly availability" });
     }
   });
   

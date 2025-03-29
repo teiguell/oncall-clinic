@@ -42,6 +42,7 @@ export const doctorProfiles = pgTable("doctor_profiles", {
   basePrice: integer("base_price").notNull(), // in cents
   isAvailable: boolean("is_available").default(true),
   averageRating: doublePrecision("average_rating").default(0),
+  weeklyAvailability: jsonb("weekly_availability"),
 });
 
 // Specialties table
@@ -200,3 +201,25 @@ export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 
 export type Payment = typeof payments.$inferSelect;
 export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+
+// Weekly availability type and validation schemas
+export const timeSlotSchema = z.object({
+  start: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido. Use HH:MM"),
+  end: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido. Use HH:MM")
+}).refine(data => data.start < data.end, {
+  message: "La hora de inicio debe ser anterior a la hora de fin",
+  path: ["start", "end"],
+});
+
+export const weeklyAvailabilitySchema = z.object({
+  monday: z.array(timeSlotSchema),
+  tuesday: z.array(timeSlotSchema),
+  wednesday: z.array(timeSlotSchema),
+  thursday: z.array(timeSlotSchema),
+  friday: z.array(timeSlotSchema),
+  saturday: z.array(timeSlotSchema),
+  sunday: z.array(timeSlotSchema),
+});
+
+export type TimeSlot = z.infer<typeof timeSlotSchema>;
+export type WeeklyAvailability = z.infer<typeof weeklyAvailabilitySchema>;
