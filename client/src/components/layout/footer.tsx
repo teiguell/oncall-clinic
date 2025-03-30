@@ -1,91 +1,125 @@
+import { useTranslation } from "react-i18next";
+import { Logo } from "@/components/common/Logo";
 import { Link } from "wouter";
 import { 
   Facebook, 
-  Instagram, 
   Twitter, 
-  Heart 
+  Instagram, 
+  Linkedin, 
+  Mail, 
+  Phone, 
+  MapPin 
 } from "lucide-react";
 
 export default function Footer() {
+  const { t } = useTranslation();
+  const currentYear = new Date().getFullYear();
+  
   return (
-    <footer className="bg-neutral-800">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <footer className="bg-white border-t border-neutral-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center">
-              <span className="text-white mr-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide-medical-kit">
-                  <path d="M7.2 22H4a2 2 0 0 1-2-2v-4.76a2 2 0 0 1 .51-1.33L12 4l9.49 9.91a2 2 0 0 1 .51 1.33V20a2 2 0 0 1-2 2h-3.2"/>
-                  <path d="M12 10v12"/>
-                  <path d="M15 13h-6"/>
-                </svg>
-              </span>
-              <span className="font-bold text-2xl text-white">MediHome</span>
-            </div>
-            <p className="mt-4 text-neutral-300">Conectamos pacientes con médicos certificados para consultas a domicilio. Atención médica profesional, cuando la necesites y donde la necesites.</p>
-            <div className="mt-6 flex space-x-6">
-              <a href="#" className="text-neutral-400 hover:text-white">
-                <span className="sr-only">Facebook</span>
-                <Facebook size={24} />
+          <div className="col-span-1 md:col-span-1">
+            <Logo size="md" className="mb-4" />
+            <p className="text-neutral-600 text-sm mb-6">
+              {t('footer.description')}
+            </p>
+            <div className="flex space-x-4">
+              <a href="#" className="text-neutral-500 hover:text-primary-600 transition-colors">
+                <Facebook size={20} />
               </a>
-              <a href="#" className="text-neutral-400 hover:text-white">
-                <span className="sr-only">Instagram</span>
-                <Instagram size={24} />
+              <a href="#" className="text-neutral-500 hover:text-primary-600 transition-colors">
+                <Twitter size={20} />
               </a>
-              <a href="#" className="text-neutral-400 hover:text-white">
-                <span className="sr-only">Twitter</span>
-                <Twitter size={24} />
+              <a href="#" className="text-neutral-500 hover:text-primary-600 transition-colors">
+                <Instagram size={20} />
+              </a>
+              <a href="#" className="text-neutral-500 hover:text-primary-600 transition-colors">
+                <Linkedin size={20} />
               </a>
             </div>
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-neutral-300 tracking-wider uppercase">Servicios</h3>
-            <ul className="mt-4 space-y-4">
+          
+          <div className="col-span-1">
+            <h3 className="text-sm font-semibold text-neutral-900 tracking-wider uppercase mb-4">
+              {t('footer.sections.navigation')}
+            </h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/doctors">
-                  <a className="text-base text-neutral-400 hover:text-white">Consultas médicas</a>
+                <Link href="/">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('nav.home')}</span>
                 </Link>
               </li>
               <li>
                 <Link href="/doctors">
-                  <a className="text-base text-neutral-400 hover:text-white">Especialidades</a>
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('nav.doctors')}</span>
                 </Link>
               </li>
               <li>
-                <Link href="/doctors">
-                  <a className="text-base text-neutral-400 hover:text-white">Médicos certificados</a>
-                </Link>
+                <a href="#how-it-works" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                  {t('home.features.title')}
+                </a>
               </li>
               <li>
-                <a href="#how-it-works" className="text-base text-neutral-400 hover:text-white">Cómo funciona</a>
+                <Link href="/register/doctor">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('auth.doctor')}</span>
+                </Link>
               </li>
             </ul>
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-neutral-300 tracking-wider uppercase">Empresa</h3>
-            <ul className="mt-4 space-y-4">
+          
+          <div className="col-span-1">
+            <h3 className="text-sm font-semibold text-neutral-900 tracking-wider uppercase mb-4">
+              {t('footer.sections.legal')}
+            </h3>
+            <ul className="space-y-3">
               <li>
-                <a href="#" className="text-base text-neutral-400 hover:text-white">Sobre nosotros</a>
+                <Link href="/terms">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('footer.terms')}</span>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-base text-neutral-400 hover:text-white">Contacto</a>
+                <Link href="/privacy">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('footer.privacy')}</span>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-base text-neutral-400 hover:text-white">Blog</a>
+                <Link href="/cookies">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('footer.cookies')}</span>
+                </Link>
               </li>
-              <li>
-                <a href="#" className="text-base text-neutral-400 hover:text-white">Trabaja con nosotros</a>
+            </ul>
+          </div>
+          
+          <div className="col-span-1">
+            <h3 className="text-sm font-semibold text-neutral-900 tracking-wider uppercase mb-4">
+              {t('footer.sections.contact')}
+            </h3>
+            <ul className="space-y-3">
+              <li className="flex items-start">
+                <MapPin size={18} className="text-primary-600 mr-2 mt-0.5" />
+                <span className="text-neutral-600">{t('footer.address')}</span>
+              </li>
+              <li className="flex items-center">
+                <Phone size={18} className="text-primary-600 mr-2" />
+                <a href="tel:+34900123456" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                  +34 900 123 456
+                </a>
+              </li>
+              <li className="flex items-center">
+                <Mail size={18} className="text-primary-600 mr-2" />
+                <a href="mailto:info@oncall.clinic" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                  info@oncall.clinic
+                </a>
               </li>
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-neutral-700 pt-8">
-          <p className="text-base text-neutral-400 text-center">&copy; {new Date().getFullYear()} MediHome. Todos los derechos reservados.</p>
-          <div className="mt-4 flex justify-center space-x-6">
-            <a href="#" className="text-sm text-neutral-400 hover:text-white">Política de privacidad</a>
-            <a href="#" className="text-sm text-neutral-400 hover:text-white">Términos de servicio</a>
-            <a href="#" className="text-sm text-neutral-400 hover:text-white">Aviso legal</a>
-          </div>
+        
+        <div className="mt-12 pt-8 border-t border-neutral-100">
+          <p className="text-neutral-500 text-sm text-center">
+            © {currentYear} OnCall Clinic. {t('footer.copyright')}
+          </p>
         </div>
       </div>
     </footer>

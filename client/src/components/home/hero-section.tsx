@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { Stethoscope, Users, Shield } from "lucide-react";
+import { Logo } from "@/components/common/Logo";
 
 export default function HeroSection() {
   const { t } = useTranslation();
@@ -21,14 +22,8 @@ export default function HeroSection() {
 
           <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
             <div className="sm:text-center lg:text-left">
-              <div className="flex items-center mb-4 lg:mb-6">
-                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-100 text-primary-600 mr-3">
-                  <Stethoscope size={20} />
-                </span>
-                <div>
-                  <h2 className="font-bold text-xl text-primary-600">{t('common.brand')}</h2>
-                  <p className="text-sm text-neutral-600">{t('common.tagline')}</p>
-                </div>
+              <div className="flex items-center mb-6 lg:mb-8">
+                <Logo size="lg" />
               </div>
               
               <h1 className="text-4xl tracking-tight font-bold text-neutral-900 sm:text-5xl md:text-6xl">

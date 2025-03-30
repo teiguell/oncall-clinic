@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LanguageSwitcher from "@/components/ui/language-switcher";
+import { Logo } from "@/components/common/Logo";
 import { 
   Bell,
   Menu,
@@ -42,18 +43,8 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-primary-600 mr-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide-medical-kit">
-                  <path d="M7.2 22H4a2 2 0 0 1-2-2v-4.76a2 2 0 0 1 .51-1.33L12 4l9.49 9.91a2 2 0 0 1 .51 1.33V20a2 2 0 0 1-2 2h-3.2"/>
-                  <path d="M12 10v12"/>
-                  <path d="M15 13h-6"/>
-                </svg>
-              </span>
               <Link href="/">
-                <div className="flex flex-col">
-                  <span className="font-bold text-xl text-primary-600 cursor-pointer">{t('common.brand')}</span>
-                  <span className="text-xs text-neutral-500">{t('common.tagline')}</span>
-                </div>
+                <Logo size="md" />
               </Link>
             </div>
             <div className="hidden sm:ml-10 sm:flex space-x-8">

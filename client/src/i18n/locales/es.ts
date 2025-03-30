@@ -314,6 +314,19 @@ export default {
     enableLocationAccess: "Por favor, activa el acceso a la ubicación en la configuración de tu navegador para usar esta función",
     mapLoadFailed: "Error al cargar el mapa. Por favor, inténtalo de nuevo más tarde."
   },
+  footer: {
+    description: "OnCall Clinic conecta pacientes con médicos certificados para servicios médicos a domicilio de alta calidad, cuando y donde los necesites.",
+    sections: {
+      navigation: "Navegación",
+      legal: "Legal",
+      contact: "Contacto"
+    },
+    terms: "Términos y Condiciones",
+    privacy: "Política de Privacidad",
+    cookies: "Política de Cookies",
+    address: "Calle de la Salud 123, 28001, Madrid, España",
+    copyright: "Todos los derechos reservados."
+  },
   login: {
     title: "Bienvenido de nuevo",
     subtitle: "Inicia sesión en tu cuenta",

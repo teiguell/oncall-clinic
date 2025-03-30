@@ -314,6 +314,19 @@ export default {
     enableLocationAccess: "Please enable location access in your browser settings to use this feature",
     mapLoadFailed: "Failed to load map. Please try again later."
   },
+  footer: {
+    description: "OnCall Clinic connects patients with certified doctors for high-quality home medical services, when and where you need them.",
+    sections: {
+      navigation: "Navigation",
+      legal: "Legal",
+      contact: "Contact"
+    },
+    terms: "Terms & Conditions",
+    privacy: "Privacy Policy",
+    cookies: "Cookie Policy",
+    address: "123 Health Street, 28001, Madrid, Spain",
+    copyright: "All rights reserved."
+  },
   login: {
     title: "Welcome Back",
     subtitle: "Sign in to your account",
