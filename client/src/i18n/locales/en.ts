@@ -1,4 +1,15 @@
 export default {
+  sandbox: {
+    banner: "SANDBOX Mode - This is a test version",
+    subtitle: "For testing purposes only",
+    moreInfo: "More info",
+    info: {
+      title: "Sandbox Mode Information",
+      point1: "The application is in test mode with fictional data",
+      point2: "Services are limited to Palma de Mallorca area",
+      point3: "Payments are simulated, no real charges are made"
+    }
+  },
   common: {
     loading: "Loading...",
     enterAddress: "Enter an address",

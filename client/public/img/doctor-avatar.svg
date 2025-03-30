@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="100" fill="#E6F1FF"/>
+  
+  <!-- Face -->
+  <circle cx="100" cy="85" r="40" fill="#FFDEC9"/>
+  
+  <!-- Hair -->
+  <path d="M65 70C65 50 80 40 100 40C120 40 135 50 135 70V85C135 85 130 90 100 90C70 90 65 85 65 85V70Z" fill="#664B36"/>
+  
+  <!-- Eyes -->
+  <circle cx="85" cy="80" r="5" fill="#444444"/>
+  <circle cx="115" cy="80" r="5" fill="#444444"/>
+  
+  <!-- Mouth -->
+  <path d="M90 100C90 100 95 105 100 105C105 105 110 100 110 100" stroke="#444444" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Stethoscope -->
+  <circle cx="120" cy="115" r="8" fill="#0085FF"/>
+  <path d="M120 123L110 140" stroke="#0085FF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M110 140L90 145" stroke="#0085FF" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Medical Coat -->
+  <path d="M60 120V170H140V120C140 120 130 110 100 110C70 110 60 120 60 120Z" fill="white"/>
+  <path d="M95 110V140" stroke="#EEEEEE" stroke-width="2"/>
+  <path d="M105 110V140" stroke="#EEEEEE" stroke-width="2"/>
+  
+  <!-- Lapel pin - caduceus symbol -->
+  <circle cx="80" cy="125" r="5" fill="#0085FF"/>
+  <path d="M80 120V130" stroke="white" stroke-width="1"/>
+  <path d="M77 122L83 128" stroke="white" stroke-width="1"/>
+  <path d="M83 122L77 128" stroke="white" stroke-width="1"/>
+  
+  <!-- Name tag -->
+  <rect x="120" y="125" width="15" height="8" rx="2" fill="#0085FF"/>
+</svg>

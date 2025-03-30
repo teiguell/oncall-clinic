@@ -23,6 +23,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import path from "path";
 import session from "express-session";
 import MemoryStore from "memorystore";
+import { IS_SANDBOX, TEST_DOCTOR, TEST_DOCTOR_AVAILABILITY, isWithinAllowedArea } from "./sandbox/config";
 
 // Define doctor search schema
 const doctorSearchSchema = z.object({
@@ -70,6 +71,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add a test route to check if the server is accessible
   app.get('/api/test', (req, res) => {
     res.json({ message: 'API is working properly!' });
+  });
+
+  // Add a route to check sandbox status
+  app.get('/api/sandbox/status', (req, res) => {
+    res.json({
+      isSandbox: IS_SANDBOX,
+      allowedArea: IS_SANDBOX ? {
+        name: "Islas Baleares",
+        bounds: {
+          northeast: { lat: 40.1395, lng: 4.3275 },
+          southwest: { lat: 38.6424, lng: 1.1558 }
+        }
+      } : null
+    });
   });
 
   // Add a test html page to check if the server can serve static content
@@ -1077,47 +1092,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined;
       const distance = req.query.distance ? parseFloat(req.query.distance as string) : 10; // Default 10km radius
       
+      // Check if we're in SANDBOX mode
+      const isSandbox = process.env.VITE_IS_SANDBOX === 'true';
+      
       let doctors = [];
       
-      // If we have latitude and longitude, use location-based search
-      if (lat !== undefined && lng !== undefined) {
-        doctors = await storage.searchDoctorsByLocation(
-          lat,
-          lng,
-          distance,
-          specialtyId ? String(specialtyId) : undefined
-        );
+      if (isSandbox) {
+        // In sandbox mode, we'll check if we're inside the allowed area
+        if (lat !== undefined && lng !== undefined) {
+          // Import from sandbox config
+          const { isWithinAllowedArea, TEST_DOCTOR, calculateDistance } = await import('./sandbox/config');
+          
+          if (isWithinAllowedArea(lat, lng)) {
+            // If we're in the allowed area, return our test doctor
+            const testUser = await storage.getUser(TEST_DOCTOR.userId) || {
+              id: TEST_DOCTOR.userId,
+              firstName: "Dr. Fernando",
+              lastName: "Martínez",
+              email: "doctor.test@oncall.clinic",
+              phoneNumber: "+34600123456",
+              password: "",
+              userType: "doctor"
+            };
+            
+            const specialty = await storage.getSpecialty(TEST_DOCTOR.specialtyId) || {
+              id: TEST_DOCTOR.specialtyId,
+              name: "Medicina General",
+              description: "Atención médica primaria y general"
+            };
+            
+            // Calculate distance to the test doctor
+            const doctorDistance = calculateDistance(
+              lat, 
+              lng, 
+              TEST_DOCTOR.locationLat || 39.5696, 
+              TEST_DOCTOR.locationLng || 2.6502
+            );
+            
+            doctors = [{
+              ...TEST_DOCTOR,
+              id: 1,
+              distance: doctorDistance,
+              firstName: testUser.firstName,
+              lastName: testUser.lastName,
+              email: testUser.email,
+              phoneNumber: testUser.phoneNumber,
+              specialty,
+              isVerified: true
+            }];
+          } else {
+            // Otherwise, return empty results
+            doctors = [];
+          }
+        } else {
+          // If no location provided in sandbox mode, return empty results
+          doctors = [];
+        }
       } else {
-        // Otherwise use regular search
-        doctors = await storage.searchDoctors(specialtyId, isAvailable, isVerified);
+        // PRODUCTION MODE: normal search
+        // If we have latitude and longitude, use location-based search
+        if (lat !== undefined && lng !== undefined) {
+          doctors = await storage.searchDoctorsByLocation(
+            lat,
+            lng,
+            distance,
+            specialtyId ? String(specialtyId) : undefined
+          );
+        } else {
+          // Otherwise use regular search
+          doctors = await storage.searchDoctors(specialtyId, isAvailable, isVerified);
+        }
+        
+        // Enrich doctor profiles with user data
+        const enrichedDoctors = await Promise.all(doctors.map(async (doctor) => {
+          const user = await storage.getUser(doctor.userId);
+          const specialty = await storage.getSpecialty(doctor.specialtyId);
+          
+          if (!user) return null;
+          
+          const { password, ...userWithoutPassword } = user;
+          
+          return {
+            ...doctor,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            specialty,
+            // Include distance if it was a location-based search
+            ...(doctor.distance !== undefined && {distance: doctor.distance})
+          };
+        }));
+        
+        // Filter out null results
+        doctors = enrichedDoctors.filter(doctor => doctor !== null);
       }
       
-      // Enrich doctor profiles with user data
-      const enrichedDoctors = await Promise.all(doctors.map(async (doctor) => {
-        const user = await storage.getUser(doctor.userId);
-        const specialty = await storage.getSpecialty(doctor.specialtyId);
-        
-        if (!user) return null;
-        
-        const { password, ...userWithoutPassword } = user;
-        
-        return {
-          ...doctor,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
-          specialty,
-          // Include distance if it was a location-based search
-          ...(doctor.distance !== undefined && {distance: doctor.distance})
-        };
-      }));
-      
-      // Filter out null results
-      const validDoctors = enrichedDoctors.filter(doctor => doctor !== null);
-      
-      res.json(validDoctors);
+      res.json(doctors);
     } catch (error) {
+      console.error("Error searching doctors:", error);
       res.status(500).json({ message: "Server error searching doctors" });
     }
   });
@@ -1317,6 +1390,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validar los datos de entrada
       const searchParams = doctorSearchSchema.parse(req.body);
       
+      // Verificar modo sandbox
+      if (IS_SANDBOX) {
+        // Verificar si las coordenadas están dentro del área permitida
+        if (searchParams.lat && searchParams.lng && !isWithinAllowedArea(searchParams.lat, searchParams.lng)) {
+          return res.status(400).json({ 
+            message: "Área restringida", 
+            details: "Actualmente solo ofrecemos servicios en las Islas Baleares.",
+            isSandbox: true
+          });
+        }
+        
+        // En modo sandbox, solo permitir especialidad de Medicina General (ID 1)
+        if (searchParams.specialtyId && searchParams.specialtyId !== 1) {
+          return res.status(400).json({ 
+            message: "Especialidad restringida", 
+            details: "Actualmente solo ofrecemos servicios de Medicina General.",
+            isSandbox: true
+          });
+        }
+      }
+      
       // Buscar médicos cercanos
       const doctors = await storage.searchDoctorsByLocation(
         searchParams.lat || 0, 
@@ -1346,6 +1440,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Filtrar resultados nulos
       const validDoctors = enrichedDoctors.filter(doctor => doctor !== null);
       
+      // Modo sandbox - añadir información adicional
+      if (IS_SANDBOX) {
+        return res.json({
+          doctors: validDoctors,
+          isSandbox: true,
+          sandboxInfo: {
+            message: "Estás utilizando la versión ALPHA de prueba",
+            restrictedArea: "Islas Baleares",
+            restrictedSpecialty: "Medicina General"
+          }
+        });
+      }
+      
+      // Respuesta normal
       res.json(validDoctors);
     } catch (error) {
       console.error('Error en búsqueda de médicos:', error);

@@ -54,6 +54,9 @@ export const doctorProfiles = pgTable("doctor_profiles", {
   pendingEarnings: integer("pending_earnings").default(0), // Earnings not yet transferred
   verificationDate: timestamp("verification_date"), // When the doctor was verified
   verifiedBy: integer("verified_by").references(() => users.id), // Admin who verified
+  locationLat: doublePrecision("location_lat"), // Ubicación actual (latitud)
+  locationLng: doublePrecision("location_lng"), // Ubicación actual (longitud)
+  locationAddress: text("location_address"), // Dirección actual
 });
 
 // Specialties table

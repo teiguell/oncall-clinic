@@ -18,6 +18,7 @@ import useWebSocketNotifications from "./hooks/useWebSocketNotifications";
 import Navbar from "./components/layout/navbar";
 import Footer from "./components/layout/footer";
 import LanguageSwitcher from "./components/ui/language-switcher";
+import { SandboxBanner } from "./components/common/SandboxBanner";
 
 // Pages
 import Home from "./pages/home";
@@ -40,6 +41,7 @@ import AdminDoctorVerification from "./pages/admin-doctor-verification";
 function Router() {
   return (
     <div className="flex flex-col min-h-screen">
+      <SandboxBanner />
       <Navbar />
       <main className="flex-grow">
         <Switch>

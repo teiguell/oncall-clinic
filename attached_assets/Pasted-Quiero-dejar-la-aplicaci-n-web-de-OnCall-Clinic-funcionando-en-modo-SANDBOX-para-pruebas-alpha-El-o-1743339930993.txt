@@ -1,0 +1,49 @@
+Quiero dejar la aplicación web de OnCall Clinic funcionando en modo SANDBOX para pruebas alpha. El objetivo es testear flujos completos con un único médico de prueba, sin usuarios reales ni especialidades adicionales.
+
+Configura lo siguiente:
+
+---
+
+### 1. Base de datos (sandbox)
+- Elimina cualquier dato existente que no sea necesario.
+- Crea un médico ficticio con los siguientes datos:
+  - Nombre: Dr. Simulado Pérez
+  - Especialidad: Medicina General
+  - Número de colegiado: 070123456
+  - Localización: Palma de Mallorca (lat: 39.5696, lng: 2.6502)
+  - Foto: usar un avatar médico genérico
+  - Verificado: true
+  - Horario: disponible toda la semana de 08:00 a 20:00
+
+---
+
+### 2. Búsqueda bloqueada a Baleares
+- En la lógica de búsqueda (`/api/search/doctors`):
+  - Limitar geográficamente las búsquedas a coordenadas dentro de Islas Baleares.
+  - Si se intenta buscar desde fuera, mostrar mensaje:
+    > “Actualmente solo ofrecemos servicios en las Islas Baleares.”
+
+- Forzar que los resultados siempre devuelvan solo al Dr. Simulado Pérez.
+
+---
+
+### 3. Especialidad bloqueada
+- Ocultar selector de especialidad en frontend (hardcodear “Medicina General”).
+- En backend, rechazar cualquier otra especialidad con error.
+
+---
+
+### 4. Funciones simuladas
+- Geolocalización del médico: simular ubicación progresiva desde su posición inicial.
+- Chat: mostrar chat visual pero sin conexión real.
+- Estado “en camino” → iniciar automáticamente tras aceptar.
+- Estado “llegado” → debe hacerse manualmente desde el panel del médico.
+- Notificaciones WebSocket: mantener activas.
+
+---
+
+### 5. Seguridad y trazabilidad
+- Incluir etiqueta visible en frontend: `Entorno Alpha – Solo para pruebas internas`.
+- Registrar logs en consola o archivo con timestamp de cada cita simulada.
+
+Organiza el código para que esta versión alpha pueda ser fácilmente desactivada para producción real en el futuro (por ejemplo, con una variable de entorno `IS_SANDBOX=true`).
