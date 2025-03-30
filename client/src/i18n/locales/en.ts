@@ -38,6 +38,7 @@ export default {
     profile: "Profile",
     dashboard: "Dashboard",
     logout: "Logout",
+    about: "About",
     doctors: "For Doctors",
     language: "Language"
   },
@@ -324,6 +325,32 @@ export default {
     locationAccess: "Location access denied",
     enableLocationAccess: "Please enable location access in your browser settings to use this feature",
     mapLoadFailed: "Failed to load map. Please try again later."
+  },
+  
+  about: {
+    title: "About OnCall Clinic",
+    subtitle: "We connect patients with doctors to provide high-quality home medical care when and where you need it.",
+    sandboxTitle: "Testing Environment (SANDBOX)",
+    sandboxDescription: "This version of OnCall Clinic is configured as a controlled testing environment for development and testing.",
+    sandboxImportantNotice: "This platform is in testing phase. It does not provide real medical services.",
+    doctorNote: "Simulated Doctor",
+    doctorNoteDesc: "Dr. Simulado Pérez is a fictional doctor created for testing. He is not a real medical professional.",
+    locationNote: "Restricted Location",
+    locationNoteDesc: "Services are limited to the Balearic Islands for testing purposes.",
+    paymentsNote: "Simulated Payments",
+    paymentsNoteDesc: "Payments are processed in test mode, no real charges are made.",
+    ourMission: "Our Mission",
+    missionDesc: "To revolutionize access to healthcare by making it more accessible, convenient, and patient-centered through high-quality home medical services.",
+    howItWorks: "How It Works",
+    howItWorksDesc: "Find an available doctor near you, schedule an appointment with a few clicks, and the doctor will visit you at your home at the scheduled time.",
+    forPatients: "For Patients",
+    forPatientsDesc: "Access professional medical care from the comfort of your home, without waiting times and with maximum convenience.",
+    registerNow: "Register now",
+    forDoctors: "For Doctors",
+    forDoctorsDesc: "Join our network of medical professionals and enjoy schedule flexibility while providing personalized medical care.",
+    joinUs: "Join us",
+    questionTitle: "Have questions?",
+    contactUs: "Contact us for more information about our service."
   },
   footer: {
     description: "OnCall Clinic connects patients with certified doctors for high-quality home medical services, when and where you need them.",

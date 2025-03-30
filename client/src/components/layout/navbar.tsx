@@ -19,7 +19,8 @@ import {
   Stethoscope,
   Home,
   Search,
-  ChevronRight
+  ChevronRight,
+  HelpCircle
 } from "lucide-react";
 
 export default function Navbar() {
@@ -96,6 +97,17 @@ export default function Navbar() {
                   <span>{t('nav.findDoctor')}</span>
                 </a>
               </Link>
+              <Link href="/about">
+                <a className={cn(
+                  "px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer flex items-center",
+                  location === "/about" 
+                    ? "text-primary-600 bg-primary-50" 
+                    : "text-neutral-600 hover:text-primary-600 hover:bg-neutral-50"
+                )}>
+                  <HelpCircle size={18} className="mr-1.5 lg:mr-2" />
+                  <span>{t('nav.about')}</span>
+                </a>
+              </Link>
               <a 
                 href="#how-it-works" 
                 className={cn(
@@ -162,9 +174,9 @@ export default function Navbar() {
               <>
                 <Link href="/register/doctor">
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
-                    className="text-primary-600 hover:text-primary-700 hover:bg-primary-50 font-medium flex items-center gap-1"
+                    className="bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 hover:text-amber-800 font-medium flex items-center gap-1 py-2"
                   >
                     <Stethoscope size={17} />
                     <span>{t('nav.doctors')}</span>
@@ -254,6 +266,21 @@ export default function Navbar() {
               </a>
             </Link>
             
+            <Link href="/about" onClick={() => setMobileMenuOpen(false)}>
+              <a className={cn(
+                "flex items-center justify-between py-3 px-4 rounded-lg",
+                location === "/about" 
+                  ? "bg-primary-50 text-primary-600"
+                  : "text-neutral-700 hover:bg-neutral-50"
+              )}>
+                <div className="flex items-center">
+                  <HelpCircle size={20} className="mr-3" />
+                  <span className="font-medium">{t('nav.about')}</span>
+                </div>
+                <ChevronRight size={18} className="text-neutral-400" />
+              </a>
+            </Link>
+            
             <a 
               href="#how-it-works" 
               className="flex items-center justify-between py-3 px-4 rounded-lg text-neutral-700 hover:bg-neutral-50"
@@ -313,7 +340,7 @@ export default function Navbar() {
             ) : (
               <div className="px-4 space-y-3">
                 <Link href="/register/doctor" className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                  <a className="flex items-center py-3 px-4 rounded-lg text-primary-600 hover:bg-primary-50">
+                  <a className="flex items-center py-3 px-4 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100">
                     <Stethoscope size={20} className="mr-3" />
                     <span className="font-medium">{t('nav.doctors')}</span>
                   </a>

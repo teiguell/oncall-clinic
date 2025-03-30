@@ -1,0 +1,96 @@
+Quiero que actualices completamente mi aplicación web "OnCall Clinic" para lanzar una versión alpha funcional, preparada como entorno sandbox. La app se basa en React, Tailwind CSS, Node.js y MongoDB. Este entorno estará limitado a pruebas internas, pero con funcionalidades completas, incluyendo pagos simulados mediante MONEI.
+
+---
+
+🔹 1. Configuración de entorno SANDBOX (IS_SANDBOX = true)
+
+- Crear un médico simulado:
+  - Nombre: Dr. Simulado Pérez
+  - Especialidad: Medicina General
+  - Localización: Palma de Mallorca
+  - Número de colegiado: 070123456
+  - Verificado: true
+  - Horario disponible: todos los días, 08:00 a 20:00
+- Forzar que las búsquedas devuelvan solo este médico.
+- Bloquear otras especialidades.
+- Limitar resultados a Baleares (lat/lng).
+- Mostrar aviso en frontend:  
+  “⚠️ Versión de pruebas sin validez asistencial.”
+
+---
+
+🔹 2. Hero Section mejorada
+
+- Altura: h-[40vh]
+- Fondo: imagen de atención médica domiciliaria (sin quirófanos).
+- Capa superpuesta oscura (`bg-black/50`) para contraste.
+- Contenido:
+  - Título: “Atención médica a domicilio”
+  - Subtítulo: “Conectamos pacientes y profesionales en minutos.”
+  - Botón CTA: “Reserva tu cita”
+- Logo de OnCall Clinic visible centrado o en header fijo.
+
+---
+
+🔹 3. Traducción (i18n) completa
+
+- Usar `t('clave')` en **todos** los textos visibles.
+- Añadir botón de cambio de idioma en el header.
+- Cambiar idioma debe aplicar a toda la app (incluidas rutas internas).
+- Guardar idioma seleccionado en localStorage.
+- Revisar claves en `es.ts` y `en.ts`.
+
+---
+
+🔹 4. Dashboards funcionales
+
+📍 `DoctorDashboard`
+- Ver citas pendientes (`status: pending`)
+- Aceptar cita → inicia flujo automático (`accepted` → `en_camino`)
+- Botón manual “He llegado” para pasar a `llegado`
+- Mostrar ubicación simulada y tiempo en ruta
+- Activar chat interno con paciente en los últimos 15 minutos
+
+📍 `PatientDashboard`
+- Buscar médico (solo Baleares)
+- Reservar cita con el médico simulado
+- Ver progreso de la cita con `<AppointmentProgress />`
+- Mostrar ubicación en mapa durante “en camino”
+- Acceder a chat cuando restan < 15 minutos
+
+---
+
+🔹 5. Avisos legales y entorno de pruebas
+
+- Mostrar banner permanente:  
+  “⚠️ Entorno de pruebas – Sin atención médica real”
+- En el registro de pacientes, incluir texto:  
+  “Esta plataforma está en fase de pruebas. No presta servicios reales.”
+- Crear ruta `/acerca` con explicación completa del entorno sandbox.
+- Mostrar “Entorno Alpha – Simulado” como marca de agua flotante si IS_SANDBOX=true.
+
+---
+
+🔹 6. Navegación y visibilidad
+
+- Añadir botón “Soy médico” visible en home → redirige a registro de médicos.
+- Botón de idioma con menú desplegable (`ES | EN`)
+- Asegurar visibilidad y estructura clara de navegación en mobile y desktop.
+
+---
+
+🔹 7. Branding y diseño
+
+- Usar `logo-oncallclinic.png` en el header y en la Hero.
+- Añadir favicon (`/public/img/favicon.ico`) al `<head>`.
+- Personalizar `tailwind.config.js`:
+```js
+theme: {
+  extend: {
+    colors: {
+      primary: '#2b6cb0',
+      secondary: '#edf2f7',
+      accent: '#38b2ac'
+    }
+  }
+}

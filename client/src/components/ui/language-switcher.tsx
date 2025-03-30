@@ -47,7 +47,7 @@ const LanguageSwitcher = () => {
         >
           <Globe size={18} className="text-primary-600" />
           <span className="hidden md:inline-block font-medium">
-            {currentLanguage === "es" ? "Español" : "English"}
+            {currentLanguage.toUpperCase()} | {currentLanguage === "es" ? "ES" : "EN"}
           </span>
         </Button>
       </DropdownMenuTrigger>

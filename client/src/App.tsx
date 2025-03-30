@@ -37,6 +37,7 @@ import Profile from "./pages/profile";
 import NotFound from "./pages/not-found";
 import DoctorRegister from "./pages/doctor-register";
 import AdminDoctorVerification from "./pages/admin-doctor-verification";
+import AboutPage from "./pages/about";
 
 function Router() {
   return (
@@ -60,6 +61,7 @@ function Router() {
           <Route path="/profile" component={Profile} />
           <Route path="/register/doctor" component={DoctorRegister} />
           <Route path="/admin/doctor-verification" component={AdminDoctorVerification} />
+          <Route path="/about" component={AboutPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

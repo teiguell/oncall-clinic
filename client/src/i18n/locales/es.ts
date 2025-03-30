@@ -38,6 +38,7 @@ export default {
     profile: "Perfil",
     dashboard: "Panel de control",
     logout: "Cerrar sesión",
+    about: "Acerca de",
     doctors: "Para Médicos",
     language: "Idioma"
   },
@@ -324,6 +325,32 @@ export default {
     locationAccess: "Acceso a la ubicación denegado",
     enableLocationAccess: "Por favor, activa el acceso a la ubicación en la configuración de tu navegador para usar esta función",
     mapLoadFailed: "Error al cargar el mapa. Por favor, inténtalo de nuevo más tarde."
+  },
+  
+  about: {
+    title: "Acerca de OnCall Clinic",
+    subtitle: "Conectamos pacientes con médicos para ofrecer atención médica domiciliaria de alta calidad, cuando y donde la necesites.",
+    sandboxTitle: "Entorno de Pruebas (SANDBOX)",
+    sandboxDescription: "Esta versión de OnCall Clinic está configurada como un entorno de pruebas controlado para desarrollo y testing.",
+    sandboxImportantNotice: "Esta plataforma está en fase de pruebas. No presta servicios médicos reales.",
+    doctorNote: "Médico Simulado",
+    doctorNoteDesc: "El Dr. Simulado Pérez es un médico ficticio creado para pruebas. No es un profesional médico real.",
+    locationNote: "Ubicación Restringida",
+    locationNoteDesc: "Los servicios están limitados a las Islas Baleares para fines de prueba.",
+    paymentsNote: "Pagos Simulados",
+    paymentsNoteDesc: "Los pagos se procesan en modo de prueba, no se realizan cargos reales.",
+    ourMission: "Nuestra Misión",
+    missionDesc: "Revolucionar el acceso a la atención médica haciéndola más accesible, cómoda y centrada en el paciente a través de servicios médicos a domicilio de alta calidad.",
+    howItWorks: "Cómo Funciona",
+    howItWorksDesc: "Busca un médico disponible cerca de ti, agenda una cita con unos pocos clics, y el médico te visitará en tu domicilio a la hora programada.",
+    forPatients: "Para Pacientes",
+    forPatientsDesc: "Accede a atención médica profesional desde la comodidad de tu hogar, sin tiempos de espera y con la máxima conveniencia.",
+    registerNow: "Regístrate ahora",
+    forDoctors: "Para Médicos",
+    forDoctorsDesc: "Únete a nuestra red de profesionales médicos y disfruta de flexibilidad horaria mientras ofreces atención médica personalizada.",
+    joinUs: "Únete a nosotros",
+    questionTitle: "¿Tienes preguntas?",
+    contactUs: "Contáctanos para más información sobre nuestro servicio."
   },
   footer: {
     description: "OnCall Clinic conecta pacientes con médicos certificados para servicios médicos a domicilio de alta calidad, cuando y donde los necesites.",
