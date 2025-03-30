@@ -23,7 +23,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegistrationData) => Promise<{verificationId: string, verificationCode: string}>;
   logout: () => Promise<void>;
-  verifyEmail: (data: VerificationData) => Promise<void>;
+  verifyEmail: (data: VerificationData) => Promise<User>;
   sendVerificationCode: (email: string) => Promise<{message: string}>;
 }
 
@@ -68,7 +68,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Verify email function
   const verifyEmail = async (data: VerificationData) => {
+    // Primero verificamos el email
     await authVerifyEmail(data);
+    
+    // Después obtenemos los datos del usuario actualizado (ahora con emailVerified=true)
+    try {
+      const userData = await getAuthenticatedUser();
+      setUser(userData);
+      return userData; // Devolvemos el usuario para poder acceder a su tipo
+    } catch (error) {
+      console.error("Error retrieving user data after verification:", error);
+      throw error;
+    }
   };
 
   // Logout function

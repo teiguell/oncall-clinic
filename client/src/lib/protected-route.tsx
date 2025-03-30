@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
 
@@ -24,10 +24,19 @@ export function ProtectedRoute({
   }
 
   if (!user) {
-    // No user logged in, redirect to auth page
+    // No user logged in, redirect to login page
     return (
       <Route path={path}>
-        <Redirect to="/auth" />
+        <Redirect to="/login" />
+      </Route>
+    );
+  }
+
+  // Si el usuario aún no ha verificado su correo, redirigirlo a la página de verificación
+  if (user && !user.emailVerified) {
+    return (
+      <Route path={path}>
+        <Redirect to={`/verify?email=${encodeURIComponent(user.email)}`} />
       </Route>
     );
   }
@@ -50,6 +59,6 @@ export function ProtectedRoute({
     }
   }
 
-  // User is authenticated and has the required type (if specified)
+  // User is authenticated, verified, and has the required type (if specified)
   return <Route path={path} component={Component} />;
 }

@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthProvider } from "./context/auth-context";
+import { AuthProvider, useAuth } from "./context/auth-context";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 
@@ -193,25 +193,57 @@ function NotFoundRoute() {
   return <NotFound />;
 }
 
+// Importar el componente ProtectedRoute
+import { ProtectedRoute } from "./lib/protected-route";
+
 function Router() {
   return (
     <Switch>
+      {/* Rutas públicas */}
       <Route path="/" component={HomeRoute} />
       <Route path="/login" component={LoginRoute} />
       <Route path="/register" component={RegisterRoute} />
       <Route path="/register/patient" component={PatientRegisterRoute} />
+      <Route path="/register/doctor" component={DoctorRegisterRoute} />
       <Route path="/verify" component={VerifyRoute} />
       <Route path="/forgot-password" component={ForgotPasswordRoute} />
       <Route path="/doctors" component={DoctorSearchRoute} />
       <Route path="/doctors/:id" component={DoctorProfileRoute} />
-      <Route path="/appointment/new/:doctorId" component={AppointmentBookingRoute} />
-      <Route path="/appointment/success/:id" component={AppointmentSuccessRoute} />
-      <Route path="/dashboard/patient" component={PatientDashboardRoute} />
-      <Route path="/dashboard/doctor" component={DoctorDashboardRoute} />
-      <Route path="/profile" component={ProfileRoute} />
-      <Route path="/register/doctor" component={DoctorRegisterRoute} />
-      <Route path="/admin/doctor-verification" component={AdminDoctorVerificationRoute} />
       <Route path="/about" component={AboutRoute} />
+      
+      {/* Rutas protegidas que requieren autenticación */}
+      <ProtectedRoute 
+        path="/appointment/new/:doctorId" 
+        component={AppointmentBookingRoute} 
+        userType="patient" // Solo pacientes pueden reservar citas
+      />
+      <ProtectedRoute 
+        path="/appointment/success/:id" 
+        component={AppointmentSuccessRoute} 
+      />
+      <ProtectedRoute 
+        path="/profile" 
+        component={ProfileRoute} 
+      />
+      
+      {/* Rutas específicas por tipo de usuario */}
+      <ProtectedRoute 
+        path="/dashboard/patient" 
+        component={PatientDashboardRoute} 
+        userType="patient"
+      />
+      <ProtectedRoute 
+        path="/dashboard/doctor" 
+        component={DoctorDashboardRoute} 
+        userType="doctor"
+      />
+      <ProtectedRoute 
+        path="/admin/doctor-verification" 
+        component={AdminDoctorVerificationRoute} 
+        userType="admin"
+      />
+      
+      {/* Ruta para páginas no encontradas */}
       <Route component={NotFoundRoute} />
     </Switch>
   );
@@ -220,45 +252,11 @@ function Router() {
 function App() {
   const { t } = useTranslation();
   
-  // Mock function to get JWT token from localStorage or context
-  const getAuthToken = () => {
-    return localStorage.getItem('auth_token');
-  };
-  
-  // Use the WebSocket notifications hook
-  const { 
-    isConnected,
-    lastNotification 
-  } = useWebSocketNotifications(
-    getAuthToken(), // Pass the authentication token
-    '/ws', // WebSocket endpoint (relative to current host)
-    {
-      autoReconnect: true,
-      reconnectInterval: 3000,
-      maxReconnectAttempts: 5,
-      onConnected: () => {
-        console.log('✅ Connected to notification service');
-      },
-      onDisconnected: () => {
-        console.log('❌ Disconnected from notification service');
-      }
-    }
-  );
-  
-  // Inicializar el error logger para capturar errores
-  const errorLogger = useErrorLogger();
-  
-  // Log new notifications (optional)
-  useEffect(() => {
-    if (lastNotification) {
-      console.log('New notification received:', lastNotification);
-    }
-  }, [lastNotification]);
-
+  // Usamos AuthProvider antes de utilizar el hook useAuth
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router />
+        <AppContent />
         <Toaster />
         {/* ToastContainer for react-toastify */}
         <ToastContainer
@@ -279,6 +277,46 @@ function App() {
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+// Componente interior que puede acceder a useAuth después de que AuthProvider esté disponible
+function AppContent() {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  
+  // WebSocket ahora se conecta solo cuando tenemos un usuario autenticado
+  const { 
+    isConnected,
+    lastNotification 
+  } = useWebSocketNotifications(
+    user?.id ? user.id.toString() : null, // Usar ID del usuario como token de autenticación
+    '/ws', // WebSocket endpoint (relative to current host)
+    {
+      autoReconnect: true,
+      reconnectInterval: 3000,
+      maxReconnectAttempts: 5,
+      onConnected: () => {
+        console.log('✅ Connected to notification service');
+      },
+      onDisconnected: () => {
+        console.log('❌ Disconnected from notification service');
+      }
+      // La opción enabled ya no es necesaria ya que podemos controlar esto condicionalmente
+      // El WebSocket solo intentará conectarse si token (user.id) está presente
+    }
+  );
+  
+  // Inicializar el error logger para capturar errores
+  const errorLogger = useErrorLogger();
+  
+  // Log new notifications (optional)
+  useEffect(() => {
+    if (lastNotification) {
+      console.log('New notification received:', lastNotification);
+    }
+  }, [lastNotification]);
+
+  return <Router />;
 }
 
 export default App;

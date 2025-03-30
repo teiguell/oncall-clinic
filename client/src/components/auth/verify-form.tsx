@@ -55,18 +55,25 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
 
     try {
       // Incluir el email en la verificación para que funcione con ambos sistemas
-      await verifyEmail({
+      // verifyEmail ahora devuelve los datos del usuario después de la verificación
+      const userData = await verifyEmail({
         verificationId,
         code: data.code,
         email: email // Incluir el email para compatibilidad con express-session
       });
       
+      // Mostrar mensaje de bienvenida
       toast({
         title: "Verificación exitosa",
-        description: "Tu correo electrónico ha sido verificado. Ya puedes iniciar sesión.",
+        description: `¡Bienvenido/a a OnCall Clinic, ${userData?.firstName || ''}! Tu cuenta ha sido verificada.`,
       });
       
-      navigate("/login");
+      // Redirigir según el tipo de usuario
+      if (userData?.userType === 'doctor') {
+        navigate("/dashboard/doctor");
+      } else {
+        navigate("/dashboard/patient");
+      }
     } catch (error) {
       console.error("Verification error:", error);
       

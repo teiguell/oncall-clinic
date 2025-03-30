@@ -5,14 +5,28 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/context/auth-context";
+import { Loader2 } from "lucide-react";
 
 export default function Verify() {
   const [location, navigate] = useLocation();
   const [verificationId, setVerificationId] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
+    // Si el usuario ya está autenticado y su email está verificado
+    // redirigirlo automáticamente al dashboard correspondiente
+    if (user && user.emailVerified) {
+      const dashboardPath = user.userType === 'doctor' 
+        ? '/dashboard/doctor' 
+        : '/dashboard/patient';
+        
+      navigate(dashboardPath);
+      return;
+    }
+
     // Parse query parameters
     const searchParams = new URLSearchParams(location.split("?")[1]);
     const id = searchParams.get("id");
@@ -30,11 +44,27 @@ export default function Verify() {
     if (emailParam) {
       setEmail(decodeURIComponent(emailParam));
     }
-  }, [location]);
+    
+    // Limpieza de estado al desmontar el componente
+    return () => {
+      setVerificationId("");
+      setEmail("");
+      setError(null);
+    };
+  }, [location, user, navigate]);
 
   const goToLogin = () => {
     navigate("/login");
   };
+
+  // Mostrar indicador de carga mientras verificamos el estado de autenticación
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (error) {
     return (
