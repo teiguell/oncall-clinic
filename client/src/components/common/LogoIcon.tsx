@@ -27,15 +27,16 @@ export const LogoIcon: React.FC<LogoIconProps> = ({
 
   if (useImage) {
     return (
-      <img 
-        src="/images/oncall-clinic-icon.png" 
-        alt={t('common.brand')}
-        className={cn(
-          "w-full h-full object-contain", 
-          inverted ? 'filter brightness-0 invert' : '',
-          className
-        )}
-      />
+      <div className={cn("bg-white rounded-full p-1 w-full h-full", className)}>
+        <img 
+          src="/images/oncall-clinic-icon.png" 
+          alt={t('common.brand')}
+          className={cn(
+            "w-full h-full object-contain", 
+            inverted ? 'filter brightness-0 invert' : ''
+          )}
+        />
+      </div>
     );
   }
 

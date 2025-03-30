@@ -81,14 +81,14 @@ export default function HeroSection() {
       </div>
       <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
         <div className="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full bg-gradient-to-br from-blue-50 to-primary-100 flex items-center justify-center overflow-hidden relative">
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px]"></div>
           <img 
-            className="h-full w-full object-cover object-center" 
-            src="/images/oncall-clinic-icon.png" 
+            className="h-full w-full object-cover object-center mix-blend-multiply" 
+            src="https://images.unsplash.com/photo-1631217868264-e6036ac7aba1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" 
             alt={t('common.brand') + " - " + t('common.tagline')} 
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent lg:block hidden"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 to-transparent lg:block hidden"></div>
         </div>
       </div>
     </div>

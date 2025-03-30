@@ -57,24 +57,28 @@ export const Logo: React.FC<LogoProps> = ({
           // Usar la imagen del logo proporcionada
           showText ? (
             // Mostrar el logo completo con texto incluido
-            <img 
-              src="/images/oncall-clinic-logo.png" 
-              alt={t('common.brand')}
-              className={cn(
-                "h-full w-auto object-contain", 
-                variant === 'white' ? 'filter brightness-0 invert' : ''
-              )}
-            />
+            <div className="bg-white rounded-full p-1">
+              <img 
+                src="/images/oncall-clinic-logo.png" 
+                alt={t('common.brand')}
+                className={cn(
+                  "h-full w-auto object-contain", 
+                  variant === 'white' ? 'filter brightness-0 invert' : ''
+                )}
+              />
+            </div>
           ) : (
             // Mostrar solo el icono
-            <img 
-              src="/images/oncall-clinic-icon.png" 
-              alt={t('common.brand')}
-              className={cn(
-                "h-full w-auto object-contain", 
-                variant === 'white' ? 'filter brightness-0 invert' : ''
-              )}
-            />
+            <div className="bg-white rounded-full p-1">
+              <img 
+                src="/images/oncall-clinic-icon.png" 
+                alt={t('common.brand')}
+                className={cn(
+                  "h-full w-auto object-contain", 
+                  variant === 'white' ? 'filter brightness-0 invert' : ''
+                )}
+              />
+            </div>
           )
         ) : (
           // Usar el componente SVG
