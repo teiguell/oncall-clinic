@@ -1,0 +1,52 @@
+Quiero cerrar y corregir la versión alpha funcional de OnCall Clinic. Esta versión debe funcionar en modo SANDBOX con pagos simulados, acceso restringido, seguimiento completo de citas, feedback, y un diseño visual finalizado.
+
+---
+
+🟩 1. Inserción y corrección del logotipo
+
+- Subir el archivo `logo-oncallclinic.png` a la carpeta `/public/img` o `/src/assets`.
+- Sustituir cualquier texto genérico por el logo real en:
+  - Header principal
+  - Hero section
+  - Pantallas de login/registro
+- Añadir favicon: `/public/img/favicon.ico` y enlazarlo en el `<head>`
+- Asegurar visibilidad y escalabilidad del logo en móvil y desktop
+
+---
+
+🟩 2. Hero Section mejorada
+
+- Aumentar aire entre texto y bordes (`py-12`, `space-y-4`)
+- Centrar verticalmente con `flex-col justify-center`
+- Usar texto con jerarquía (`text-4xl md:text-6xl` y `text-md md:text-xl`)
+- En móvil, asegurar que CTA esté centrado y legible
+- Incluir slogan visible debajo del logo si cabe:  
+  > “Atención médica profesional. Sin desplazarte.”
+
+---
+
+🟩 3. Corrección de traducciones
+
+- Usar `t('clave')` en todos los textos visibles en la app
+- Revisar archivos `en.ts` y `es.ts`:
+  - Botones: “Iniciar sesión”, “Registrarse”, “Continuar con Google”
+  - Títulos de panel: “Mis citas”, “Estado de la consulta”
+  - Confirmaciones y errores: “Cita reservada”, “Error al conectar”, etc.
+- El cambio de idioma debe aplicar a:
+  - Header, hero, botones, formularios, rutas `/login`, `/dashboard`, etc.
+
+---
+
+🟩 4. Resto del entorno SANDBOX (ver prompt anterior)
+
+Mantener y aplicar todo lo siguiente:
+- Aviso legal persistente
+- Flujo postpago completo (médico, estado, mapa, chat)
+- Formulario de feedback (enviar por EmailJS)
+- Captura de errores con envío a tu email
+- Registro privado para médicos invitados
+- Diseño final adaptado y accesible
+
+---
+
+Implementa todo usando buenas prácticas de accesibilidad, traducción multilenguaje, y estructura modular. Verifica que los cambios visuales se apliquen correctamente tanto en español como en inglés.

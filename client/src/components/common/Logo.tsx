@@ -39,6 +39,7 @@ export const Logo: React.FC<LogoProps> = ({
   const logoImageClasses = cn(
     sizeClasses[size],
     "w-auto",
+    "transition-all",
     variant === 'white' && "brightness-0 invert"
   );
 

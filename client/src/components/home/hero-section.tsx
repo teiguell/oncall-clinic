@@ -11,7 +11,7 @@ export default function HeroSection({ className }: HeroSectionProps) {
   const { t } = useTranslation();
 
   return (
-    <div className={`relative overflow-hidden h-[40vh] ${className}`}>
+    <div className={`relative overflow-hidden min-h-[50vh] ${className}`}>
       {/* Imagen de fondo con overlay oscuro para mayor contraste */}
       <div className="absolute inset-0 z-0">
         <img
@@ -25,18 +25,23 @@ export default function HeroSection({ className }: HeroSectionProps) {
 
       {/* Contenido principal */}
       <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col justify-center h-full py-6">
-          <div className="flex flex-col gap-3 max-w-2xl mx-auto text-center">
+        <div className="flex flex-col justify-center h-full py-12 md:py-16 space-y-4">
+          <div className="flex flex-col gap-4 max-w-2xl mx-auto text-center">
             {/* Logo centrado */}
-            <div className="flex flex-col items-center mb-4">
-              <Logo size="lg" className="mb-2" variant="white" />
+            <div className="flex flex-col items-center mb-6">
+              <Logo size="lg" className="mb-3" variant="white" />
+              
+              {/* Slogan debajo del logo */}
+              <p className="text-white/90 text-lg italic mt-1">
+                {t('common.slogan')}
+              </p>
             </div>
 
             {/* Título y subtítulo */}
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white">
               {t('home.hero.title')}
             </h1>
-            <h2 className="text-xl md:text-2xl font-medium text-white/80 mt-2">
+            <h2 className="text-xl md:text-2xl font-medium text-white/80 mt-3">
               {t('home.hero.subtitle')}
             </h2>
 
@@ -50,24 +55,24 @@ export default function HeroSection({ className }: HeroSectionProps) {
             </div>
 
             {/* Características en iconos */}
-            <div className="grid grid-cols-3 gap-4 mt-8">
+            <div className="grid grid-cols-3 gap-6 mt-10">
               <div className="flex flex-col items-center gap-2 text-white">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-500/20 text-green-400">
-                  <Stethoscope size={20} />
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-500/20 text-green-400">
+                  <Stethoscope size={24} />
                 </div>
-                <span className="text-sm font-medium">{t('home.features.convenience.title')}</span>
+                <span className="text-sm md:text-base font-medium">{t('home.features.convenience.title')}</span>
               </div>
               <div className="flex flex-col items-center gap-2 text-white">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 text-blue-400">
-                  <Users size={20} />
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400">
+                  <Users size={24} />
                 </div>
-                <span className="text-sm font-medium">{t('home.features.quality.title')}</span>
+                <span className="text-sm md:text-base font-medium">{t('home.features.quality.title')}</span>
               </div>
               <div className="flex flex-col items-center gap-2 text-white">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/20 text-amber-400">
-                  <Shield size={20} />
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/20 text-amber-400">
+                  <Shield size={24} />
                 </div>
-                <span className="text-sm font-medium">{t('home.features.safety.title')}</span>
+                <span className="text-sm md:text-base font-medium">{t('home.features.safety.title')}</span>
               </div>
             </div>
           </div>

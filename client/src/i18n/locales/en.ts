@@ -27,7 +27,8 @@ export default {
     password: "Password",
     email: "Email",
     brand: "OnCall Clinic",
-    tagline: "Healthcare at your doorstep"
+    tagline: "Healthcare at your doorstep",
+    slogan: "Professional medical care. Without leaving home."
   },
   nav: {
     home: "Home",
@@ -325,6 +326,13 @@ export default {
     locationAccess: "Location access denied",
     enableLocationAccess: "Please enable location access in your browser settings to use this feature",
     mapLoadFailed: "Failed to load map. Please try again later."
+  },
+  errors: {
+    notFound: {
+      title: "Page Not Found",
+      message: "The page you're looking for doesn't exist or has been moved.",
+      button: "Back to Home"
+    }
   },
   
   about: {

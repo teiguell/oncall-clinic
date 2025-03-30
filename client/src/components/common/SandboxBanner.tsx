@@ -28,14 +28,15 @@ export function SandboxBanner() {
   };
 
   return (
-    <div className="bg-amber-500 text-white px-4 py-2 text-center font-medium flex items-center justify-center gap-3 shadow-md">
-      <AlertTriangle className="h-5 w-5" />
+    <div className="bg-amber-500 text-white px-4 py-3 text-center font-medium flex items-center justify-center gap-3 shadow-md sticky top-0 z-[60]">
+      <AlertTriangle className="h-5 w-5 animate-pulse" />
       <span>
-        <strong>{SANDBOX_MESSAGES.SANDBOX_MODE}</strong>
+        <strong className="tracking-wide">{SANDBOX_MESSAGES.SANDBOX_MODE}</strong>
+        <span className="hidden sm:inline"> - {t('sandbox.subtitle')}</span>
       </span>
       <button 
         onClick={handleInfoClick}
-        className="underline ml-2 font-bold hover:text-amber-900 transition-colors"
+        className="underline ml-2 font-bold hover:text-amber-900 transition-colors flex items-center"
       >
         {t('sandbox.moreInfo')}
       </button>

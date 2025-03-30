@@ -27,7 +27,8 @@ export default {
     password: "Contraseña",
     email: "Correo electrónico",
     brand: "OnCall Clinic",
-    tagline: "Asistencia médica en tu puerta"
+    tagline: "Asistencia médica en tu puerta",
+    slogan: "Atención médica profesional. Sin desplazarte."
   },
   nav: {
     home: "Inicio",
@@ -325,6 +326,13 @@ export default {
     locationAccess: "Acceso a la ubicación denegado",
     enableLocationAccess: "Por favor, activa el acceso a la ubicación en la configuración de tu navegador para usar esta función",
     mapLoadFailed: "Error al cargar el mapa. Por favor, inténtalo de nuevo más tarde."
+  },
+  errors: {
+    notFound: {
+      title: "Página No Encontrada",
+      message: "La página que buscas no existe o ha sido movida.",
+      button: "Volver al Inicio"
+    }
   },
   
   about: {

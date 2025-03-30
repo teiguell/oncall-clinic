@@ -45,34 +45,175 @@ import DoctorRegister from "./pages/doctor-register";
 import AdminDoctorVerification from "./pages/admin-doctor-verification";
 import AboutPage from "./pages/about";
 
-function Router() {
+// Layout wrapper component that applies the app structure
+function AppLayout({ children, fullHeight = false }: { children: React.ReactNode; fullHeight?: boolean }) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <SandboxBanner />
       <Navbar />
-      <main className="flex-grow">
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
-          <Route path="/register/patient" component={PatientRegister} />
-          <Route path="/verify" component={Verify} />
-          <Route path="/forgot-password" component={ForgotPassword} />
-          <Route path="/doctors" component={DoctorSearch} />
-          <Route path="/doctors/:id" component={DoctorProfile} />
-          <Route path="/appointment/new/:doctorId" component={AppointmentBooking} />
-          <Route path="/appointment/success/:id" component={AppointmentSuccess} />
-          <Route path="/dashboard/patient" component={PatientDashboard} />
-          <Route path="/dashboard/doctor" component={DoctorDashboard} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/register/doctor" component={DoctorRegister} />
-          <Route path="/admin/doctor-verification" component={AdminDoctorVerification} />
-          <Route path="/about" component={AboutPage} />
-          <Route component={NotFound} />
-        </Switch>
+      <main className={`flex-grow ${fullHeight ? 'flex flex-col' : ''}`}>
+        {children}
       </main>
       <Footer />
     </div>
+  );
+}
+
+// Route components with layout applied
+function HomeRoute() {
+  return (
+    <AppLayout>
+      <Home />
+    </AppLayout>
+  );
+}
+
+function LoginRoute() {
+  return (
+    <AppLayout fullHeight>
+      <Login />
+    </AppLayout>
+  );
+}
+
+function RegisterRoute() {
+  return (
+    <AppLayout fullHeight>
+      <Register />
+    </AppLayout>
+  );
+}
+
+function PatientRegisterRoute() {
+  return (
+    <AppLayout fullHeight>
+      <PatientRegister />
+    </AppLayout>
+  );
+}
+
+function VerifyRoute() {
+  return (
+    <AppLayout fullHeight>
+      <Verify />
+    </AppLayout>
+  );
+}
+
+function ForgotPasswordRoute() {
+  return (
+    <AppLayout fullHeight>
+      <ForgotPassword />
+    </AppLayout>
+  );
+}
+
+function DoctorSearchRoute() {
+  return (
+    <AppLayout>
+      <DoctorSearch />
+    </AppLayout>
+  );
+}
+
+function DoctorProfileRoute() {
+  return (
+    <AppLayout>
+      <DoctorProfile />
+    </AppLayout>
+  );
+}
+
+function AppointmentBookingRoute() {
+  return (
+    <AppLayout>
+      <AppointmentBooking />
+    </AppLayout>
+  );
+}
+
+function AppointmentSuccessRoute() {
+  return (
+    <AppLayout>
+      <AppointmentSuccess />
+    </AppLayout>
+  );
+}
+
+function PatientDashboardRoute() {
+  return (
+    <AppLayout>
+      <PatientDashboard />
+    </AppLayout>
+  );
+}
+
+function DoctorDashboardRoute() {
+  return (
+    <AppLayout>
+      <DoctorDashboard />
+    </AppLayout>
+  );
+}
+
+function ProfileRoute() {
+  return (
+    <AppLayout>
+      <Profile />
+    </AppLayout>
+  );
+}
+
+function DoctorRegisterRoute() {
+  return (
+    <AppLayout fullHeight>
+      <DoctorRegister />
+    </AppLayout>
+  );
+}
+
+function AdminDoctorVerificationRoute() {
+  return (
+    <AppLayout>
+      <AdminDoctorVerification />
+    </AppLayout>
+  );
+}
+
+function AboutRoute() {
+  return (
+    <AppLayout>
+      <AboutPage />
+    </AppLayout>
+  );
+}
+
+function NotFoundRoute() {
+  // No layout for NotFound as it has its own full page design
+  return <NotFound />;
+}
+
+function Router() {
+  return (
+    <Switch>
+      <Route path="/" component={HomeRoute} />
+      <Route path="/login" component={LoginRoute} />
+      <Route path="/register" component={RegisterRoute} />
+      <Route path="/register/patient" component={PatientRegisterRoute} />
+      <Route path="/verify" component={VerifyRoute} />
+      <Route path="/forgot-password" component={ForgotPasswordRoute} />
+      <Route path="/doctors" component={DoctorSearchRoute} />
+      <Route path="/doctors/:id" component={DoctorProfileRoute} />
+      <Route path="/appointment/new/:doctorId" component={AppointmentBookingRoute} />
+      <Route path="/appointment/success/:id" component={AppointmentSuccessRoute} />
+      <Route path="/dashboard/patient" component={PatientDashboardRoute} />
+      <Route path="/dashboard/doctor" component={DoctorDashboardRoute} />
+      <Route path="/profile" component={ProfileRoute} />
+      <Route path="/register/doctor" component={DoctorRegisterRoute} />
+      <Route path="/admin/doctor-verification" component={AdminDoctorVerificationRoute} />
+      <Route path="/about" component={AboutRoute} />
+      <Route component={NotFoundRoute} />
+    </Switch>
   );
 }
 
