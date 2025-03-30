@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Globe } from "lucide-react";
+import { Check, Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const LanguageSwitcher = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState("es"); // Default to Spanish
 
   // Set initial language from localStorage or browser preference
@@ -38,22 +39,37 @@ const LanguageSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="flex items-center gap-2">
-          <Globe size={18} />
-          <span className="hidden md:inline-block">{currentLanguage === "es" ? "Español" : "English"}</span>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="flex items-center gap-2 px-3 py-2 rounded-full transition-all hover:bg-primary-50 hover:text-primary-600"
+          aria-label={t('nav.language')}
+        >
+          <Globe size={18} className="text-primary-600" />
+          <span className="hidden md:inline-block font-medium">
+            {currentLanguage === "es" ? "Español" : "English"}
+          </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-[160px] p-1.5">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => changeLanguage(lang.code)}
-            className={`flex items-center gap-2 cursor-pointer ${
-              currentLanguage === lang.code ? "bg-muted" : ""
-            }`}
+            className={cn(
+              "flex items-center justify-between gap-2 py-2.5 px-3 rounded-md cursor-pointer transition-colors",
+              currentLanguage === lang.code 
+                ? "bg-primary-50 text-primary-700" 
+                : "hover:bg-muted"
+            )}
           >
-            <span className="mr-2">{lang.flag}</span>
-            {lang.name}
+            <div className="flex items-center gap-2">
+              <span className="text-base">{lang.flag}</span>
+              <span className="font-medium">{lang.name}</span>
+            </div>
+            {currentLanguage === lang.code && (
+              <Check size={16} className="text-primary-600" />
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

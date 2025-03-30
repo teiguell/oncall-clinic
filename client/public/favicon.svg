@@ -1,20 +1,12 @@
-<svg 
-  viewBox="0 0 100 100" 
-  fill="none" 
-  xmlns="http://www.w3.org/2000/svg"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Pin Shape -->
   <path 
     d="M50 0C33.13 0 19.44 13.69 19.44 30.56C19.44 51.39 50 100 50 100S80.56 51.39 80.56 30.56C80.56 13.69 66.87 0 50 0ZM50 44.44C42.33 44.44 36.11 38.22 36.11 30.56C36.11 22.89 42.33 16.67 50 16.67C57.67 16.67 63.89 22.89 63.89 30.56C63.89 38.22 57.67 44.44 50 44.44Z" 
     fill="#0085FF" 
   />
-  <rect x="36.11" y="25" width="27.78" height="11.11" fill="white" />
-  <path 
-    d="M58.33 25H50V36.11H58.33V25Z" 
-    fill="#0085FF" 
-  />
-  <path 
-    d="M41.67 25H50V36.11H41.67V25Z" 
-    fill="#0085FF" 
-  />
-  <rect x="47.22" y="19.44" width="5.56" height="22.22" fill="#0085FF" />
+  
+  <!-- Cross in the center -->
+  <rect x="34" y="24" width="32" height="12" rx="2" fill="white" />
+  <rect x="44" y="15" width="12" height="32" rx="2" fill="white" />
 </svg>

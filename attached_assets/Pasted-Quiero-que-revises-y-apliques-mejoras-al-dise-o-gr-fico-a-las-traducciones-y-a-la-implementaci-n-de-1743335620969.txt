@@ -1,0 +1,49 @@
+Quiero que revises y apliques mejoras al diseño gráfico, a las traducciones y a la implementación del logo en mi aplicación web “OnCall Clinic”, ya desplegada en producción. La app es bilingüe (español/inglés) y debe verse profesional.
+
+---
+
+### 🧩 1. Logotipo
+
+- Asegúrate de que el nuevo logotipo esté correctamente implementado:
+  - En el header (barra de navegación)
+  - En la página de inicio (landing)
+  - En la pantalla de login y registro
+- Usa el logo con fondo blanco o azul según el contraste del fondo.
+- Para favicon o exportaciones, usar la versión con fondo transparente.
+- Añadir favicon.ico en el HTML (`public/index.html` o equivalente).
+
+---
+
+### 🌐 2. Traducción (i18n)
+
+- Revisar los textos de los siguientes elementos y aplicar `t(...)` con claves en los archivos `en.ts` y `es.ts`:
+  - Botones (“Sign in”, “Register”, “Continue with Google”)
+  - Títulos de sección (“Patient Dashboard”, “My Appointments”)
+  - Mensajes de error y validación
+  - Estados de cita (“pending”, “accepted”, etc.)
+
+- Validar que al cambiar de idioma no haya mezcla de español/inglés.
+
+---
+
+### 🎨 3. Diseño gráfico y UI general
+
+- Añadir diseño de marca mínimo: paleta de colores médicos (azul, blanco, gris), con `tailwind.config.ts`.
+- Incluir un fondo visual suave o una imagen difuminada en la home.
+- Añadir espaciado y jerarquía visual (padding, márgenes, `text-xl`, `font-semibold`).
+- Incluir un pequeño texto de presentación o eslogan bajo el logo (ej: “Atención médica a domicilio. Conectamos pacientes y profesionales en minutos.”).
+- Añadir íconos de apoyo (ej. médico, casa, calendario) donde aplique, usando `react-icons` o `lucide-react`.
+
+---
+
+### 🧪 4. Navegación y estructura
+
+- Asegurar que la navegación funcione de forma clara en ambos idiomas.
+- Añadir enlaces visibles para:
+  - Registro de médicos
+  - Cambio de idioma (idealmente en el header)
+  - Acceso al panel de usuario tras login
+
+---
+
+Haz los cambios con estructura limpia y modular. Usa componentes reutilizables donde sea posible (`<Header>`, `<LanguageSwitcher>`, `<Logo>`). Asegúrate de que el diseño sea responsive y visualmente equilibrado.
