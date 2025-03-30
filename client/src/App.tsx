@@ -13,12 +13,18 @@ import "./i18n"; // Import the i18n configuration
 
 // Custom hooks
 import useWebSocketNotifications from "./hooks/useWebSocketNotifications";
+import { useErrorLogger } from "./hooks/useErrorLogger";
 
 // Layout components
 import Navbar from "./components/layout/navbar";
 import Footer from "./components/layout/footer";
 import LanguageSwitcher from "./components/ui/language-switcher";
 import { SandboxBanner } from "./components/common/SandboxBanner";
+
+// Dev/Sandbox components
+import { ErrorLogger } from "./components/dev/ErrorLogger";
+import { ErrorGenerator } from "./components/dev/ErrorGenerator";
+import { IS_SANDBOX } from "./lib/sandbox";
 
 // Pages
 import Home from "./pages/home";
@@ -98,6 +104,9 @@ function App() {
     }
   );
   
+  // Inicializar el error logger para capturar errores
+  const errorLogger = useErrorLogger();
+  
   // Log new notifications (optional)
   useEffect(() => {
     if (lastNotification) {
@@ -122,6 +131,10 @@ function App() {
           draggable
           pauseOnHover
         />
+        
+        {/* Componentes para desarrollo/sandbox - sólo se muestran en modo SANDBOX */}
+        {IS_SANDBOX && <ErrorLogger />}
+        {IS_SANDBOX && <ErrorGenerator />}
       </AuthProvider>
     </QueryClientProvider>
   );
