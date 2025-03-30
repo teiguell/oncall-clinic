@@ -35,8 +35,7 @@ const doctorSearchSchema = z.object({
   verified: z.boolean().optional().default(true),
 });
 
-// Simple in-memory session store for demo purposes
-const sessions = new Map<string, {userId: number, userType: string}>();
+// Almacenamiento de verificación temporal para código de registro
 const verificationCodes = new Map<string, {code: string, email: string}>();
 
 function hashPassword(password: string): string {
@@ -52,19 +51,16 @@ export function generateSessionId(): string {
 }
 
 async function isAuthenticated(req: Request, res: Response): Promise<{userId: number, userType: string} | null> {
-  const sessionId = req.headers.authorization?.split(' ')[1];
-  if (!sessionId) {
-    res.status(401).json({ message: "No session token provided" });
+  // Check session authentication
+  if (!req.session || !req.session.user) {
+    res.status(401).json({ message: "No session or unauthenticated session" });
     return null;
   }
   
-  const session = sessions.get(sessionId);
-  if (!session) {
-    res.status(401).json({ message: "Invalid or expired session" });
-    return null;
-  }
-  
-  return session;
+  return {
+    userId: req.session.user.id,
+    userType: req.session.user.userType
+  };
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -470,30 +466,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Legacy verify email route (keeping for backward compatibility)
   app.post('/api/auth/verify', async (req, res) => {
     try {
-      const { verificationId, code } = req.body;
+      const { userId, code, type = 'signup' } = req.body;
       
-      const verification = verificationCodes.get(verificationId);
+      // Buscar el código de verificación en la base de datos
+      const verification = await storage.getVerificationCode(
+        parseInt(userId), 
+        code,
+        type
+      );
+      
       if (!verification) {
-        return res.status(400).json({ message: "Invalid verification ID" });
+        return res.status(400).json({ message: "Código de verificación inválido o expirado" });
       }
       
-      if (verification.code !== code) {
-        return res.status(400).json({ message: "Invalid verification code" });
+      // Verificar si el código ha expirado
+      const now = new Date();
+      if (verification.expiresAt && verification.expiresAt < now) {
+        return res.status(400).json({ message: "El código de verificación ha expirado" });
       }
       
-      // Get user by email and mark as verified
-      const user = await storage.getUserByEmail(verification.email);
-      if (user) {
-        await storage.updateUser(user.id, { emailVerified: true });
+      // Marcar el usuario como verificado
+      const user = await storage.getUser(verification.userId);
+      if (!user) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
       }
       
-      // Remove verification code
-      verificationCodes.delete(verificationId);
+      // Actualizar el usuario y marcar como verificado
+      await storage.updateUser(user.id, { emailVerified: true });
       
-      res.json({ message: "Email verified successfully" });
+      // Marcar el código como usado
+      await storage.markVerificationCodeAsUsed(verification.id);
+      
+      // Iniciar sesión automáticamente
+      req.session.user = {
+        id: user.id,
+        userType: user.userType,
+        emailVerified: true
+      };
+      
+      // Obtener los datos de perfil según el tipo de usuario
+      let profile = null;
+      if (user.userType === 'patient') {
+        profile = await storage.getPatientProfileByUserId(user.id);
+      } else if (user.userType === 'doctor') {
+        profile = await storage.getDoctorProfileByUserId(user.id);
+      }
+      
+      // Devolver datos del usuario sin información sensible
+      const { password: _, ...userWithoutPassword } = user;
+      
+      res.json({
+        message: "Email verificado correctamente",
+        user: userWithoutPassword,
+        profile
+      });
     } catch (error) {
-      console.error("Verification error:", error);
-      res.status(500).json({ message: "Server error during verification" });
+      console.error("Error de verificación:", error);
+      res.status(500).json({ message: "Error del servidor durante la verificación" });
     }
   });
   
@@ -748,9 +777,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Generar token de sesión
-      const sessionId = generateSessionId();
-      sessions.set(sessionId, { userId: user.id, userType: user.userType });
+      // Almacenar información del usuario en la sesión
+      req.session.user = {
+        id: user.id, 
+        userType: user.userType,
+        emailVerified: user.emailVerified
+      };
       
       // Obtener los datos de perfil según el tipo de usuario
       let profile = null;
@@ -765,7 +797,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         message: "Inicio de sesión exitoso",
-        sessionId,
         user: userWithoutPassword,
         profile
       });
@@ -780,12 +811,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Logout
   app.post('/api/auth/logout', async (req, res) => {
-    const sessionId = req.headers.authorization?.split(' ')[1];
-    if (sessionId) {
-      sessions.delete(sessionId);
+    // Destruir la sesión si existe
+    if (req.session) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Error destroying session:', err);
+          return res.status(500).json({ message: "Error al cerrar sesión" });
+        }
+        
+        res.clearCookie('connect.sid'); // Limpiar cookie de sesión
+        res.json({ message: "Sesión cerrada correctamente" });
+      });
+    } else {
+      res.json({ message: "No hay sesión activa" });
     }
-    
-    res.json({ message: "Logged out successfully" });
   });
   
   // Get current user
@@ -799,12 +838,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
+      // Get profile data based on user type
+      let profile = null;
+      if (user.userType === 'patient') {
+        profile = await storage.getPatientProfileByUserId(user.id);
+      } else if (user.userType === 'doctor') {
+        profile = await storage.getDoctorProfileByUserId(user.id);
+      }
+      
       // Return user data without sensitive information
       const { password, ...userWithoutPassword } = user;
       
-      res.json(userWithoutPassword);
+      res.json({
+        user: userWithoutPassword,
+        profile
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Error del servidor" });
     }
   });
   

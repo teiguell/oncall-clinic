@@ -192,6 +192,24 @@ export default {
       completed: "Completada",
       canceled: "Cancelada"
     },
+    statusDescription: {
+      scheduled: "Tu cita ha sido programada y está esperando confirmación del médico.",
+      confirmed: "El médico ha confirmado tu cita y estará allí a la hora programada.",
+      en_route: "El médico está en camino a tu ubicación.",
+      arrived: "El médico ha llegado a tu ubicación.",
+      in_progress: "La consulta médica está en curso.",
+      completed: "La consulta médica ha finalizado con éxito.",
+      canceled: "La cita ha sido cancelada."
+    },
+    statusAction: {
+      scheduled: "Esperar confirmación",
+      confirmed: "Prepararse para la cita",
+      en_route: "Prepararse para recibir al médico",
+      arrived: "Recibir al médico",
+      in_progress: "Consulta en curso",
+      completed: "Dejar una valoración",
+      canceled: "Programar una nueva cita"
+    },
     details: {
       with: "Cita con",
       on: "el",
@@ -250,7 +268,10 @@ export default {
       payments: "Pagos",
       notifications: "Notificaciones",
       noUpcomingAppointments: "No hay citas próximas",
-      noPastAppointments: "No hay citas pasadas"
+      noPastAppointments: "No hay citas pasadas",
+      myAppointments: "Mis Citas",
+      viewAll: "Ver todas",
+      bookNew: "Reservar Nueva Cita"
     },
     doctor: {
       title: "Panel del Médico",
@@ -270,6 +291,7 @@ export default {
       rejected: "Rechazado",
       todaysAppointments: "Citas de Hoy",
       upcomingAppointments: "Próximas Citas",
+      appointmentStatus: "Estado de la Consulta",
       earnings: {
         total: "Ganancias Totales",
         pending: "Pendientes",
@@ -381,7 +403,11 @@ export default {
     error: "Error al iniciar sesión",
     invalidCredentials: "Correo o contraseña no válidos",
     accountNotVerified: "Tu cuenta no está verificada. Por favor, revisa tu correo para instrucciones de verificación.",
-    verificationRequired: "Verificación Requerida"
+    verificationRequired: "Verificación Requerida",
+    loginButton: "Iniciar sesión",
+    googleLogin: "Continuar con Google",
+    appleLogin: "Continuar con Apple",
+    orSeparator: "o"
   },
   verification: {
     title: "Verifica Tu Correo",

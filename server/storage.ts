@@ -13,8 +13,13 @@ import {
   type WeeklyAvailability
 } from "@shared/schema";
 import crypto from "crypto";
+import session from "express-session";
+import memorystore from "memorystore";
 
 export interface IStorage {
+  // Session Store
+  sessionStore: session.SessionStore;
+  
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -95,6 +100,7 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
+  public sessionStore: session.SessionStore;
   private users: Map<number, User>;
   private patientProfiles: Map<number, PatientProfile>;
   private doctorProfiles: Map<number, DoctorProfile>;
@@ -131,6 +137,12 @@ export class MemStorage implements IStorage {
     this.notifications = new Map();
     this.payments = new Map();
     this.verificationCodes = new Map();
+    
+    // Initialize the session store
+    const MemoryStore = memorystore(session);
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000, // Prune expired entries every 24h
+    });
     
     this.currentUserId = 1;
     this.currentPatientProfileId = 1;

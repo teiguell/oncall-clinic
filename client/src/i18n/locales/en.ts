@@ -192,6 +192,24 @@ export default {
       completed: "Completed",
       canceled: "Canceled"
     },
+    statusDescription: {
+      scheduled: "Your appointment has been scheduled and is awaiting doctor confirmation.",
+      confirmed: "The doctor has confirmed your appointment and will be there at the scheduled time.",
+      en_route: "The doctor is on the way to your location.",
+      arrived: "The doctor has arrived at your location.",
+      in_progress: "The medical consultation is currently in progress.",
+      completed: "The medical consultation has been successfully completed.",
+      canceled: "The appointment has been canceled."
+    },
+    statusAction: {
+      scheduled: "Wait for confirmation",
+      confirmed: "Prepare for appointment",
+      en_route: "Prepare to receive doctor",
+      arrived: "Receive doctor",
+      in_progress: "Consultation in progress",
+      completed: "Leave a review",
+      canceled: "Schedule a new appointment"
+    },
     details: {
       with: "Appointment with",
       on: "on",
@@ -250,7 +268,10 @@ export default {
       payments: "Payments",
       notifications: "Notifications",
       noUpcomingAppointments: "No upcoming appointments",
-      noPastAppointments: "No past appointments"
+      noPastAppointments: "No past appointments",
+      myAppointments: "My Appointments",
+      viewAll: "View all",
+      bookNew: "Book New Appointment"
     },
     doctor: {
       title: "Doctor Dashboard",
@@ -270,6 +291,7 @@ export default {
       rejected: "Rejected",
       todaysAppointments: "Today's Appointments",
       upcomingAppointments: "Upcoming Appointments",
+      appointmentStatus: "Appointment Status",
       earnings: {
         total: "Total Earnings",
         pending: "Pending",
@@ -381,7 +403,11 @@ export default {
     error: "Login failed",
     invalidCredentials: "Invalid email or password",
     accountNotVerified: "Your account is not verified. Please check your email for verification instructions.",
-    verificationRequired: "Verification Required"
+    verificationRequired: "Verification Required",
+    loginButton: "Sign in",
+    googleLogin: "Continue with Google",
+    appleLogin: "Continue with Apple",
+    orSeparator: "or"
   },
   verification: {
     title: "Verify Your Email",
