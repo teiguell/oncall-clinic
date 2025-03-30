@@ -83,8 +83,8 @@ export default function HeroSection() {
         <div className="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full bg-gradient-to-br from-blue-50 to-primary-100 flex items-center justify-center overflow-hidden relative">
           <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
           <img 
-            className="h-full w-full object-cover object-center mix-blend-overlay opacity-90" 
-            src="https://images.unsplash.com/photo-1631217868264-e6036ac7aba1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" 
+            className="h-full w-full object-cover object-center" 
+            src="/images/oncall-clinic-icon.png" 
             alt={t('common.brand') + " - " + t('common.tagline')} 
             loading="eager"
           />

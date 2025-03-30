@@ -19,14 +19,14 @@ export const Logo: React.FC<LogoProps> = ({
   size = 'md',
   showText = true,
   className,
-  useImage = false,
+  useImage = true, // Cambiado a true por defecto para usar la imagen
   iconVariant = 'filled',
   responsive = true,
   layout = 'horizontal'
 }) => {
   const { t } = useTranslation();
   
-  const iconSizeClasses = {
+  const sizeClasses = {
     xs: 'h-6',
     sm: responsive ? 'h-7 md:h-8' : 'h-8',
     md: responsive ? 'h-9 md:h-10' : 'h-10',
@@ -51,17 +51,43 @@ export const Logo: React.FC<LogoProps> = ({
       layout === 'vertical' && "flex-col", 
       className
     )}>
-      {/* Icon */}
-      <div className={cn(iconSizeClasses[size], "aspect-square")}>
-        <LogoIcon 
-          color={logoColor} 
-          variant={iconVariant} 
-          inverted={variant === 'white'} 
-        />
+      {/* Logo/Icon */}
+      <div className={cn(sizeClasses[size], "aspect-auto")}>
+        {useImage ? (
+          // Usar la imagen del logo proporcionada
+          showText ? (
+            // Mostrar el logo completo con texto incluido
+            <img 
+              src="/images/oncall-clinic-logo.png" 
+              alt={t('common.brand')}
+              className={cn(
+                "h-full w-auto object-contain", 
+                variant === 'white' ? 'filter brightness-0 invert' : ''
+              )}
+            />
+          ) : (
+            // Mostrar solo el icono
+            <img 
+              src="/images/oncall-clinic-icon.png" 
+              alt={t('common.brand')}
+              className={cn(
+                "h-full w-auto object-contain", 
+                variant === 'white' ? 'filter brightness-0 invert' : ''
+              )}
+            />
+          )
+        ) : (
+          // Usar el componente SVG
+          <LogoIcon 
+            color={logoColor} 
+            variant={iconVariant} 
+            inverted={variant === 'white'} 
+          />
+        )}
       </div>
       
-      {/* Text */}
-      {showText && (
+      {/* Text (solo si useImage es false o si queremos texto adicional) */}
+      {showText && !useImage && (
         <div className={cn(
           "font-bold tracking-tight",
           layout === 'vertical' ? 'text-center mt-2' : logoTextClasses[size],

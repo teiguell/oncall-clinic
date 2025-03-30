@@ -1,12 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Main Pin Shape -->
-  <path 
-    d="M50 0C33.13 0 19.44 13.69 19.44 30.56C19.44 51.39 50 100 50 100S80.56 51.39 80.56 30.56C80.56 13.69 66.87 0 50 0ZM50 44.44C42.33 44.44 36.11 38.22 36.11 30.56C36.11 22.89 42.33 16.67 50 16.67C57.67 16.67 63.89 22.89 63.89 30.56C63.89 38.22 57.67 44.44 50 44.44Z" 
-    fill="#0085FF" 
-  />
-  
-  <!-- Cross in the center -->
-  <rect x="34" y="24" width="32" height="12" rx="2" fill="white" />
-  <rect x="44" y="15" width="12" height="32" rx="2" fill="white" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="100%"
+   height="100%"
+   viewBox="0 0 100 100"
+   version="1.1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <image
+     width="100"
+     height="100"
+     preserveAspectRatio="xMidYMid meet"
+     href="/images/oncall-clinic-icon.png" />
 </svg>

@@ -1,18 +1,23 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from 'react-i18next';
 
 interface LogoIconProps {
   className?: string;
   color?: string;
   variant?: 'outline' | 'filled';
   inverted?: boolean;
+  useImage?: boolean;
 }
 
 export const LogoIcon: React.FC<LogoIconProps> = ({ 
   className, 
   color = "#0085FF",
   variant = 'filled',
-  inverted = false
+  inverted = false,
+  useImage = true // Por defecto usar imagen
 }) => {
+  const { t } = useTranslation();
+  
   // Use the provided color, or adjust based on inverted state
   const mainColor = inverted ? '#FFFFFF' : color;
   const crossColor = variant === 'filled' ? 'white' : mainColor;
@@ -20,6 +25,21 @@ export const LogoIcon: React.FC<LogoIconProps> = ({
   const strokeColor = variant === 'outline' ? mainColor : 'none';
   const strokeWidth = variant === 'outline' ? 4 : 0;
 
+  if (useImage) {
+    return (
+      <img 
+        src="/images/oncall-clinic-icon.png" 
+        alt={t('common.brand')}
+        className={cn(
+          "w-full h-full object-contain", 
+          inverted ? 'filter brightness-0 invert' : '',
+          className
+        )}
+      />
+    );
+  }
+
+  // Fallback a SVG si useImage es false
   return (
     <svg 
       viewBox="0 0 100 100" 
