@@ -1,0 +1,53 @@
+Quiero que apliques mejoras integrales a mi aplicación web “OnCall Clinic”, hecha en React con Tailwind CSS. Es una plataforma de atención médica domiciliaria, no quirúrgica.
+
+---
+
+### 1. Branding y logotipo
+
+- Reemplaza el texto actual por el logotipo oficial (`logo-oncallclinic.png`).
+- Asegúrate de usar el logo en:
+  - Header (barra de navegación)
+  - Página principal (centrado)
+  - Pantallas de login y registro
+- Añadir favicon (`/public/img/favicon.ico`) en el `<head>`.
+- El logo debe actuar como enlace a la home (`/`).
+
+---
+
+### 2. Hero section (cabecera visual principal)
+
+- Sustituir la imagen actual por una que represente **atención médica domiciliaria**, sin quirófanos ni entornos hospitalarios.
+  - Por ejemplo: médico con bata atendiendo a paciente en su casa, ancianos o familia, ambiente cálido.
+- Añadir superposición oscura (`bg-black/50`) sobre la imagen para asegurar contraste.
+- Reducir altura total a aproximadamente `h-[40vh]`.
+- Titular y subtítulo con clases como `text-4xl md:text-6xl font-bold` y `text-lg md:text-xl`.
+- Añadir botón CTA visible (“Reserva tu consulta”) con buena accesibilidad.
+
+---
+
+### 3. Traducción (i18n)
+
+- Usar `t("clave")` en **todos** los textos estáticos visibles.
+- Incluir un botón de cambio de idioma en el header.
+  - Este botón debe aplicar el idioma seleccionado **a toda la aplicación**, incluyendo todas las rutas protegidas o no protegidas.
+  - Usar `i18next.changeLanguage()` y guardar selección en `localStorage` o cookies para persistencia.
+
+---
+
+### 4. Formularios
+
+- Añadir validaciones visibles en campos de login y registro (con `zod` u otro).
+- Mostrar errores bajo el campo o con `react-toastify`.
+- Mejorar estilos: campos con `rounded-md`, `focus:outline`, `ring-1 ring-primary`, etc.
+
+---
+
+### 5. Accesibilidad y estructura
+
+- Aumentar contraste en todos los botones y textos secundarios.
+- Agregar etiquetas `label` accesibles para inputs.
+- Verificar legibilidad en pantallas pequeñas.
+- En `<head>`, añadir:
+  ```html
+  <title>OnCall Clinic</title>
+  <meta name="description" content="Servicios médicos a domicilio en minutos. Atención profesional y humana.">

@@ -66,11 +66,12 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/">
-                <a className="flex items-center">
-                  <Logo size="sm" className="transition-transform duration-200 hover:scale-105" />
-                </a>
-              </Link>
+              <Logo 
+                size="sm" 
+                className="transition-transform duration-200 hover:scale-105" 
+                useImage={true} 
+                linkTo="/" 
+              />
             </div>
             <div className="hidden md:ml-10 md:flex space-x-1 lg:space-x-2">
               <Link href="/">
@@ -212,7 +213,7 @@ export default function Navbar() {
         mobileMenuOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex justify-between items-center h-16 px-4 border-b">
-          <Logo size="sm" />
+          <Logo size="sm" useImage={true} linkTo="/" />
           <button 
             onClick={() => setMobileMenuOpen(false)}
             className="p-2 rounded-full text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 focus:outline-none"
