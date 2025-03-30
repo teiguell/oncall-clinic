@@ -27,17 +27,24 @@ import { OAuthButton } from '@/components/auth/oauth-button';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/context/auth-context';
 
-// Schema para validación de formulario
-const loginFormSchema = z.object({
-  email: z.string().email("Correo electrónico inválido"),
-  password: z.string().min(1, "Por favor, ingrese su contraseña"),
-  remember: z.boolean().optional().default(false),
-});
-
-type LoginFormValues = z.infer<typeof loginFormSchema>;
+type LoginFormValues = {
+  email: string;
+  password: string;
+  remember: boolean;
+};
 
 export default function Login() {
   const { t } = useTranslation();
+  
+  // Schema para validación de formulario
+  const loginFormSchema = z.object({
+    email: z.string()
+      .min(1, "Email is required")
+      .email("Invalid email format"),
+    password: z.string()
+      .min(1, "Password is required"),
+    remember: z.boolean().optional().default(false),
+  });
   const [, params] = useLocation();
   const [, setLocation] = useLocation();
   const { login } = useAuth();
@@ -415,7 +422,7 @@ export default function Login() {
                     <FormControl>
                       <Input type="email" placeholder={t('common.emailPlaceholder')} {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -466,7 +473,7 @@ export default function Login() {
                         {t('auth.forgotPassword')}
                       </a>
                     </div>
-                    <FormMessage />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />

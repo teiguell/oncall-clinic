@@ -11,7 +11,12 @@ export default {
     delete: "Delete",
     cancel: "Cancel",
     confirm: "Confirm",
-    edit: "Edit"
+    edit: "Edit",
+    emailPlaceholder: "your.email@example.com",
+    password: "Password",
+    email: "Email",
+    brand: "OnCall Clinic",
+    tagline: "Healthcare at your doorstep"
   },
   nav: {
     home: "Home",
@@ -21,7 +26,50 @@ export default {
     register: "Register",
     profile: "Profile",
     dashboard: "Dashboard",
-    logout: "Logout"
+    logout: "Logout",
+    doctors: "For Doctors",
+    language: "Language"
+  },
+  home: {
+    hero: {
+      title: "Healthcare at your doorstep",
+      subtitle: "Professional medical care when you need it",
+      cta: "Find a Doctor Now"
+    },
+    features: {
+      title: "Why Choose OnCall Clinic",
+      convenience: {
+        title: "Convenience",
+        description: "Get medical care without leaving your home. Our doctors come to you when you need them."
+      },
+      quality: {
+        title: "Quality Care",
+        description: "All our doctors are certified professionals with extensive experience in home medical visits."
+      },
+      safety: {
+        title: "Safety First",
+        description: "Strict health protocols and verification processes to ensure your safety and peace of mind."
+      }
+    },
+    howItWorks: {
+      title: "How It Works",
+      step1: {
+        title: "Find a Doctor",
+        description: "Search for available doctors by specialty or location."
+      },
+      step2: {
+        title: "Book an Appointment",
+        description: "Select a convenient time and provide your address."
+      },
+      step3: {
+        title: "Doctor Visits You",
+        description: "The doctor arrives at your location at the scheduled time."
+      },
+      step4: {
+        title: "Receive Treatment",
+        description: "Get professional medical care in the comfort of your home."
+      }
+    }
   },
   auth: {
     email: "Email",
@@ -45,13 +93,15 @@ export default {
     patient: "Patient",
     doctor: "Doctor",
     errors: {
-      invalidEmail: "Invalid email address",
+      emailRequired: "Email is required",
+      invalidEmail: "Invalid email address format",
       passwordRequired: "Password is required",
       passwordMismatch: "Passwords do not match",
       passwordLength: "Password must be at least 8 characters",
       invalidCredentials: "Invalid email or password",
       emailExists: "Email already exists",
-      weakPassword: "Password is too weak"
+      weakPassword: "Password is too weak",
+      formValidationError: "Please fix the errors in the form"
     }
   },
   doctorSearch: {
@@ -263,5 +313,33 @@ export default {
     locationAccess: "Location access denied",
     enableLocationAccess: "Please enable location access in your browser settings to use this feature",
     mapLoadFailed: "Failed to load map. Please try again later."
+  },
+  login: {
+    title: "Welcome Back",
+    subtitle: "Sign in to your account",
+    rememberMe: "Remember me",
+    success: "Login successful",
+    error: "Login failed",
+    invalidCredentials: "Invalid email or password",
+    accountNotVerified: "Your account is not verified. Please check your email for verification instructions.",
+    verificationRequired: "Verification Required"
+  },
+  verification: {
+    title: "Verify Your Email",
+    subtitle: "We've sent a verification code to your email",
+    instructions: "Please enter the 6-digit code to verify your account",
+    verify: "Verify",
+    resendCode: "Resend code",
+    success: "Email verified successfully",
+    error: "Verification failed",
+    codeExpired: "Verification code has expired",
+    invalidCode: "Invalid verification code"
+  },
+  twoFactor: {
+    title: "Two-Factor Authentication",
+    subtitle: "Enter the code sent to your device",
+    instructions: "Please enter the 6-digit authentication code",
+    verify: "Verify",
+    resendCode: "Resend code"
   }
 };

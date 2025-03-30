@@ -11,7 +11,12 @@ export default {
     delete: "Eliminar",
     cancel: "Cancelar",
     confirm: "Confirmar",
-    edit: "Editar"
+    edit: "Editar",
+    emailPlaceholder: "tu.correo@ejemplo.com",
+    password: "Contraseña",
+    email: "Correo electrónico",
+    brand: "OnCall Clinic",
+    tagline: "Asistencia médica en tu puerta"
   },
   nav: {
     home: "Inicio",
@@ -21,7 +26,50 @@ export default {
     register: "Registrarse",
     profile: "Perfil",
     dashboard: "Panel de control",
-    logout: "Cerrar sesión"
+    logout: "Cerrar sesión",
+    doctors: "Para Médicos",
+    language: "Idioma"
+  },
+  home: {
+    hero: {
+      title: "Atención médica en tu puerta",
+      subtitle: "Cuidado profesional cuando lo necesitas",
+      cta: "Buscar un Médico Ahora"
+    },
+    features: {
+      title: "¿Por qué elegir OnCall Clinic?",
+      convenience: {
+        title: "Comodidad",
+        description: "Recibe atención médica sin salir de casa. Nuestros médicos vienen a ti cuando los necesitas."
+      },
+      quality: {
+        title: "Atención de Calidad",
+        description: "Todos nuestros médicos son profesionales certificados con amplia experiencia en visitas médicas a domicilio."
+      },
+      safety: {
+        title: "Seguridad Primero",
+        description: "Protocolos de salud estrictos y procesos de verificación para garantizar tu seguridad y tranquilidad."
+      }
+    },
+    howItWorks: {
+      title: "Cómo Funciona",
+      step1: {
+        title: "Encuentra un Médico",
+        description: "Busca médicos disponibles por especialidad o ubicación."
+      },
+      step2: {
+        title: "Reserva una Cita",
+        description: "Selecciona un horario conveniente y proporciona tu dirección."
+      },
+      step3: {
+        title: "El Médico te Visita",
+        description: "El médico llega a tu ubicación a la hora programada."
+      },
+      step4: {
+        title: "Recibe Tratamiento",
+        description: "Obtén atención médica profesional en la comodidad de tu hogar."
+      }
+    }
   },
   auth: {
     email: "Correo electrónico",
@@ -45,13 +93,15 @@ export default {
     patient: "Paciente",
     doctor: "Médico",
     errors: {
-      invalidEmail: "Dirección de correo no válida",
+      emailRequired: "El correo electrónico es obligatorio",
+      invalidEmail: "Formato de correo electrónico no válido",
       passwordRequired: "La contraseña es obligatoria",
       passwordMismatch: "Las contraseñas no coinciden",
       passwordLength: "La contraseña debe tener al menos 8 caracteres",
       invalidCredentials: "Correo o contraseña no válidos",
       emailExists: "El correo ya está en uso",
-      weakPassword: "La contraseña es demasiado débil"
+      weakPassword: "La contraseña es demasiado débil",
+      formValidationError: "Por favor, corrige los errores en el formulario"
     }
   },
   doctorSearch: {
@@ -263,5 +313,33 @@ export default {
     locationAccess: "Acceso a la ubicación denegado",
     enableLocationAccess: "Por favor, activa el acceso a la ubicación en la configuración de tu navegador para usar esta función",
     mapLoadFailed: "Error al cargar el mapa. Por favor, inténtalo de nuevo más tarde."
+  },
+  login: {
+    title: "Bienvenido de nuevo",
+    subtitle: "Inicia sesión en tu cuenta",
+    rememberMe: "Recordarme",
+    success: "Inicio de sesión exitoso",
+    error: "Error al iniciar sesión",
+    invalidCredentials: "Correo o contraseña no válidos",
+    accountNotVerified: "Tu cuenta no está verificada. Por favor, revisa tu correo para instrucciones de verificación.",
+    verificationRequired: "Verificación Requerida"
+  },
+  verification: {
+    title: "Verifica Tu Correo",
+    subtitle: "Hemos enviado un código de verificación a tu correo",
+    instructions: "Por favor, introduce el código de 6 dígitos para verificar tu cuenta",
+    verify: "Verificar",
+    resendCode: "Reenviar código",
+    success: "Correo verificado con éxito",
+    error: "Verificación fallida",
+    codeExpired: "El código de verificación ha expirado",
+    invalidCode: "Código de verificación no válido"
+  },
+  twoFactor: {
+    title: "Autenticación de Dos Factores",
+    subtitle: "Introduce el código enviado a tu dispositivo",
+    instructions: "Por favor, introduce el código de autenticación de 6 dígitos",
+    verify: "Verificar",
+    resendCode: "Reenviar código"
   }
 };

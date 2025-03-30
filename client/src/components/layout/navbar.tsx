@@ -42,7 +42,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-primary-500 mr-2">
+              <span className="text-primary-600 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide-medical-kit">
                   <path d="M7.2 22H4a2 2 0 0 1-2-2v-4.76a2 2 0 0 1 .51-1.33L12 4l9.49 9.91a2 2 0 0 1 .51 1.33V20a2 2 0 0 1-2 2h-3.2"/>
                   <path d="M12 10v12"/>
@@ -50,7 +50,10 @@ export default function Navbar() {
                 </svg>
               </span>
               <Link href="/">
-                <span className="font-bold text-2xl text-primary-500 cursor-pointer">MediHome</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-xl text-primary-600 cursor-pointer">{t('common.brand')}</span>
+                  <span className="text-xs text-neutral-500">{t('common.tagline')}</span>
+                </div>
               </Link>
             </div>
             <div className="hidden sm:ml-10 sm:flex space-x-8">
@@ -125,16 +128,25 @@ export default function Navbar() {
               <>
                 <LanguageSwitcher />
                 
+                <Link href="/register/doctor">
+                  <Button
+                    variant="ghost"
+                    className="text-primary-600 hover:text-primary-800 hover:bg-primary-50 mr-2"
+                  >
+                    {t('nav.doctors')}
+                  </Button>
+                </Link>
+                
                 <Link href="/login">
                   <Button
                     variant="outline"
-                    className="text-primary-500 border-primary-500 hover:bg-primary-50 mx-3"
+                    className="text-primary-600 border-primary-500 hover:bg-primary-50 mr-2"
                   >
                     {t('nav.login')}
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button>
+                  <Button className="bg-primary-600 hover:bg-primary-700">
                     {t('nav.register')}
                   </Button>
                 </Link>
@@ -228,17 +240,25 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center px-4">
-              <Link href="/login">
+            <div className="flex flex-col items-center px-4 space-y-2">
+              <Link href="/register/doctor" className="w-full">
+                <Button
+                  variant="ghost"
+                  className="text-primary-600 hover:text-primary-800 hover:bg-primary-50 w-full"
+                >
+                  {t('nav.doctors')}
+                </Button>
+              </Link>
+              <Link href="/login" className="w-full">
                 <Button
                   variant="outline"
-                  className="text-primary-500 border-primary-500 hover:bg-primary-50 mb-2 w-full"
+                  className="text-primary-600 border-primary-500 hover:bg-primary-50 w-full"
                 >
                   {t('nav.login')}
                 </Button>
               </Link>
-              <Link href="/register">
-                <Button className="w-full">
+              <Link href="/register" className="w-full">
+                <Button className="w-full bg-primary-600 hover:bg-primary-700">
                   {t('nav.register')}
                 </Button>
               </Link>

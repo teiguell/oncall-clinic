@@ -1,0 +1,58 @@
+Quiero que revises y mejores varios aspectos de mi app de citas médicas a domicilio basada en React + Tailwind + Node.js + MongoDB, ya desplegada en Replit. Ya tengo funcional el login, registro, verificación 2FA, Google OAuth y reserva de citas básicas.
+
+Estas son las correcciones y mejoras que quiero que implementes:
+
+---
+
+### 🔹 1. Diseño general (UI)
+- Añadir diseño básico con Tailwind (colores, espaciado, iconos médicos).
+- Incluir un slogan o texto bajo el logo en la home.
+- Agregar fondo suave o imagen médica clara para mejorar presencia visual.
+
+---
+
+### 🔹 2. Accesibilidad de funciones
+- Añadir botón visible desde la home para “Soy médico” que lleve al registro de médicos.
+- Asegurar que todas las páginas principales tengan rutas accesibles sin escribirlas manualmente.
+
+---
+
+### 🔹 3. Validación y feedback
+- En el registro y login de pacientes:
+  - Añadir validación visible con `zod` o similar para email, contraseña, nombre.
+  - Mostrar errores de forma clara debajo de cada campo o con `react-toastify`.
+
+- En el login:
+  - Mostrar mensaje si el usuario mete credenciales incorrectas.
+  - Mostrar alerta si la cuenta no está verificada.
+
+---
+
+### 🔹 4. Traducción (i18n)
+- Revisar los botones, labels y mensajes de error que aún no están traducidos.
+- Usar `t("clave")` para todos los textos visibles al usuario.
+- Traducir estados de cita también (pending → "Cita solicitada", etc.).
+
+---
+
+### 🔹 5. Flujo de verificación 2FA
+- En la pantalla de verificación de código:
+  - Añadir feedback si el código es incorrecto o está expirado.
+  - Mostrar alerta o toast si se supera el tiempo.
+
+---
+
+### 🔹 6. Módulo de citas
+- Asegurarse de que:
+  - El resumen `/appointment/success` funcione con datos reales.
+  - La ruta `/api/appointments/:id` muestre el contenido correcto.
+
+---
+
+### 🔹 7. Seguridad y errores
+- No mostrar errores del backend directamente en la interfaz.
+- Agregar `try/catch` y mostrar errores con toasts amigables al usuario.
+
+---
+
+Organiza el código en módulos según funcionalidades (auth, citas, usuarios, médicos). Usa buenas prácticas y componentes reutilizables. Haz los cambios en orden de prioridad si es necesario.
