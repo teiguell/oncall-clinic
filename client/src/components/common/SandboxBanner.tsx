@@ -31,7 +31,7 @@ export function SandboxBanner() {
     <div className="bg-amber-500 text-white px-4 py-2 text-center font-medium flex items-center justify-center gap-3 shadow-md">
       <AlertTriangle className="h-5 w-5" />
       <span>
-        {t('sandbox.banner')} - {t('sandbox.subtitle')}
+        <strong>{SANDBOX_MESSAGES.SANDBOX_MODE}</strong>
       </span>
       <button 
         onClick={handleInfoClick}

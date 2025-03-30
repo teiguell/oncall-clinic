@@ -1,13 +1,13 @@
 export default {
   sandbox: {
-    banner: "SANDBOX Mode - This is a test version",
+    banner: "Test version without medical validity",
     subtitle: "For testing purposes only",
     moreInfo: "More info",
     info: {
       title: "Sandbox Mode Information",
-      point1: "The application is in test mode with fictional data",
-      point2: "Services are limited to Palma de Mallorca area",
-      point3: "Payments are simulated, no real charges are made"
+      point1: "This environment contains a fictional doctor (Dr. Simulado Pérez)",
+      point2: "Services limited to Balearic Islands for testing",
+      point3: "Only General Medicine specialty available"
     }
   },
   common: {

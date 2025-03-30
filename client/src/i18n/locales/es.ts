@@ -1,13 +1,13 @@
 export default {
   sandbox: {
-    banner: "Modo SANDBOX - Esta es una versión de prueba",
+    banner: "Versión de pruebas sin validez asistencial",
     subtitle: "Solo para pruebas",
     moreInfo: "Más información",
     info: {
       title: "Información del Modo Sandbox",
-      point1: "La aplicación está en modo de prueba con datos ficticios",
-      point2: "Los servicios están limitados a Palma de Mallorca",
-      point3: "Los pagos se simulan, no se realizan cobros reales"
+      point1: "Este entorno contiene un médico ficticio (Dr. Simulado Pérez)",
+      point2: "Servicios limitados a Islas Baleares para pruebas",
+      point3: "Solo especialidad de Medicina General disponible"
     }
   },
   common: {

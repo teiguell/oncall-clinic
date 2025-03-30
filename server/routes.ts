@@ -1107,9 +1107,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // If we're in the allowed area, return our test doctor
             const testUser = await storage.getUser(TEST_DOCTOR.userId) || {
               id: TEST_DOCTOR.userId,
-              firstName: "Dr. Fernando",
-              lastName: "Martínez",
-              email: "doctor.test@oncall.clinic",
+              firstName: "Dr. Simulado",
+              lastName: "Pérez",
+              email: "doctor.sandbox@oncall.clinic",
               phoneNumber: "+34600123456",
               password: "",
               userType: "doctor"

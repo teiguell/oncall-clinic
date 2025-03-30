@@ -13,9 +13,9 @@ export const ALLOWED_AREA_BOUNDS = {
 
 // Mensajes específicos del modo SANDBOX
 export const SANDBOX_MESSAGES = {
-  SANDBOX_MODE: "Modo SANDBOX - Esta es una versión de prueba",
-  LOCATION_RESTRICTED: "Actualmente solo ofrecemos servicios en Palma de Mallorca para pruebas",
-  SPECIALTY_RESTRICTED: "Actualmente solo ofrecemos servicios de Medicina General",
+  SANDBOX_MODE: "Versión de pruebas sin validez asistencial",
+  AREA_RESTRICTED: "Actualmente solo ofrecemos servicios en las Islas Baleares.",
+  SPECIALTY_RESTRICTED: "Actualmente solo ofrecemos servicios de Medicina General.",
   PAYMENT_SIMULATED: "El pago se simula en el modo SANDBOX"
 };
 

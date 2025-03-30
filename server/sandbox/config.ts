@@ -17,7 +17,7 @@ export const ALLOWED_AREA_BOUNDS = {
 // Mensajes para el usuario
 export const SANDBOX_MESSAGES = {
   AREA_RESTRICTED: "Actualmente solo ofrecemos servicios en las Islas Baleares.",
-  SANDBOX_MODE: "Entorno Alpha – Solo para pruebas internas",
+  SANDBOX_MODE: "Versión de pruebas sin validez asistencial",
   SPECIALTY_RESTRICTED: "Actualmente solo ofrecemos servicios de Medicina General.",
 };
 
@@ -25,10 +25,10 @@ export const SANDBOX_MESSAGES = {
 export const TEST_DOCTOR: InsertDoctorProfile = {
   userId: 1, // El ID se asignará durante la creación
   specialtyId: 1, // Medicina General
-  licenseNumber: "070123456",
+  licenseNumber: "SANDBOX-070123456",
   education: "Universidad de Barcelona, Facultad de Medicina",
-  experience: 10,
-  bio: "Médico general con amplia experiencia en atención primaria.",
+  experience: 12,
+  bio: "Médico general con amplia experiencia en atención primaria. Especializado en medicina familiar y preventiva.",
   basePrice: 8000, // 80.00 en cents
   isAvailable: true,
   bankAccount: "SANDBOX_ACCOUNT",
