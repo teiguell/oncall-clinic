@@ -4,6 +4,7 @@ import {
   register as authRegister, 
   logout as authLogout,
   verifyEmail as authVerifyEmail,
+  sendVerificationCode as authSendVerificationCode,
   getAuthenticatedUser,
   getStoredSession,
   removeSession
@@ -23,6 +24,7 @@ interface AuthContextType {
   register: (data: RegistrationData) => Promise<{verificationId: string, verificationCode: string}>;
   logout: () => Promise<void>;
   verifyEmail: (data: VerificationData) => Promise<void>;
+  sendVerificationCode: (email: string) => Promise<{message: string}>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  // Send verification code function
+  const sendVerificationCode = async (email: string) => {
+    return await authSendVerificationCode(email);
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
@@ -82,7 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     register,
     logout,
-    verifyEmail
+    verifyEmail,
+    sendVerificationCode
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

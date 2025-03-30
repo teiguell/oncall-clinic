@@ -47,9 +47,28 @@ export const register = async (data: RegistrationData): Promise<{ verificationId
   return result;
 };
 
+// Send verification code
+export const sendVerificationCode = async (email: string): Promise<{ message: string }> => {
+  const response = await fetch("/api/auth/send-code", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+    credentials: "include"
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Error al enviar el código de verificación");
+  }
+  
+  return response.json();
+};
+
 // Verify email with code
 export const verifyEmail = async (data: VerificationData): Promise<void> => {
-  const response = await fetch("/api/auth/verify", {
+  const response = await fetch("/api/auth/verify-code", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

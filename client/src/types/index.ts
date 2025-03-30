@@ -167,6 +167,7 @@ export interface DoctorRegistrationData extends RegistrationData {
 export interface VerificationData {
   verificationId: string;
   code: string;
+  email?: string; // Opcional para compatibilidad con ambos sistemas
 }
 
 export interface SessionData {
