@@ -6,11 +6,11 @@ export default {
     info: {
       title: "Información del Modo Sandbox",
       point1: "Este entorno contiene un médico ficticio (Dr. Simulado Pérez)",
-      point2: "Servicios limitados a Islas Baleares para pruebas",
+      point2: "Servicios limitados a la isla de Ibiza para pruebas",
       point3: "Solo especialidad de Medicina General disponible"
     },
     mapNotice: "Mapa simulado para pruebas",
-    addressNotice: "En modo pruebas, sólo están disponibles direcciones en Mallorca",
+    addressNotice: "En modo pruebas, sólo están disponibles direcciones en Ibiza",
     selectAddress: "Selecciona una dirección",
     useCustomAddress: "Usar dirección personalizada"
   },
@@ -371,7 +371,7 @@ export default {
     doctorNote: "Médico Simulado",
     doctorNoteDesc: "El Dr. Simulado Pérez es un médico ficticio creado para pruebas. No es un profesional médico real.",
     locationNote: "Ubicación Restringida",
-    locationNoteDesc: "Los servicios están limitados a las Islas Baleares para fines de prueba.",
+    locationNoteDesc: "Los servicios están limitados a la isla de Ibiza para fines de prueba.",
     paymentsNote: "Pagos Simulados",
     paymentsNoteDesc: "Los pagos se procesan en modo de prueba, no se realizan cargos reales.",
     ourMission: "Nuestra Misión",

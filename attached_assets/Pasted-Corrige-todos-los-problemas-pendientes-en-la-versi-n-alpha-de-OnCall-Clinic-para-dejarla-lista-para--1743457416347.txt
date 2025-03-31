@@ -1,0 +1,69 @@
+Corrige todos los problemas pendientes en la versión alpha de OnCall Clinic para dejarla lista para su publicación.
+
+---
+
+🔹 1. Corrección completa de traducción (i18n)
+
+- Asegúrate de que todos los textos visibles usen `t("clave")` de i18next.
+- Verifica y corrige traducción en:
+  - Página de login, registro, recuperación de contraseña
+  - Hero section (título, subtítulo, botón)
+  - Panel de paciente y de médico (navegación, citas, estados)
+  - Submenús de usuario (logout, configuración, dashboard)
+- Añadir claves faltantes en `es.ts` y `en.ts`:
+  - "Sign in", "Forgot password", "Continue with Google", etc.
+- Asegurar que el cambio de idioma sea reactivo (se aplique a toda la app) sin necesidad de recargar.
+- Mostrar claramente en el botón de idioma: `ES | EN`
+
+---
+
+🔹 2. Corrección de Google Maps
+
+- Verifica que el mapa se muestre correctamente donde debe:
+  - En el proceso de búsqueda de médicos
+  - En el seguimiento de cita cuando el estado es “en camino”
+- Verifica que:
+  - La API Key de Google Maps está activa y en `.env`
+  - Está habilitada para Maps JavaScript API
+  - El contenedor tiene altura y estilo adecuados
+- Si IS_SANDBOX = true y el médico es simulado, mostrar ubicación ficticia (mock)
+
+---
+
+🔹 3. Submenús y navegación contextual
+
+- Corrige el submenú del usuario:
+  - Traducción de "Logout", "My Dashboard", etc.
+  - Mostrar opciones según el rol del usuario (médico, paciente o admin)
+  - Adaptar estilo para que sea responsive y claro en móviles y escritorio
+
+---
+
+🔹 4. Validación del login con Google
+
+- Verifica que:
+  - La autenticación con Google funciona correctamente
+  - Se crea el usuario con su rol apropiado
+  - La redirección post-login va al dashboard correcto
+  - Si hay error, se muestra mensaje amigable
+  - Se usa `{ credentials: "include" }` en las llamadas necesarias
+
+---
+
+🔹 5. Confirmación de entorno sandbox y condiciones de visibilidad
+
+- Mostrar en todo momento un banner:  
+  > “⚠️ Versión de pruebas – No se presta atención médica real”
+- Asegúrate de que el médico simulado está operativo, visible y reservable.
+- En los flujos de pago, indicar que son pagos simulados.
+- Postpago, mostrar:
+  - Progreso de cita
+  - Nombre del médico
+  - Mapa de ubicación
+  - Chat si faltan <15 min
+
+---
+
+⚙️ No modificar la estética actual. Solo aplicar correcciones funcionales y de contenido.
+
+Verifica que tras estas correcciones, la app esté 100% funcional en ambos idiomas y todos los flujos críticos estén operativos.

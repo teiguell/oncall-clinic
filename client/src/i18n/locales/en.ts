@@ -6,11 +6,11 @@ export default {
     info: {
       title: "Sandbox Mode Information",
       point1: "This environment contains a fictional doctor (Dr. Simulado Pérez)",
-      point2: "Services limited to Balearic Islands for testing",
+      point2: "Services limited to Ibiza island for testing",
       point3: "Only General Medicine specialty available"
     },
     mapNotice: "Simulated map for testing",
-    addressNotice: "In test mode, only Mallorca addresses are available",
+    addressNotice: "In test mode, only Ibiza addresses are available",
     selectAddress: "Select an address",
     useCustomAddress: "Use custom address"
   },
@@ -371,7 +371,7 @@ export default {
     doctorNote: "Simulated Doctor",
     doctorNoteDesc: "Dr. Simulado Pérez is a fictional doctor created for testing. He is not a real medical professional.",
     locationNote: "Restricted Location",
-    locationNoteDesc: "Services are limited to the Balearic Islands for testing purposes.",
+    locationNoteDesc: "Services are limited to Ibiza island for testing purposes.",
     paymentsNote: "Simulated Payments",
     paymentsNoteDesc: "Payments are processed in test mode, no real charges are made.",
     ourMission: "Our Mission",
