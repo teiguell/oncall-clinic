@@ -49,16 +49,20 @@ const Logo: React.FC<LogoProps> = ({
 
   // Configuración de tamaños para la imagen del logo
   const imageSizes = {
-    sm: { width: 80 },
-    md: { width: 120 },
-    lg: { width: 150 },
-    xl: { width: 180 }
+    sm: { width: 120 },
+    md: { width: 160 },
+    lg: { width: 200 },
+    xl: { width: 240 }
   };
 
   // Determinar qué logo SVG usar basado en la variante
-  const logoSrc = variant === 'white' || variant === 'dark' 
-    ? '/images/logo-dark.svg' 
-    : '/images/logo-light.svg';
+  const logoSrc = variant === 'white' 
+    ? '/images/logo-white.svg' 
+    : variant === 'dark' 
+      ? '/images/logo-white.svg'
+      : variant === 'blue'
+        ? '/images/logo-blue.svg'
+        : '/images/logo-black.svg';
 
   // Componente SVG del logo (inline o imagen)
   const LogoIcon = useImage ? (
