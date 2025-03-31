@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, Home, Frown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
-import { Logo } from "@/components/common/Logo";
+import Logo from "@/components/common/Logo";
 
 export default function NotFound() {
   const { t } = useTranslation();

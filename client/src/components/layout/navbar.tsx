@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LanguageSwitcher from "@/components/ui/language-switcher";
-import { Logo } from "@/components/common/Logo";
+import Logo from "@/components/common/Logo";
 import { cn } from "@/lib/utils";
 import { 
   Bell,

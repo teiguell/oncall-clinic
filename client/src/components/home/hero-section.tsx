@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { Stethoscope, Users, Shield } from "lucide-react";
-import { Logo } from "@/components/common/Logo";
+import Logo from "@/components/common/Logo";
 
 interface HeroSectionProps {
   className?: string;

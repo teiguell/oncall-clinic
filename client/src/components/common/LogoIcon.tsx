@@ -10,7 +10,7 @@ interface LogoIconProps {
   useImage?: boolean;
 }
 
-export const LogoIcon: React.FC<LogoIconProps> = ({ 
+const LogoIcon: React.FC<LogoIconProps> = ({ 
   className, 
   color = "#0085FF",
   variant = 'filled',

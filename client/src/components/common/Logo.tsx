@@ -1,86 +1,88 @@
 import React from 'react';
-import { cn } from "@/lib/utils";
-import { useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
+import { cn } from '@/lib/utils';
 
 interface LogoProps {
-  variant?: 'default' | 'white';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  showText?: boolean;
+  variant?: 'default' | 'white' | 'blue' | 'dark';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  withText?: boolean;
   className?: string;
+  href?: string;
   useImage?: boolean;
-  responsive?: boolean;
-  layout?: 'horizontal' | 'vertical';
   linkTo?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({
+const Logo: React.FC<LogoProps> = ({
   variant = 'default',
   size = 'md',
-  showText = true,
+  withText = true,
   className,
-  useImage = true, // Por defecto usamos la imagen del logo
-  responsive = true,
-  layout = 'horizontal',
-  linkTo
+  href,
+  useImage = false,
+  linkTo = '/'
 }) => {
-  const { t } = useTranslation();
-  
-  const sizeClasses = {
-    xs: 'h-6',
-    sm: responsive ? 'h-7 md:h-8' : 'h-8',
-    md: responsive ? 'h-9 md:h-10' : 'h-10',
-    lg: responsive ? 'h-12 md:h-16' : 'h-16',
-    xl: responsive ? 'h-16 md:h-20' : 'h-20'
+  // Configuración de tamaños
+  const sizes = {
+    sm: { icon: 'h-6 w-6', text: 'text-sm' },
+    md: { icon: 'h-8 w-8', text: 'text-base' },
+    lg: { icon: 'h-10 w-10', text: 'text-lg' },
+    xl: { icon: 'h-12 w-12', text: 'text-xl' }
   };
 
-  // Dependiendo de si es blanco o de color, usamos una imagen diferente o ajustamos filtros CSS
-  const logoSrc = '/img/logo-oncallclinic.svg';
-  const logoImageClasses = cn(
-    sizeClasses[size],
-    "w-auto",
-    "transition-all duration-300 ease-in-out",
-    variant === 'white' && "filter brightness-0 invert"
+  // Configuración de colores
+  const colors = {
+    default: { icon: 'text-blue-500', text: 'text-gray-800' },
+    white: { icon: 'text-white', text: 'text-white' },
+    blue: { icon: 'text-blue-500', text: 'text-blue-700' },
+    dark: { icon: 'text-blue-400', text: 'text-gray-700' }
+  };
+
+  // Componente SVG del logo (inline o imagen)
+  const LogoIcon = useImage ? (
+    <img 
+      src="/images/logo.svg" 
+      alt="OnCall Clinic Logo"
+      className={sizes[size].icon}
+    />
+  ) : (
+    <svg 
+      className={cn(sizes[size].icon, colors[variant].icon, "fill-current")} 
+      viewBox="0 0 200 200" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M100 0C60.8 0 29.2 31.6 29.2 70.8C29.2 117.7 100 200 100 200C100 200 170.8 117.7 170.8 70.8C170.8 31.6 139.2 0 100 0ZM100 46.2C104.8 46.2 109.2 47.7 113.1 50.8L100 63.8L86.9 50.8C90.8 47.7 95.2 46.2 100 46.2ZM70 67.7L83.1 80.8L70 93.8C66.9 89.9 65.4 85.5 65.4 80.8C65.4 76 66.9 71.5 70 67.7ZM100 115.4C95.2 115.4 90.8 113.8 86.9 110.8L100 97.7L113.1 110.8C109.2 113.8 104.8 115.4 100 115.4ZM130 93.8L116.9 80.8L130 67.7C133.1 71.5 134.6 76 134.6 80.8C134.6 85.5 133.1 89.9 130 93.8Z" />
+    </svg>
   );
 
-  const renderLogo = () => (
-    <div className={cn(
-      "flex items-center", 
-      layout === 'vertical' && "flex-col", 
-      className
-    )}>
-      {/* Logo (imagen o texto) */}
-      {useImage ? (
-        <img 
-          src={logoSrc} 
-          alt={t('common.brand')} 
-          className={logoImageClasses}
-        />
-      ) : (
-        <div className="flex flex-col leading-none font-bold tracking-tight text-2xl">
-          <span className={variant === 'white' ? 'text-white' : 'text-primary-600'}>
-            OnCall
-          </span>
-          <span className={variant === 'white' ? 'text-white' : 'text-primary-600'}>
-            Clinic
-          </span>
-        </div>
-      )}
+  // Componente del texto del logo
+  const LogoText = withText && (
+    <div className={cn("flex flex-col ml-2", sizes[size].text, colors[variant].text, "font-bold leading-none")}>
+      <span>OnCall</span>
+      <span>Clinic</span>
     </div>
   );
 
-  // Si se proporcionó un enlace, envolvemos el logo con un Link
-  if (linkTo) {
-    return (
-      <Link href={linkTo}>
-        <a className="no-underline">
-          {renderLogo()}
-        </a>
-      </Link>
-    );
-  }
+  // Renderizado con o sin enlace
+  const logoContent = (
+    <div className={cn("flex items-center", className)}>
+      {LogoIcon}
+      {LogoText}
+    </div>
+  );
 
-  return renderLogo();
+  // Decidir qué tipo de enlace usar (href o linkTo)
+  const targetHref = href || linkTo;
+
+  // Si se proporciona un enlace, usamos el componente Link de wouter
+  // Nota: En versiones recientes de wouter, <Link> envuelve automáticamente el contenido
+  // sin necesidad de un elemento <a> explícito que puede causar problemas de anidamiento
+  return targetHref ? (
+    <Link href={targetHref} className="inline-flex">
+      {logoContent}
+    </Link>
+  ) : (
+    logoContent
+  );
 };
 
 export default Logo;

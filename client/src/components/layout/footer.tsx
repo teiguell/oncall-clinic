@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Logo } from "@/components/common/Logo";
-import { LogoIcon } from "@/components/common/LogoIcon";
+import Logo from "@/components/common/Logo";
+import LogoIcon from "@/components/common/LogoIcon";
 import { Link } from "wouter";
 import { 
   Facebook, 
