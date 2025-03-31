@@ -175,7 +175,7 @@ function SandboxMap({
 }
 
 export default function GoogleMap({
-  center = { lat: 40.4167, lng: -3.7037 }, // Default to Madrid
+  center = { lat: 38.9086, lng: 1.4350 }, // Default to Ibiza ciudad
   zoom = 13,
   markers = [],
   height = "500px",

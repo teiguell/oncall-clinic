@@ -39,20 +39,20 @@ const createMockPlaceResult = (address: string, location: { lat: number; lng: nu
 // Sandbox predefined locations
 const SANDBOX_LOCATIONS = [
   {
-    address: "Hospital Universitario Son Espases, Palma de Mallorca",
-    location: { lat: 39.5947, lng: 2.6371 }
+    address: "Hospital Can Misses, Ibiza",
+    location: { lat: 38.9066, lng: 1.4200 }
   },
   {
-    address: "Plaza de España, Palma de Mallorca",
-    location: { lat: 39.5751, lng: 2.6534 }
+    address: "Puerto de Ibiza, Ibiza",
+    location: { lat: 38.9114, lng: 1.4436 }
   },
   {
-    address: "Playa de Palma, Palma de Mallorca",
-    location: { lat: 39.5151, lng: 2.7452 }
+    address: "Playa d'en Bossa, Ibiza",
+    location: { lat: 38.8867, lng: 1.4097 }
   },
   {
-    address: "Puerto de Alcúdia, Mallorca",
-    location: { lat: 39.8382, lng: 3.1176 }
+    address: "Sant Antoni de Portmany, Ibiza",
+    location: { lat: 38.9796, lng: 1.3036 }
   },
 ];
 

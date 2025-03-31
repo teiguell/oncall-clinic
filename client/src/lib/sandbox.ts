@@ -4,17 +4,17 @@
 // Bandera para activar/desactivar el modo SANDBOX (desde las variables de entorno)
 export const IS_SANDBOX = import.meta.env.VITE_IS_SANDBOX === 'true';
 
-// Coordenadas del área restringida para pruebas (Mallorca)
+// Coordenadas del área restringida para pruebas (Ibiza)
 export const ALLOWED_AREA_BOUNDS = {
-  northeast: { lat: 39.7900, lng: 3.4600 }, // Noreste de Mallorca
-  southwest: { lat: 39.2700, lng: 2.2800 }, // Suroeste de Mallorca
-  center: { lat: 39.5696, lng: 2.6502 }     // Centro (Palma)
+  northeast: { lat: 39.1300, lng: 1.6350 }, // Noreste de Ibiza
+  southwest: { lat: 38.8000, lng: 1.3500 }, // Suroeste de Ibiza
+  center: { lat: 38.9086, lng: 1.4350 }     // Centro (Ibiza ciudad)
 };
 
 // Mensajes específicos del modo SANDBOX
 export const SANDBOX_MESSAGES = {
   SANDBOX_MODE: "Versión de pruebas sin validez asistencial",
-  AREA_RESTRICTED: "Actualmente solo ofrecemos servicios en las Islas Baleares.",
+  AREA_RESTRICTED: "Actualmente solo ofrecemos servicios en la isla de Ibiza.",
   SPECIALTY_RESTRICTED: "Actualmente solo ofrecemos servicios de Medicina General.",
   PAYMENT_SIMULATED: "El pago se simula en el modo SANDBOX"
 };
