@@ -48,12 +48,12 @@ const Logo: React.FC<LogoProps> = ({
   };
 
   // Configuración de tamaños para la imagen del logo
-  // Aseguramos que el logo se muestre con buena calidad manteniendo su proporción
+  // Amplificados al doble según solicitado, manteniendo proporciones
   const imageSizes = {
-    sm: { height: 32, width: 'auto' },
-    md: { height: 40, width: 'auto' },
-    lg: { height: 48, width: 'auto' },
-    xl: { height: 64, width: 'auto' }
+    sm: { height: 64, width: 'auto' },
+    md: { height: 80, width: 'auto' },
+    lg: { height: 96, width: 'auto' },
+    xl: { height: 128, width: 'auto' }
   };
 
   // Usamos el logo exactamente como fue proporcionado, sin alteraciones
