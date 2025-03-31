@@ -12,6 +12,16 @@ interface LogoProps {
   linkTo?: string;
 }
 
+/**
+ * Componente Logo con opciones de personalización
+ * @param variant Color del logo: default, white, blue, dark (determina si usa logo claro u oscuro)
+ * @param size Tamaño del logo: sm, md, lg, xl
+ * @param withText Mostrar texto junto al icono (solo para SVG inline, no para imagen)
+ * @param className Clases CSS adicionales
+ * @param href URL para enlace externo (usa <a>)
+ * @param useImage Usar imagen SVG en lugar de componente inline
+ * @param linkTo URL para enlaces internos (usa wouter <Link>)
+ */
 const Logo: React.FC<LogoProps> = ({
   variant = 'default',
   size = 'md',
@@ -40,15 +50,20 @@ const Logo: React.FC<LogoProps> = ({
   // Configuración de tamaños para la imagen del logo
   const imageSizes = {
     sm: { width: 80 },
-    md: { width: 100 },
-    lg: { width: 120 },
-    xl: { width: 140 }
+    md: { width: 120 },
+    lg: { width: 150 },
+    xl: { width: 180 }
   };
+
+  // Determinar qué logo SVG usar basado en la variante
+  const logoSrc = variant === 'white' || variant === 'dark' 
+    ? '/images/logo-dark.svg' 
+    : '/images/logo-light.svg';
 
   // Componente SVG del logo (inline o imagen)
   const LogoIcon = useImage ? (
     <img 
-      src="/images/oncall-clinic-logo.png" 
+      src={logoSrc}
       alt="OnCall Clinic Logo"
       className={sizes[size].icon}
       style={{ 
