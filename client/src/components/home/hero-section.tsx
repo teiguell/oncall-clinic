@@ -27,9 +27,9 @@ export default function HeroSection({ className }: HeroSectionProps) {
       <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-center h-full py-12 md:py-16 space-y-4">
           <div className="flex flex-col gap-4 max-w-2xl mx-auto text-center">
-            {/* Logo centrado */}
+            {/* Logo centrado - tamaño duplicado */}
             <div className="flex flex-col items-center mb-6">
-              <Logo size="lg" className="mb-3" variant="white" />
+              <Logo size="xl" className="mb-3 scale-125" variant="white" />
               
               {/* Slogan debajo del logo */}
               <p className="text-white/90 text-lg italic mt-1">
