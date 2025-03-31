@@ -48,7 +48,7 @@ const Logo: React.FC<LogoProps> = ({
   };
 
   // Configuración de tamaños para la imagen del logo
-  // Los valores son mayores para el logo que proporcionaste ya que es más ancho que alto
+  // Aseguramos que el logo se muestre con buena calidad manteniendo su proporción
   const imageSizes = {
     sm: { height: 32, width: 'auto' },
     md: { height: 40, width: 'auto' },
@@ -56,32 +56,8 @@ const Logo: React.FC<LogoProps> = ({
     xl: { height: 64, width: 'auto' }
   };
 
-  // Determinar qué logo usar - siempre usamos el mismo logo
-  const logoSrc = '/images/logos/logo-white.png';
-  
-  // Aplicar filtros para adaptar el logo al fondo según la variante
-  const getFilterStyle = () => {
-    // El logo ya tiene contornos blancos, por lo que es adecuado para fondos oscuros
-    // Para fondos claros (default o blue), podemos agregar un filtro que invierta los colores
-    switch(variant) {
-      case 'default':
-      case 'blue':
-        // Para fondos claros, aplicar un filtro de inversión para que el logo sea visible
-        // y un drop-shadow para hacerlo destacar más en fondos claros
-        return { 
-          filter: 'invert(0.15) brightness(0.85) contrast(1.1) drop-shadow(0 0 2px rgba(0,0,0,0.2))',
-          opacity: 0.85 
-        };
-      case 'white':
-      case 'dark':
-      default:
-        // Para fondos oscuros, aplicamos un leve glow para mejorar la visibilidad
-        return { 
-          filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.25))',
-          opacity: 0.95
-        };
-    }
-  };
+  // Usamos el logo exactamente como fue proporcionado, sin alteraciones
+  const logoSrc = '/images/logo.png';
 
   // Componente SVG del logo (inline o imagen)
   const LogoIcon = useImage ? (
@@ -91,10 +67,9 @@ const Logo: React.FC<LogoProps> = ({
       className={sizes[size].icon}
       style={{ 
         objectFit: 'contain',
-        width: imageSizes[size].width,
+        width: 'auto',
         height: imageSizes[size].height,
-        maxWidth: '100%',
-        ...getFilterStyle()
+        maxWidth: '100%'
       }}
     />
   ) : (
