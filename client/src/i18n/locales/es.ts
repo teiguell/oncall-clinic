@@ -8,7 +8,11 @@ export default {
       point1: "Este entorno contiene un médico ficticio (Dr. Simulado Pérez)",
       point2: "Servicios limitados a Islas Baleares para pruebas",
       point3: "Solo especialidad de Medicina General disponible"
-    }
+    },
+    mapNotice: "Mapa simulado para pruebas",
+    addressNotice: "En modo pruebas, sólo están disponibles direcciones en Mallorca",
+    selectAddress: "Selecciona una dirección",
+    useCustomAddress: "Usar dirección personalizada"
   },
   common: {
     loading: "Cargando...",
@@ -347,7 +351,8 @@ export default {
     notAuthorized: "No estás autorizado para acceder a esta página",
     locationAccess: "Acceso a la ubicación denegado",
     enableLocationAccess: "Por favor, activa el acceso a la ubicación en la configuración de tu navegador para usar esta función",
-    mapLoadFailed: "Error al cargar el mapa. Por favor, inténtalo de nuevo más tarde."
+    mapLoadFailed: "Error al cargar el mapa. Por favor, inténtalo de nuevo más tarde.",
+    addressSearchFailed: "Error al cargar el buscador de direcciones. Por favor, introduce la dirección manualmente."
   },
   errors: {
     notFound: {

@@ -8,7 +8,11 @@ export default {
       point1: "This environment contains a fictional doctor (Dr. Simulado Pérez)",
       point2: "Services limited to Balearic Islands for testing",
       point3: "Only General Medicine specialty available"
-    }
+    },
+    mapNotice: "Simulated map for testing",
+    addressNotice: "In test mode, only Mallorca addresses are available",
+    selectAddress: "Select an address",
+    useCustomAddress: "Use custom address"
   },
   common: {
     loading: "Loading...",
@@ -347,7 +351,8 @@ export default {
     notAuthorized: "You are not authorized to access this page",
     locationAccess: "Location access denied",
     enableLocationAccess: "Please enable location access in your browser settings to use this feature",
-    mapLoadFailed: "Failed to load map. Please try again later."
+    mapLoadFailed: "Failed to load map. Please try again later.",
+    addressSearchFailed: "Failed to load address search. Please enter address manually."
   },
   errors: {
     notFound: {
