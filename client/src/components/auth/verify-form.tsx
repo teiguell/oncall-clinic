@@ -18,15 +18,7 @@ import {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, Mail, ArrowRight, Check } from "lucide-react";
-
-const verifySchema = z.object({
-  code: z.string()
-    .min(6, { message: "El código debe tener 6 dígitos" })
-    .max(6)
-    .regex(/^\d+$/, { message: "El código debe contener solo números" })
-});
-
-type VerifyFormValues = z.infer<typeof verifySchema>;
+import { useTranslation } from "react-i18next";
 
 interface VerifyFormProps {
   verificationId: string;
@@ -37,10 +29,21 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
   const { verifyEmail, sendVerificationCode } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCodeSent, setIsCodeSent] = useState(false);
+
+  // Esquema de validación del formulario con i18n
+  const verifySchema = z.object({
+    code: z.string()
+      .min(6, { message: t('verification.invalidCode') })
+      .max(6)
+      .regex(/^\d+$/, { message: t('verification.invalidCode') })
+  });
+
+  type VerifyFormValues = z.infer<typeof verifySchema>;
 
   const form = useForm<VerifyFormValues>({
     resolver: zodResolver(verifySchema),
@@ -64,8 +67,8 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
       
       // Mostrar mensaje de bienvenida
       toast({
-        title: "Verificación exitosa",
-        description: `¡Bienvenido/a a OnCall Clinic, ${userData?.firstName || ''}! Tu cuenta ha sido verificada.`,
+        title: t('verification.success'),
+        description: t('common.welcome') + `, ${userData?.firstName || ''}!`,
       });
       
       // Redirigir según el tipo de usuario
@@ -80,13 +83,13 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError("Error al verificar el correo. Intenta de nuevo.");
+        setError(t('verification.verifyError'));
       }
       
       toast({
         variant: "destructive",
-        title: "Error de verificación",
-        description: "Código incorrecto o expirado. Intenta de nuevo.",
+        title: t('verification.error'),
+        description: t('verification.invalidCode'),
       });
     } finally {
       setIsLoading(false);
@@ -103,8 +106,8 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
       setIsCodeSent(true);
       
       toast({
-        title: "Código enviado",
-        description: "Hemos enviado un nuevo código de verificación a tu correo electrónico.",
+        title: t('verification.resendSuccess'),
+        description: t('verification.subtitle'),
         action: (
           <div className="h-6 w-6 bg-green-100 rounded-full flex items-center justify-center">
             <Check className="h-4 w-4 text-green-600" />
@@ -123,13 +126,13 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError("Error al enviar el código. Intenta de nuevo.");
+        setError(t('verification.resendError'));
       }
       
       toast({
         variant: "destructive",
-        title: "Error al enviar el código",
-        description: "No pudimos enviar un nuevo código. Intenta de nuevo más tarde.",
+        title: t('common.error'),
+        description: t('verification.resendError'),
       });
     } finally {
       setIsResending(false);
@@ -139,9 +142,9 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Verificar tu correo</CardTitle>
+        <CardTitle>{t('verification.title')}</CardTitle>
         <CardDescription>
-          Ingresa el código de verificación enviado a {email}
+          {t('verification.enterVerificationCode')} {email}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -155,7 +158,7 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
         {isCodeSent && (
           <Alert className="mb-4 bg-green-50 border-green-200 text-green-800">
             <Check className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">Código enviado correctamente. Revisa tu bandeja de entrada.</AlertDescription>
+            <AlertDescription className="text-green-800">{t('verification.resendSuccess')}</AlertDescription>
           </Alert>
         )}
 
@@ -172,10 +175,10 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
               name="code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Código de verificación</FormLabel>
+                  <FormLabel>{t('verification.verificationCode')}</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Ingresa el código de 6 dígitos" 
+                      placeholder={t('verification.invalidCode')} 
                       {...field} 
                       disabled={isLoading}
                       maxLength={6}
@@ -194,11 +197,11 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Verificando...
+                  {t('common.loading')}
                 </>
               ) : (
                 <>
-                  Verificar y continuar
+                  {t('verification.verify')}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
@@ -208,13 +211,13 @@ export default function VerifyForm({ verificationId, email }: VerifyFormProps) {
       </CardContent>
       <CardFooter className="flex flex-col space-y-4">
         <div className="text-sm text-center text-neutral-600">
-          ¿No recibiste el código?{" "}
+          {t('verification.instructions')}{" "}
           <button 
             className="text-primary-500 hover:underline"
             onClick={handleResendCode}
             disabled={isResending}
           >
-            {isResending ? "Enviando..." : "Reenviar código"}
+            {isResending ? t('common.loading') : t('verification.resendCode')}
           </button>
         </div>
       </CardFooter>

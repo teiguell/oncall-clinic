@@ -39,10 +39,10 @@ export default function Login() {
   // Schema para validación de formulario
   const loginFormSchema = z.object({
     email: z.string()
-      .min(1, "Email is required")
-      .email("Invalid email format"),
+      .min(1, t('auth.errors.emailRequired'))
+      .email(t('auth.errors.invalidEmail')),
     password: z.string()
-      .min(1, "Password is required"),
+      .min(1, t('auth.errors.passwordRequired')),
     remember: z.boolean().optional().default(false),
   });
   const [, params] = useLocation();
@@ -139,10 +139,10 @@ export default function Login() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Código de verificación inválido');
+        throw new Error(data.message || t('verification.invalidCode'));
       }
 
-      toast.success('Correo electrónico verificado correctamente');
+      toast.success(t('verification.success'));
       
       // Volver al formulario de login
       setVerificationStep(null);
@@ -150,7 +150,7 @@ export default function Login() {
       setVerificationCode('');
     } catch (error) {
       console.error('Error durante la verificación:', error);
-      toast.error(error instanceof Error ? error.message : 'Error al verificar código');
+      toast.error(error instanceof Error ? error.message : t('verification.verifyError'));
     } finally {
       setIsLoading(false);
     }
@@ -174,7 +174,7 @@ export default function Login() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Código de verificación inválido');
+        throw new Error(data.message || t('verification.invalidCode'));
       }
 
       const data = await response.json();
@@ -182,14 +182,14 @@ export default function Login() {
       // Guardar token de sesión y redirigir
       localStorage.setItem('sessionId', data.sessionId);
       
-      toast.success('Inicio de sesión exitoso');
+      toast.success(t('login.success'));
       
       // Redirigir a la página correspondiente según el tipo de usuario
       setLocation(data.user.userType === 'patient' ? '/patient-dashboard' : 
                  data.user.userType === 'doctor' ? '/doctor-dashboard' : '/');
     } catch (error) {
       console.error('Error durante la verificación 2FA:', error);
-      toast.error(error instanceof Error ? error.message : 'Error al verificar código');
+      toast.error(error instanceof Error ? error.message : t('verification.verifyError'));
     } finally {
       setIsLoading(false);
     }
@@ -214,7 +214,7 @@ export default function Login() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Error al reenviar código');
+        throw new Error(data.message || t('verification.resendError'));
       }
 
       const data = await response.json();
@@ -234,10 +234,10 @@ export default function Login() {
         });
       }
       
-      toast.info('Código reenviado correctamente');
+      toast.info(t('verification.resendSuccess'));
     } catch (error) {
       console.error('Error al reenviar código:', error);
-      toast.error(error instanceof Error ? error.message : 'Error al reenviar código');
+      toast.error(error instanceof Error ? error.message : t('verification.resendError'));
     } finally {
       setIsLoading(false);
     }

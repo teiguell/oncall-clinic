@@ -417,6 +417,9 @@ export default {
     resendCode: "Resend code",
     success: "Email verified successfully",
     error: "Verification failed",
+    verifyError: "Error verifying code",
+    resendError: "Error resending code",
+    resendSuccess: "Code resent successfully",
     codeExpired: "Verification code has expired",
     invalidCode: "Invalid verification code"
   },

@@ -417,6 +417,9 @@ export default {
     resendCode: "Reenviar código",
     success: "Correo verificado con éxito",
     error: "Verificación fallida",
+    verifyError: "Error al verificar código",
+    resendError: "Error al reenviar código",
+    resendSuccess: "Código reenviado correctamente",
     codeExpired: "El código de verificación ha expirado",
     invalidCode: "Código de verificación no válido"
   },
