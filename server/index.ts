@@ -58,16 +58,17 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    // Serve static files from the dist/public directory in production
-    const distPath = path.join(process.cwd(), 'dist/public');
+    // Serve static files from the dist directory in production
+    const distPath = path.join(process.cwd(), 'dist');
+    const publicPath = path.join(distPath, 'public');
     
     // Verify dist directory exists
-    if (!fs.existsSync(distPath)) {
-      throw new Error(`Build directory not found: ${distPath}. Please run 'npm run build' first.`);
+    if (!fs.existsSync(publicPath)) {
+      throw new Error(`Build directory not found: ${publicPath}. Please run 'npm run build' first.`);
     }
 
     // Serve static files with caching headers
-    app.use(express.static(distPath, {
+    app.use(express.static(publicPath, {
       maxAge: '1h',
       etag: true,
       lastModified: true
@@ -76,7 +77,7 @@ app.use((req, res, next) => {
     // Handle client-side routing by serving index.html for all routes
     app.get('*', (req, res) => {
       if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(distPath, 'index.html'));
+        res.sendFile(path.join(publicPath, 'index.html'));
       }
     });
   }
