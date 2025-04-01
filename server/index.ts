@@ -41,12 +41,15 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    console.error('Server error:', err);
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
+    
+    // Don't expose internal errors to client
+    const clientMessage = status === 500 ? "Internal Server Error" : message;
+    res.status(status).json({ message: clientMessage });
   });
 
   // importantly only setup vite in development and after
@@ -56,11 +59,25 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   } else {
     // Serve static files from the dist/public directory in production
-    app.use(express.static(path.join(process.cwd(), 'dist/public')));
+    const distPath = path.join(process.cwd(), 'dist/public');
     
-    // Serve index.html for all routes to support client-side routing
+    // Verify dist directory exists
+    if (!fs.existsSync(distPath)) {
+      throw new Error(`Build directory not found: ${distPath}. Please run 'npm run build' first.`);
+    }
+
+    // Serve static files with caching headers
+    app.use(express.static(distPath, {
+      maxAge: '1h',
+      etag: true,
+      lastModified: true
+    }));
+    
+    // Handle client-side routing by serving index.html for all routes
     app.get('*', (req, res) => {
-      res.sendFile(path.join(process.cwd(), 'dist/public/index.html'));
+      if (!req.path.startsWith('/api')) {
+        res.sendFile(path.join(distPath, 'index.html'));
+      }
     });
   }
 
