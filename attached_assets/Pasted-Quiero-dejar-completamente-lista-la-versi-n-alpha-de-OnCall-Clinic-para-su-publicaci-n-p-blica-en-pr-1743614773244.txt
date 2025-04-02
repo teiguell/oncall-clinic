@@ -1,0 +1,128 @@
+Quiero dejar completamente lista la versión alpha de OnCall Clinic para su publicación pública en producción (modo sandbox). Aplica las siguientes correcciones técnicas, legales, visuales y funcionales sin modificar la estética actual.
+
+---
+
+🔹 1. Traducción completa (i18n) en español e inglés
+
+- Asegúrate de que todos los textos visibles usen `t("clave")` con claves bien definidas en `es.ts` y `en.ts`.
+- Verifica y corrige:
+  - Botones (“Continuar con Google”, “Iniciar sesión”, etc.)
+  - Formularios, placeholders, validaciones, errores
+  - Submenús, navegación, dashboards, hero
+- El cambio de idioma debe reflejarse en todos los componentes activos sin recargar la página.
+
+---
+
+🔹 2. Corrección de login con Google
+
+- Asegúrate de que:
+  - `VITE_GOOGLE_CLIENT_ID` esté correctamente definido y accesible en frontend
+  - Se inyecte correctamente al botón de login
+  - El cliente OAuth tenga configuradas las URLs autorizadas
+  - Se maneje correctamente el rol asignado post-login
+  - Se muestre error amigable si el login falla
+
+---
+
+🔹 3. Funcionalidad de Google Maps
+
+- Verifica que la API Key esté activa y que la vista de mapa:
+  - Se muestre correctamente durante reserva y seguimiento
+  - Use posición simulada en modo sandbox si no hay coordenadas reales
+  - Tenga altura y visibilidad adecuada (evitar altura 0)
+
+---
+
+🔹 4. Área legal obligatoria según normativa española y europea
+
+Crear estas rutas accesibles desde el footer (y traducidas):
+
+1. `/aviso-legal`  
+   - Datos de la empresa (Ibiza Care SLU)  
+   - Finalidad y propiedad del sitio web  
+
+2. `/politica-de-privacidad`  
+   - Responsable del tratamiento  
+   - Finalidad y base jurídica  
+   - Destinatarios y conservación  
+   - Derechos del usuario (acceso, rectificación, supresión, etc.)  
+   - Información sobre almacenamiento en servidores (si aplica)
+
+3. `/politica-de-cookies`  
+   - Tipos de cookies usadas (técnicas, analíticas)  
+   - Política de aceptación/rechazo  
+
+4. `/terminos-y-condiciones`  
+   - Uso del servicio  
+   - No es atención médica urgente  
+   - Comisiones y medios de pago  
+   - Condiciones para profesionales sanitarios
+
+---
+
+🔹 5. Navegación funcional y contextual
+
+- Botón "Soy médico" → redirigir a `/medico/registro`
+- En `/medico/registro` mostrar:
+  - Mini resumen de la propuesta de negocio:
+    > Gana hasta el 90% del valor de la consulta, sin horarios fijos, sin alquiler de clínica, sin gastos. Atención 100% flexible a domicilio con pacientes verificados.
+  - Botón: “Empezar ahora”
+  - Link a propuesta completa en PDF o página `/propuesta-medico`
+
+---
+
+🔹 6. Beneficios para pacientes (sección en la Home)
+
+Debajo del hero, crear una sección destacada con beneficios claros:
+
+✅ Atención médica a domicilio en menos de 1 hora  
+✅ Pago seguro online  
+✅ Sin salas de espera  
+✅ Médicos colegiados y verificados  
+✅ Geolocalización del médico antes de la cita
+
+Diseño: íconos + textos, adaptado a móvil y escritorio. Traducido.
+
+---
+
+🔹 7. Acceso como paciente invitado (sin registro)
+
+Implementar nuevo flujo de reserva rápida:
+- Formulario con nombre, email y teléfono
+- No necesita contraseña
+- Tras pago exitoso → generar token de acceso temporal (UUID o JWT)
+- Redirigir a `/appointment/:id?token=xyz`
+- Validar token y mostrar seguimiento (mapa, estado, médico)
+- Enviar el enlace por email
+
+---
+
+🔹 8. Aviso legal al registrarse
+
+- Añadir checkbox obligatorio:
+  - “He leído y acepto la política de privacidad y condiciones del servicio”
+- Bloquear envío si no está marcada
+- Incluir enlaces a las rutas legales nuevas
+
+---
+
+🔹 9. Revisión de links y botones
+
+- Verifica que:
+  - Todos los enlaces funcionan (registro, login, dashboards)
+  - El footer incluya enlaces legales
+  - El cambio de idioma sea visible en todos los elementos
+
+---
+
+🔹 10. Condiciones del entorno sandbox
+
+- Banner persistente:
+  > “⚠️ Esta es una versión de pruebas. No se presta atención médica real.”
+- Mostrarlo en home, registro y reserva
+- Indicar que los pagos están simulados
+- Médico simulado debe estar visible y operativo
+
+---
+
+Aplica todo con buenas prácticas de accesibilidad, i18next, Tailwind, arquitectura modular y legalidad RGPD. No modificar estética general, solo ampliar y mejorar funcionalidad, legalidad y contenidos visibles.
