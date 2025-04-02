@@ -7,6 +7,7 @@ import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox"; // Added import for Checkbox
 import { 
   Form, 
   FormControl, 
@@ -32,7 +33,8 @@ const baseSchema = z.object({
     .min(6, { message: "La contraseña debe tener al menos 6 caracteres" })
     .max(100),
   confirmPassword: z.string(),
-  userType: z.enum(["patient", "doctor"])
+  userType: z.enum(["patient", "doctor"]),
+  termsAccepted: z.boolean().refine(val => val, {message: t('auth.terms_required')}) // Added termsAccepted field
 }).refine(data => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -57,7 +59,8 @@ export default function RegisterForm() {
       phoneNumber: "",
       password: "",
       confirmPassword: "",
-      userType: "patient"
+      userType: "patient",
+      termsAccepted: false // Added default value for termsAccepted
     },
   });
 
@@ -74,29 +77,29 @@ export default function RegisterForm() {
     try {
       // Generate a username from the email (before the @ symbol)
       const username = data.email.split('@')[0];
-      
+
       // Register the user
       const result = await register({
         ...data,
         username
       });
-      
+
       toast({
         title: "Registro exitoso",
         description: "Te hemos enviado un código de verificación",
       });
-      
+
       // Navigate to verification page with the verification ID
       navigate(`/verify?id=${result.verificationId}&email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       console.error("Registration error:", error);
-      
+
       if (error instanceof Error) {
         setError(error.message);
       } else {
         setError("Error al registrarse. Intenta de nuevo.");
       }
-      
+
       toast({
         variant: "destructive",
         title: "Error en el registro",
@@ -294,6 +297,29 @@ export default function RegisterForm() {
                     </RadioGroup>
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="termsAccepted"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      {t('auth.terms_accept')} <Link href="/legal/privacy" className="text-primary hover:underline">
+                        {t('legal.privacy_policy')}
+                      </Link>
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />

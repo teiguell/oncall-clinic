@@ -6,19 +6,39 @@ export default {
   },
   legal: {
     privacy_policy: "Política de Privacidad",
-    terms: "Términos y Condiciones",
+    privacy: {
+      responsible: "Responsable del Tratamiento",
+      responsible_details: "OnCall Clinic (Ibiza Care SLU) con CIF B01234567",
+      purpose: "Finalidad",
+      purpose_details: "Prestación de servicios médicos a domicilio y gestión de la plataforma",
+      data_protection: "Protección de Datos",
+      data_protection_details: "Implementamos medidas de seguridad apropiadas",
+      rights: "Tus Derechos",
+      rights_details: "Acceso, rectificación, supresión y portabilidad de datos"
+    },
+    terms: {
+      general: "Términos Generales",
+      general_details: "Estos términos rigen el uso de los servicios de OnCall Clinic",
+      service: "Descripción del Servicio",
+      service_details: "Servicios de atención médica a domicilio a través de nuestra plataforma",
+      responsibilities: "Responsabilidades",
+      responsibilities_details: "Obligaciones y responsabilidades del usuario y la plataforma",
+      modifications: "Modificaciones",
+      modifications_details: "Nos reservamos el derecho de modificar estos términos"
+    },
     cookies: "Política de Cookies",
     legal_notice: "Aviso Legal",
     accept_terms: "He leído y acepto la política de privacidad y condiciones del servicio",
     must_accept: "Debes aceptar los términos y condiciones para continuar"
   },
   benefits: {
-    title: "Beneficios para pacientes",
-    home_service: "Atención médica a domicilio en menos de 1 hora",
-    secure_payment: "Pago seguro online", 
-    no_waiting: "Sin salas de espera",
-    verified_doctors: "Médicos colegiados y verificados",
-    geolocation: "Geolocalización del médico antes de la cita"
+    title: "¿Por qué elegir OnCall Clinic?",
+    items: {
+      fast: "Atención médica a domicilio en menos de 1 hora",
+      secure: "Pago seguro online",
+      track: "Sigue la ubicación de tu médico en tiempo real",
+      verified: "Médicos colegiados y verificados"
+    }
   },
   doctor: {
     value_prop: {
@@ -27,6 +47,12 @@ export default {
       flexibility: "Sin horarios fijos, sin alquiler de clínica, sin gastos",
       model: "Atención 100% flexible a domicilio con pacientes verificados",
       cta: "Empezar ahora"
+    },
+    benefits: {
+      title: "Únete a Nuestra Red Médica",
+      earnings: "Gana hasta el 90% del valor de la consulta",
+      freedom: "Sin horarios fijos, sin alquiler de clínica, sin gastos",
+      model: "Atención 100% flexible a domicilio con pacientes verificados"
     }
   },
   sandbox: {
@@ -149,7 +175,9 @@ export default {
       emailExists: "El correo ya está en uso",
       weakPassword: "La contraseña es demasiado débil",
       formValidationError: "Por favor, corrige los errores en el formulario"
-    }
+    },
+    terms_accept: "He leído y acepto la política de privacidad y términos del servicio",
+    must_accept_terms: "Debes aceptar los términos para continuar"
   },
   doctorSearch: {
     title: "Encuentra un Médico Cerca de Ti",
@@ -391,7 +419,7 @@ export default {
       button: "Volver al Inicio"
     }
   },
-  
+
   about: {
     title: "Acerca de OnCall Clinic",
     subtitle: "Conectamos pacientes con médicos para ofrecer atención médica domiciliaria de alta calidad, cuando y donde la necesites.",
