@@ -4,6 +4,9 @@ import { storage } from '../storage';
 import { generateSessionId } from '../routes';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+if (!GOOGLE_CLIENT_ID) {
+  throw new Error('GOOGLE_CLIENT_ID environment variable is not set');
+}
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // Define una interfaz para la información de usuario desde el proveedor OAuth

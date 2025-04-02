@@ -107,11 +107,18 @@ export function OAuthButton({
       
       const initializeGoogleSignIn = () => {
         if (window.google && window.google.accounts) {
+          const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+          if (!clientId) {
+            console.error('VITE_GOOGLE_CLIENT_ID is not set');
+            return;
+          }
+          
           window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+            client_id: clientId,
             callback: handleGoogleResponse,
             auto_select: false,
-            cancel_on_tap_outside: true
+            cancel_on_tap_outside: true,
+            allowed_parent_origin: window.location.origin
           });
           
           // Renderizar botón de Google si se proporciona una referencia
