@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
+import fs from "fs";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -58,28 +59,28 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    const distPath = path.join(process.cwd(), 'dist', 'public');
+    const distPath = path.join(process.cwd(), 'dist');
+    const publicPath = path.join(distPath, 'public');
     
     // Verify dist directory exists
-    if (!fs.existsSync(distPath)) {
-      console.error('Build directory not found. Running build...');
+    if (!fs.existsSync(publicPath)) {
+      console.error('Build directory not found:', publicPath);
       throw new Error('Build directory not found. Please run npm run build first.');
     }
 
     // Serve static files
-    app.use(express.static(distPath, {
-      index: false, // Don't serve index.html automatically
+    app.use(express.static(publicPath, {
+      maxAge: '1h',
       etag: true,
-      lastModified: true,
-      maxAge: '1h'
+      lastModified: true
     }));
-
-    // API routes are handled before this
+    
+    // Handle client-side routing
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: 'API route not found' });
       }
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(path.join(publicPath, 'index.html'));
     });
   }
 
