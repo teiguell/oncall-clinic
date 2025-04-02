@@ -5,7 +5,6 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.set('env', 'development'); // Explicitly set the environment to development
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -56,31 +55,26 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    const publicPath = path.join(distPath, 'public');
     
     // Verify dist directory exists
-    if (!fs.existsSync(publicPath)) {
-      console.error('Build directory not found:', publicPath);
+    if (!fs.existsSync(distPath)) {
+      console.error('Build directory not found:', distPath);
       throw new Error('Build directory not found. Please run npm run build first.');
     }
 
-    // Serve static files
-    app.use(express.static(publicPath, {
-      maxAge: '1h',
-      etag: true,
-      lastModified: true
-    }));
+    // Serve static files from dist directory
+    app.use(express.static(distPath));
     
     // Handle client-side routing
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: 'API route not found' });
       }
-      res.sendFile(path.join(publicPath, 'index.html'));
+      res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
