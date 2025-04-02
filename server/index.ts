@@ -60,21 +60,26 @@ app.use((req, res, next) => {
   } else {
     const distPath = path.join(process.cwd(), 'dist', 'public');
     
-    // Serve static files with appropriate headers
-    app.use(express.static(distPath));
-    
-    // Handle client-side routing
-    app.get('*', (req, res, next) => {
+    // Verify dist directory exists
+    if (!fs.existsSync(distPath)) {
+      console.error('Build directory not found. Running build...');
+      throw new Error('Build directory not found. Please run npm run build first.');
+    }
+
+    // Serve static files
+    app.use(express.static(distPath, {
+      index: false, // Don't serve index.html automatically
+      etag: true,
+      lastModified: true,
+      maxAge: '1h'
+    }));
+
+    // API routes are handled before this
+    app.get('*', (req, res) => {
       if (req.path.startsWith('/api')) {
-        next();
-        return;
+        return res.status(404).json({ message: 'API route not found' });
       }
-      res.sendFile(path.join(distPath, 'index.html'), err => {
-        if (err) {
-          console.error('Error sending file:', err);
-          res.status(500).send('Error interno del servidor');
-        }
-      });
+      res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
