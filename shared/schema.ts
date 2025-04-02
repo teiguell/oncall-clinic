@@ -222,6 +222,26 @@ export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Payment = typeof payments.$inferSelect;
 export type InsertPayment = z.infer<typeof insertPaymentSchema>;
 
+// Guest patients
+export const guestPatients = pgTable("guest_patients", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  appointmentId: integer("appointment_id").references(() => appointments.id),
+  authToken: text("auth_token").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+export const guestPatientSchema = z.object({
+  name: z.string().min(2, "Nombre demasiado corto"),
+  email: z.string().email("Email inválido"),
+  phone: z.string().min(9, "Teléfono inválido"),
+});
+
+export type GuestPatient = typeof guestPatients.$inferSelect;
+
 // Weekly availability type and validation schemas
 export const timeSlotSchema = z.object({
   start: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido. Use HH:MM"),

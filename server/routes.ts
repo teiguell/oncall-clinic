@@ -1613,7 +1613,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // APPOINTMENT ROUTES
   
-  // Create appointment
+  // Create guest appointment
+  app.post('/api/appointments/guest', async (req, res) => {
+    try {
+      const { guestData, ...appointmentData } = req.body;
+      
+      // Validate guest data
+      const validatedGuest = guestPatientSchema.parse(guestData);
+      
+      // Generate auth token
+      const authToken = crypto.randomUUID();
+      
+      // Set expiration 24h after appointment
+      const expiresAt = new Date(appointmentData.appointmentDate);
+      expiresAt.setHours(expiresAt.getHours() + 24);
+      
+      // Create appointment
+      const appointment = await storage.createAppointment({
+        ...appointmentData,
+        status: 'scheduled',
+        paymentStatus: 'pending'
+      });
+      
+      // Create guest patient
+      const guestPatient = await storage.createGuestPatient({
+        ...validatedGuest,
+        appointmentId: appointment.id,
+        authToken,
+        expiresAt
+      });
+      
+      res.status(201).json({ 
+        appointment,
+        authToken
+      });
+    } catch (error) {
+      console.error('Guest booking error:', error);
+      res.status(500).json({ message: "Error creating guest appointment" });
+    }
+  });
+
+  // Create appointment 
   app.post('/api/appointments', async (req, res) => {
     const auth = await isAuthenticated(req, res);
     if (!auth) return;

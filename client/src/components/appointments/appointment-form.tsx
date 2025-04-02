@@ -71,24 +71,31 @@ interface LocationItem {
 export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
-  const [_, navigate] = useLocation();
-  const { user } = useAuth();
+  const [location, setLocation] = useLocation();
+  const { user, isAuthenticated } = useAuth();
   const locale = i18n.language === 'es' ? es : enUS;
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [doctor, setDoctor] = useState<DoctorDetails | null>(null);
   const [doctorLoading, setDoctorLoading] = useState(true);
   const [doctorError, setDoctorError] = useState<string | null>(null);
-  
+
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [locationsLoading, setLocationsLoading] = useState(true);
-  
+
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
     '12:00', '12:30', '15:00', '15:30', '16:00', '16:30',
     '17:00', '17:30', '18:00', '18:30'
   ]);
-  
+
+  const [isGuestBooking, setIsGuestBooking] = useState(false);
+  const [guestData, setGuestData] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -101,23 +108,38 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
       timeSlot: ''
     },
   });
-  
+
+  const guestForm = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: ''
+    }
+  });
+
+  const guestSchema = z.object({
+    name: z.string().min(1, { message: 'Name is required' }),
+    email: z.string().email({ message: 'Invalid email' }),
+    phone: z.string().min(10, { message: 'Phone number must be at least 10 digits' }),
+  });
+
+
   // Fetch doctor details
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
         setDoctorLoading(true);
         setDoctorError(null);
-        
+
         const response = await fetch(`/api/doctors/${doctorId}`);
-        
+
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
-        
+
         const doctorData = await response.json();
         setDoctor(doctorData);
-        
+
         // Update form with base price
         form.setValue('totalAmount', doctorData.basePrice);
       } catch (error) {
@@ -127,34 +149,34 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
         setDoctorLoading(false);
       }
     };
-    
+
     if (doctorId) {
       fetchDoctor();
     }
   }, [doctorId, form, t]);
-  
+
   // Fetch user locations
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         setLocationsLoading(true);
-        
+
         const response = await fetch('/api/locations');
-        
+
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
-        
+
         const locationsData = await response.json();
-        
+
         // Add a friendly name to each location
         const enhancedLocations = locationsData.map((loc: LocationItem, index: number) => ({
           ...loc,
           name: `${loc.address}, ${loc.city} (${t('general.location')} ${index + 1})`
         }));
-        
+
         setLocations(enhancedLocations);
-        
+
         // If locations available, set default
         if (enhancedLocations.length > 0) {
           form.setValue('locationId', enhancedLocations[0].id);
@@ -170,14 +192,57 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
         setLocationsLoading(false);
       }
     };
-    
+
     fetchLocations();
   }, [form, t, toast]);
-  
+
   const handleAddLocation = () => {
     navigate('/locations/new');
   };
-  
+
+  useEffect(() => {
+    if (!isAuthenticated && !isGuestBooking) {
+      // Show guest booking option instead of redirecting
+      setIsGuestBooking(true);
+    } else if (user && user.userType !== "patient") {
+      // Only patients can book appointments
+      navigate("/dashboard/doctor");
+    }
+  }, [isAuthenticated, user, navigate, location]);
+
+  const handleGuestSubmit = async (data: any) => {
+    try {
+      setGuestData(data);
+      const selectedDate = form.getValues('appointmentDate').split('T')[0];
+      const selectedTime = form.getValues('timeSlot');
+      const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
+
+      const appointmentData: AppointmentBookingData = {
+        ...form.getValues(),
+        appointmentDate: appointmentDateTime,
+      };
+      const response = await apiRequest('POST', '/api/appointments/guest', {
+        ...appointmentData,
+        guestData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error booking appointment');
+      }
+
+      const result = await response.json();
+      navigate(`/appointment/success/${result.appointment.id}?token=${result.authToken}`);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: t('errors.booking_failed'),
+        description: t('errors.try_again'),
+        variant: 'destructive',
+      });
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
       toast({
@@ -187,15 +252,15 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
       });
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      
+
       // Build date from selected date and time
       const selectedDate = form.getValues('appointmentDate').split('T')[0];
       const selectedTime = form.getValues('timeSlot');
       const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
-      
+
       // Prepare data for API
       const appointmentData: AppointmentBookingData = {
         ...values,
@@ -205,14 +270,14 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
 
       // Post to API
       const response = await apiRequest('POST', '/api/appointments', appointmentData);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Error creating appointment');
       }
-      
+
       const result = await response.json();
-      
+
       toast({
         title: t('appointment.booking_success'),
         description: t('appointment.booking_confirmation', { 
@@ -220,7 +285,7 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
           time: format(new Date(appointmentDateTime), 'p', { locale })
         }),
       });
-      
+
       // Navigate to appointment success page
       navigate(`/appointment/success/${result.appointment.id}`);
     } catch (error) {
@@ -236,7 +301,7 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
       setIsLoading(false);
     }
   };
-  
+
   if (doctorLoading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -245,7 +310,7 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
       </div>
     );
   }
-  
+
   if (doctorError || !doctor) {
     return (
       <Alert variant="destructive">
@@ -257,16 +322,16 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
       </Alert>
     );
   }
-  
+
   const today = new Date();
   const maxDate = new Date();
   maxDate.setMonth(today.getMonth() + 3);
-  
+
   const isWeekend = (date: Date) => {
     const day = date.getDay();
     return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
   };
-  
+
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div>
@@ -281,183 +346,232 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="appointmentDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>{t('appointment.select_date')}</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={`w-full pl-3 text-left font-normal ${
-                                !field.value && "text-muted-foreground"
-                              }`}
-                            >
-                              {field.value ? (
-                                format(new Date(field.value), 'PPP', { locale })
-                              ) : (
-                                <span>{t('appointment.pick_date')}</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value ? new Date(field.value) : undefined}
-                            onSelect={(date) => {
-                              if (date) {
-                                // Format as ISO string but keep only the date part
-                                const formattedDate = date.toISOString().split('T')[0];
-                                field.onChange(`${formattedDate}T00:00:00`);
-                              }
-                            }}
-                            disabled={(date) => 
-                              date < today || 
-                              date > maxDate || 
-                              isWeekend(date)
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormDescription>
-                        {t('appointment.business_days')}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="timeSlot"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('appointment.select_time')}</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
+            {isGuestBooking ? (
+              <Form {...guestForm}>
+                <form onSubmit={guestForm.handleSubmit(handleGuestSubmit)} className="space-y-6">
+                  <FormField
+                    control={guestForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('general.full_name')}</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t('appointment.pick_time')} />
-                          </SelectTrigger>
+                          <Input placeholder={t('general.full_name_placeholder')} {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {availableTimeSlots.map((timeSlot) => (
-                            <SelectItem key={timeSlot} value={timeSlot}>
-                              {timeSlot}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        {t('appointment.time_slots')}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="locationId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('appointment.select_location')}</FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))} 
-                        defaultValue={field.value?.toString()}
-                      >
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={guestForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('general.email')}</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t('appointment.pick_location')} />
-                          </SelectTrigger>
+                          <Input type="email" placeholder={t('general.email_placeholder')} {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {locations.map((location) => (
-                            <SelectItem key={location.id} value={location.id.toString()}>
-                              {location.name || `${location.address}, ${location.city}`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {locationsLoading ? (
-                        <FormDescription>
-                          {t('general.loading')}...
-                        </FormDescription>
-                      ) : locations.length === 0 ? (
-                        <div className="mt-2">
-                          <Alert>
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>
-                              {t('appointment.no_locations')}
-                            </AlertDescription>
-                          </Alert>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-2"
-                            onClick={handleAddLocation}
-                            type="button"
-                          >
-                            {t('appointment.add_location')}
-                          </Button>
-                        </div>
-                      ) : (
-                        <FormDescription>
-                          {t('appointment.location_description')}
-                        </FormDescription>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="reasonForVisit"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('appointment.reason')}</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder={t('appointment.reason_placeholder')} 
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        {t('appointment.reason_description')}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="mt-6">
-                  <Button 
-                    type="submit" 
-                    className="w-full"
-                    disabled={isLoading || locations.length === 0}
-                  >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={guestForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('general.phone')}</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder={t('general.phone_placeholder')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full">
                     {t('appointment.confirm_booking')}
                   </Button>
-                </div>
-              </form>
-            </Form>
+                </form>
+              </Form>
+            ) : (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="appointmentDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>{t('appointment.select_date')}</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={`w-full pl-3 text-left font-normal ${
+                                  !field.value && "text-muted-foreground"
+                                }`}
+                              >
+                                {field.value ? (
+                                  format(new Date(field.value), 'PPP', { locale })
+                                ) : (
+                                  <span>{t('appointment.pick_date')}</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value ? new Date(field.value) : undefined}
+                              onSelect={(date) => {
+                                if (date) {
+                                  // Format as ISO string but keep only the date part
+                                  const formattedDate = date.toISOString().split('T')[0];
+                                  field.onChange(`${formattedDate}T00:00:00`);
+                                }
+                              }}
+                              disabled={(date) => 
+                                date < today || 
+                                date > maxDate || 
+                                isWeekend(date)
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormDescription>
+                          {t('appointment.business_days')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="timeSlot"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('appointment.select_time')}</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t('appointment.pick_time')} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {availableTimeSlots.map((timeSlot) => (
+                              <SelectItem key={timeSlot} value={timeSlot}>
+                                {timeSlot}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          {t('appointment.time_slots')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="locationId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('appointment.select_location')}</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))} 
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t('appointment.pick_location')} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {locations.map((location) => (
+                              <SelectItem key={location.id} value={location.id.toString()}>
+                                {location.name || `${location.address}, ${location.city}`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {locationsLoading ? (
+                          <FormDescription>
+                            {t('general.loading')}...
+                          </FormDescription>
+                        ) : locations.length === 0 ? (
+                          <div className="mt-2">
+                            <Alert>
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>
+                                {t('appointment.no_locations')}
+                              </AlertDescription>
+                            </Alert>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="mt-2"
+                              onClick={handleAddLocation}
+                              type="button"
+                            >
+                              {t('appointment.add_location')}
+                            </Button>
+                          </div>
+                        ) : (
+                          <FormDescription>
+                            {t('appointment.location_description')}
+                          </FormDescription>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="reasonForVisit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('appointment.reason')}</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder={t('appointment.reason_placeholder')} 
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t('appointment.reason_description')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="mt-6">
+                    <Button 
+                      type="submit" 
+                      className="w-full"
+                      disabled={isLoading || locations.length === 0}
+                    >
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {t('appointment.confirm_booking')}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            )}
           </CardContent>
         </Card>
       </div>
-      
+
       <div>
         <Card>
           <CardHeader>
@@ -476,7 +590,7 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <CalendarIcon className="h-5 w-5 text-primary mt-0.5" />
               <div>
@@ -490,7 +604,7 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <Clock className="h-5 w-5 text-primary mt-0.5" />
               <div>
@@ -500,7 +614,7 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <MapPin className="h-5 w-5 text-primary mt-0.5" />
               <div>
@@ -509,17 +623,17 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
                   {(() => {
                     const locationId = form.watch('locationId');
                     const selectedLocation = locations.find(loc => loc.id === locationId);
-                    
+
                     if (!locationId || !selectedLocation) {
                       return t('appointment.not_selected');
                     }
-                    
+
                     return `${selectedLocation.address}, ${selectedLocation.city}`;
                   })()}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <FileText className="h-5 w-5 text-primary mt-0.5" />
               <div>
@@ -529,7 +643,7 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <DollarSign className="h-5 w-5 text-primary mt-0.5" />
               <div>
