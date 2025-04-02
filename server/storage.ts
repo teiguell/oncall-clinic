@@ -546,6 +546,38 @@ export class MemStorage implements IStorage {
   }
 
   // Specialties
+  private async createTestDoctor() {
+    const testDoctor = {
+      id: 1,
+      userId: 1,
+      specialtyId: 1, // General Medicine
+      licenseNumber: "TEST1234",
+      education: "Universidad de Test",
+      experience: 10,
+      bio: "Médico de prueba para el entorno sandbox",
+      basePrice: 8000, // 80€
+      isAvailable: true,
+      isVerified: true,
+      location: {
+        lat: 38.9067339,
+        lng: 1.4206979,
+        address: "Avenida Ignacio Wallis, Ibiza",
+        city: "Ibiza",
+        postalCode: "07800"
+      },
+      user: {
+        id: 1,
+        firstName: "Marina",
+        lastName: "Prueba",
+        email: "dra.marina@test.com",
+        phoneNumber: "+34600000000",
+        profilePicture: null
+      }
+    };
+
+    return testDoctor;
+  }
+
   async getSpecialty(id: number): Promise<Specialty | undefined> {
     return this.specialties.get(id);
   }

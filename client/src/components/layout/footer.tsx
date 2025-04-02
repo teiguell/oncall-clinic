@@ -98,18 +98,23 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3.5 text-sm">
               <li>
-                <Link href="/terms">
-                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('footer.terms')}</span>
+                <Link href="/aviso-legal">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('legal.aviso-legal')}</span>
                 </Link>
               </li>
               <li>
-                <Link href="/privacy">
-                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('footer.privacy')}</span>
+                <Link href="/politica-de-privacidad">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('legal.politica-de-privacidad')}</span>
                 </Link>
               </li>
               <li>
-                <Link href="/cookies">
-                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('footer.cookies')}</span>
+                <Link href="/politica-de-cookies">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('legal.politica-de-cookies')}</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/terminos-y-condiciones">
+                  <span className="text-neutral-600 hover:text-primary-600 transition-colors cursor-pointer">{t('legal.terminos-y-condiciones')}</span>
                 </Link>
               </li>
             </ul>

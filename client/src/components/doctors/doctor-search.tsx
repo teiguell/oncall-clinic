@@ -36,6 +36,11 @@ import {
   Loader2 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
+
 
 export default function DoctorSearch() {
   const search = useSearch();
@@ -44,12 +49,26 @@ export default function DoctorSearch() {
 
   // Initialize filters from URL
   const [filters, setFilters] = useState<SearchFilters>({
-    specialty: searchParams.get('specialty') ? parseInt(searchParams.get('specialty') as string) : 1, // Default to General Medicine (ID 1)
+    specialty: 1, // Default to General Medicine (ID 1)
     location: searchParams.get('location') || "",
     date: searchParams.get('date') || new Date().toISOString().split('T')[0],
     latitude: searchParams.get('latitude') ? parseFloat(searchParams.get('latitude') as string) : undefined,
     longitude: searchParams.get('longitude') ? parseFloat(searchParams.get('longitude') as string) : undefined
   });
+
+  const [address, setAddress] = useState('');
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+
+  const handleAddressChange = (address: string) => {
+    setAddress(address);
+  };
+
+  const handleAddressSelect = async (address: string) => {
+    const results = await geocodeByAddress(address);
+    const latLng = await getLatLng(results[0]);
+    setCoordinates(latLng);
+    setFilters({...filters, location: address, latitude: latLng.lat, longitude: latLng.lng});
+  };
 
   // Additional filter states
   const [minPrice, setMinPrice] = useState<number>(0);
@@ -58,27 +77,35 @@ export default function DoctorSearch() {
   const [sortBy, setSortBy] = useState<string>("rating");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Fetch all specialties (this is not used because we are filtering for general medicine only)
-  const { data: specialties = [] } = useQuery<Specialty[]>({
-    queryKey: ['/api/specialties'],
-  });
-
-  // Fetch doctors based on filters.  The specialty filter is removed.
+  // Fetch doctors based on filters.  Specialty is hardcoded to General Medicine.
   const { data: doctors = [], isLoading } = useQuery<DoctorProfile[]>({
-    queryKey: ['/api/doctors', { available: true }], //Removed specialty filter
-    enabled: true
+    queryKey: ['/api/doctors', filters],
+    enabled: true,
+    queryFn: async () => {
+      if (!filters.latitude || !filters.longitude) return [];
+      const searchParams = new URLSearchParams({
+        lat: filters.latitude.toString(),
+        lng: filters.longitude.toString(),
+        specialty: "1", // Force General Medicine only
+        verified: "true"
+      });
+      const response = await fetch(`/api/doctors?${searchParams}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    }
   });
 
-  // Filter and sort doctors. Added filter for specialty
+
+  // Filter and sort doctors
   const filteredDoctors = doctors?.filter(doctor => {
     if (!doctor) return false; //Handle potential null values.
     if (minPrice > 0 && doctor.basePrice < minPrice * 100) return false;
     if (maxPrice < 150 && doctor.basePrice > maxPrice * 100) return false;
     if (minRating > 0 && doctor.averageRating < minRating) return false;
-    //Filter for General Medicine (ID 1).  Assume specialty ID is available on doctor object
     return doctor.specialtyId === 1; 
   }) || [];
-
 
   const sortedDoctors = [...filteredDoctors].sort((a, b) => {
     switch (sortBy) {
@@ -136,8 +163,8 @@ export default function DoctorSearch() {
   };
 
   const handleSearch = async () => {
-    // If location is provided, try to geocode it
-    if (filters.location) {
+    //If location is provided via autocomplete, coordinates are already set.
+    if(!coordinates && filters.location){
       try {
         const { latitude, longitude } = await geocodeAddress(filters.location);
         setFilters({
@@ -176,27 +203,37 @@ export default function DoctorSearch() {
               <CardTitle>Filtros</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Specialty selection is removed because we only show general medicine doctors */}
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   Ubicación
                 </label>
-                <div className="flex">
-                  <Input
-                    placeholder="Ciudad o código postal"
-                    value={filters.location || ""}
-                    onChange={handleLocationChange}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="ml-2"
-                    onClick={() => handleSearch()}
-                  >
-                    <MapPin className="h-4 w-4" />
-                  </Button>
-                </div>
+                <PlacesAutocomplete
+                  value={address}
+                  onChange={handleAddressChange}
+                  onSelect={handleAddressSelect}
+                >
+                  {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                    <div>
+                      <Input {...getInputProps({ placeholder: 'Ciudad o código postal' })} />
+                      <div>
+                        {loading ? <div>Cargando...</div> : null}
+                        {suggestions.map((suggestion) => {
+                          const style = {
+                            backgroundColor: suggestion.isHighlighted ? '#ddd' : '#fff',
+                            cursor: 'pointer',
+                            padding: '10px',
+                            borderBottom: '1px solid #ccc',
+                          };
+                          return (
+                            <div key={suggestion.placeId} {...getSuggestionItemProps(suggestion, { style })}>
+                              {suggestion.description}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </PlacesAutocomplete>
               </div>
 
               <div>

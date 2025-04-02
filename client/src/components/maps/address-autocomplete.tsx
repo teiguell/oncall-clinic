@@ -157,6 +157,11 @@ export default function AddressAutocomplete({
           placeholder={placeholder || t('common.enterAddress')}
           className="pr-20"
           required={required}
+          onFocus={() => {
+            if (autocompleteRef.current) {
+              autocompleteRef.current.setFields(['address_components', 'formatted_address', 'geometry', 'name']);
+            }
+          }}
         />
         <Button 
           type="button"
