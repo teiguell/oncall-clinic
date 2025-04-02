@@ -232,12 +232,20 @@ export const guestPatients = pgTable("guest_patients", {
   authToken: text("auth_token").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   expiresAt: timestamp("expires_at").notNull(),
+  privacyAccepted: boolean("privacy_accepted").default(false),
+  termsAccepted: boolean("terms_accepted").default(false),
 });
 
 export const guestPatientSchema = z.object({
-  name: z.string().min(2, "Nombre demasiado corto"),
-  email: z.string().email("Email inválido"),
-  phone: z.string().min(9, "Teléfono inválido"),
+  name: z.string().min(2, { message: "errors.name_too_short" }),
+  email: z.string().email({ message: "errors.invalid_email" }),
+  phone: z.string().min(9, { message: "errors.invalid_phone" }),
+  privacyAccepted: z.boolean().refine(val => val === true, {
+    message: "errors.must_accept_privacy"
+  }),
+  termsAccepted: z.boolean().refine(val => val === true, {
+    message: "errors.must_accept_terms" 
+  })
 });
 
 export type GuestPatient = typeof guestPatients.$inferSelect;

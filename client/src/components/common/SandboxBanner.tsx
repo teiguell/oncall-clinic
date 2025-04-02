@@ -43,3 +43,19 @@ export function SandboxBanner() {
     </div>
   );
 }
+import { useTranslation } from 'react-i18next';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+
+export default function SandboxBanner() {
+  const { t } = useTranslation();
+
+  return (
+    <Alert variant="warning" className="fixed bottom-0 left-0 right-0 z-50">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription>
+        {t('sandbox.testing_version_warning')}
+      </AlertDescription>
+    </Alert>
+  );
+}

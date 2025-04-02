@@ -1,5 +1,35 @@
 export default {
   sandbox: {
+    testing_version_warning: "⚠️ Esta es una versión de pruebas. No se presta atención médica real.",
+    simulated_payment: "Pagos simulados en modo prueba",
+    test_doctor: "Médico de prueba"
+  },
+  legal: {
+    privacy_policy: "Política de Privacidad",
+    terms: "Términos y Condiciones",
+    cookies: "Política de Cookies",
+    legal_notice: "Aviso Legal",
+    accept_terms: "He leído y acepto la política de privacidad y condiciones del servicio",
+    must_accept: "Debes aceptar los términos y condiciones para continuar"
+  },
+  benefits: {
+    title: "Beneficios para pacientes",
+    home_service: "Atención médica a domicilio en menos de 1 hora",
+    secure_payment: "Pago seguro online", 
+    no_waiting: "Sin salas de espera",
+    verified_doctors: "Médicos colegiados y verificados",
+    geolocation: "Geolocalización del médico antes de la cita"
+  },
+  doctor: {
+    value_prop: {
+      title: "Únete como médico",
+      earnings: "Gana hasta el 90% del valor de la consulta",
+      flexibility: "Sin horarios fijos, sin alquiler de clínica, sin gastos",
+      model: "Atención 100% flexible a domicilio con pacientes verificados",
+      cta: "Empezar ahora"
+    }
+  },
+  sandbox: {
     banner: "Versión de pruebas sin validez asistencial",
     subtitle: "Solo para pruebas",
     moreInfo: "Más información",
