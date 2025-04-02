@@ -122,18 +122,21 @@ export default function Footer() {
             <ul className="space-y-3.5 text-sm">
               <li className="flex items-start">
                 <MapPin size={18} className="text-primary-600 mr-2.5 mt-0.5 shrink-0" />
-                <span className="text-neutral-600">{t('footer.address')}</span>
+                <span className="text-neutral-600">
+                  Avenida Ignacio Wallis 29, 1º Izquierda<br />
+                  07800 Ibiza
+                </span>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="text-primary-600 mr-2.5 shrink-0" />
-                <a href="tel:+34900123456" className="text-neutral-600 hover:text-primary-600 transition-colors">
-                  +34 900 123 456
+                <a href="tel:+34612249017" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                  (+34) 612 249 017
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="text-primary-600 mr-2.5 shrink-0" />
-                <a href="mailto:info@oncall.clinic" className="text-neutral-600 hover:text-primary-600 transition-colors">
-                  info@oncall.clinic
+                <a href="mailto:contacto@oncallclinic.es" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                  contacto@oncallclinic.es
                 </a>
               </li>
             </ul>

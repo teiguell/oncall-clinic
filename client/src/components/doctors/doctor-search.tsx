@@ -41,41 +41,45 @@ export default function DoctorSearch() {
   const search = useSearch();
   const [, navigate] = useLocation();
   const searchParams = new URLSearchParams(search);
-  
+
   // Initialize filters from URL
   const [filters, setFilters] = useState<SearchFilters>({
-    specialty: searchParams.get('specialty') ? parseInt(searchParams.get('specialty') as string) : undefined,
+    specialty: searchParams.get('specialty') ? parseInt(searchParams.get('specialty') as string) : 1, // Default to General Medicine (ID 1)
     location: searchParams.get('location') || "",
     date: searchParams.get('date') || new Date().toISOString().split('T')[0],
     latitude: searchParams.get('latitude') ? parseFloat(searchParams.get('latitude') as string) : undefined,
     longitude: searchParams.get('longitude') ? parseFloat(searchParams.get('longitude') as string) : undefined
   });
-  
+
   // Additional filter states
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(150);
   const [minRating, setMinRating] = useState<number>(0);
   const [sortBy, setSortBy] = useState<string>("rating");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
-  // Fetch all specialties
+
+  // Fetch all specialties (this is not used because we are filtering for general medicine only)
   const { data: specialties = [] } = useQuery<Specialty[]>({
     queryKey: ['/api/specialties'],
   });
-  
-  // Fetch doctors based on filters
+
+  // Fetch doctors based on filters.  The specialty filter is removed.
   const { data: doctors = [], isLoading } = useQuery<DoctorProfile[]>({
-    queryKey: ['/api/doctors', { specialty: filters.specialty, available: true }],
+    queryKey: ['/api/doctors', { available: true }], //Removed specialty filter
+    enabled: true
   });
-  
-  // Filter and sort doctors
-  const filteredDoctors = doctors.filter(doctor => {
+
+  // Filter and sort doctors. Added filter for specialty
+  const filteredDoctors = doctors?.filter(doctor => {
+    if (!doctor) return false; //Handle potential null values.
     if (minPrice > 0 && doctor.basePrice < minPrice * 100) return false;
     if (maxPrice < 150 && doctor.basePrice > maxPrice * 100) return false;
     if (minRating > 0 && doctor.averageRating < minRating) return false;
-    return true;
-  });
-  
+    //Filter for General Medicine (ID 1).  Assume specialty ID is available on doctor object
+    return doctor.specialtyId === 1; 
+  }) || [];
+
+
   const sortedDoctors = [...filteredDoctors].sort((a, b) => {
     switch (sortBy) {
       case "rating":
@@ -90,28 +94,24 @@ export default function DoctorSearch() {
         return 0;
     }
   });
-  
+
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
-    
-    if (filters.specialty) {
-      params.append("specialty", filters.specialty.toString());
-    }
-    
+
     if (filters.location) {
       params.append("location", filters.location);
     }
-    
+
     if (filters.date) {
       params.append("date", filters.date);
     }
-    
+
     if (filters.latitude && filters.longitude) {
       params.append("latitude", filters.latitude.toString());
       params.append("longitude", filters.longitude.toString());
     }
-    
+
     const newSearch = params.toString();
     if (newSearch) {
       navigate(`/doctors?${newSearch}`);
@@ -119,29 +119,22 @@ export default function DoctorSearch() {
       navigate('/doctors');
     }
   }, [filters, navigate]);
-  
+
   // Handle filter changes
-  const handleSpecialtyChange = (value: string) => {
-    setFilters({
-      ...filters,
-      specialty: value ? parseInt(value) : undefined
-    });
-  };
-  
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters({
       ...filters,
       location: e.target.value
     });
   };
-  
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters({
       ...filters,
       date: e.target.value
     });
   };
-  
+
   const handleSearch = async () => {
     // If location is provided, try to geocode it
     if (filters.location) {
@@ -157,7 +150,7 @@ export default function DoctorSearch() {
       }
     }
   };
-  
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row gap-8">
@@ -172,7 +165,7 @@ export default function DoctorSearch() {
             {isFilterOpen ? "Ocultar filtros" : "Mostrar filtros"}
           </Button>
         </div>
-        
+
         {/* Filters sidebar */}
         <div className={cn(
           "w-full md:w-1/4 transition-all",
@@ -183,28 +176,7 @@ export default function DoctorSearch() {
               <CardTitle>Filtros</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Especialidad
-                </label>
-                <Select
-                  value={filters.specialty?.toString() || ""}
-                  onValueChange={handleSpecialtyChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todas las especialidades" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Todas las especialidades</SelectItem>
-                    {specialties.map((specialty) => (
-                      <SelectItem key={specialty.id} value={specialty.id.toString()}>
-                        {specialty.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
+              {/* Specialty selection is removed because we only show general medicine doctors */}
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   Ubicación
@@ -226,7 +198,7 @@ export default function DoctorSearch() {
                   </Button>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   Fecha
@@ -238,7 +210,7 @@ export default function DoctorSearch() {
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   Precio (€)
@@ -258,7 +230,7 @@ export default function DoctorSearch() {
                   }}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   Valoración mínima
@@ -278,7 +250,7 @@ export default function DoctorSearch() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   Ordenar por
@@ -318,7 +290,7 @@ export default function DoctorSearch() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <Button
                 className="w-full"
                 onClick={handleSearch}
@@ -329,14 +301,12 @@ export default function DoctorSearch() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Search results */}
         <div className="w-full md:w-3/4">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-neutral-900">
-              {filters.specialty 
-                ? `Médicos de ${specialties.find(s => s.id === filters.specialty)?.name || 'especialidad'}`
-                : "Todos los médicos disponibles"}
+              Médicos de Medicina General
             </h1>
             <p className="text-neutral-500">
               {filters.location ? `Cerca de ${filters.location}` : "En tu zona"} 
@@ -346,7 +316,7 @@ export default function DoctorSearch() {
               {!isLoading && `${sortedDoctors.length} médicos encontrados`}
             </div>
           </div>
-          
+
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
@@ -368,7 +338,7 @@ export default function DoctorSearch() {
                 </p>
                 <Button onClick={() => {
                   setFilters({
-                    specialty: undefined,
+                    specialty: 1, //default to general medicine
                     location: "",
                     date: new Date().toISOString().split('T')[0]
                   });

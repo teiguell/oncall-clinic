@@ -19,7 +19,7 @@ import memorystore from "memorystore";
 export interface IStorage {
   // Session Store
   sessionStore: session.SessionStore;
-  
+
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -27,18 +27,18 @@ export interface IStorage {
   getUserByOAuth(provider: string, providerId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, data: Partial<User>): Promise<User | undefined>;
-  
+
   // Patient Profiles
   getPatientProfile(id: number): Promise<PatientProfile | undefined>;
   getPatientProfileByUserId(userId: number): Promise<PatientProfile | undefined>;
   createPatientProfile(profile: InsertPatientProfile): Promise<PatientProfile>;
   updatePatientProfile(id: number, data: Partial<PatientProfile>): Promise<PatientProfile | undefined>;
-  
+
   // Verification Codes
   createVerificationCode(data: InsertVerificationCode): Promise<VerificationCode>;
   getVerificationCode(userId: number, code: string, type: string): Promise<VerificationCode | undefined>;
   markVerificationCodeAsUsed(id: number): Promise<VerificationCode | undefined>;
-  
+
   // Doctor Profiles
   getDoctorProfile(id: number): Promise<DoctorProfile | undefined>;
   getDoctorProfileByUserId(userId: number): Promise<DoctorProfile | undefined>;
@@ -57,41 +57,41 @@ export interface IStorage {
     commissionRate: number;
     netEarnings: number;
   } | undefined>;
-  
+
   // Specialties
   getSpecialty(id: number): Promise<Specialty | undefined>;
   getAllSpecialties(): Promise<Specialty[]>;
   createSpecialty(specialty: InsertSpecialty): Promise<Specialty>;
-  
+
   // Availability
   getAvailability(id: number): Promise<Availability | undefined>;
   getAvailabilityByDoctorId(doctorProfileId: number): Promise<Availability[]>;
   createAvailability(avail: InsertAvailability): Promise<Availability>;
   updateAvailability(id: number, data: Partial<Availability>): Promise<Availability | undefined>;
-  
+
   // Locations
   getLocation(id: number): Promise<Location | undefined>;
   getLocationsByUserId(userId: number): Promise<Location[]>;
   createLocation(location: InsertLocation): Promise<Location>;
   updateLocation(id: number, data: Partial<Location>): Promise<Location | undefined>;
-  
+
   // Appointments
   getAppointment(id: number): Promise<Appointment | undefined>;
   getAppointmentsByPatientId(patientId: number): Promise<Appointment[]>;
   getAppointmentsByDoctorId(doctorId: number): Promise<Appointment[]>;
   createAppointment(appointment: InsertAppointment): Promise<Appointment>;
   updateAppointment(id: number, data: Partial<Appointment>): Promise<Appointment | undefined>;
-  
+
   // Reviews
   getReview(id: number): Promise<Review | undefined>;
   getReviewsByRevieweeId(revieweeId: number): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
-  
+
   // Notifications
   getNotifications(userId: number): Promise<Notification[]>;
   createNotification(notification: InsertNotification): Promise<Notification>;
   markNotificationAsRead(id: number): Promise<Notification | undefined>;
-  
+
   // Payments
   getPayment(id: number): Promise<Payment | undefined>;
   getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined>;
@@ -112,7 +112,7 @@ export class MemStorage implements IStorage {
   private notifications: Map<number, Notification>;
   private payments: Map<number, Payment>;
   private verificationCodes: Map<number, VerificationCode>;
-  
+
   private currentUserId: number;
   private currentPatientProfileId: number;
   private currentDoctorProfileId: number;
@@ -124,7 +124,7 @@ export class MemStorage implements IStorage {
   private currentNotificationId: number;
   private currentPaymentId: number;
   private currentVerificationCodeId: number;
-  
+
   constructor() {
     this.users = new Map();
     this.patientProfiles = new Map();
@@ -137,13 +137,13 @@ export class MemStorage implements IStorage {
     this.notifications = new Map();
     this.payments = new Map();
     this.verificationCodes = new Map();
-    
+
     // Initialize the session store
     const MemoryStore = memorystore(session);
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000, // Prune expired entries every 24h
     });
-    
+
     this.currentUserId = 1;
     this.currentPatientProfileId = 1;
     this.currentDoctorProfileId = 1;
@@ -155,13 +155,51 @@ export class MemStorage implements IStorage {
     this.currentNotificationId = 1;
     this.currentPaymentId = 1;
     this.currentVerificationCodeId = 1;
-    
-    // Initialize with some specialties and an admin user
-    this.initializeSpecialties();
-    this.initializeAdminUser();
+
+    // Initialize with sample data
+    this.initializeData();
   }
-  
-  private initializeSpecialties() {
+
+  private initializeData() {
+    // Add test doctor profile
+    const testDoctorUser = {
+      id: 999,
+      username: "dra.marina",
+      email: "marina.prueba@oncall.clinic",
+      userType: "doctor" as const,
+      firstName: "Marina",
+      lastName: "Prueba",
+      phoneNumber: "+34612249017",
+      emailVerified: true,
+      twoFactorEnabled: false,
+      profilePicture: "/img/doctor-avatar.svg",
+      createdAt: new Date().toISOString()
+    };
+
+    const testDoctorProfile = {
+      id: 999,
+      userId: 999,
+      specialtyId: 1, // Medicina general
+      licenseNumber: "1234567",
+      education: "Licenciada en Medicina, Universidad de Barcelona",
+      experience: 10,
+      bio: "Médico general con amplia experiencia en atención domiciliaria",
+      basePrice: 8000, // 80€
+      isAvailable: true,
+      averageRating: 4.8,
+      location: {
+        lat: 38.9067339,
+        lng: 1.4205983,
+        address: "Avenida Ignacio Wallis 29",
+        city: "Ibiza",
+        postalCode: "07800"
+      }
+    };
+
+    this.users.set(testDoctorUser.id, testDoctorUser);
+    this.doctorProfiles.set(testDoctorProfile.id, testDoctorProfile);
+
+    // Add sample specialties
     const specialties = [
       { name: "Medicina General", description: "Atención médica básica y preventiva" },
       { name: "Pediatría", description: "Especializada en niños y adolescentes" },
@@ -171,18 +209,18 @@ export class MemStorage implements IStorage {
       { name: "Geriatría", description: "Especializada en adultos mayores" },
       { name: "Neurología", description: "Trastornos del sistema nervioso" }
     ];
-    
+
     specialties.forEach(specialty => {
       const id = this.currentSpecialtyId++;
       this.specialties.set(id, { id, ...specialty });
     });
   }
-  
+
   private initializeAdminUser() {
     // Crear un usuario administrador para pruebas
     const adminId = this.currentUserId++;
     const hashedPassword = crypto.createHmac('sha256', 'salt').update('admin123').digest('hex');
-    
+
     const adminUser: User = {
       id: adminId,
       username: 'admin',
@@ -199,37 +237,37 @@ export class MemStorage implements IStorage {
       authProviderId: null,
       createdAt: new Date()
     };
-    
+
     this.users.set(adminId, adminUser);
-    
+
     console.log('Usuario administrador creado:');
     console.log('- Email: admin@oncall.clinic');
     console.log('- Contraseña: admin123');
   }
-  
+
   // Users
   async getUser(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
-  
+
   async getUserByEmail(email: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(
       (user) => user.email.toLowerCase() === email.toLowerCase()
     );
   }
-  
+
   async getUserByUsername(username: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(
       (user) => user.username.toLowerCase() === username.toLowerCase()
     );
   }
-  
+
   async getUserByOAuth(provider: string, providerId: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(
       (user) => user.authProvider === provider && user.authProviderId === providerId
     );
   }
-  
+
   async createUser(user: InsertUser): Promise<User> {
     const id = this.currentUserId++;
     const createdAt = new Date();
@@ -237,43 +275,43 @@ export class MemStorage implements IStorage {
     this.users.set(id, newUser);
     return newUser;
   }
-  
+
   async updateUser(id: number, data: Partial<User>): Promise<User | undefined> {
     const user = this.users.get(id);
     if (!user) return undefined;
-    
+
     const updatedUser = { ...user, ...data };
     this.users.set(id, updatedUser);
     return updatedUser;
   }
-  
+
   // Patient Profiles
   async getPatientProfile(id: number): Promise<PatientProfile | undefined> {
     return this.patientProfiles.get(id);
   }
-  
+
   async getPatientProfileByUserId(userId: number): Promise<PatientProfile | undefined> {
     return Array.from(this.patientProfiles.values()).find(
       (profile) => profile.userId === userId
     );
   }
-  
+
   async createPatientProfile(profile: InsertPatientProfile): Promise<PatientProfile> {
     const id = this.currentPatientProfileId++;
     const newProfile: PatientProfile = { ...profile, id };
     this.patientProfiles.set(id, newProfile);
     return newProfile;
   }
-  
+
   async updatePatientProfile(id: number, data: Partial<PatientProfile>): Promise<PatientProfile | undefined> {
     const profile = this.patientProfiles.get(id);
     if (!profile) return undefined;
-    
+
     const updatedProfile = { ...profile, ...data };
     this.patientProfiles.set(id, updatedProfile);
     return updatedProfile;
   }
-  
+
   // Verification Codes
   async createVerificationCode(data: InsertVerificationCode): Promise<VerificationCode> {
     const id = this.currentVerificationCodeId++;
@@ -282,43 +320,43 @@ export class MemStorage implements IStorage {
     this.verificationCodes.set(id, newCode);
     return newCode;
   }
-  
+
   async getVerificationCode(userId: number, code: string, type: string): Promise<VerificationCode | undefined> {
     return Array.from(this.verificationCodes.values()).find(
       (vc) => vc.userId === userId && vc.code === code && vc.type === type && !vc.usedAt && new Date() < new Date(vc.expiresAt)
     );
   }
-  
+
   async markVerificationCodeAsUsed(id: number): Promise<VerificationCode | undefined> {
     const code = this.verificationCodes.get(id);
     if (!code) return undefined;
-    
+
     const usedAt = new Date();
     const updatedCode = { ...code, usedAt };
     this.verificationCodes.set(id, updatedCode);
     return updatedCode;
   }
-  
+
   // Doctor Profiles
   async getDoctorProfile(id: number): Promise<DoctorProfile | undefined> {
     return this.doctorProfiles.get(id);
   }
-  
+
   async getDoctorProfileByUserId(userId: number): Promise<DoctorProfile | undefined> {
     return Array.from(this.doctorProfiles.values()).find(
       (profile) => profile.userId === userId
     );
   }
-  
+
   async getAllDoctorProfiles(): Promise<DoctorProfile[]> {
     return Array.from(this.doctorProfiles.values());
   }
-  
+
   async getUnverifiedDoctorProfiles(): Promise<DoctorProfile[]> {
     return Array.from(this.doctorProfiles.values())
       .filter(profile => profile.isVerified === false);
   }
-  
+
   async createDoctorProfile(profile: InsertDoctorProfile): Promise<DoctorProfile> {
     const id = this.currentDoctorProfileId++;
     const newProfile: DoctorProfile = { 
@@ -336,33 +374,33 @@ export class MemStorage implements IStorage {
     this.doctorProfiles.set(id, newProfile);
     return newProfile;
   }
-  
+
   async updateDoctorProfile(id: number, data: Partial<DoctorProfile>): Promise<DoctorProfile | undefined> {
     const profile = this.doctorProfiles.get(id);
     if (!profile) return undefined;
-    
+
     const updatedProfile = { ...profile, ...data };
     this.doctorProfiles.set(id, updatedProfile);
     return updatedProfile;
   }
-  
+
   async updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined> {
     // Primero obtenemos el perfil del doctor por ID de usuario
     const doctorProfile = await this.getDoctorProfileByUserId(doctorId);
     if (!doctorProfile) return undefined;
-    
+
     // Actualizamos la disponibilidad semanal
     const updatedProfile = await this.updateDoctorProfile(doctorProfile.id, {
       weeklyAvailability: weeklyAvailability as any // Usamos 'any' para evitar problemas de tipos con jsonb
     });
-    
+
     return updatedProfile;
   }
-  
+
   async verifyDoctor(doctorId: number, adminId: number, notes?: string): Promise<DoctorProfile | undefined> {
     const profile = await this.getDoctorProfile(doctorId);
     if (!profile) return undefined;
-    
+
     // Verificar el perfil del médico
     const verificationDate = new Date();
     const updatedProfile = await this.updateDoctorProfile(profile.id, {
@@ -370,7 +408,7 @@ export class MemStorage implements IStorage {
       verificationDate,
       verifiedBy: adminId
     });
-    
+
     if (updatedProfile) {
       // Crear notificación para el médico
       await this.createNotification({
@@ -384,17 +422,17 @@ export class MemStorage implements IStorage {
         } as any
       });
     }
-    
+
     return updatedProfile;
   }
-  
+
   async updateDoctorBankAccount(doctorId: number, bankAccount: string): Promise<DoctorProfile | undefined> {
     const profile = await this.getDoctorProfile(doctorId);
     if (!profile) return undefined;
-    
+
     return this.updateDoctorProfile(profile.id, { bankAccount });
   }
-  
+
   async getDoctorEarnings(doctorId: number): Promise<{
     totalEarnings: number;
     pendingEarnings: number;
@@ -403,7 +441,7 @@ export class MemStorage implements IStorage {
   } | undefined> {
     const profile = await this.getDoctorProfile(doctorId);
     if (!profile) return undefined;
-    
+
     return {
       totalEarnings: profile.totalEarnings,
       pendingEarnings: profile.pendingEarnings,
@@ -411,7 +449,7 @@ export class MemStorage implements IStorage {
       netEarnings: Math.round(profile.totalEarnings * (1 - profile.commissionRate / 100))
     };
   }
-  
+
   // Calcular distancia entre dos puntos geográficos usando la fórmula de Haversine
   private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // Radio de la Tierra en km
@@ -424,29 +462,29 @@ export class MemStorage implements IStorage {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   }
-  
+
   private deg2rad(deg: number): number {
     return deg * (Math.PI/180);
   }
-  
+
   async searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]> {
     let doctors = Array.from(this.doctorProfiles.values());
-    
+
     if (specialtyId !== undefined) {
       doctors = doctors.filter(doctor => doctor.specialtyId === specialtyId);
     }
-    
+
     if (available !== undefined) {
       doctors = doctors.filter(doctor => doctor.isAvailable === available);
     }
-    
+
     if (verified !== undefined) {
       doctors = doctors.filter(doctor => doctor.isVerified === verified);
     }
-    
+
     return doctors;
   }
-  
+
   async searchDoctorsByLocation(
     lat: number, 
     lng: number, 
@@ -455,19 +493,19 @@ export class MemStorage implements IStorage {
   ): Promise<Array<DoctorProfile & { distance: number }>> {
     const doctors = await this.getAllDoctorProfiles();
     let filteredDoctors = doctors.filter(d => d.isVerified && d.isAvailable);
-    
+
     // Filtrar por especialidad si se proporciona
     if (specialtyName) {
       const specialties = await this.getAllSpecialties();
       const specialty = specialties.find(s => 
         s.name.toLowerCase().includes(specialtyName.toLowerCase())
       );
-      
+
       if (specialty) {
         filteredDoctors = filteredDoctors.filter(d => d.specialtyId === specialty.id);
       }
     }
-    
+
     // Para cada médico, necesitamos:
     // 1. Obtener sus ubicaciones
     // 2. Calcular la distancia desde la ubicación del paciente a cada ubicación del médico
@@ -475,22 +513,22 @@ export class MemStorage implements IStorage {
     const result = await Promise.all(
       filteredDoctors.map(async (doctor) => {
         const doctorLocations = await this.getLocationsByUserId(doctor.userId);
-        
+
         if (doctorLocations.length === 0) {
           // El médico no tiene ubicaciones registradas
           return null;
         }
-        
+
         // Calcular distancias a todas las ubicaciones del médico
         const distances = doctorLocations.map(location => ({
           location,
           distance: this.calculateDistance(lat, lng, location.lat, location.lng)
         }));
-        
+
         // Ordenar por distancia y tomar la más cercana
         distances.sort((a, b) => a.distance - b.distance);
         const nearestLocation = distances[0];
-        
+
         // Verificar si está dentro del rango máximo
         if (nearestLocation.distance <= maxDistance) {
           return {
@@ -498,102 +536,102 @@ export class MemStorage implements IStorage {
             distance: nearestLocation.distance
           };
         }
-        
+
         return null;
       })
     );
-    
+
     // Filtrar los doctores que no tienen ubicaciones en el rango
     return result.filter(doctor => doctor !== null) as Array<DoctorProfile & { distance: number }>;
   }
-  
+
   // Specialties
   async getSpecialty(id: number): Promise<Specialty | undefined> {
     return this.specialties.get(id);
   }
-  
+
   async getAllSpecialties(): Promise<Specialty[]> {
     return Array.from(this.specialties.values());
   }
-  
+
   async createSpecialty(specialty: InsertSpecialty): Promise<Specialty> {
     const id = this.currentSpecialtyId++;
     const newSpecialty: Specialty = { ...specialty, id };
     this.specialties.set(id, newSpecialty);
     return newSpecialty;
   }
-  
+
   // Availability
   async getAvailability(id: number): Promise<Availability | undefined> {
     return this.availability.get(id);
   }
-  
+
   async getAvailabilityByDoctorId(doctorProfileId: number): Promise<Availability[]> {
     return Array.from(this.availability.values()).filter(
       avail => avail.doctorProfileId === doctorProfileId
     );
   }
-  
+
   async createAvailability(avail: InsertAvailability): Promise<Availability> {
     const id = this.currentAvailabilityId++;
     const newAvailability: Availability = { ...avail, id };
     this.availability.set(id, newAvailability);
     return newAvailability;
   }
-  
+
   async updateAvailability(id: number, data: Partial<Availability>): Promise<Availability | undefined> {
     const avail = this.availability.get(id);
     if (!avail) return undefined;
-    
+
     const updatedAvailability = { ...avail, ...data };
     this.availability.set(id, updatedAvailability);
     return updatedAvailability;
   }
-  
+
   // Locations
   async getLocation(id: number): Promise<Location | undefined> {
     return this.locations.get(id);
   }
-  
+
   async getLocationsByUserId(userId: number): Promise<Location[]> {
     return Array.from(this.locations.values()).filter(
       location => location.userId === userId
     );
   }
-  
+
   async createLocation(location: InsertLocation): Promise<Location> {
     const id = this.currentLocationId++;
     const newLocation: Location = { ...location, id };
     this.locations.set(id, newLocation);
     return newLocation;
   }
-  
+
   async updateLocation(id: number, data: Partial<Location>): Promise<Location | undefined> {
     const location = this.locations.get(id);
     if (!location) return undefined;
-    
+
     const updatedLocation = { ...location, ...data };
     this.locations.set(id, updatedLocation);
     return updatedLocation;
   }
-  
+
   // Appointments
   async getAppointment(id: number): Promise<Appointment | undefined> {
     return this.appointments.get(id);
   }
-  
+
   async getAppointmentsByPatientId(patientId: number): Promise<Appointment[]> {
     return Array.from(this.appointments.values()).filter(
       appointment => appointment.patientId === patientId
     );
   }
-  
+
   async getAppointmentsByDoctorId(doctorId: number): Promise<Appointment[]> {
     return Array.from(this.appointments.values()).filter(
       appointment => appointment.doctorId === doctorId
     );
   }
-  
+
   async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
     const id = this.currentAppointmentId++;
     const createdAt = new Date();
@@ -602,28 +640,28 @@ export class MemStorage implements IStorage {
     this.appointments.set(id, newAppointment);
     return newAppointment;
   }
-  
+
   async updateAppointment(id: number, data: Partial<Appointment>): Promise<Appointment | undefined> {
     const appointment = this.appointments.get(id);
     if (!appointment) return undefined;
-    
+
     const updatedAt = new Date();
     const updatedAppointment = { ...appointment, ...data, updatedAt };
     this.appointments.set(id, updatedAppointment);
     return updatedAppointment;
   }
-  
+
   // Reviews
   async getReview(id: number): Promise<Review | undefined> {
     return this.reviews.get(id);
   }
-  
+
   async getReviewsByRevieweeId(revieweeId: number): Promise<Review[]> {
     return Array.from(this.reviews.values()).filter(
       review => review.revieweeId === revieweeId
     );
   }
-  
+
   async createReview(review: InsertReview): Promise<Review> {
     const id = this.currentReviewId++;
     const createdAt = new Date();
@@ -631,14 +669,14 @@ export class MemStorage implements IStorage {
     this.reviews.set(id, newReview);
     return newReview;
   }
-  
+
   // Notifications
   async getNotifications(userId: number): Promise<Notification[]> {
     return Array.from(this.notifications.values()).filter(
       notification => notification.userId === userId
     );
   }
-  
+
   async createNotification(notification: InsertNotification): Promise<Notification> {
     const id = this.currentNotificationId++;
     const createdAt = new Date();
@@ -646,27 +684,27 @@ export class MemStorage implements IStorage {
     this.notifications.set(id, newNotification);
     return newNotification;
   }
-  
+
   async markNotificationAsRead(id: number): Promise<Notification | undefined> {
     const notification = this.notifications.get(id);
     if (!notification) return undefined;
-    
+
     const updatedNotification = { ...notification, read: true };
     this.notifications.set(id, updatedNotification);
     return updatedNotification;
   }
-  
+
   // Payments
   async getPayment(id: number): Promise<Payment | undefined> {
     return this.payments.get(id);
   }
-  
+
   async getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined> {
     return Array.from(this.payments.values()).find(
       payment => payment.appointmentId === appointmentId
     );
   }
-  
+
   async createPayment(payment: InsertPayment): Promise<Payment> {
     const id = this.currentPaymentId++;
     const createdAt = new Date();
@@ -674,11 +712,11 @@ export class MemStorage implements IStorage {
     this.payments.set(id, newPayment);
     return newPayment;
   }
-  
+
   async updatePayment(id: number, data: Partial<Payment>): Promise<Payment | undefined> {
     const payment = this.payments.get(id);
     if (!payment) return undefined;
-    
+
     const updatedPayment = { ...payment, ...data };
     this.payments.set(id, updatedPayment);
     return updatedPayment;

@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPinIcon, CheckIcon } from "lucide-react";
+import { MapPinIcon, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { IS_SANDBOX, ALLOWED_AREA_BOUNDS, isWithinAllowedArea, SANDBOX_MESSAGES } from "@/lib/sandbox";
+import { IS_SANDBOX, ALLOWED_AREA_BOUNDS, isWithinAllowedArea } from "@/lib/sandbox";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddressAutocompleteProps {
   onAddressSelect: (
@@ -20,269 +21,132 @@ interface AddressAutocompleteProps {
   placeholder?: string;
 }
 
-// Simulated place result for sandbox mode
-const createMockPlaceResult = (address: string, location: { lat: number; lng: number }): google.maps.places.PlaceResult => {
-  return {
-    address_components: [],
-    formatted_address: address,
-    geometry: {
-      location: {
-        lat: () => location.lat,
-        lng: () => location.lng
-      }
-    },
-    name: address,
-    place_id: "sandbox-place-" + Math.random().toString(36).substring(2, 15)
-  } as google.maps.places.PlaceResult;
-};
-
-// Sandbox predefined locations
-const SANDBOX_LOCATIONS = [
-  {
-    address: "Hospital Can Misses, Ibiza",
-    location: { lat: 38.9066, lng: 1.4200 }
-  },
-  {
-    address: "Puerto de Ibiza, Ibiza",
-    location: { lat: 38.9114, lng: 1.4436 }
-  },
-  {
-    address: "Playa d'en Bossa, Ibiza",
-    location: { lat: 38.8867, lng: 1.4097 }
-  },
-  {
-    address: "Sant Antoni de Portmany, Ibiza",
-    location: { lat: 38.9796, lng: 1.3036 }
-  },
-];
-
-function SandboxAddressAutocomplete({
-  onAddressSelect,
-  defaultValue = "",
-  label,
-  required = false,
-  className = "",
-  placeholder = "Enter an address..."
-}: AddressAutocompleteProps) {
-  const { t } = useTranslation();
-  const [value, setValue] = useState(defaultValue);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [inputFocused, setInputFocused] = useState(false);
-  const suggestionRef = useRef<HTMLDivElement>(null);
-
-  const handleAddressSelect = (address: string, location: { lat: number; lng: number }) => {
-    setValue(address);
-    
-    const mockPlaceResult = createMockPlaceResult(address, location);
-    onAddressSelect(address, location, mockPlaceResult);
-    
-    setShowSuggestions(false);
-  };
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (suggestionRef.current && !suggestionRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Handle custom address input
-  const handleCustomAddressSubmit = () => {
-    if (!value.trim()) return;
-    
-    // Generate a random location within the allowed area
-    const latRange = ALLOWED_AREA_BOUNDS.northeast.lat - ALLOWED_AREA_BOUNDS.southwest.lat;
-    const lngRange = ALLOWED_AREA_BOUNDS.northeast.lng - ALLOWED_AREA_BOUNDS.southwest.lng;
-    
-    const location = {
-      lat: ALLOWED_AREA_BOUNDS.southwest.lat + Math.random() * latRange,
-      lng: ALLOWED_AREA_BOUNDS.southwest.lng + Math.random() * lngRange
-    };
-    
-    handleAddressSelect(value, location);
-  };
-
-  return (
-    <div className={`relative ${className}`}>
-      {label && (
-        <Label htmlFor="address-input" className="mb-2 block">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
-      )}
-      
-      <div className="relative">
-        <Input
-          id="address-input-sandbox"
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onFocus={() => {
-            setInputFocused(true);
-            setShowSuggestions(true);
-          }}
-          placeholder={placeholder || t('common.enterAddress')}
-          className="pr-10"
-          required={required}
-        />
-        <MapPinIcon 
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" 
-        />
-      </div>
-
-      <div className="mt-2 text-amber-600 text-sm flex items-center bg-amber-50 p-2 rounded">
-        <CheckIcon className="h-4 w-4 mr-1 flex-shrink-0" /> 
-        {t('sandbox.addressNotice')}
-      </div>
-      
-      {inputFocused && !showSuggestions && (
-        <Button 
-          type="button" 
-          variant="secondary" 
-          size="sm" 
-          className="mt-2 w-full"
-          onClick={handleCustomAddressSubmit}
-        >
-          {t('common.confirm')}
-        </Button>
-      )}
-      
-      {showSuggestions && (
-        <div 
-          ref={suggestionRef}
-          className="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md border border-neutral-200 max-h-60 overflow-auto"
-        >
-          <div className="p-2 text-sm text-neutral-500 border-b">
-            {t('sandbox.selectAddress')}
-          </div>
-          {SANDBOX_LOCATIONS.map((location, index) => (
-            <div 
-              key={index}
-              className="p-2 hover:bg-neutral-100 cursor-pointer"
-              onClick={() => handleAddressSelect(location.address, location.location)}
-            >
-              <div className="flex items-start">
-                <MapPinIcon className="h-4 w-4 mr-2 mt-0.5 text-neutral-500" />
-                <span>{location.address}</span>
-              </div>
-            </div>
-          ))}
-          <div 
-            className="p-2 hover:bg-neutral-100 cursor-pointer border-t"
-            onClick={handleCustomAddressSubmit}
-          >
-            <div className="flex items-start">
-              <CheckIcon className="h-4 w-4 mr-2 mt-0.5 text-neutral-500" />
-              <span>{t('sandbox.useCustomAddress')}</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function AddressAutocomplete({
   onAddressSelect,
   defaultValue = "",
   label,
   required = false,
   className = "",
-  placeholder = "Enter an address..."
+  placeholder = ""
 }: AddressAutocompleteProps) {
   const { t } = useTranslation();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
   const [value, setValue] = useState(defaultValue);
+  const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  // Return sandbox address autocomplete if in sandbox mode
-  if (IS_SANDBOX) {
-    return (
-      <SandboxAddressAutocomplete
-        onAddressSelect={onAddressSelect}
-        defaultValue={defaultValue}
-        label={label}
-        required={required}
-        className={className}
-        placeholder={placeholder}
-      />
-    );
-  }
-
-  // Load Google Maps API and initialize autocomplete
   useEffect(() => {
-    const initAutocomplete = async () => {
-      try {
-        // Load Google Maps API with places library
-        const loader = new Loader({
-          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-          version: "weekly",
-          libraries: ["places"]
-        });
+    if (!IS_SANDBOX) {
+      const initAutocomplete = async () => {
+        try {
+          const loader = new Loader({
+            apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+            version: "weekly",
+            libraries: ["places"]
+          });
 
-        await loader.load();
-        
-        if (!inputRef.current) return;
-        
-        // Initialize places autocomplete
-        const autocompleteInstance = new google.maps.places.Autocomplete(inputRef.current, {
-          fields: ["address_components", "formatted_address", "geometry", "name"],
-          types: ["address"],
-        });
-        
-        // Add place_changed event listener
-        autocompleteInstance.addListener("place_changed", () => {
-          const place = autocompleteInstance.getPlace();
-          
-          if (!place.geometry || !place.geometry.location) {
-            console.error("Place selected with no geometry");
-            return;
-          }
-          
-          const address = place.formatted_address || place.name || "";
-          const location = {
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng()
-          };
-          
-          // Update the input value
-          setValue(address);
-          
-          // Call the callback
-          onAddressSelect(address, location, place);
-        });
-        
-        setAutocomplete(autocompleteInstance);
-        setIsLoaded(true);
-      } catch (err) {
-        console.error("Error initializing address autocomplete:", err);
-        setError(t('error.addressSearchFailed'));
-      }
-    };
+          await loader.load();
 
-    if (!isLoaded && !error) {
+          if (!inputRef.current) return;
+
+          const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
+            bounds: ALLOWED_AREA_BOUNDS,
+            strictBounds: true,
+            fields: ["address_components", "formatted_address", "geometry", "name"],
+            types: ["address"]
+          });
+
+          autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            if (!place.geometry?.location) return;
+
+            const location = {
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng()
+            };
+
+            if (!isWithinAllowedArea(location)) {
+              toast({
+                title: t('error.locationOutOfBounds'),
+                description: t('error.locationMustBeInIbiza'),
+                variant: "destructive"
+              });
+              return;
+            }
+
+            setValue(place.formatted_address || "");
+            onAddressSelect(place.formatted_address || "", location, place);
+          });
+
+          autocompleteRef.current = autocomplete;
+        } catch (error) {
+          console.error("Error loading Google Maps:", error);
+        }
+      };
+
       initAutocomplete();
     }
-  }, [isLoaded, error, onAddressSelect, t]);
+  }, [onAddressSelect, t, toast]);
+
+  const handleGeolocation = () => {
+    setIsLoading(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          if (!isWithinAllowedArea(location)) {
+            toast({
+              title: t('error.locationOutOfBounds'),
+              description: t('error.locationMustBeInIbiza'),
+              variant: "destructive"
+            });
+            setIsLoading(false);
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location.lat},${location.lng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
+            );
+            const data = await response.json();
+
+            if (data.results[0]) {
+              const address = data.results[0].formatted_address;
+              setValue(address);
+              onAddressSelect(address, location, data.results[0]);
+            }
+          } catch (error) {
+            console.error("Error reverse geocoding:", error);
+          }
+          setIsLoading(false);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast({
+            title: t('error.locationAccess'),
+            description: t('error.enableLocationAccess'),
+            variant: "destructive"
+          });
+          setIsLoading(false);
+        }
+      );
+    }
+  };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={className}>
       {label && (
         <Label htmlFor="address-input" className="mb-2 block">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      
+
       <div className="relative">
         <Input
           id="address-input"
@@ -291,17 +155,24 @@ export default function AddressAutocomplete({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder || t('common.enterAddress')}
-          className="pr-10"
+          className="pr-20"
           required={required}
         />
-        <MapPinIcon 
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" 
-        />
+        <Button 
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute right-2 top-1/2 -translate-y-1/2"
+          onClick={handleGeolocation}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MapPinIcon className="h-4 w-4" />
+          )}
+        </Button>
       </div>
-      
-      {error && (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
-      )}
     </div>
   );
 }
