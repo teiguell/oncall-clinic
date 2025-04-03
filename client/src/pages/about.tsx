@@ -10,7 +10,6 @@ export default function AboutPage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4 md:px-6">
-      {IS_SANDBOX && <SandboxBanner />}
       
       <div className="mb-10 mt-6 text-center">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-primary-700">

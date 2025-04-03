@@ -49,7 +49,6 @@ import AboutPage from "./pages/about";
 function AppLayout({ children, fullHeight = false }: { children: React.ReactNode; fullHeight?: boolean }) {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <SandboxBanner />
       <Navbar />
       <main className={`flex-grow ${fullHeight ? 'flex flex-col' : ''}`}>
         {children}

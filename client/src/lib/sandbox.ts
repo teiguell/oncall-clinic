@@ -1,14 +1,11 @@
 // Configuración del modo SANDBOX para el frontend
-// Este archivo contiene todas las constantes y funciones relacionadas con el modo de pruebas
+export const IS_SANDBOX = false;
 
-// Bandera para activar/desactivar el modo SANDBOX (desde las variables de entorno)
-export const IS_SANDBOX = import.meta.env.VITE_IS_SANDBOX === 'true';
-
-// Coordenadas del área restringida para pruebas (Ibiza)
+// Coordenadas del área permitida (España)
 export const ALLOWED_AREA_BOUNDS = {
-  northeast: { lat: 39.1300, lng: 1.6350 }, // Noreste de Ibiza
-  southwest: { lat: 38.8000, lng: 1.3500 }, // Suroeste de Ibiza
-  center: { lat: 38.9086, lng: 1.4350 }     // Centro (Ibiza ciudad)
+  northeast: { lat: 43.7902, lng: 4.3275 }, // Punto noreste de España
+  southwest: { lat: 36.0001, lng: -9.3016 }, // Punto suroeste de España
+  center: { lat: 40.4168, lng: -3.7038 }     // Centro (Madrid)
 };
 
 // Mensajes específicos del modo SANDBOX
