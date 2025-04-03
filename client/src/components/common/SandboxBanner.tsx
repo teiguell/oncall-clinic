@@ -1,10 +1,15 @@
+
 import { AlertTriangle, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { SANDBOX_MESSAGES } from "@/lib/sandbox";
+import { IS_SANDBOX, SANDBOX_MESSAGES } from "@/lib/sandbox";
 
 export function SandboxBanner() {
   const { t } = useTranslation();
+
+  if (!IS_SANDBOX) {
+    return null;
+  }
 
   return (
     <>
