@@ -1,84 +1,77 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from 'react';
+import { logger } from '@/lib/errorLogger';
 
-type ErrorLog = {
-  time: string;
-  message: string;
-  source: string;
-  line: number;
-  column: number;
-  stack?: string;
-};
-
-export function useErrorLogger() {
+/**
+ * Hook personalizado para utilizar el sistema de logging de errores
+ * Registra eventos del ciclo de vida del componente y proporciona
+ * métodos para registrar errores, advertencias e información
+ * 
+ * @param componentName - Nombre del componente
+ * @returns Objeto logger para usar en el componente
+ */
+const useErrorLogger = (componentName?: string) => {
+  const name = componentName || 'UnnamedComponent';
+  const mounted = useRef(false);
+  
+  // Registrar montaje y desmontaje del componente
   useEffect(() => {
-    const errorHandler = (event: ErrorEvent) => {
-      const errorLog: ErrorLog = {
-        time: new Date().toISOString(),
-        message: event.message || 'Unknown error',
-        source: event.filename || 'Unknown source',
-        line: event.lineno || 0,
-        column: event.colno || 0,
-        stack: event.error?.stack
-      };
-
-      const existingLogs = JSON.parse(localStorage.getItem("oncall_error_log") || "[]");
-      localStorage.setItem("oncall_error_log", JSON.stringify([...existingLogs, errorLog]));
-
-      console.error("Error capturado:", errorLog);
-    };
-
-    const rejectionHandler = (event: PromiseRejectionEvent) => {
-      const errorLog: ErrorLog = {
-        time: new Date().toISOString(),
-        message: event.reason?.message || String(event.reason) || 'Unhandled Promise Rejection',
-        source: 'Promise Rejection',
-        line: 0,
-        column: 0,
-        stack: event.reason?.stack
-      };
-
-      const existingLogs = JSON.parse(localStorage.getItem("oncall_error_log") || "[]");
-      localStorage.setItem("oncall_error_log", JSON.stringify([...existingLogs, errorLog]));
-
-      console.error("Promise rejection capturada:", errorLog);
-    };
-
-    window.addEventListener("error", errorHandler);
-    window.addEventListener("unhandledrejection", rejectionHandler);
+    mounted.current = true;
+    logger.debug(`${name} montado`);
     
     return () => {
-      window.removeEventListener("error", errorHandler);
-      window.removeEventListener("unhandledrejection", rejectionHandler);
+      logger.debug(`${name} desmontado`);
+      mounted.current = false;
     };
-  }, []);
+  }, [name]);
   
-  // Función para limpiar los registros de errores
-  const clearErrorLogs = () => {
-    localStorage.removeItem("oncall_error_log");
-  };
-  
-  // Función para obtener los registros de errores
-  const getErrorLogs = (): ErrorLog[] => {
-    return JSON.parse(localStorage.getItem("oncall_error_log") || "[]");
-  };
-  
-  // Función para exportar los registros de errores como un archivo JSON
-  const exportErrorLogs = () => {
-    const logs = getErrorLogs();
-    const dataStr = JSON.stringify(logs, null, 2);
-    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-    
-    const exportFileDefaultName = `oncall_error_logs_${new Date().toISOString().slice(0, 10)}.json`;
-    
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
-  };
-  
+  // Devolver objeto con métodos para loggear
   return {
-    getErrorLogs,
-    clearErrorLogs,
-    exportErrorLogs
+    // Loggear un error con contexto
+    error: (message: string, extra?: any) => {
+      if (mounted.current) {
+        logger.error(`[${name}] ${message}`, extra);
+      }
+    },
+    
+    // Loggear una advertencia con contexto
+    warn: (message: string, extra?: any) => {
+      if (mounted.current) {
+        logger.warn(`[${name}] ${message}`, extra);
+      }
+    },
+    
+    // Loggear información con contexto
+    info: (message: string, extra?: any) => {
+      if (mounted.current) {
+        logger.info(`[${name}] ${message}`, extra);
+      }
+    },
+    
+    // Loggear mensaje de debug con contexto
+    debug: (message: string, extra?: any) => {
+      if (mounted.current) {
+        logger.debug(`[${name}] ${message}`, extra);
+      }
+    },
+    
+    // Envolver un callback con un try/catch que loggea errores automáticamente
+    wrapCallback: <T extends (...args: any[]) => any>(
+      callback: T, 
+      errorMessage = 'Error en callback'
+    ) => {
+      return ((...args: Parameters<T>): ReturnType<T> | undefined => {
+        try {
+          return callback(...args);
+        } catch (error) {
+          logger.error(`[${name}] ${errorMessage}`, { error, args });
+          
+          // No propagamos el error ya que lo hemos logeado
+          // Si se necesita propagarlo, definir el parámetro throwAfterLog = true
+          return undefined;
+        }
+      }) as T;
+    }
   };
-}
+};
+
+export default useErrorLogger;

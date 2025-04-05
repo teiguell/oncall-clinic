@@ -11,15 +11,21 @@ import { useEffect } from "react";
 // Initialize i18n
 import "./i18n"; // Import the i18n configuration
 
+// Error handling
+import ErrorBoundary from "./components/error/ErrorBoundary";
+import FallbackError from "./components/error/FallbackError";
+import { logger } from "./lib/errorLogger";
+
 // Custom hooks
 import useWebSocketNotifications from "./hooks/useWebSocketNotifications";
-import { useErrorLogger } from "./hooks/useErrorLogger";
+import useErrorLogger from "./hooks/useErrorLogger";
 
 // Layout components
 import Navbar from "./components/layout/navbar";
 import Footer from "./components/layout/footer";
 import LanguageSwitcher from "./components/ui/language-switcher";
 import { SandboxBanner } from "./components/common/SandboxBanner";
+import LoadingScreen from "./components/ui/loading-screen";
 
 // Dev/Sandbox components
 import { ErrorLogger } from "./components/dev/ErrorLogger";
@@ -51,7 +57,9 @@ function AppLayout({ children, fullHeight = false }: { children: React.ReactNode
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
       <main className={`flex-grow ${fullHeight ? 'flex flex-col' : ''}`}>
-        {children}
+        <ErrorBoundary FallbackComponent={FallbackError}>
+          {children}
+        </ErrorBoundary>
       </main>
       <Footer />
     </div>
@@ -189,7 +197,12 @@ function AboutRoute() {
 
 function NotFoundRoute() {
   // No layout for NotFound as it has its own full page design
-  return <NotFound />;
+  // Pero aún así lo envolvemos en ErrorBoundary
+  return (
+    <ErrorBoundary FallbackComponent={FallbackError}>
+      <NotFound />
+    </ErrorBoundary>
+  );
 }
 
 // Importar el componente ProtectedRoute
@@ -251,30 +264,32 @@ function Router() {
 function App() {
   const { t } = useTranslation();
   
-  // Usamos AuthProvider antes de utilizar el hook useAuth
+  // Envolvemos toda la aplicación en un ErrorBoundary para capturar errores globales
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <AppContent />
-        <Toaster />
-        {/* ToastContainer for react-toastify */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-        
-        {/* Componentes para desarrollo/sandbox - sólo se muestran en modo SANDBOX */}
-        {IS_SANDBOX && <ErrorLogger />}
-        {IS_SANDBOX && <ErrorGenerator />}
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary FallbackComponent={FallbackError}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppContent />
+          <Toaster />
+          {/* ToastContainer for react-toastify */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          
+          {/* Componentes para desarrollo/sandbox - sólo se muestran en modo SANDBOX */}
+          {IS_SANDBOX && <ErrorLogger />}
+          {IS_SANDBOX && <ErrorGenerator />}
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -283,11 +298,16 @@ function AppContent() {
   const { t, ready } = useTranslation();
   
   if (!ready) {
-    return <div>Loading translations...</div>;
+    return <LoadingScreen />;
   }
   const { user } = useAuth();
   
-  // WebSocket ahora se conecta solo cuando tenemos un usuario autenticado
+  // WebSocket comentado temporalmente para debugging
+  // Simulamos las variables para evitar errores
+  const isConnected = false;
+  const lastNotification = null;
+  
+  /*
   const { 
     isConnected,
     lastNotification 
@@ -304,10 +324,9 @@ function AppContent() {
       onDisconnected: () => {
         console.log('❌ Disconnected from notification service');
       }
-      // La opción enabled ya no es necesaria ya que podemos controlar esto condicionalmente
-      // El WebSocket solo intentará conectarse si token (user.id) está presente
     }
   );
+  */
   
   // Inicializar el error logger para capturar errores
   const errorLogger = useErrorLogger();

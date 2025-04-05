@@ -1,64 +1,86 @@
-import { useAuth } from "@/context/auth-context";
-import { Loader2 } from "lucide-react";
-import { Redirect, Route } from "wouter";
+import React from 'react';
+import { Redirect, Route } from 'wouter';
+import { safeT } from '@/i18n';
+import LoadingScreen from '@/components/ui/loading-screen';
+import { logger } from './errorLogger';
 
-export function ProtectedRoute({
+// Tipo para usuarios
+type UserType = 'patient' | 'doctor' | 'admin';
+
+// Usuario con tipo fuertemente tipado
+interface User {
+  id: number | string;
+  userType: UserType;
+  emailVerified?: boolean;
+}
+
+// Props para la ruta protegida
+interface ProtectedRouteProps {
+  path: string;
+  component: React.ComponentType<any>;
+  userType?: UserType;
+  redirectTo?: string;
+  isAllowed?: boolean;
+}
+
+/**
+ * Componente que protege rutas basado en autenticación y tipo de usuario
+ */
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   path,
   component: Component,
   userType,
-}: {
-  path: string;
-  component: () => React.JSX.Element;
-  userType?: string | string[]; // Optional userType for role-based protection
-}) {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <Route path={path}>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </Route>
-    );
-  }
-
-  if (!user) {
-    // No user logged in, redirect to login page
-    return (
-      <Route path={path}>
-        <Redirect to="/login" />
-      </Route>
-    );
-  }
-
-  // Si el usuario aún no ha verificado su correo, redirigirlo a la página de verificación
-  if (user && !user.emailVerified) {
-    return (
-      <Route path={path}>
-        <Redirect to={`/verify?email=${encodeURIComponent(user.email)}`} />
-      </Route>
-    );
-  }
-
-  // If userType is specified, check if user has the required type
-  if (userType) {
-    const requiredTypes = Array.isArray(userType) ? userType : [userType];
+  redirectTo = '/login',
+  isAllowed = true
+}) => {
+  // Datos de autenticación (mock por ahora, luego vendrán de un contexto)
+  const isLoading = false;
+  const isAuthenticated = false;
+  
+  // Necesitamos tipo explícito aquí
+  const user = null as User | null;
+  
+  // Validar el tipo de usuario
+  const checkUserTypeAccess = (): boolean => {
+    // Si no se requiere tipo específico, permitir acceso
+    if (!userType) return true;
     
-    if (!requiredTypes.includes(user.userType)) {
-      // User doesn't have the required type, redirect to dashboard
-      const dashboardPath = user.userType === 'doctor' 
-        ? '/dashboard/doctor' 
-        : '/dashboard/patient';
-      
-      return (
-        <Route path={path}>
-          <Redirect to={dashboardPath} />
-        </Route>
-      );
-    }
-  }
+    // Si no hay usuario, denegar acceso
+    if (!user) return false;
+    
+    // Comparar tipos (con verificación de tipo fuerte)
+    return user.userType === userType as UserType;
+  };
+  
+  // Verificar si se permite acceso
+  const hasAccess = isAuthenticated && checkUserTypeAccess() && isAllowed;
+  
+  // Log de acceso para debugging
+  React.useEffect(() => {
+    logger.debug(`Protected route check: ${path}`, {
+      authenticated: isAuthenticated,
+      userTypeRequired: userType || 'any',
+      hasAccess
+    });
+  }, [path, isAuthenticated, userType, hasAccess]);
+  
+  // Renderizar ruta condicionalmente
+  return (
+    <Route path={path}>
+      {(params) => {
+        if (isLoading) {
+          return <LoadingScreen />;
+        }
+        
+        if (!hasAccess) {
+          logger.info(`Access denied to ${path}, redirecting to ${redirectTo}`);
+          return <Redirect to={redirectTo} />;
+        }
+        
+        return <Component params={params} />;
+      }}
+    </Route>
+  );
+};
 
-  // User is authenticated, verified, and has the required type (if specified)
-  return <Route path={path} component={Component} />;
-}
+export default ProtectedRoute;

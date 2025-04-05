@@ -131,8 +131,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }, 30000);
   
   // WebSocket for real-time notifications
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, req) => {
     console.log('WebSocket connection established');
+    
+    // Parse the URL to get token (userId)
+    const url = new URL(req.url || '', `http://${req.headers.host}`);
+    const token = url.searchParams.get('token');
+    
+    // If token is provided (userId), authenticate immediately
+    if (token && !isNaN(parseInt(token))) {
+      const userId = parseInt(token);
+      (ws as any).userId = userId;
+      
+      // Get user info from storage if needed
+      storage.getUser(userId).then(user => {
+        if (user) {
+          (ws as any).userType = user.userType;
+          
+          // Add to connected clients map
+          if (!connectedClients.has(userId)) {
+            connectedClients.set(userId, new Set());
+          }
+          connectedClients.get(userId)?.add(ws);
+          
+          console.log(`User ${userId} (${user.userType}) authenticated with WebSocket via token`);
+          
+          // Send authentication success response
+          ws.send(JSON.stringify({
+            type: 'auth_response',
+            success: true,
+            message: 'Authentication successful',
+            userId: userId,
+            userType: user.userType
+          }));
+        }
+      }).catch(err => {
+        console.error('Error authenticating WebSocket user:', err);
+      });
+    }
     
     // Send a welcome message
     ws.send(JSON.stringify({
@@ -151,34 +187,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Received message:', message.toString());
         const data = JSON.parse(message.toString());
         
-        // Handle authentication
-        if (data.type === 'auth' && data.sessionId) {
-          const session = sessions.get(data.sessionId);
-          if (session) {
-            // Store userId and userType in the websocket object
-            (ws as any).userId = session.userId;
-            (ws as any).userType = session.userType;
-            console.log(`User ${session.userId} (${session.userType}) authenticated with WebSocket`);
+        // Legacy authentication (to be deprecated)
+        if (data.type === 'auth' && data.userId) {
+          const userId = parseInt(data.userId);
+          
+          if (!isNaN(userId)) {
+            // Store userId in the websocket object
+            (ws as any).userId = userId;
             
-            // Add to connected clients map
-            if (!connectedClients.has(session.userId)) {
-              connectedClients.set(session.userId, new Set());
-            }
-            connectedClients.get(session.userId)?.add(ws);
-            
-            ws.send(JSON.stringify({
-              type: 'auth_response',
-              success: true,
-              message: 'Authentication successful',
-              userId: session.userId,
-              userType: session.userType
-            }));
+            // Get user info from storage
+            storage.getUser(userId).then(user => {
+              if (user) {
+                (ws as any).userType = user.userType;
+                
+                // Add to connected clients map
+                if (!connectedClients.has(userId)) {
+                  connectedClients.set(userId, new Set());
+                }
+                connectedClients.get(userId)?.add(ws);
+                
+                console.log(`User ${userId} (${user.userType}) authenticated with WebSocket`);
+                
+                ws.send(JSON.stringify({
+                  type: 'auth_response',
+                  success: true,
+                  message: 'Authentication successful',
+                  userId: userId,
+                  userType: user.userType
+                }));
+              } else {
+                console.log('Invalid user ID for WebSocket authentication');
+                ws.send(JSON.stringify({
+                  type: 'auth_response',
+                  success: false,
+                  message: 'Invalid user ID'
+                }));
+              }
+            }).catch(err => {
+              console.error('Error authenticating WebSocket user:', err);
+              ws.send(JSON.stringify({
+                type: 'auth_response',
+                success: false,
+                message: 'Authentication error'
+              }));
+            });
           } else {
-            console.log('Invalid session for WebSocket authentication');
+            console.log('Invalid user ID format for WebSocket authentication');
             ws.send(JSON.stringify({
               type: 'auth_response',
               success: false,
-              message: 'Invalid session'
+              message: 'Invalid user ID format'
             }));
           }
         }
