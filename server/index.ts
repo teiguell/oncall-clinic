@@ -80,11 +80,6 @@ app.use((req, res, next) => {
       if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: 'API route not found' });
       }
-      res.sendFile(path.join(publicPath, 'index.html'));
-    });
-      if (req.path.startsWith('/api')) {
-        return res.status(404).json({ message: 'API route not found' });
-      }
       
       // Always serve index.html for client-side routing
       const indexPath = path.join(publicPath, 'index.html');
