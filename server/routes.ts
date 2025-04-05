@@ -107,6 +107,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.resolve(process.cwd(), 'client/public/diagnostico.html'));
   });
   
+  // Emergency access route (bypasses React completely)
+  app.get('/emergency', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'index.html'));
+  });
+  
   // Add a WebSocket test page
   app.get('/ws-test', (req, res) => {
     res.sendFile(path.resolve(process.cwd(), 'client/public/websocket-test.html'));
