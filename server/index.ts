@@ -22,6 +22,33 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
+
+// Global error handling middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('Error:', err);
+  
+  // Handle specific error types
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      error: 'Validation Error',
+      details: err.message
+    });
+  }
+  
+  if (err.name === 'UnauthorizedError') {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      details: 'Authentication required'
+    });
+  }
+  
+  // Default error response
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message
+  });
+});
+
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
@@ -55,14 +82,15 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
+  import { fileURLToPath } from 'url';
+  import { dirname } from 'path';
+    
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+
   if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   } else {
-    import { fileURLToPath } from 'url';
-    import { dirname } from 'path';
-    
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
     const distPath = path.join(__dirname, "../dist");
     
     // Verify dist directory exists

@@ -280,7 +280,11 @@ function App() {
 
 // Componente interior que puede acceder a useAuth después de que AuthProvider esté disponible
 function AppContent() {
-  const { t } = useTranslation();
+  const { t, ready } = useTranslation();
+  
+  if (!ready) {
+    return <div>Loading translations...</div>;
+  }
   const { user } = useAuth();
   
   // WebSocket ahora se conecta solo cuando tenemos un usuario autenticado
