@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Versión Simplificada</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            color: #0070f3;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #444;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #10b981;
+            margin-right: 8px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eaeaea;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        @media (max-width: 768px) {
+            .flex {
+                flex-direction: column;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .hero {
+            padding: 2rem;
+            background: linear-gradient(135deg, #0070f3 0%, #00a2ff 100%);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .hero h2 {
+            font-size: 2rem;
+            margin-top: 0;
+        }
+        button {
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005bc0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>OnCall Clinic</h1>
+        <p class="subtitle">Cuidado médico a domicilio | In-home Medical Care</p>
+    </header>
+    
+    <div class="hero">
+        <h2>Bienvenido a la Plataforma de Diagnóstico</h2>
+        <p>Esta es una versión simplificada de OnCall Clinic para verificar la conectividad y solucionar problemas técnicos.</p>
+    </div>
+    
+    <div class="flex">
+        <div class="card" style="flex: 2; margin-right: 20px;">
+            <h2>Estado del Sistema</h2>
+            <div class="status">
+                <div class="status-dot" id="apiStatus"></div>
+                <div>API de servicios médicos: <span id="apiStatusText">Comprobando...</span></div>
+            </div>
+            <div class="status">
+                <div class="status-dot" id="sandboxStatus"></div>
+                <div>Versión de prueba SANDBOX: <span id="sandboxStatusText">Comprobando...</span></div>
+            </div>
+            <div id="apiResponseContainer" style="margin-top: 20px; display: none;">
+                <h3>Respuesta del API:</h3>
+                <pre id="apiResponse" style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto;"></pre>
+            </div>
+            <div style="margin-top: 15px;">
+                <button id="checkApiBtn">Comprobar API</button>
+            </div>
+        </div>
+        
+        <div class="card" style="flex: 1;">
+            <h2>Información del Cliente</h2>
+            <p><strong>Navegador:</strong> <span id="userAgent">-</span></p>
+            <p><strong>Resolución:</strong> <span id="screenSize">-</span></p>
+            <p><strong>Hora local:</strong> <span id="localTime">-</span></p>
+            <p><strong>URL:</strong> <span id="currentUrl">-</span></p>
+        </div>
+    </div>
+    
+    <div class="grid">
+        <div class="card">
+            <h2>Acceso Rápido</h2>
+            <p>Accede a estas páginas para pruebas adicionales:</p>
+            <ul>
+                <li><a href="/api/health" target="_blank">API de estado</a></li>
+                <li><a href="/" id="homeLink">Página principal</a></li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h2>Versión Alpha</h2>
+            <p>Estás visualizando la versión alpha de OnCall Clinic.</p>
+            <p>Esta versión está diseñada para funcionar en modo SANDBOX para pruebas.</p>
+        </div>
+        
+        <div class="card">
+            <h2>Área de Cobertura</h2>
+            <p>Las pruebas de la aplicación se limitan actualmente a:</p>
+            <p><strong>Ibiza, Islas Baleares</strong></p>
+            <p>Seleccionamos esta área para las pruebas controladas del sistema.</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 OnCall Clinic - Versión Alpha 0.9.5</p>
+    </footer>
+    
+    <script>
+        // Actualizar información del cliente
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+        document.getElementById('screenSize').textContent = `${window.screen.width}x${window.screen.height}`;
+        document.getElementById('currentUrl').textContent = window.location.href;
+        
+        function updateTime() {
+            document.getElementById('localTime').textContent = new Date().toLocaleString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Comprobar API al cargar la página
+        checkApi();
+        
+        // Añadir evento al botón
+        document.getElementById('checkApiBtn').addEventListener('click', checkApi);
+        
+        // Función para comprobar API
+        function checkApi() {
+            const apiStatusDot = document.getElementById('apiStatus');
+            const apiStatusText = document.getElementById('apiStatusText');
+            const apiResponseContainer = document.getElementById('apiResponseContainer');
+            const apiResponse = document.getElementById('apiResponse');
+            
+            apiStatusDot.style.backgroundColor = '#f59e0b'; // Amarillo durante la comprobación
+            apiStatusText.textContent = 'Comprobando...';
+            
+            fetch('/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("API response:", data);
+                    apiStatusDot.style.backgroundColor = '#10b981'; // Verde para OK
+                    apiStatusText.textContent = 'Conectado';
+                    apiResponseContainer.style.display = 'block';
+                    apiResponse.textContent = JSON.stringify(data, null, 2);
+                    
+                    // Activar modo sandbox
+                    document.getElementById('sandboxStatus').style.backgroundColor = '#10b981';
+                    document.getElementById('sandboxStatusText').textContent = 'Activo';
+                })
+                .catch(error => {
+                    console.error("API error:", error);
+                    apiStatusDot.style.backgroundColor = '#ef4444'; // Rojo para error
+                    apiStatusText.textContent = 'Error: ' + error.message;
+                    apiResponseContainer.style.display = 'block';
+                    apiResponse.textContent = 'Error al conectar con la API: ' + error.message;
+                });
+        }
+    </script>
+</body>
+</html>
