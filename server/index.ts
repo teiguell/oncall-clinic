@@ -1,10 +1,13 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const { registerRoutes } = require('./routes');
-const { setupVite, serveStatic, log } = require('./vite');
-const session = require('express-session');
-const MemoryStore = require('memorystore')(session);
+
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import { registerRoutes } from './routes';
+import { setupVite, log } from './vite';
+import session from 'express-session';
+import MemoryStore from 'memorystore';
+
+const memoryStoreSession = MemoryStore(session);
 
 const app = express();
 app.use(express.json());
