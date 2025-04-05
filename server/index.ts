@@ -58,8 +58,7 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    const publicPath = path.join(distPath, 'public');
+    const distPath = path.join(process.cwd(), 'dist', 'public');
     
     // Verify dist directory exists
     if (!fs.existsSync(distPath)) {
@@ -68,26 +67,20 @@ app.use((req, res, next) => {
     }
 
     // Serve static files with caching
-    // Serve static files with caching
-    app.use(express.static(publicPath, {
+    app.use(express.static(distPath, {
       maxAge: '1h',
       etag: true,
       lastModified: true
     }));
 
-    // Handle all other routes - serve index.html for client-side routing
+    // API routes should be handled before the catch-all
+    app.use('/api/*', (req, res) => {
+      res.status(404).json({ message: 'API route not found' });
+    });
+
+    // Serve index.html for all other routes (client-side routing)
     app.get('*', (req, res) => {
-      if (req.path.startsWith('/api')) {
-        return res.status(404).json({ message: 'API route not found' });
-      }
-      
-      // Always serve index.html for client-side routing
-      const indexPath = path.join(publicPath, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(404).send('Application not built. Please run npm run build first.');
-      }
+      res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
