@@ -89,7 +89,7 @@ async function main() {
 
   const port = process.env.PORT || 5000;
   server.listen(port, "0.0.0.0", () => {
-    log(`Server running at http://0.0.0.0:${port}`);
+    log(`Server running at http://0.0.0.0:${port} in ${process.env.NODE_ENV} mode`);
   });
 }
 
