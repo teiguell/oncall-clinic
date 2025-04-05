@@ -47,28 +47,12 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-  
-  // Handle specific error types
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      error: 'Validation Error',
-      details: err.message
-    });
-  }
-  
-  if (err.name === 'UnauthorizedError') {
-    return res.status(401).json({
-      error: 'Unauthorized',
-      details: 'Authentication required'
-    });
-  }
-  
-  // Default error response
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message
+      console.log(`API ${req.method} ${path} ${res.statusCode} in ${duration}ms`);
+      if (capturedJsonResponse) {
+        console.log('Response:', JSON.stringify(capturedJsonResponse));
+      }
+    }
   });
-});
 
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
