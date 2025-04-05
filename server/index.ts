@@ -68,22 +68,20 @@ app.use((req, res, next) => {
     }
 
     // Serve static files with caching
+    // Serve static files with caching
     app.use(express.static(publicPath, {
       maxAge: '1h',
       etag: true,
       lastModified: true
     }));
 
-    // Handle client-side routing - serve index.html for all non-API routes
+    // Handle all other routes - serve index.html for client-side routing
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: 'API route not found' });
       }
       res.sendFile(path.join(publicPath, 'index.html'));
     });
-    
-    // API routes are handled before this
-    app.get('*', (req, res) => {
       if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: 'API route not found' });
       }

@@ -1,9 +1,4 @@
 export default {
-  sandbox: {
-    testing_version_warning: "⚠️ Esta es una versión de pruebas. No se presta atención médica real.",
-    simulated_payment: "Pagos simulados en modo prueba",
-    test_doctor: "Médico de prueba"
-  },
   legal: {
     privacy_policy: "Política de Privacidad",
     privacy: {
