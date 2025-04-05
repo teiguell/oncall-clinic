@@ -58,6 +58,11 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   } else {
+    import { fileURLToPath } from 'url';
+    import { dirname } from 'path';
+    
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     const distPath = path.join(__dirname, "../dist");
     
     // Verify dist directory exists
