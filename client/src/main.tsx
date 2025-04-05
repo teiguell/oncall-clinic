@@ -1,26 +1,26 @@
 import { createRoot } from "react-dom/client";
 import React from "react"; // Importación explícita de React
-import SimpleApp from "./SimpleApp"; // Importamos la aplicación simplificada
-// NO importar CSS inicialmente para evitar errores
+import App from "./App"; // Importamos la aplicación completa
+import "./index.css"; // Importamos los estilos
 
-console.log("Iniciando aplicación React...");
+console.log("Iniciando aplicación React completa...");
 
 // Renderizado básico sin proveedores adicionales
 const rootElement = document.getElementById("root");
 
 // Verificación extra de que el elemento existe
 if (rootElement) {
-  console.log("Elemento root encontrado, intentando renderizar");
+  console.log("Elemento root encontrado, intentando renderizar la aplicación completa");
   try {
     const reactRoot = createRoot(rootElement);
     reactRoot.render(
       <React.StrictMode>
-        <SimpleApp />
+        <App />
       </React.StrictMode>
     );
-    console.log("React renderizado correctamente");
+    console.log("Aplicación completa renderizada correctamente");
   } catch (error) {
-    console.error("Error al renderizar React:", error);
+    console.error("Error al renderizar la aplicación completa:", error);
     // Fallback manual en caso de error
     rootElement.innerHTML = `
       <div style="padding: 20px; text-align: center;">
@@ -38,12 +38,12 @@ if (rootElement) {
   newRoot.id = 'root';
   document.body.appendChild(newRoot);
   
-  console.log("Elemento root creado, intentando renderizar");
+  console.log("Elemento root creado, intentando renderizar la aplicación completa");
   try {
     const reactRoot = createRoot(newRoot);
-    reactRoot.render(<SimpleApp />);
-    console.log("React renderizado en el nuevo elemento root");
+    reactRoot.render(<App />);
+    console.log("Aplicación completa renderizada en el nuevo elemento root");
   } catch (error) {
-    console.error("Error al renderizar React en el nuevo elemento:", error);
+    console.error("Error al renderizar la aplicación completa en el nuevo elemento:", error);
   }
 }
