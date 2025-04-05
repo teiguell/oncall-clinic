@@ -5,7 +5,7 @@ import enTranslations from './locales/en';
 import esTranslations from './locales/es';
 
 // Initialize i18next
-i18n
+await i18n
   // Detect user language
   .use(LanguageDetector)
   // Pass the i18n instance to react-i18next
