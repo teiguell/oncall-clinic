@@ -249,8 +249,7 @@ function Router() {
 }
 
 function App() {
-  const { t, ready } = useTranslation();
-if (!ready) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  const { t } = useTranslation();
   
   // Usamos AuthProvider antes de utilizar el hook useAuth
   return (
