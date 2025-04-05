@@ -65,10 +65,8 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
       log(logLine);
     }
-  });
-
   next();
-});
+  });
 
 (async () => {
   const server = await registerRoutes(app);
@@ -122,8 +120,8 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  server.listen(port, "0.0.0.0", () => {
-    log(`Server running at http://0.0.0.0:${port}`);
-    log(`Local URL: http://localhost:${port}`);
+  server.listen(5000, "0.0.0.0", () => {
+    log(`Server running at http://0.0.0.0:5000`);
+    log(`Local URL: http://localhost:5000`);
   });
 })();
