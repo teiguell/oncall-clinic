@@ -104,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Easy to remember diagnostic route
   app.get('/diagnostico', (req, res) => {
-    res.sendFile(path.resolve(process.cwd(), 'client/public/test-basic.html'));
+    res.sendFile(path.resolve(process.cwd(), 'client/public/diagnostico.html'));
   });
   
   // Add a WebSocket test page

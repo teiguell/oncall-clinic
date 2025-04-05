@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Diagnóstico</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #0070f3;
+            text-align: center;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0051a8;
+        }
+        #results {
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 5px;
+            word-break: break-all;
+            overflow-wrap: break-word;
+        }
+        .status-ok {
+            color: green;
+            font-weight: bold;
+        }
+        .status-error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>OnCall Clinic - Página de Diagnóstico</h1>
+    
+    <div class="card">
+        <h2>Estado del Servidor</h2>
+        <button id="checkServer">Comprobar Conexión al Servidor</button>
+        <p id="serverStatus">Estado: <span class="status-unknown">Desconocido</span></p>
+    </div>
+
+    <div class="card">
+        <h2>Prueba de API</h2>
+        <button id="testApi">Probar API Rest</button>
+        <div id="apiResults">
+            <p>Resultado: <span id="apiStatus">No probado</span></p>
+            <pre id="apiResponse"></pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Información del Sistema</h2>
+        <p><strong>URL actual:</strong> <span id="currentUrl"></span></p>
+        <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+        <p><strong>Hora del cliente:</strong> <span id="clientTime"></span></p>
+    </div>
+
+    <script>
+        // Mostrar información del sistema
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+        
+        function updateTime() {
+            document.getElementById('clientTime').textContent = new Date().toLocaleString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Comprobar conexión al servidor
+        document.getElementById('checkServer').addEventListener('click', async function() {
+            const statusElement = document.getElementById('serverStatus');
+            statusElement.innerHTML = 'Estado: <span>Comprobando...</span>';
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/api/health', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const endTime = performance.now();
+                const pingTime = Math.round(endTime - startTime);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusElement.innerHTML = `Estado: <span class="status-ok">Conectado</span> (Ping: ${pingTime}ms) - ${data.message}`;
+                } else {
+                    statusElement.innerHTML = `Estado: <span class="status-error">Error (${response.status})</span>`;
+                }
+            } catch (error) {
+                statusElement.innerHTML = `Estado: <span class="status-error">Error de conexión: ${error.message}</span>`;
+            }
+        });
+
+        // Probar API
+        document.getElementById('testApi').addEventListener('click', async function() {
+            const statusElement = document.getElementById('apiStatus');
+            const responseElement = document.getElementById('apiResponse');
+            
+            statusElement.textContent = 'Cargando...';
+            responseElement.textContent = '';
+            
+            try {
+                const response = await fetch('/api/test', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                statusElement.textContent = response.ok ? 'Éxito' : `Error (${response.status})`;
+                responseElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                statusElement.textContent = 'Error de conexión';
+                responseElement.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>
