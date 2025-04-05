@@ -1,39 +1,106 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 function TestApp() {
+  const [count, setCount] = useState(0);
+  const [testMessage, setTestMessage] = useState("Cargando...");
+
+  useEffect(() => {
+    console.log("Componente montado correctamente");
+    setTestMessage("React funciona correctamente");
+    
+    // Intentar una petición básica para verificar que la API está funcionando
+    fetch('/api/health')
+      .then(res => res.json())
+      .catch(err => console.error('Error en petición de prueba:', err));
+      
+    return () => {
+      console.log("Componente desmontado");
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="bg-primary text-white p-4">
-        <h1 className="text-2xl font-bold">OnCall Clinic - Test App</h1>
-      </header>
+    <div style={{
+      fontFamily: 'system-ui, sans-serif',
+      textAlign: 'center',
+      padding: '2rem',
+      maxWidth: '800px',
+      margin: '0 auto'
+    }}>
+      <h1 style={{ color: '#1D7EFC', fontSize: '2rem', marginBottom: '1rem' }}>
+        OnCall Clinic - Aplicación de Prueba
+      </h1>
       
-      <main className="flex-grow p-4">
-        <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Aplicación de prueba</h2>
-          <p className="mb-4">Esta es una página básica para verificar que la aplicación React pueda renderizarse correctamente.</p>
+      <div style={{ 
+        background: '#f0f9ff', 
+        padding: '1.5rem',
+        borderRadius: '0.5rem',
+        marginBottom: '2rem',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{ marginBottom: '1rem' }}>Estado: {testMessage}</h2>
+        <p style={{ marginBottom: '1rem' }}>Esta es una aplicación simple para verificar que React funciona correctamente.</p>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: '1rem',
+          margin: '2rem 0'
+        }}>
+          <button 
+            onClick={() => setCount(c => c - 1)}
+            style={{
+              background: '#e0e0e0',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.25rem',
+              cursor: 'pointer'
+            }}
+          >
+            -
+          </button>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-            <div className="bg-gray-100 p-4 rounded-md">
-              <h3 className="font-medium mb-2">Para pacientes</h3>
-              <p>Encuentre médicos disponibles para visitas a domicilio.</p>
-              <button className="mt-4 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark">
-                Buscar médicos
-              </button>
-            </div>
-            
-            <div className="bg-gray-100 p-4 rounded-md">
-              <h3 className="font-medium mb-2">Para médicos</h3>
-              <p>Registre sus servicios y encuentre nuevos pacientes.</p>
-              <button className="mt-4 border border-primary text-primary px-4 py-2 rounded-md hover:bg-primary hover:text-white">
-                Registrarse como médico
-              </button>
-            </div>
-          </div>
+          <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+            {count}
+          </span>
+          
+          <button 
+            onClick={() => setCount(c => c + 1)}
+            style={{
+              background: '#1D7EFC',
+              color: 'white',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.25rem',
+              cursor: 'pointer'
+            }}
+          >
+            +
+          </button>
         </div>
-      </main>
+      </div>
       
-      <footer className="bg-gray-800 text-white p-4 text-center">
-        <p>&copy; 2025 OnCall Clinic - Versión de prueba</p>
+      <button 
+        onClick={() => console.log('Botón clickeado')}
+        style={{
+          background: '#10b981',
+          color: 'white',
+          border: 'none',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '0.25rem',
+          cursor: 'pointer',
+          fontSize: '1rem'
+        }}
+      >
+        Verificar Consola
+      </button>
+      
+      <footer style={{ 
+        marginTop: '3rem',
+        color: '#6b7280',
+        fontSize: '0.875rem'
+      }}>
+        &copy; 2025 OnCall Clinic - Versión de prueba
       </footer>
     </div>
   );

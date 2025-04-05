@@ -68,6 +68,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/test', (req, res) => {
     res.json({ message: 'API is working properly!' });
   });
+  
+  // Health check endpoint
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'ok',
+      serverTime: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  });
 
   // Add a route to check sandbox status
   app.get('/api/sandbox/status', (req, res) => {
@@ -86,6 +95,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add a test html page to check if the server can serve static content
   app.get('/test', (req, res) => {
     res.sendFile(path.resolve(process.cwd(), 'client/public/test.html'));
+  });
+  
+  // Add a new basic test page (no React)
+  app.get('/test-basic', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'client/public/test-basic.html'));
   });
   
   // Add a WebSocket test page
