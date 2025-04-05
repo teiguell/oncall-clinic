@@ -13,6 +13,31 @@ app.use((req, res, next) => {
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
+// Global error handling middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('Error:', err);
+  
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      error: 'Validation Error',
+      details: err.message
+    });
+  }
+  
+  if (err.name === 'UnauthorizedError') {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      details: 'Authentication required'
+    });
+  }
+  
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message
+  });
+});
+
+
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;
@@ -22,10 +47,6 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-
-// Global error handling middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err);
   
   // Handle specific error types
   if (err.name === 'ValidationError') {
