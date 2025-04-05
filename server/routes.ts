@@ -130,6 +130,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/ws-test', (req, res) => {
     res.sendFile(path.resolve(process.cwd(), 'client/public/websocket-test.html'));
   });
+  
+  // Simple React App route (SimpleApp.tsx)
+  app.get('/SimpleApp', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'index.html'));
+  });
 
   const httpServer = createServer(app);
   

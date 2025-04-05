@@ -262,7 +262,8 @@ function Router() {
 }
 
 function App() {
-  const { t } = useTranslation();
+  // Eliminamos la llamada a useTranslation() aquí ya que puede causar problemas si i18n no está inicializado
+  // Lo movemos dentro de AppContent donde tenemos mejor manejo con el estado 'ready'
   
   // Envolvemos toda la aplicación en un ErrorBoundary para capturar errores globales
   return (

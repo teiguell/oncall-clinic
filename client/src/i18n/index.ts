@@ -24,8 +24,8 @@ const initI18n = async () => {
       throw new Error('Translation files not loaded correctly');
     }
     
-    // Inicializar con manejo de errores
-    await i18n
+    // Inicializar con manejo de errores de forma sincrónica para evitar problemas de timing
+    i18n
       .use(LanguageDetector)
       .use(initReactI18next)
       .init({
@@ -44,7 +44,9 @@ const initI18n = async () => {
           caches: ['localStorage']
         },
         // Activar debug solo en desarrollo
-        debug: process.env.NODE_ENV === 'development'
+        debug: process.env.NODE_ENV === 'development',
+        // Muy importante: esto evita el uso de t antes de que i18n esté listo
+        initImmediate: false
       });
     
     isInitialized = true;
@@ -72,7 +74,8 @@ const initI18n = async () => {
             }
           }
         }
-      }
+      },
+      initImmediate: false
     });
     
     return i18n;
