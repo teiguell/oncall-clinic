@@ -73,6 +73,14 @@ app.use((req, res, next) => {
       etag: true,
       lastModified: true
     }));
+
+    // Handle client-side routing - serve index.html for all non-API routes
+    app.get('*', (req, res) => {
+      if (req.path.startsWith('/api')) {
+        return res.status(404).json({ message: 'API route not found' });
+      }
+      res.sendFile(path.join(publicPath, 'index.html'));
+    });
     
     // API routes are handled before this
     app.get('*', (req, res) => {
