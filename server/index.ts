@@ -64,7 +64,20 @@ app.use((err, req, res, next) => {
 });
 
 async function main() {
+  // Añadir ruta estática para diagnóstico principal
+  app.get('/static', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'client/public/index.html'));
+  });
+  
+  // Añadir ruta para el archivo HTML en la raíz
+  app.get('/rootpage', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'index.html'));
+  });
+
   const server = await registerRoutes(app);
+
+  // Servir archivos estáticos desde client/public para diagnóstico
+  app.use('/static-assets', express.static(path.resolve(process.cwd(), 'client/public')));
 
   if (process.env.NODE_ENV === "production") {
     const distPath = path.join(__dirname, "../dist/public");
@@ -89,7 +102,7 @@ async function main() {
 
   const port = process.env.PORT || 5000;
   server.listen(port, "0.0.0.0", () => {
-    log(`Server running at http://0.0.0.0:${port} in ${process.env.NODE_ENV} mode`);
+    log(`Server running at http://0.0.0.0:${port} in ${process.env.NODE_ENV || "development"} mode`);
   });
 }
 
