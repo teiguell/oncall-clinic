@@ -1,342 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OnCall Clinic - Test Básico</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background-color: #f8fafc;
-    }
-    header {
-      background-color: #1D7EFC;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    header h1 {
-      margin: 0;
-    }
-    main {
-      flex: 1;
-      padding: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    .card {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    footer {
-      background-color: #334155;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-    }
-    button {
-      background-color: #1D7EFC;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    button:hover {
-      background-color: #1a69d4;
-    }
-    .status {
-      margin-top: 1rem;
-      padding: 1rem;
-      background-color: #f0f9ff;
-      border-radius: 4px;
-      border-left: 4px solid #1D7EFC;
-    }
-    .count-control {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 2rem 0;
-    }
-    .count-display {
-      font-size: 1.5rem;
-      font-weight: bold;
-      width: 4rem;
-      text-align: center;
-    }
-    .log {
-      background-color: #f1f5f9;
-      padding: 1rem;
-      border-radius: 4px;
-      white-space: pre;
-      overflow-x: auto;
-      margin-top: 1rem;
-      font-family: monospace;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-    .test-section {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .test-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .success {
-      color: #10b981;
-    }
-    .error {
-      color: #ef4444;
-    }
-    .warning {
-      color: #f59e0b;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Diagnóstico Básico</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7f9;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0070f3;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #666;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0051a8;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>OnCall Clinic - Página de Prueba</h1>
-  </header>
-
-  <main>
-    <div class="card">
-      <h2>Prueba de HTML Estático</h2>
-      <p>Esta página HTML básica está siendo servida directamente por Express, sin involucrar React o WebSockets.</p>
-      
-      <div class="status" id="status">
-        Estado: Cargado correctamente
-      </div>
-      
-      <div class="count-control">
-        <button id="decrement">-</button>
-        <div class="count-display" id="count">0</div>
-        <button id="increment">+</button>
-      </div>
+    <div class="container">
+        <h1>OnCall Clinic</h1>
+        <p class="subtitle">Página de Diagnóstico Básico</p>
+        
+        <div class="status">
+            Si estás viendo esta página, el servidor está funcionando correctamente y puede servir contenido estático.
+        </div>
+        
+        <h2>Prueba de API</h2>
+        <p>Haz clic en el botón para verificar la conexión con la API:</p>
+        <button id="testApiBtn">Probar API</button>
+        
+        <div id="apiResponse" style="margin-top: 20px; display: none;">
+            <h3>Respuesta:</h3>
+            <pre id="apiResponseText">Esperando respuesta...</pre>
+        </div>
+        
+        <h2>Información del Sistema</h2>
+        <p><strong>URL:</strong> <span id="currentUrl"></span></p>
+        <p><strong>Navegador:</strong> <span id="userAgent"></span></p>
+        <p><strong>Hora:</strong> <span id="currentTime"></span></p>
+        
+        <h2>Enlaces de Diagnóstico</h2>
+        <ul>
+            <li><a href="/">Página Principal</a></li>
+            <li><a href="/diagnostico">Diagnóstico Completo</a></li>
+            <li><a href="/api/health">API de Estado</a></li>
+        </ul>
+        
+        <div class="footer">
+            &copy; 2025 OnCall Clinic - Versión de Diagnóstico
+        </div>
     </div>
     
-    <div class="card">
-      <h2>Pruebas de API</h2>
-      <div class="test-section">
-        <div class="test-item">
-          <button id="testApiHealth">Probar /api/health</button>
-          <span id="apiHealthStatus"></span>
-        </div>
-        <div class="test-item">
-          <button id="testApiTest">Probar /api/test</button>
-          <span id="apiTestStatus"></span>
-        </div>
-      </div>
-      <div class="log" id="apiLog">// Los resultados de las pruebas aparecerán aquí</div>
-    </div>
-    
-    <div class="card">
-      <h2>Pruebas de WebSocket</h2>
-      <p>Probar la conexión WebSocket sin React:</p>
-      <div class="test-section">
-        <div class="test-item">
-          <button id="connectWs">Conectar WebSocket</button>
-          <span id="wsStatus">Desconectado</span>
-        </div>
-        <div class="test-item">
-          <button id="sendWsMessage" disabled>Enviar mensaje de prueba</button>
-        </div>
-      </div>
-      <div class="log" id="wsLog">// Los mensajes del WebSocket aparecerán aquí</div>
-    </div>
-  </main>
-
-  <footer>
-    &copy; 2025 OnCall Clinic - Versión de prueba
-  </footer>
-
-  <script>
-    // Simple counter
-    const count = document.getElementById('count');
-    const increment = document.getElementById('increment');
-    const decrement = document.getElementById('decrement');
-    let counter = 0;
-    
-    increment.addEventListener('click', () => {
-      counter++;
-      count.textContent = counter;
-    });
-    
-    decrement.addEventListener('click', () => {
-      counter--;
-      count.textContent = counter;
-    });
-    
-    // API Testing
-    const apiLog = document.getElementById('apiLog');
-    const testApiHealth = document.getElementById('testApiHealth');
-    const testApiTest = document.getElementById('testApiTest');
-    const apiHealthStatus = document.getElementById('apiHealthStatus');
-    const apiTestStatus = document.getElementById('apiTestStatus');
-    
-    function logApi(message, isError = false) {
-      const now = new Date().toLocaleTimeString();
-      apiLog.textContent += `\n[${now}] ${message}`;
-      apiLog.scrollTop = apiLog.scrollHeight;
-      
-      if (isError) {
-        console.error(message);
-      } else {
-        console.log(message);
-      }
-    }
-    
-    testApiHealth.addEventListener('click', async () => {
-      try {
-        apiHealthStatus.textContent = '⏳';
-        apiHealthStatus.className = 'warning';
-        logApi('Probando /api/health...');
+    <script>
+        // Mostrar información del sistema
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
         
-        const response = await fetch('/api/health');
-        const data = await response.json();
+        function updateTime() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
         
-        logApi(`Respuesta: ${JSON.stringify(data, null, 2)}`);
-        apiHealthStatus.textContent = '✅';
-        apiHealthStatus.className = 'success';
-      } catch (error) {
-        logApi(`Error: ${error.message}`, true);
-        apiHealthStatus.textContent = '❌';
-        apiHealthStatus.className = 'error';
-      }
-    });
-    
-    testApiTest.addEventListener('click', async () => {
-      try {
-        apiTestStatus.textContent = '⏳';
-        apiTestStatus.className = 'warning';
-        logApi('Probando /api/test...');
-        
-        const response = await fetch('/api/test');
-        const data = await response.json();
-        
-        logApi(`Respuesta: ${JSON.stringify(data, null, 2)}`);
-        apiTestStatus.textContent = '✅';
-        apiTestStatus.className = 'success';
-      } catch (error) {
-        logApi(`Error: ${error.message}`, true);
-        apiTestStatus.textContent = '❌';
-        apiTestStatus.className = 'error';
-      }
-    });
-    
-    // WebSocket Testing
-    const wsLog = document.getElementById('wsLog');
-    const connectWs = document.getElementById('connectWs');
-    const sendWsMessage = document.getElementById('sendWsMessage');
-    const wsStatus = document.getElementById('wsStatus');
-    
-    let socket = null;
-    
-    function logWs(message, isError = false) {
-      const now = new Date().toLocaleTimeString();
-      wsLog.textContent += `\n[${now}] ${message}`;
-      wsLog.scrollTop = wsLog.scrollHeight;
-      
-      if (isError) {
-        console.error(message);
-      } else {
-        console.log(message);
-      }
-    }
-    
-    connectWs.addEventListener('click', () => {
-      if (socket && socket.readyState !== WebSocket.CLOSED) {
-        socket.close();
-        wsStatus.textContent = 'Desconectado';
-        wsStatus.className = '';
-        sendWsMessage.disabled = true;
-        connectWs.textContent = 'Conectar WebSocket';
-        logWs('WebSocket desconectado manualmente');
-        return;
-      }
-      
-      try {
-        logWs('Intentando conectar al WebSocket...');
-        wsStatus.textContent = 'Conectando...';
-        wsStatus.className = 'warning';
-        
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
-        
-        logWs(`Conectando a: ${wsUrl}`);
-        socket = new WebSocket(wsUrl);
-        
-        socket.addEventListener('open', () => {
-          logWs('¡Conexión establecida!');
-          wsStatus.textContent = 'Conectado';
-          wsStatus.className = 'success';
-          sendWsMessage.disabled = false;
-          connectWs.textContent = 'Desconectar WebSocket';
+        // Configurar prueba de API
+        document.getElementById('testApiBtn').addEventListener('click', function() {
+            const responseDiv = document.getElementById('apiResponse');
+            const responseText = document.getElementById('apiResponseText');
+            
+            responseDiv.style.display = 'block';
+            responseText.textContent = 'Consultando API...';
+            
+            fetch('/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    responseText.textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    responseText.textContent = 'Error: ' + error.message;
+                });
         });
-        
-        socket.addEventListener('message', (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            logWs(`Mensaje recibido: ${JSON.stringify(data, null, 2)}`);
-          } catch (e) {
-            logWs(`Mensaje recibido (texto plano): ${event.data}`);
-          }
-        });
-        
-        socket.addEventListener('close', () => {
-          logWs('Conexión cerrada');
-          wsStatus.textContent = 'Desconectado';
-          wsStatus.className = '';
-          sendWsMessage.disabled = true;
-          connectWs.textContent = 'Conectar WebSocket';
-        });
-        
-        socket.addEventListener('error', (error) => {
-          logWs(`Error de WebSocket: ${error}`, true);
-          wsStatus.textContent = 'Error';
-          wsStatus.className = 'error';
-        });
-      } catch (error) {
-        logWs(`Error al inicializar WebSocket: ${error.message}`, true);
-        wsStatus.textContent = 'Error';
-        wsStatus.className = 'error';
-      }
-    });
-    
-    sendWsMessage.addEventListener('click', () => {
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        const testMessage = {
-          type: 'test',
-          message: 'Mensaje de prueba desde la página HTML básica',
-          timestamp: new Date().toISOString()
-        };
-        
-        socket.send(JSON.stringify(testMessage));
-        logWs(`Mensaje enviado: ${JSON.stringify(testMessage, null, 2)}`);
-      } else {
-        logWs('No se puede enviar el mensaje - WebSocket no está conectado', true);
-      }
-    });
-    
-    // Ejecutar la prueba de health automáticamente al cargar
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        testApiHealth.click();
-      }, 1000);
-    });
-  </script>
+    </script>
 </body>
 </html>

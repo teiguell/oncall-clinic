@@ -74,7 +74,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ 
       status: 'ok',
       serverTime: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'development',
+      version: 'alpha-0.9.5',
+      mode: 'SANDBOX',
+      services: {
+        database: 'simulated',
+        authentication: 'active',
+        maps: 'sandbox'
+      },
+      coverage: {
+        area: 'Ibiza, Islas Baleares',
+        coordinates: {
+          lat: 38.9067,
+          lng: 1.4206
+        }
+      }
     });
   });
 
