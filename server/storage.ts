@@ -10,15 +10,17 @@ import {
   notifications, type Notification, type InsertNotification,
   payments, type Payment, type InsertPayment,
   verificationCodes, type VerificationCode, type InsertVerificationCode,
-  type WeeklyAvailability
+  type WeeklyAvailability,
+  guestPatients, type GuestPatient, guestPatientSchema
 } from "@shared/schema";
+import { z } from "zod";
 import crypto from "crypto";
 import session from "express-session";
 import memorystore from "memorystore";
 
 export interface IStorage {
   // Session Store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Usar any para evitar problemas con el tipo SessionStore
 
   // Users
   getUser(id: number): Promise<User | undefined>;
@@ -97,10 +99,13 @@ export interface IStorage {
   getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined>;
   createPayment(payment: InsertPayment): Promise<Payment>;
   updatePayment(id: number, data: Partial<Payment>): Promise<Payment | undefined>;
+  
+  // Guest Patients
+  createGuestPatient(guestPatient: z.infer<typeof guestPatientSchema>): Promise<GuestPatient>;
 }
 
 export class MemStorage implements IStorage {
-  public sessionStore: session.SessionStore;
+  public sessionStore: any; // Usar any para evitar problemas con el tipo SessionStore
   private users: Map<number, User>;
   private patientProfiles: Map<number, PatientProfile>;
   private doctorProfiles: Map<number, DoctorProfile>;
@@ -752,6 +757,35 @@ export class MemStorage implements IStorage {
     const updatedPayment = { ...payment, ...data };
     this.payments.set(id, updatedPayment);
     return updatedPayment;
+  }
+
+  // Guest Patients
+  async createGuestPatient(guestPatient: z.infer<typeof guestPatientSchema>): Promise<GuestPatient> {
+    // Generamos un token de autenticación para el paciente invitado
+    const authToken = crypto.randomBytes(32).toString('hex');
+    
+    // La fecha de expiración será 24 horas desde ahora
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    
+    // Crear el paciente invitado con ID único
+    const id = Math.floor(1000 + Math.random() * 9000); // ID único para guest patients
+    const createdAt = new Date();
+    
+    const newGuestPatient: GuestPatient = {
+      id,
+      name: guestPatient.name,
+      email: guestPatient.email,
+      phone: guestPatient.phone,
+      appointmentId: null, // Se asignará cuando se cree la cita
+      authToken,
+      createdAt,
+      expiresAt,
+      privacyAccepted: guestPatient.privacyAccepted,
+      termsAccepted: guestPatient.termsAccepted
+    };
+    
+    return newGuestPatient;
   }
 }
 

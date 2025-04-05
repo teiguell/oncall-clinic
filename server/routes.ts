@@ -15,7 +15,8 @@ import {
   doctorVerificationSchema,
   patientRegistrationSchema,
   verifyCodeSchema,
-  loginSchema
+  loginSchema,
+  guestPatientSchema
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
