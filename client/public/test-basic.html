@@ -1,131 +1,121 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnCall Clinic - Diagnóstico Básico</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7f9;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #0070f3;
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            color: #666;
-            margin-top: 0;
-            font-size: 18px;
-        }
-        .status {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        button {
-            background: #0070f3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #0051a8;
-        }
-        pre {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #666;
-            font-size: 14px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Básico - OnCall Clinic</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #1D7EFC;
+      margin-bottom: 20px;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+    .ok {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .pending {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    button {
+      background-color: #1D7EFC;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #0062cc;
+    }
+    .logo {
+      max-width: 150px;
+      margin-bottom: 20px;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>OnCall Clinic</h1>
-        <p class="subtitle">Página de Diagnóstico Básico</p>
-        
-        <div class="status">
-            Si estás viendo esta página, el servidor está funcionando correctamente y puede servir contenido estático.
-        </div>
-        
-        <h2>Prueba de API</h2>
-        <p>Haz clic en el botón para verificar la conexión con la API:</p>
-        <button id="testApiBtn">Probar API</button>
-        
-        <div id="apiResponse" style="margin-top: 20px; display: none;">
-            <h3>Respuesta:</h3>
-            <pre id="apiResponseText">Esperando respuesta...</pre>
-        </div>
-        
-        <h2>Información del Sistema</h2>
-        <p><strong>URL:</strong> <span id="currentUrl"></span></p>
-        <p><strong>Navegador:</strong> <span id="userAgent"></span></p>
-        <p><strong>Hora:</strong> <span id="currentTime"></span></p>
-        
-        <h2>Enlaces de Diagnóstico</h2>
-        <ul>
-            <li><a href="/">Página Principal</a></li>
-            <li><a href="/diagnostico">Diagnóstico Completo</a></li>
-            <li><a href="/api/health">API de Estado</a></li>
-        </ul>
-        
-        <div class="footer">
-            &copy; 2025 OnCall Clinic - Versión de Diagnóstico
-        </div>
-    </div>
+  <img src="/images/logo.svg" alt="OnCall Clinic Logo" class="logo" />
+  <h1>Prueba de Servidor Básica</h1>
+  
+  <p>Esta página comprueba si el servidor está respondiendo correctamente a las solicitudes básicas.</p>
+  
+  <div id="server-status" class="status pending">
+    Comprobando estado del servidor...
+  </div>
+  
+  <pre id="response-data">Esperando datos...</pre>
+  
+  <button onclick="testApiHealth()">Probar API</button>
+  
+  <script>
+    // Automatic check on page load
+    window.addEventListener('load', function() {
+      setTimeout(testApiHealth, 500);
+    });
     
-    <script>
-        // Mostrar información del sistema
-        document.getElementById('currentUrl').textContent = window.location.href;
-        document.getElementById('userAgent').textContent = navigator.userAgent;
+    // Test API health
+    async function testApiHealth() {
+      const statusElement = document.getElementById('server-status');
+      const responseElement = document.getElementById('response-data');
+      
+      statusElement.className = 'status pending';
+      statusElement.textContent = 'Consultando API...';
+      responseElement.textContent = 'Solicitando datos...';
+      
+      try {
+        const response = await fetch('/api/health');
         
-        function updateTime() {
-            document.getElementById('currentTime').textContent = new Date().toLocaleString();
+        if (response.ok) {
+          const data = await response.json();
+          
+          statusElement.className = 'status ok';
+          statusElement.textContent = '✅ El servidor está funcionando correctamente';
+          responseElement.textContent = JSON.stringify(data, null, 2);
+        } else {
+          statusElement.className = 'status error';
+          statusElement.textContent = '❌ Error en la respuesta del servidor: ' + response.status;
+          responseElement.textContent = 'Error en la respuesta: ' + response.statusText;
         }
-        updateTime();
-        setInterval(updateTime, 1000);
-        
-        // Configurar prueba de API
-        document.getElementById('testApiBtn').addEventListener('click', function() {
-            const responseDiv = document.getElementById('apiResponse');
-            const responseText = document.getElementById('apiResponseText');
-            
-            responseDiv.style.display = 'block';
-            responseText.textContent = 'Consultando API...';
-            
-            fetch('/api/health')
-                .then(response => response.json())
-                .then(data => {
-                    responseText.textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    responseText.textContent = 'Error: ' + error.message;
-                });
-        });
-    </script>
+      } catch (error) {
+        statusElement.className = 'status error';
+        statusElement.textContent = '❌ No se pudo conectar con el servidor';
+        responseElement.textContent = 'Error de conexión: ' + error.message;
+      }
+    }
+  </script>
 </body>
 </html>

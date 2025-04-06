@@ -13,16 +13,30 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Request logging middleware
+// Agregar soporte CORS
 app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  
+  next();
+});
+
+// Request logging middleware
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse;
+  let capturedJsonResponse: unknown;
 
   const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
+  res.json = function (bodyJson: unknown) {
     capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
+    return originalResJson.call(res, bodyJson);
   };
 
   res.on("finish", () => {
@@ -40,7 +54,7 @@ app.use((req, res, next) => {
 });
 
 // Global error handling middleware
-app.use((err, req, res, next) => {
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
 
   if (err.name === 'ValidationError') {
@@ -79,6 +93,23 @@ async function main() {
   // Servir archivos estáticos desde client/public para diagnóstico
   app.use('/static-assets', express.static(path.resolve(process.cwd(), 'client/public')));
 
+  // Crear un endpoint de diagnóstico directo antes de todo
+  app.get('/api/server-info', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    
+    const serverInfo = {
+      status: 'running',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      headers: req.headers,
+      ip: req.ip,
+      requestUrl: `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+      hostname: req.hostname
+    };
+    
+    res.send(JSON.stringify(serverInfo, null, 2));
+  });
+  
   if (process.env.NODE_ENV === "production") {
     const distPath = path.join(__dirname, "../dist/public");
 
@@ -97,10 +128,17 @@ async function main() {
       }
     });
   } else {
+    // Make sure these routes work in dev mode by having them after API routes but before Vite middleware
+    app.get('/api/*', (req, res, next) => {
+      if (!res.headersSent) {
+        next();
+      }
+    });
+    
     await setupVite(app, server);
   }
 
-  const port = process.env.PORT || 5000;
+  const port = parseInt(process.env.PORT || "5000", 10);
   server.listen(port, "0.0.0.0", () => {
     log(`Server running at http://0.0.0.0:${port} in ${process.env.NODE_ENV || "development"} mode`);
   });

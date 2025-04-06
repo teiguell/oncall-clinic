@@ -65,6 +65,24 @@ async function isAuthenticated(req: Request, res: Response): Promise<{userId: nu
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Endpoint de diagnóstico general
+  app.get('/api/diagnostics', (req, res) => {
+    res.json({
+      status: 'active',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      client: {
+        ip: req.ip || 'unknown',
+        userAgent: req.headers['user-agent'] || 'unknown',
+        forwardedFor: req.headers['x-forwarded-for'] || 'none',
+        host: req.headers.host || 'unknown'
+      },
+      corsHeaders: {
+        origin: req.headers.origin || 'none',
+        referer: req.headers.referer || 'none'
+      }
+    });
+  });
   // Add a test route to check if the server is accessible
   app.get('/api/test', (req, res) => {
     res.json({ message: 'API is working properly!' });

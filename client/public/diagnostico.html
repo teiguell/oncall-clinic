@@ -1,214 +1,317 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnCall Clinic - Diagnóstico</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        h1 {
-            color: #0070f3;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 1.2rem;
-        }
-        .card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .card h2 {
-            margin-top: 0;
-            color: #444;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .status {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #10b981;
-            margin-right: 8px;
-        }
-        footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eaeaea;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        .flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        @media (max-width: 768px) {
-            .flex {
-                flex-direction: column;
-            }
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        .hero {
-            padding: 2rem;
-            background: linear-gradient(135deg, #0070f3 0%, #00a2ff 100%);
-            color: white;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        .hero h2 {
-            font-size: 2rem;
-            margin-top: 0;
-        }
-        button {
-            background-color: #0070f3;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #005bc0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico OnCall Clinic</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #1D7EFC;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #0062cc;
+      margin-top: 30px;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    .status-card {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .status-ok {
+      background-color: #28a745;
+    }
+    .status-warning {
+      background-color: #ffc107;
+    }
+    .status-error {
+      background-color: #dc3545;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #1D7EFC;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button.btn {
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button.btn:hover {
+      background-color: #0062cc;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 30px auto;
+      max-width: 200px;
+    }
+    .endpoints {
+      margin-top: 20px;
+    }
+    .endpoint {
+      margin-bottom: 10px;
+      padding: 8px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+    }
+    #connection-status {
+      font-weight: bold;
+    }
+    .online {
+      color: #28a745;
+    }
+    .offline {
+      color: #dc3545;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>OnCall Clinic</h1>
-        <p class="subtitle">Cuidado médico a domicilio | In-home Medical Care</p>
-    </header>
-    
-    <div class="hero">
-        <h2>Página de Diagnóstico</h2>
-        <p>Esta página está diseñada para verificar la conectividad y solucionar problemas técnicos.</p>
+  <div>
+    <img src="/images/logo-with-text.svg" alt="OnCall Clinic Logo" class="logo" />
+  </div>
+  
+  <h1>Herramienta de Diagnóstico</h1>
+  
+  <div class="status-card">
+    <p>
+      <span class="status-indicator" id="server-status-icon"></span>
+      <strong>Estado del servidor:</strong> <span id="server-status">Verificando...</span>
+    </p>
+    <p>
+      <strong>Conexión:</strong> <span id="connection-status">Verificando...</span>
+    </p>
+    <p>
+      <strong>Timestamp:</strong> <span id="server-time">-</span>
+    </p>
+    <p>
+      <strong>Entorno:</strong> <span id="environment">-</span>
+    </p>
+    <p>
+      <strong>Versión:</strong> <span id="version">-</span>
+    </p>
+    <p>
+      <strong>Modo:</strong> <span id="mode">-</span>
+    </p>
+  </div>
+  
+  <h2>Servicios</h2>
+  <div class="status-card" id="services-container">
+    <p>Cargando información de servicios...</p>
+  </div>
+  
+  <h2>Prueba de Endpoints</h2>
+  <div class="endpoints">
+    <button class="btn" onclick="testEndpoint('/api/health')">Probar API Health</button>
+    <button class="btn" onclick="testEndpoint('/api/diagnostics')">Probar API Diagnóstico</button>
+    <button class="btn" onclick="testEndpoint('/api/server-info')">Probar API Server Info</button>
+    <button class="btn" onclick="testEndpoint('/api/sandbox/status')">Probar API Sandbox Status</button>
+    <button class="btn" onclick="pingWebSocket()">Probar WebSocket</button>
+  </div>
+  
+  <h2>Respuesta del Servidor</h2>
+  <pre id="response-container">Selecciona un endpoint para probar...</pre>
+
+  <h2>WebSocket Estado</h2>
+  <div class="status-card">
+    <p>
+      <span class="status-indicator" id="ws-status-icon"></span>
+      <strong>Estado WebSocket:</strong> <span id="ws-status">Desconectado</span>
+    </p>
+    <div id="ws-messages">
+      <p>No hay mensajes WebSocket</p>
     </div>
+  </div>
+  
+  <script>
+    // Check connection status
+    function updateConnectionStatus() {
+      const isOnline = navigator.onLine;
+      const connectionStatus = document.getElementById('connection-status');
+      
+      if (isOnline) {
+        connectionStatus.textContent = 'Online';
+        connectionStatus.className = 'online';
+      } else {
+        connectionStatus.textContent = 'Offline';
+        connectionStatus.className = 'offline';
+      }
+    }
     
-    <div class="flex">
-        <div class="card" style="flex: 2; margin-right: 20px;">
-            <h2>Estado del Sistema</h2>
-            <div class="status">
-                <div class="status-dot" id="serverStatus" style="background-color: #10b981;"></div>
-                <div>Página HTML cargada correctamente</div>
-            </div>
-            <div class="status">
-                <div class="status-dot" id="apiStatus" style="background-color: #f59e0b;"></div>
-                <div>API de servicios médicos: <span id="apiStatusText">Comprobando...</span></div>
-            </div>
-            <div id="apiResponseContainer" style="margin-top: 20px; display: none;">
-                <h3>Respuesta del API:</h3>
-                <pre id="apiResponse" style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto;"></pre>
-            </div>
-            <div style="margin-top: 15px;">
-                <button id="checkApiBtn">Comprobar API</button>
-            </div>
-        </div>
+    // Update server status
+    function updateServerStatus(status) {
+      const statusElement = document.getElementById('server-status');
+      const statusIcon = document.getElementById('server-status-icon');
+      
+      if (status === 'ok' || status === 'active' || status === 'running') {
+        statusElement.textContent = 'Activo';
+        statusIcon.className = 'status-indicator status-ok';
+      } else if (status === 'degraded') {
+        statusElement.textContent = 'Degradado';
+        statusIcon.className = 'status-indicator status-warning';
+      } else if (status === 'down') {
+        statusElement.textContent = 'Inactivo';
+        statusIcon.className = 'status-indicator status-error';
+      } else {
+        statusElement.textContent = 'Estado desconocido';
+        statusIcon.className = 'status-indicator status-warning';
+      }
+    }
+    
+    // Test endpoint and show response
+    async function testEndpoint(endpoint) {
+      const responseContainer = document.getElementById('response-container');
+      responseContainer.textContent = 'Solicitando datos...';
+      
+      try {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        responseContainer.textContent = JSON.stringify(data, null, 2);
         
-        <div class="card" style="flex: 1;">
-            <h2>Información del Cliente</h2>
-            <p><strong>Navegador:</strong> <span id="userAgent">-</span></p>
-            <p><strong>Resolución:</strong> <span id="screenSize">-</span></p>
-            <p><strong>Hora local:</strong> <span id="localTime">-</span></p>
-            <p><strong>URL:</strong> <span id="currentUrl">-</span></p>
-        </div>
-    </div>
-    
-    <div class="grid">
-        <div class="card">
-            <h2>Acceso Rápido</h2>
-            <p>Accede a estas páginas para pruebas adicionales:</p>
-            <ul>
-                <li><a href="/api/health" target="_blank">API de estado</a></li>
-                <li><a href="/" id="homeLink">Página principal</a></li>
-                <li><a href="/SimpleApp" id="simpleLink">Aplicación simple</a></li>
-            </ul>
-        </div>
-        
-        <div class="card">
-            <h2>Versión Alpha</h2>
-            <p>Estás visualizando una página de diagnóstico para OnCall Clinic.</p>
-            <p>Esta página es una página HTML estática sin dependencias de JavaScript avanzadas.</p>
-        </div>
-    </div>
-    
-    <footer>
-        <p>© 2025 OnCall Clinic - Diagnóstico v1.0</p>
-    </footer>
-    
-    <script>
-        // Actualizar información del cliente
-        document.getElementById('userAgent').textContent = navigator.userAgent;
-        document.getElementById('screenSize').textContent = `${window.screen.width}x${window.screen.height}`;
-        document.getElementById('currentUrl').textContent = window.location.href;
-        
-        function updateTime() {
-            document.getElementById('localTime').textContent = new Date().toLocaleString();
+        if (endpoint === '/api/health') {
+          updateHealthInfo(data);
         }
-        updateTime();
-        setInterval(updateTime, 1000);
+      } catch (error) {
+        responseContainer.textContent = `Error: ${error.message}`;
+        updateServerStatus('down');
+      }
+    }
+    
+    // Update health information
+    function updateHealthInfo(data) {
+      if (data) {
+        updateServerStatus(data.status);
+        document.getElementById('server-time').textContent = data.serverTime || data.timestamp || '-';
+        document.getElementById('environment').textContent = data.environment || '-';
+        document.getElementById('version').textContent = data.version || '-';
+        document.getElementById('mode').textContent = data.mode || '-';
         
-        // Comprobar API al cargar la página
-        checkApi();
-        
-        // Añadir evento al botón
-        document.getElementById('checkApiBtn').addEventListener('click', checkApi);
-        
-        // Función para comprobar API
-        function checkApi() {
-            const apiStatusDot = document.getElementById('apiStatus');
-            const apiStatusText = document.getElementById('apiStatusText');
-            const apiResponseContainer = document.getElementById('apiResponseContainer');
-            const apiResponse = document.getElementById('apiResponse');
+        // Update services
+        if (data.services) {
+          const servicesContainer = document.getElementById('services-container');
+          servicesContainer.innerHTML = '';
+          
+          for (const [service, status] of Object.entries(data.services)) {
+            const statusClass = status === 'active' || status === 'simulated' ? 'status-ok' : 'status-warning';
             
-            apiStatusDot.style.backgroundColor = '#f59e0b'; // Amarillo durante la comprobación
-            apiStatusText.textContent = 'Comprobando...';
-            
-            fetch('/api/health')
-                .then(response => response.json())
-                .then(data => {
-                    console.log("API response:", data);
-                    apiStatusDot.style.backgroundColor = '#10b981'; // Verde para OK
-                    apiStatusText.textContent = 'Conectado';
-                    apiResponseContainer.style.display = 'block';
-                    apiResponse.textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    console.error("API error:", error);
-                    apiStatusDot.style.backgroundColor = '#ef4444'; // Rojo para error
-                    apiStatusText.textContent = 'Error: ' + error.message;
-                    apiResponseContainer.style.display = 'block';
-                    apiResponse.textContent = 'Error al conectar con la API: ' + error.message;
-                });
+            servicesContainer.innerHTML += `
+              <p>
+                <span class="status-indicator ${statusClass}"></span>
+                <strong>${service}:</strong> ${status}
+              </p>
+            `;
+          }
         }
-    </script>
+      }
+    }
+    
+    // WebSocket connection
+    let socket = null;
+    
+    function pingWebSocket() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: 'test',
+          message: 'Hello from diagnostico.html',
+          timestamp: new Date().toISOString()
+        }));
+      } else {
+        document.getElementById('ws-status').textContent = 'No conectado';
+        document.getElementById('ws-status-icon').className = 'status-indicator status-error';
+        
+        // Try to connect
+        connectWebSocket();
+      }
+    }
+    
+    function connectWebSocket() {
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        
+        socket = new WebSocket(wsUrl);
+        
+        socket.onopen = function() {
+          document.getElementById('ws-status').textContent = 'Conectado';
+          document.getElementById('ws-status-icon').className = 'status-indicator status-ok';
+          updateWsMessages('Conexión WebSocket establecida');
+        };
+        
+        socket.onmessage = function(event) {
+          let message;
+          try {
+            message = JSON.parse(event.data);
+            updateWsMessages(`Recibido: ${JSON.stringify(message, null, 2)}`);
+          } catch (e) {
+            updateWsMessages(`Recibido: ${event.data}`);
+          }
+        };
+        
+        socket.onclose = function() {
+          document.getElementById('ws-status').textContent = 'Desconectado';
+          document.getElementById('ws-status-icon').className = 'status-indicator status-error';
+          updateWsMessages('Conexión WebSocket cerrada');
+        };
+        
+        socket.onerror = function(error) {
+          document.getElementById('ws-status').textContent = 'Error';
+          document.getElementById('ws-status-icon').className = 'status-indicator status-error';
+          updateWsMessages(`Error WebSocket: ${error.message || 'Error desconocido'}`);
+        };
+      } catch (error) {
+        document.getElementById('ws-status').textContent = 'Error al conectar';
+        document.getElementById('ws-status-icon').className = 'status-indicator status-error';
+        updateWsMessages(`Error al conectar WebSocket: ${error.message}`);
+      }
+    }
+    
+    function updateWsMessages(message) {
+      const messagesContainer = document.getElementById('ws-messages');
+      const messageElement = document.createElement('p');
+      messageElement.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+      
+      messagesContainer.innerHTML = '';
+      messagesContainer.appendChild(messageElement);
+    }
+    
+    // Initialize
+    window.addEventListener('load', function() {
+      updateConnectionStatus();
+      testEndpoint('/api/health');
+      connectWebSocket();
+    });
+    
+    // Update connection status on network changes
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+  </script>
 </body>
 </html>
