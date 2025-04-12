@@ -111,6 +111,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Extended server info endpoint
+  app.get('/api/server-info', (req, res) => {
+    res.json({
+      status: 'active',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      version: 'alpha-0.9.5',
+      nodeVersion: process.version,
+      platform: process.platform,
+      memoryUsage: process.memoryUsage(),
+      uptime: process.uptime(),
+      client: {
+        ip: req.ip || 'unknown',
+        userAgent: req.headers['user-agent'] || 'unknown',
+        forwardedFor: req.headers['x-forwarded-for'] || 'none',
+        host: req.headers.host || 'unknown',
+        language: req.headers['accept-language'] || 'unknown'
+      },
+      application: {
+        mode: 'SANDBOX',
+        features: {
+          auth: true,
+          websockets: true,
+          maps: true,
+          payments: false,
+          adminPanel: false
+        }
+      }
+    });
+  });
+
   // Add a route to check sandbox status
   app.get('/api/sandbox/status', (req, res) => {
     res.json({
