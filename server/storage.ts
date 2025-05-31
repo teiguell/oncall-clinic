@@ -206,13 +206,13 @@ export class MemStorage implements IStorage {
 
     // Add sample specialties
     const specialties = [
-      { name: "Medicina General", description: "Atención médica básica y preventiva" },
-      { name: "Pediatría", description: "Especializada en niños y adolescentes" },
-      { name: "Ginecología", description: "Salud del sistema reproductor femenino" },
-      { name: "Cardiología", description: "Tratamiento de enfermedades del corazón" },
-      { name: "Dermatología", description: "Enfermedades de la piel" },
-      { name: "Geriatría", description: "Especializada en adultos mayores" },
-      { name: "Neurología", description: "Trastornos del sistema nervioso" }
+      { name: "General Medicine", description: "Basic and preventive medical care" },
+      { name: "Pediatrics", description: "Specialized in children and adolescents" },
+      { name: "Gynecology", description: "Female reproductive system health" },
+      { name: "Cardiology", description: "Heart disease treatment" },
+      { name: "Dermatology", description: "Skin diseases" },
+      { name: "Geriatrics", description: "Specialized in elderly care" },
+      { name: "Neurology", description: "Nervous system disorders" }
     ];
 
     specialties.forEach(specialty => {

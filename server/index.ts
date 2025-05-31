@@ -116,10 +116,11 @@ async function main() {
   });
   
   if (process.env.NODE_ENV === "production") {
-    const distPath = path.join(__dirname, "../dist/public");
+    const distPath = path.join(__dirname, "public");
 
     if (!fs.existsSync(distPath)) {
       console.error('Build directory not found:', distPath);
+      console.log('Available files:', fs.readdirSync(__dirname));
       throw new Error('Build directory not found. Please run npm run build first.');
     }
 
