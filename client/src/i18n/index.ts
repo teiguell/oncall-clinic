@@ -44,7 +44,7 @@ const initI18n = async () => {
           caches: ['localStorage']
         },
         // Activar debug solo en desarrollo
-        debug: process.env.NODE_ENV === 'development',
+        debug: import.meta.env.DEV,
         // Muy importante: esto evita el uso de t antes de que i18n esté listo
         initImmediate: false
       });

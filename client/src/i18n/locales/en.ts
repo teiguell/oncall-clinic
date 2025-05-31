@@ -79,6 +79,20 @@ export default {
     tagline: "Healthcare at your doorstep",
     slogan: "Professional medical care. Without leaving home."
   },
+  error: {
+    title: "Oops! Something went wrong",
+    message: "An unexpected error has occurred. Our team has been automatically notified.",
+    goHome: "Go Home",
+    tryAgain: "Try Again",
+    supportMessage: "If the problem persists, contact our support team:",
+    generic: "Something went wrong. Please try again.",
+    notFound: "Page not found",
+    notAuthorized: "You are not authorized to access this page",
+    locationAccess: "Location access denied",
+    enableLocationAccess: "Please enable location access in your browser settings to use this feature",
+    mapLoadFailed: "Error loading map. Please try again later.",
+    addressSearchFailed: "Error loading address search. Please enter the address manually."
+  },
   nav: {
     home: "Home",
     findDoctor: "Find a Doctor",
@@ -131,41 +145,6 @@ export default {
         title: "Receive Treatment",
         description: "Get professional medical care in the comfort of your home."
       }
-    },
-    benefitsSection: { //Added based on user request
-      title: "Benefits for Patients",
-      items: [
-        { icon: 'icon-home', text: t('benefits.items.fast') },
-        { icon: 'icon-secure', text: t('benefits.items.secure') },
-        { icon: 'icon-location', text: t('benefits.items.track') },
-        { icon: 'icon-verified', text: t('benefits.items.verified') }
-      ]
     }
-
-  },
-  // ... rest of the original code ...  (This is a placeholder, the rest of the original code should be pasted here)
-
-  footer: {
-    description: "OnCall Clinic connects patients with certified doctors for high-quality home medical services, when and where you need them.",
-    sections: {
-      navigation: "Navigation",
-      legal: "Legal",
-      contact: "Contact"
-    },
-    links: {
-      "aviso-legal": t("legal.aviso-legal"),
-      "politica-de-privacidad": t("legal.politica-de-privacidad"),
-      "politica-de-cookies": t("legal.politica-de-cookies"),
-      "terminos-y-condiciones": t("legal.terminos-y-condiciones")
-    },
-    address: "123 Health Street, 28001, Madrid, Spain",
-    copyright: "All rights reserved."
-  },
-  // ... rest of the original code ... (This is a placeholder, the rest of the original code should be pasted here)
-
+  }
 };
-
-function t(key) {
-  // Placeholder for translation function.  Replace with actual implementation
-  return key;
-}

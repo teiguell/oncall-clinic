@@ -399,6 +399,11 @@ export default {
     }
   },
   error: {
+    title: "¡Oops! Algo salió mal",
+    message: "Ha ocurrido un error inesperado. Nuestro equipo ha sido notificado automáticamente.",
+    goHome: "Ir al Inicio",
+    tryAgain: "Intentar de Nuevo",
+    supportMessage: "Si el problema persiste, contacta con nuestro equipo de soporte:",
     generic: "Algo salió mal. Por favor, inténtalo de nuevo.",
     notFound: "Página no encontrada",
     notAuthorized: "No estás autorizado para acceder a esta página",

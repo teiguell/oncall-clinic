@@ -43,20 +43,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/login", credentials);
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || safeT('auth.errors.invalidCredentials'));
+        throw new Error(data.message || safeT('login.error'));
       }
       return await res.json();
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: safeT('auth.login'),
-        description: `${safeT('common.welcome')} ${user.firstName}`,
+        title: t('login.success'),
+        description: t('common.welcome', { name: user.firstName }),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: safeT('common.error'),
+        title: t('login.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -75,13 +75,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       toast({
-        title: safeT('common.success'),
-        description: safeT('auth.verificationCodeSent'),
+        title: t('register.success'),
+        description: t('register.verificationSent'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: safeT('common.error'),
+        title: t('register.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -106,13 +106,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       toast({
-        title: safeT('common.success'),
-        description: "Registro enviado para verificación",
+        title: t('register.success'),
+        description: t('register.doctorVerificationSent'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: safeT('common.error'),
+        title: t('register.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -125,20 +125,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/verify-email", data);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Error de verificación");
+        throw new Error(errorData.message || t('verification.error'));
       }
       return await res.json();
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: safeT('common.success'),
-        description: "Cuenta verificada correctamente",
+        title: t('verification.success'),
+        description: t('verification.accountVerified'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: safeT('common.error'),
+        title: t('verification.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -158,13 +158,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: safeT('auth.login'),
-        description: `${safeT('common.welcome')} ${user.firstName}`,
+        title: t('login.success'),
+        description: t('common.welcome', { name: user.firstName }),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: safeT('common.error'),
+        title: t('login.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -184,13 +184,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: safeT('auth.login'),
-        description: `${safeT('common.welcome')} ${user.firstName}`,
+        title: t('login.success'),
+        description: t('common.welcome', { name: user.firstName }),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: safeT('common.error'),
+        title: t('login.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -205,13 +205,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
       toast({
-        title: safeT('common.success'),
-        description: "Sesión cerrada correctamente",
+        title: t('logout.success'),
+        description: t('logout.message'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: safeT('common.error'),
+        title: t('logout.error'),
         description: error.message,
         variant: "destructive",
       });
