@@ -1,8 +1,6 @@
 import { Search, Calendar, Home } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 export default function HowItWorks() {
-  const { t } = useTranslation();
 
   return (
     <div className="bg-primary-50 py-16" id="how-it-works">

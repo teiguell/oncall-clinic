@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { 
   Calendar, 
@@ -98,7 +97,6 @@ const AppointmentProgressMap: React.FC<AppointmentProgressMapProps> = ({
   status,
   className
 }) => {
-  const { t } = useTranslation();
   
   // Si la cita está cancelada, mostrar un mapa simplificado
   if (status === 'canceled') {

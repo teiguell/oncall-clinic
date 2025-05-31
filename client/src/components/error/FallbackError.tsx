@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { safeT } from '@/i18n';
 import { IS_SANDBOX } from '@/lib/sandbox';
 import { XCircle, ArrowRight, Home, RefreshCcw } from 'lucide-react';
 import { FallbackProps } from './ErrorBoundary';

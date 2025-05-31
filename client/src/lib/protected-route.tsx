@@ -1,6 +1,5 @@
 import React from 'react';
 import { Redirect, Route } from 'wouter';
-import { safeT } from '@/i18n';
 import LoadingScreen from '@/components/ui/loading-screen';
 import { logger } from './errorLogger';
 

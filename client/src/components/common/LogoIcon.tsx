@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { useTranslation } from 'react-i18next';
 import { Stethoscope } from 'lucide-react';
 
 interface LogoIconProps {
@@ -17,7 +16,6 @@ const LogoIcon: React.FC<LogoIconProps> = ({
   inverted = false,
   useImage = false // No usar imagen
 }) => {
-  const { t } = useTranslation();
   
   // Use the provided color, or adjust based on inverted state
   const mainColor = inverted ? '#FFFFFF' : color;

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -49,7 +48,6 @@ export default function AppointmentStatusControl({
   scheduledTime,
   address
 }: AppointmentStatusControlProps) {
-  const { t } = useTranslation();
   const [isUpdating, setIsUpdating] = useState(false);
   
   // Define the next status and its action button based on current status

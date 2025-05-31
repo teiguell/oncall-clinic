@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { WeeklyAvailability, TimeSlot } from '@shared/schema';
 import TimeSlotBlock from './TimeSlotBlock';
 import { Loader2 } from 'lucide-react';
@@ -14,7 +13,6 @@ const WeeklyAvailabilityCalendar = ({
   onRemoveTimeSlot,
   isLoading = false
 }: WeeklyAvailabilityCalendarProps) => {
-  const { t } = useTranslation();
   
   // Create array of days for the header
   const days = [

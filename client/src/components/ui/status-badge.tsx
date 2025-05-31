@@ -8,7 +8,6 @@ import {
   Check 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "react-i18next";
 
 type AppointmentStatus = 
   | 'scheduled' 
@@ -32,7 +31,6 @@ interface PaymentBadgeProps {
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const { t } = useTranslation();
   
   // Status configurations
   const statusConfig: Record<AppointmentStatus, { color: string; icon: React.ReactNode }> = {
@@ -77,7 +75,6 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
 }
 
 export function PaymentBadge({ status, className }: PaymentBadgeProps) {
-  const { t } = useTranslation();
   
   // Payment status configurations
   const statusConfig: Record<PaymentStatus, { color: string; icon?: React.ReactNode }> = {

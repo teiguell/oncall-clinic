@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/auth-context";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { DoctorProfile, TimeSlot, WeeklyAvailability } from "@shared/schema";
 import AppointmentList from "@/components/appointments/appointment-list";
 import AvailabilityToggle from "@/components/doctor/availability-toggle";
@@ -23,7 +22,6 @@ interface ScheduleTabProps {
 }
 
 function ScheduleTab({ doctorProfile, profileLoading }: ScheduleTabProps) {
-  const { t } = useTranslation();
   const [selectedDay, setSelectedDay] = useState<keyof WeeklyAvailability>("monday");
   const [startTime, setStartTime] = useState<string>("09:00");
   const [endTime, setEndTime] = useState<string>("17:00");
@@ -176,7 +174,6 @@ function ScheduleTab({ doctorProfile, profileLoading }: ScheduleTabProps) {
 
 export default function DoctorDashboard() {
   const { isAuthenticated, user, isLoading } = useAuth();
-  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("appointments");
   

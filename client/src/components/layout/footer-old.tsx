@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import Logo from "@/components/common/Logo";
 import LogoIcon from "@/components/common/LogoIcon";
 import { Link } from "wouter";
@@ -15,7 +14,6 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function Footer() {
-  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   
   return (

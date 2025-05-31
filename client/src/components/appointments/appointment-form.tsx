@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -69,7 +68,6 @@ interface LocationItem {
 }
 
 export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
-  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();

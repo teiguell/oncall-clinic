@@ -1,6 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { logger } from '@/lib/errorLogger';
-import { safeT } from '@/i18n';
 
 // Define la interfaz que debe implementar el componente de Fallback
 export interface FallbackProps {

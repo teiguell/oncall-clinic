@@ -1,9 +1,7 @@
-import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import LoginForm from "@/components/auth/login-form";
 
 export default function LoginPage() {
-  const { t } = useTranslation();
 
   return (
     <div className="container max-w-md mx-auto py-8 px-4">

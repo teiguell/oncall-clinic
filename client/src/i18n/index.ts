@@ -1,7 +1,4 @@
 
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 import es from './locales/es';
 import en from './locales/en';
 
@@ -93,7 +90,7 @@ export const safeT = (key: string, options?: any): string => {
     if (!i18n.isInitialized) {
       return key; // Devolver la clave como fallback si i18n no está inicializado
     }
-    const translation = i18n.t(key, options);
+    const translation = i18nsafeT(key, options);
     // Aseguramos que siempre devolvemos un string
     return typeof translation === 'string' ? translation : key;
   } catch (error) {

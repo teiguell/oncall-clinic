@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/auth-context";
 import { 
   Card, 
@@ -53,7 +52,6 @@ interface AppointmentDetails {
 }
 
 export default function AppointmentSuccess() {
-  const { t, i18n } = useTranslation();
   const [location, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
   const locale = i18n.language === 'es' ? es : enUS;

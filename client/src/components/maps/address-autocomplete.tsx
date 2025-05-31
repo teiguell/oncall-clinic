@@ -3,7 +3,6 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPinIcon, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { IS_SANDBOX, ALLOWED_AREA_BOUNDS, isWithinAllowedArea } from "@/lib/sandbox";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -29,7 +28,6 @@ export default function AddressAutocomplete({
   className = "",
   placeholder = ""
 }: AddressAutocompleteProps) {
-  const { t } = useTranslation();
   const { toast } = useToast();
   const [value, setValue] = useState(defaultValue);
   const [isLoading, setIsLoading] = useState(false);

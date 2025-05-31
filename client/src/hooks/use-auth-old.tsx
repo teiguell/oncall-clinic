@@ -7,7 +7,6 @@ import {
 import { User, LoginData, PatientRegistration, DoctorRegistration, VerifyCodeData } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { safeT } from "@/i18n";
 
 type AuthContextType = {
   user: User | null;

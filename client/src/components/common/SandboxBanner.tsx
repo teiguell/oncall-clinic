@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { IS_SANDBOX, SANDBOX_BANNER_MESSAGE } from '@/lib/sandbox';
 
 /**
@@ -7,7 +6,6 @@ import { IS_SANDBOX, SANDBOX_BANNER_MESSAGE } from '@/lib/sandbox';
  * Solo visible cuando la aplicación se ejecuta en este modo
  */
 export const SandboxBanner: React.FC = () => {
-  const { i18n } = useTranslation();
   const currentLang = i18n.language || 'es';
   
   // Si no estamos en modo SANDBOX, no renderizar nada

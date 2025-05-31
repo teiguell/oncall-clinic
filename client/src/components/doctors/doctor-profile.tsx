@@ -25,7 +25,7 @@ import {
   FileText, 
   User
 } from "lucide-react";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/hooks/use-auth";
 
 interface DoctorProfileViewProps {
   doctor: DoctorProfile;

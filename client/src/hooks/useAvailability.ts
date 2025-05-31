@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { DoctorProfile } from '@shared/schema';
 
@@ -16,7 +15,6 @@ interface UseAvailabilityResult {
 }
 
 const useAvailability = ({ doctorProfile, onSuccess }: UseAvailabilityProps): UseAvailabilityResult => {
-  const { t } = useTranslation();
   const [isAvailable, setIsAvailable] = useState<boolean>(doctorProfile?.isAvailable || false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 

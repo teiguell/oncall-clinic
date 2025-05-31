@@ -1,12 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Home, Frown } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
 import Logo from "@/components/common/Logo";
 
 export default function NotFound() {
-  const { t } = useTranslation();
   
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">

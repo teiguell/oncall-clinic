@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { AlertTriangle, Stethoscope, MapPin, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Link } from "wouter";
@@ -6,7 +5,6 @@ import { IS_SANDBOX } from "@/lib/sandbox";
 import { SandboxBanner } from "@/components/common/SandboxBanner";
 
 export default function AboutPage() {
-  const { t } = useTranslation();
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4 md:px-6">

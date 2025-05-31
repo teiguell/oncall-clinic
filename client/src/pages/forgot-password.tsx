@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Link } from "wouter";
 import { useForm } from "react-hook-form";
@@ -39,7 +38,6 @@ type VerifyCodeFormValues = z.infer<typeof verifyCodeSchema>;
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 export default function ForgotPassword() {
-  const { t } = useTranslation();
   const { toast } = useToast();
   
   // State

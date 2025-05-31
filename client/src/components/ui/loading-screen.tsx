@@ -1,6 +1,5 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 interface LoadingScreenProps {
   message?: string;
@@ -15,7 +14,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   message,
   fullScreen = true
 }) => {
-  const { t } = useTranslation();
   const defaultMessage = t('common.loading', 'Cargando...');
   
   const content = (

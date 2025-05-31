@@ -1,5 +1,4 @@
 import { Link } from "wouter";
-import { useTranslation } from "react-i18next";
 import { Stethoscope, Users, Shield } from "lucide-react";
 import Logo from "@/components/common/Logo";
 
@@ -8,7 +7,6 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ className }: HeroSectionProps) {
-  const { t } = useTranslation();
 
   return (
     <div className={`relative overflow-hidden min-h-[50vh] ${className}`}>

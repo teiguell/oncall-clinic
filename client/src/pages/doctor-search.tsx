@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 interface DoctorSearchProps {}
 
 export default function DoctorSearch({}: DoctorSearchProps) {
-  const { t } = useTranslation();
   const { toast } = useToast();
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedAddress, setSelectedAddress] = useState("");

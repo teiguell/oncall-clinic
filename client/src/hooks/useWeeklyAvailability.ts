@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { apiRequest } from '@/lib/queryClient';
 import { DoctorProfile, TimeSlot, WeeklyAvailability } from '@shared/schema';
@@ -41,7 +40,6 @@ const useWeeklyAvailability = ({
   initialData,
   onSuccess
 }: UseWeeklyAvailabilityProps): UseWeeklyAvailabilityResult => {
-  const { t } = useTranslation();
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability>(
     initialData || emptyWeeklyAvailability
   );

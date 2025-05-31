@@ -1,6 +1,4 @@
 import { Notification } from '@shared/schema';
-import { useTranslation } from 'react-i18next';
-import i18next from 'i18next';
 
 // Interface for WebSocket notifications, which have a different structure
 // than database notifications

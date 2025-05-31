@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Clock, Shield, MapPin, BadgeCheck } from "lucide-react";
 import HeroSection from "@/components/home/hero-section";
 import SearchSection from "@/components/home/search-section";
@@ -9,7 +8,6 @@ import FAQSection from "@/components/home/faq-section";
 import CallToAction from "@/components/home/call-to-action";
 
 export default function Home() {
-  const { t } = useTranslation();
   
   return (
     <div className="flex flex-col min-h-screen">

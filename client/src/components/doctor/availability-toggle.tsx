@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { queryClient } from '@/lib/queryClient';
@@ -12,7 +11,6 @@ interface AvailabilityToggleProps {
 }
 
 const AvailabilityToggle = ({ doctorProfile, isLoading = false, className = '' }: AvailabilityToggleProps) => {
-  const { t } = useTranslation();
   
   // Use our custom hook for managing availability
   const { isAvailable, isUpdating, toggleAvailability } = useAvailability({

@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { Separator } from '@/components/ui/separator';
-import { useTranslation } from 'react-i18next';
 
 // Adaptación del esquema de registro de médicos para frontend (sin archivos)
 const doctorRegistrationSchema = z.object({
@@ -40,7 +39,6 @@ const doctorRegistrationSchema = z.object({
 type FormData = z.infer<typeof doctorRegistrationSchema>;
 
 export default function DoctorRegisterPage() {
-  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [verificationData, setVerificationData] = useState<{ verificationId: string, verificationCode: string } | null>(null);

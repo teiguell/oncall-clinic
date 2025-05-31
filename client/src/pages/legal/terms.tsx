@@ -1,9 +1,7 @@
 
-import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Terms() {
-  const { t } = useTranslation();
   
   return (
     <div className="container max-w-4xl py-8">

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
-import { useTranslation } from "react-i18next";
 import { IS_SANDBOX, ALLOWED_AREA_BOUNDS } from "@/lib/sandbox";
 
 interface GoogleMapProps {
@@ -31,7 +30,6 @@ function SandboxMap({
   width = "100%",
   onMapClick,
 }: GoogleMapProps) {
-  const { t } = useTranslation();
   const [selectedPoint, setSelectedPoint] = useState<{ x: number, y: number } | null>(null);
   
   // Handle canvas click to simulate map clicks
@@ -182,7 +180,6 @@ export default function GoogleMap({
   width = "100%",
   onMapClick,
 }: GoogleMapProps) {
-  const { t } = useTranslation();
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [mapMarkers, setMapMarkers] = useState<google.maps.Marker[]>([]);

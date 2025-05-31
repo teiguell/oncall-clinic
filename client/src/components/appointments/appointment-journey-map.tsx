@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -48,7 +47,6 @@ export default function AppointmentJourneyMap({
   patientName,
   userType
 }: AppointmentJourneyMapProps) {
-  const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState<number>(0);
   
   const steps = [
