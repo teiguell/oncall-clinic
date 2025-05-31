@@ -285,7 +285,7 @@ async function main() {
       }
     });
     
-    await setupVite(app, server);
+    // await setupVite(app, server); // Disabled to show static content
   }
 
   const port = parseInt(process.env.PORT || "5000", 10);
