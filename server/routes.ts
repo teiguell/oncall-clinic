@@ -195,23 +195,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             letter-spacing: 1px;
             margin-top: 0.5rem;
         }
+        .hero-buttons { 
+            display: flex; 
+            gap: 1.5rem; 
+            justify-content: center; 
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
         .btn-hero { 
-            background: linear-gradient(45deg, #fbbf24, #f59e0b);
-            color: #1e40af; 
-            padding: 20px 50px; 
-            font-size: 20px; 
-            font-weight: 800; 
-            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.4);
-            border-radius: 60px;
+            padding: 1.2rem 3rem; 
+            font-size: 1.2rem; 
+            border-radius: 50px; 
+            font-weight: 700; 
+            text-decoration: none; 
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             transition: all 0.4s ease;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .btn-hero::before {
             content: '';
@@ -220,16 +223,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.6s;
         }
         .btn-hero:hover::before {
             left: 100%;
         }
-        .btn-hero:hover {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 20px 50px rgba(251, 191, 36, 0.6);
-            background: linear-gradient(45deg, #f59e0b, #d97706);
+        .btn-hero-primary { 
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: #1e40af; 
+            border: none;
+        }
+        .btn-hero-primary:hover { 
+            transform: translateY(-3px) scale(1.05); 
+            box-shadow: 0 15px 40px rgba(251, 191, 36, 0.4);
+        }
+        .btn-hero-secondary { 
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); 
+            color: white; 
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .btn-hero-secondary:hover { 
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); 
+            border-color: white;
+            transform: translateY(-3px) scale(1.05);
         }
         .benefits { 
             padding: 6rem 0; 
@@ -409,30 +427,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <div class="hero-subtitle">🏥 Atención Médica Premium</div>
                 <h1>Tu Médico a Domicilio</h1>
-                <p>Conectamos pacientes con médicos verificados para consultas médicas profesionales en la comodidad de tu hogar. Servicio disponible 24/7 con atención inmediata.</p>
+                <p>Conectamos pacientes con médicos verificados para consultas médicas profesionales en la comodidad de tu hogar</p>
                 
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">1500+</span>
-                        <div class="hero-stat-label">Pacientes Atendidos</div>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">24/7</span>
-                        <div class="hero-stat-label">Disponibilidad</div>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">15min</span>
-                        <div class="hero-stat-label">Tiempo Promedio</div>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">4.9★</span>
-                        <div class="hero-stat-label">Calificación</div>
-                    </div>
+                <div class="hero-buttons">
+                    <a href="/patient-register" class="btn-hero btn-hero-primary">Soy Paciente</a>
+                    <a href="/doctor-register" class="btn-hero btn-hero-secondary">Soy Médico</a>
                 </div>
-                
-                <a href="/booking" class="btn btn-hero">🚀 Solicitar Consulta Ahora</a>
             </div>
         </div>
     </section>
