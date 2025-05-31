@@ -49,13 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Login successful",
-        description: `Welcome ${user.firstName}`,
+        title: safeT('auth.login'),
+        description: `${safeT('common.welcome')} ${user.firstName}`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Login failed",
+        title: safeT('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -68,19 +68,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/register/patient", data);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Registration failed");
+        throw new Error(errorData.message || "Error al registrar");
       }
       return await res.json();
     },
     onSuccess: () => {
       toast({
-        title: "Registration successful",
-        description: "Verification code sent to your email",
+        title: safeT('common.success'),
+        description: safeT('auth.verificationCodeSent'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Registration failed",
+        title: safeT('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -98,20 +98,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Registration failed");
+        throw new Error(errorData.message || "Error al registrar");
       }
       
       return await res.json();
     },
     onSuccess: () => {
       toast({
-        title: "Registration successful",
-        description: "Application submitted for verification",
+        title: safeT('common.success'),
+        description: "Registro enviado para verificación",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Registration failed",
+        title: safeT('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -124,20 +124,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/verify-email", data);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Verification failed");
+        throw new Error(errorData.message || "Error de verificación");
       }
       return await res.json();
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Email verified",
-        description: "Your account has been verified successfully",
+        title: safeT('common.success'),
+        description: "Cuenta verificada correctamente",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Verification failed",
+        title: safeT('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -150,20 +150,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/login/google", data);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Google login failed");
+        throw new Error(errorData.message || "Error al iniciar sesión con Google");
       }
       return await res.json();
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Login successful",
-        description: `Welcome ${user.firstName}`,
+        title: safeT('auth.login'),
+        description: `${safeT('common.welcome')} ${user.firstName}`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Login failed",
+        title: safeT('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -176,20 +176,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/login/apple", data);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Apple login failed");
+        throw new Error(errorData.message || "Error al iniciar sesión con Apple");
       }
       return await res.json();
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Login successful",
-        description: `Welcome ${user.firstName}`,
+        title: safeT('auth.login'),
+        description: `${safeT('common.welcome')} ${user.firstName}`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Login failed",
+        title: safeT('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -204,13 +204,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
       toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
+        title: safeT('common.success'),
+        description: "Sesión cerrada correctamente",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Logout failed",
+        title: safeT('common.error'),
         description: error.message,
         variant: "destructive",
       });

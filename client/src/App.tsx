@@ -1,11 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Router, Route, Switch } from "wouter";
 import { AuthProvider } from "@/hooks/use-auth";
-import { I18nextProvider } from "react-i18next";
-import i18n from "@/i18n";
 import { Toaster } from "@/components/ui/toaster";
-import ErrorBoundary from "@/components/error/ErrorBoundary";
-import FallbackError from "@/components/error/FallbackError";
 
 // Layout Components
 import Navbar from "@/components/layout/navbar";
@@ -81,17 +77,13 @@ function AppContent() {
 
 function App() {
   return (
-    <ErrorBoundary FallbackComponent={FallbackError}>
-      <QueryClientProvider client={queryClient}>
-        <I18nextProvider i18n={i18n}>
-          <AuthProvider>
-            <Router>
-              <AppContent />
-            </Router>
-          </AuthProvider>
-        </I18nextProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
