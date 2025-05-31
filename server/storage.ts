@@ -167,6 +167,12 @@ export class MemStorage implements IStorage {
   private currentNotificationId: number;
   private currentPaymentId: number;
   private currentVerificationCodeId: number;
+  private currentRevolutTransactionId: number;
+  private currentBookingConfirmationId: number;
+  private currentTransferLogId: number;
+  private currentDoctorLocationTrackingId: number;
+  private currentPatientFeedbackId: number;
+  private currentGuestPatientId: number;
 
   constructor() {
     this.users = new Map();
@@ -180,6 +186,12 @@ export class MemStorage implements IStorage {
     this.notifications = new Map();
     this.payments = new Map();
     this.verificationCodes = new Map();
+    this.revolutTransactions = new Map();
+    this.bookingConfirmations = new Map();
+    this.transferLogs = new Map();
+    this.doctorLocationTracking = new Map();
+    this.patientFeedback = new Map();
+    this.guestPatients = new Map();
 
     // Initialize the session store
     const MemoryStore = memorystore(session);
@@ -198,6 +210,12 @@ export class MemStorage implements IStorage {
     this.currentNotificationId = 1;
     this.currentPaymentId = 1;
     this.currentVerificationCodeId = 1;
+    this.currentRevolutTransactionId = 1;
+    this.currentBookingConfirmationId = 1;
+    this.currentTransferLogId = 1;
+    this.currentDoctorLocationTrackingId = 1;
+    this.currentPatientFeedbackId = 1;
+    this.currentGuestPatientId = 1;
 
     // Initialize with sample data
     this.initializeData();
@@ -841,6 +859,159 @@ export class MemStorage implements IStorage {
     };
     
     return newGuestPatient;
+  }
+
+  // Revolut Transactions methods
+  async createRevolutTransaction(transaction: InsertRevolutTransaction): Promise<RevolutTransaction> {
+    const id = this.currentRevolutTransactionId++;
+    const createdAt = new Date();
+    
+    const newTransaction: RevolutTransaction = {
+      ...transaction,
+      id,
+      createdAt,
+      paidAt: null,
+      transferredAt: null
+    };
+
+    this.revolutTransactions.set(id, newTransaction);
+    return newTransaction;
+  }
+
+  async getRevolutTransaction(id: number): Promise<RevolutTransaction | undefined> {
+    return this.revolutTransactions.get(id);
+  }
+
+  async getRevolutTransactionByAppointment(appointmentId: number): Promise<RevolutTransaction | undefined> {
+    return Array.from(this.revolutTransactions.values()).find(t => t.appointmentId === appointmentId);
+  }
+
+  async updateRevolutTransaction(id: number, data: Partial<RevolutTransaction>): Promise<RevolutTransaction | undefined> {
+    const transaction = this.revolutTransactions.get(id);
+    if (!transaction) return undefined;
+
+    const updatedTransaction = { ...transaction, ...data };
+    this.revolutTransactions.set(id, updatedTransaction);
+    return updatedTransaction;
+  }
+
+  // Booking Confirmations methods
+  async createBookingConfirmation(confirmation: InsertBookingConfirmation): Promise<BookingConfirmation> {
+    const id = this.currentBookingConfirmationId++;
+    const createdAt = new Date();
+    
+    const newConfirmation: BookingConfirmation = {
+      ...confirmation,
+      id,
+      createdAt,
+      patientConfirmedAt: null,
+      doctorConfirmedAt: null
+    };
+
+    this.bookingConfirmations.set(id, newConfirmation);
+    return newConfirmation;
+  }
+
+  async getBookingConfirmation(id: number): Promise<BookingConfirmation | undefined> {
+    return this.bookingConfirmations.get(id);
+  }
+
+  async getBookingConfirmationByTrackingCode(trackingCode: string): Promise<BookingConfirmation | undefined> {
+    return Array.from(this.bookingConfirmations.values()).find(c => c.trackingCode === trackingCode);
+  }
+
+  async getBookingConfirmationByAppointment(appointmentId: number): Promise<BookingConfirmation | undefined> {
+    return Array.from(this.bookingConfirmations.values()).find(c => c.appointmentId === appointmentId);
+  }
+
+  async updateBookingConfirmation(id: number, data: Partial<BookingConfirmation>): Promise<BookingConfirmation | undefined> {
+    const confirmation = this.bookingConfirmations.get(id);
+    if (!confirmation) return undefined;
+
+    const updatedConfirmation = { ...confirmation, ...data };
+    this.bookingConfirmations.set(id, updatedConfirmation);
+    return updatedConfirmation;
+  }
+
+  // Transfer Logs methods
+  async createTransferLog(log: InsertTransferLog): Promise<TransferLog> {
+    const id = this.currentTransferLogId++;
+    const processedAt = new Date();
+    
+    const newLog: TransferLog = {
+      ...log,
+      id,
+      processedAt
+    };
+
+    this.transferLogs.set(id, newLog);
+    return newLog;
+  }
+
+  async getTransferLogsByAppointment(appointmentId: number): Promise<TransferLog[]> {
+    return Array.from(this.transferLogs.values()).filter(l => l.appointmentId === appointmentId);
+  }
+
+  // Doctor Location Tracking methods
+  async createDoctorLocationTracking(location: InsertDoctorLocationTracking): Promise<DoctorLocationTracking> {
+    const id = this.currentDoctorLocationTrackingId++;
+    const timestamp = new Date();
+    
+    const newLocation: DoctorLocationTracking = {
+      ...location,
+      id,
+      timestamp
+    };
+
+    this.doctorLocationTracking.set(id, newLocation);
+    return newLocation;
+  }
+
+  async getDoctorActiveLocation(doctorId: number, appointmentId: number): Promise<DoctorLocationTracking[]> {
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    return Array.from(this.doctorLocationTracking.values()).filter(l => 
+      l.doctorId === doctorId && 
+      l.appointmentId === appointmentId &&
+      l.isActive && 
+      l.timestamp && l.timestamp > fifteenMinutesAgo
+    );
+  }
+
+  async deactivateOldLocations(doctorId: number): Promise<void> {
+    for (const [id, location] of this.doctorLocationTracking.entries()) {
+      if (location.doctorId === doctorId) {
+        this.doctorLocationTracking.set(id, { ...location, isActive: false });
+      }
+    }
+  }
+
+  // Patient Feedback methods
+  async createPatientFeedback(feedback: InsertPatientFeedback): Promise<PatientFeedback> {
+    const id = this.currentPatientFeedbackId++;
+    const createdAt = new Date();
+    
+    const newFeedback: PatientFeedback = {
+      ...feedback,
+      id,
+      createdAt,
+      reviewedAt: null
+    };
+
+    this.patientFeedback.set(id, newFeedback);
+    return newFeedback;
+  }
+
+  async getPatientFeedbackByAppointment(appointmentId: number): Promise<PatientFeedback[]> {
+    return Array.from(this.patientFeedback.values()).filter(f => f.appointmentId === appointmentId);
+  }
+
+  async updatePatientFeedback(id: number, data: Partial<PatientFeedback>): Promise<PatientFeedback | undefined> {
+    const feedback = this.patientFeedback.get(id);
+    if (!feedback) return undefined;
+
+    const updatedFeedback = { ...feedback, ...data };
+    this.patientFeedback.set(id, updatedFeedback);
+    return updatedFeedback;
   }
 }
 
