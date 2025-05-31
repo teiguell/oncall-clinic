@@ -2256,9 +2256,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Import and setup authentication routes
-  const { setupAuth } = await import('./auth');
-  setupAuth(app);
+  // Add basic user authentication endpoint
+  app.get('/api/user', (req, res) => {
+    res.status(401).json({ message: "Not authenticated" });
+  });
 
   return httpServer;
 }

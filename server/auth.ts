@@ -108,10 +108,6 @@ export function requireRole(roles: string | string[]) {
     next();
   };
 }
-    try {
-      const { email, password, firstName, lastName, phoneNumber, address, city, postalCode, dob } = req.body;
-
-      // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ message: "Email already in use" });
