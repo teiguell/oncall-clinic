@@ -167,38 +167,47 @@ export class MemStorage implements IStorage {
 
   private initializeData() {
     // Add test doctor profile
-    const testDoctorUser = {
+    const testDoctorUser: User = {
       id: 999,
-      username: "dra.marina",
-      email: "marina.prueba@oncall.clinic",
-      userType: "doctor" as const,
-      firstName: "Marina",
-      lastName: "Prueba",
-      phoneNumber: "+34612249017",
+      username: "dr.test",
+      email: "test@oncall.clinic",
+      password: "test123", // Only for testing
+      userType: "doctor",
+      firstName: "Dr.",
+      lastName: "Test",
+      phoneNumber: "+1234567890",
       emailVerified: true,
       twoFactorEnabled: false,
       profilePicture: "/img/doctor-avatar.svg",
-      createdAt: new Date().toISOString()
+      authProvider: "local",
+      authProviderId: null,
+      createdAt: new Date()
     };
 
-    const testDoctorProfile = {
+    const testDoctorProfile: DoctorProfile = {
       id: 999,
       userId: 999,
-      specialtyId: 1, // Medicina general
-      licenseNumber: "1234567",
-      education: "Licenciada en Medicina, Universidad de Barcelona",
+      specialtyId: 1, // General Medicine
+      licenseNumber: "TEST123",
+      education: "Medical Degree, Test University",
       experience: 10,
-      bio: "Médico general con amplia experiencia en atención domiciliaria",
-      basePrice: 8000, // 80€
+      bio: "General practitioner with extensive experience in home healthcare",
+      basePrice: 8000, // $80
       isAvailable: true,
+      isVerified: true,
       averageRating: 4.8,
-      location: {
-        lat: 38.9067339,
-        lng: 1.4205983,
-        address: "Avenida Ignacio Wallis 29",
-        city: "Ibiza",
-        postalCode: "07800"
-      }
+      totalEarnings: 0,
+      pendingEarnings: 0,
+      commissionRate: 0.15,
+      verificationDate: new Date(),
+      verifiedBy: 1, // Admin user
+      verificationNotes: "Test doctor verified for sandbox mode",
+      identityDocFront: null,
+      identityDocBack: null,
+      bankAccount: null,
+      locationLat: 40.7128,
+      locationLng: -74.0060,
+      locationAddress: "123 Test Street, New York, NY 10001"
     };
 
     this.users.set(testDoctorUser.id, testDoctorUser);
