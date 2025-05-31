@@ -419,11 +419,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     </section>
     <footer class="footer">
         <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Servicios</h4>
+                    <ul class="footer-links">
+                        <li><a href="#doctors">Buscar Doctor</a></li>
+                        <li><a href="#booking">Reservar Cita</a></li>
+                        <li><a href="#emergency">Emergencias</a></li>
+                        <li><a href="#specialties">Especialidades</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Soporte</h4>
+                    <ul class="footer-links">
+                        <li><a href="#help">Centro de Ayuda</a></li>
+                        <li><a href="#contact">Contacto</a></li>
+                        <li><a href="#faq">Preguntas Frecuentes</a></li>
+                        <li><a href="/clinic/doctors">Portal Médicos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="/legal/terms">Términos y Condiciones</a></li>
+                        <li><a href="/legal/privacy">Política de Privacidad</a></li>
+                        <li><a href="/legal/cookies">Política de Cookies</a></li>
+                        <li><a href="/legal/disclaimer">Aviso Legal</a></li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-logo">
                 <div class="footer-logo-icon"></div>
                 <span class="footer-logo-text">OnCall Clinic</span>
             </div>
-            <p class="footer-text">Atención médica profesional a domicilio. Disponible las 24 horas.</p>
+            <p class="footer-text">Plataforma de conexión para atención médica profesional a domicilio. Disponible las 24 horas.</p>
+            <div class="footer-bottom">
+                <p>&copy; 2025 OnCall Clinic. Todos los derechos reservados. | Registro Sanitario: ES-TEMP-2025</p>
+            </div>
         </div>
     </footer>
 </body>
@@ -2827,6 +2859,203 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add basic user authentication endpoint
   app.get('/api/user', (req, res) => {
     res.status(401).json({ message: "Not authenticated" });
+  });
+
+  // Legal pages routes
+  app.get('/legal/terms', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos y Condiciones - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid #e5e7eb; }
+        h1 { color: #111827; margin-bottom: 0.5rem; }
+        .subtitle { color: #6b7280; }
+        h2 { color: #374151; margin: 2rem 0 1rem; }
+        .section { margin-bottom: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        .footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver a OnCall Clinic</a>
+        <div class="header">
+            <h1>Términos y Condiciones</h1>
+            <p class="subtitle">Última actualización: 31 de mayo de 2025</p>
+        </div>
+        <div class="section">
+            <h2>1. Aceptación de los Términos</h2>
+            <p>Al acceder y utilizar OnCall Clinic, usted acepta estar sujeto a estos términos y condiciones de uso.</p>
+        </div>
+        <div class="section">
+            <h2>2. Descripción del Servicio</h2>
+            <p>OnCall Clinic es una plataforma digital que conecta pacientes con médicos profesionales verificados para consultas médicas a domicilio.</p>
+        </div>
+        <div class="section">
+            <h2>3. Responsabilidades del Usuario</h2>
+            <p>Los usuarios se comprometen a proporcionar información médica precisa y respetar las indicaciones médicas recibidas.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 OnCall Clinic. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  app.get('/legal/privacy', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidad - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid #e5e7eb; }
+        h1 { color: #111827; margin-bottom: 0.5rem; }
+        .subtitle { color: #6b7280; }
+        h2 { color: #374151; margin: 2rem 0 1rem; }
+        .section { margin-bottom: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        .footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 0.9rem; }
+        .highlight { background: #f3f4f6; padding: 1rem; border-left: 4px solid #2563eb; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver a OnCall Clinic</a>
+        <div class="header">
+            <h1>Política de Privacidad</h1>
+            <p class="subtitle">Última actualización: 31 de mayo de 2025</p>
+        </div>
+        <div class="highlight">
+            <p><strong>Resumen:</strong> Respetamos tu privacidad y protegemos tus datos personales y médicos con los más altos estándares de seguridad.</p>
+        </div>
+        <div class="section">
+            <h2>1. Información que Recopilamos</h2>
+            <p>Recopilamos datos personales, médicos, de uso y de pago necesarios para proporcionar nuestros servicios.</p>
+        </div>
+        <div class="section">
+            <h2>2. Protección de Datos Médicos</h2>
+            <p>Los datos médicos reciben protección especial con encriptación end-to-end y acceso restringido.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 OnCall Clinic. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  app.get('/legal/cookies', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Cookies - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid #e5e7eb; }
+        h1 { color: #111827; margin-bottom: 0.5rem; }
+        .subtitle { color: #6b7280; }
+        h2 { color: #374151; margin: 2rem 0 1rem; }
+        .section { margin-bottom: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        .footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver a OnCall Clinic</a>
+        <div class="header">
+            <h1>Política de Cookies</h1>
+            <p class="subtitle">Última actualización: 31 de mayo de 2025</p>
+        </div>
+        <div class="section">
+            <h2>¿Qué son las Cookies?</h2>
+            <p>Las cookies son pequeños archivos que mejoran su experiencia en nuestro sitio web.</p>
+        </div>
+        <div class="section">
+            <h2>Tipos de Cookies</h2>
+            <p>Utilizamos cookies esenciales, de funcionalidad, analíticas y de marketing con su consentimiento.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 OnCall Clinic. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  app.get('/legal/disclaimer', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviso Legal - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid #e5e7eb; }
+        h1 { color: #111827; margin-bottom: 0.5rem; }
+        .subtitle { color: #6b7280; }
+        h2 { color: #374151; margin: 2rem 0 1rem; }
+        .section { margin-bottom: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        .footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 0.9rem; }
+        .warning { background: #fef3c7; border: 1px solid #f59e0b; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver a OnCall Clinic</a>
+        <div class="header">
+            <h1>Aviso Legal</h1>
+            <p class="subtitle">Información legal y responsabilidades</p>
+        </div>
+        <div class="warning">
+            <strong>Importante:</strong> OnCall Clinic es una plataforma de conexión. No proporcionamos servicios médicos directos.
+        </div>
+        <div class="section">
+            <h2>Naturaleza del Servicio</h2>
+            <p>Facilitamos el contacto entre pacientes y profesionales médicos independientes.</p>
+        </div>
+        <div class="section">
+            <h2>Versión Alpha</h2>
+            <p>Esta es una versión de pruebas destinada únicamente para validación técnica.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 OnCall Clinic. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
   });
 
   return httpServer;
