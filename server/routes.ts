@@ -2256,5 +2256,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Import and setup authentication routes
+  const { setupAuth } = await import('./auth');
+  setupAuth(app);
+
   return httpServer;
 }

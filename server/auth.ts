@@ -83,32 +83,31 @@ export function setupAuth(app: Express) {
     next();
   });
 
-  // Protected route middleware
-  export function requireAuth(req: Request, res: Response, next: NextFunction) {
+}
+
+// Protected route middleware
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+}
+
+// Role-based access middleware
+export function requireRole(roles: string | string[]) {
+  const allowedRoles = Array.isArray(roles) ? roles : [roles];
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.session.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    if (!allowedRoles.includes(req.session.user.userType)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     next();
-  }
-
-  // Role-based access middleware
-  export function requireRole(roles: string | string[]) {
-    const allowedRoles = Array.isArray(roles) ? roles : [roles];
-    return (req: Request, res: Response, next: NextFunction) => {
-      if (!req.session.user) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      if (!allowedRoles.includes(req.session.user.userType)) {
-        return res.status(403).json({ message: "Forbidden" });
-      }
-
-      next();
-    };
-  }
-
-  // Register a new patient user
-  app.post("/api/register/patient", async (req, res) => {
+  };
+}
     try {
       const { email, password, firstName, lastName, phoneNumber, address, city, postalCode, dob } = req.body;
 
