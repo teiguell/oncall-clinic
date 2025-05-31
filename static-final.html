@@ -735,7 +735,29 @@
     </footer>
 
     <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+    <script>
+        // Load Google Maps with the real API key from environment
+        function loadGoogleMaps() {
+            fetch('/api/config/maps-key')
+                .then(response => response.json())
+                .then(data => {
+                    const script = document.createElement('script');
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places&callback=initGoogleMaps`;
+                    script.async = true;
+                    script.defer = true;
+                    document.head.appendChild(script);
+                })
+                .catch(error => {
+                    console.error('Error loading Google Maps API key:', error);
+                    alert('Google Maps is required for location services. Please check configuration.');
+                });
+        }
+
+        // Initialize Google Maps when API is loaded
+        window.initGoogleMaps = function() {
+            console.log('Google Maps API loaded successfully');
+        };
+    </script>
     
     <script>
         // Translations
@@ -1141,22 +1163,44 @@
         // Phone verification
         function verifyPhone() {
             const phone = document.getElementById('patient-phone').value;
-            if (!phone) {
-                alert('Please enter your phone number');
+            const name = document.getElementById('patient-name').value;
+            const email = document.getElementById('patient-email').value;
+            
+            if (!phone || !name || !email) {
+                alert('Please fill in all fields');
                 return;
             }
             
-            // Generate verification code
-            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            // Simulate SMS sending
-            alert(`SMS sent to ${phone}\nVerification code: ${verificationCode}\n(In production, this would be sent via SMS)`);
-            
-            // For demo, auto-verify after 2 seconds
-            setTimeout(() => {
-                alert('Phone verified! Your tracking code is: OC' + Date.now().toString().slice(-6));
-                nextStep(5);
-            }, 2000);
+            // Send SMS verification
+            fetch('/api/verify-phone', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    phone: phone,
+                    name: name,
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    verificationCode = data.code;
+                    alert(`SMS sent to ${phone}\nVerification code: ${data.code}\nYour tracking code: ${data.trackingCode}`);
+                    
+                    // Auto-proceed to payment
+                    setTimeout(() => {
+                        nextStep(5);
+                    }, 1000);
+                } else {
+                    alert('Error sending SMS: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error sending verification SMS. Please try again.');
+            });
         }
 
         // Booking summary
@@ -1302,6 +1346,9 @@ Thank you for choosing OnCall Clinic!`);
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Load Google Maps API
+            loadGoogleMaps();
+            
             // Load saved language
             const savedLang = localStorage.getItem('oncall-clinic-lang') || 'en';
             updateLanguage(savedLang);

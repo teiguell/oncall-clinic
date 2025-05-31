@@ -26,6 +26,17 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import { IS_SANDBOX, TEST_DOCTOR, TEST_DOCTOR_AVAILABILITY, isWithinAllowedArea } from "./sandbox/config";
 
+// Import Twilio for SMS
+import twilio from 'twilio';
+// Import SendGrid for email
+import sgMail from '@sendgrid/mail';
+
+// Initialize Twilio
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+
 // Define doctor search schema
 const doctorSearchSchema = z.object({
   lat: z.number().optional(),
@@ -240,6 +251,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add a test route to check if the server is accessible
   app.get('/api/test', (req, res) => {
     res.json({ message: 'API is working properly!' });
+  });
+
+  // Google Maps API key endpoint
+  app.get('/api/config/maps-key', (req, res) => {
+    res.json({ apiKey: process.env.GOOGLE_MAPS_API_KEY });
+  });
+
+  // SMS verification endpoint
+  app.post('/api/verify-phone', async (req, res) => {
+    try {
+      const { phone, name, email } = req.body;
+      
+      if (!phone || !name || !email) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Phone, name and email are required' 
+        });
+      }
+
+      // Generate verification code and tracking code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const trackingCode = 'OC' + Date.now().toString().slice(-6);
+      
+      // Send SMS via Twilio
+      try {
+        await twilioClient.messages.create({
+          body: `OnCall Clinic verification code: ${verificationCode}. Your tracking code: ${trackingCode}`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: phone
+        });
+
+        // Send confirmation email via SendGrid
+        try {
+          const msg = {
+            to: email,
+            from: 'noreply@oncallclinic.com',
+            subject: 'OnCall Clinic - Appointment Confirmation',
+            html: `
+              <h2>Appointment Confirmation</h2>
+              <p>Dear ${name},</p>
+              <p>Your appointment request has been received.</p>
+              <p><strong>Verification Code:</strong> ${verificationCode}</p>
+              <p><strong>Tracking Code:</strong> ${trackingCode}</p>
+              <p>A doctor will contact you shortly to confirm the appointment details.</p>
+              <p>Thank you for choosing OnCall Clinic.</p>
+            `
+          };
+          
+          await sgMail.send(msg);
+        } catch (emailError) {
+          console.error('Email sending failed:', emailError);
+          // Continue even if email fails
+        }
+
+        res.json({
+          success: true,
+          code: verificationCode,
+          trackingCode: trackingCode,
+          message: 'SMS sent successfully'
+        });
+
+      } catch (smsError) {
+        console.error('SMS sending failed:', smsError);
+        res.status(500).json({
+          success: false,
+          message: 'Failed to send SMS verification'
+        });
+      }
+
+    } catch (error) {
+      console.error('Verification error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error during verification'
+      });
+    }
   });
   
   // Health check endpoint
