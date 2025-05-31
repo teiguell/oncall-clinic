@@ -1,0 +1,22 @@
+Integra Revolut Pay como pasarela de cobro en la webapp OnCall Clinic. El objetivo es que el paciente pague en línea al reservar una consulta médica, y que el médico reciba su parte automáticamente cuando ambos confirmen que la consulta se ha completado. Usa Make como sistema de automatización, y una base de datos robusta entre las ya integradas (ej. PostgreSQL, Supabase o Baserow).
+
+1. Implementa Revolut Pay como pasarela principal de pagos.
+2. Usa la API de Revolut Merchant para generar enlaces de pago desde el backend, asociarlos con la reserva y marcar el estado como pagado al recibir la confirmación.
+3. En la base de datos, registra cada transacción con su ID de reserva, paciente, médico, importe, comisión, y estado.
+4. Añade un campo `confirmación_paciente` y otro `confirmación_médico` a la reserva. Solo cuando ambos estén marcados como “sí”, Make deberá:
+   - Verificar el saldo de la cuenta Revolut Business
+   - Enviar automáticamente una transferencia SEPA instantánea al IBAN del médico usando la API de pagos de Revolut Business
+   - Registrar el resultado en una tabla de transacciones y logs de errores (si falla, registrar fecha, mensaje y datos del evento)
+5. Añade un botón visible en la home que diga: “Track My Visit” o “Seguimiento de mi reserva”.
+6. Este botón debe llevar a una pantalla de dashboard temporal donde el paciente ingresa su código de seguimiento (generado al pagar).
+7. En el dashboard de seguimiento, el paciente debe poder:
+   - Ver el estado de la consulta (aceptada, en curso, finalizada)
+   - Ver en tiempo real la ubicación del médico en el mapa si está en camino (últimos 15 minutos)
+   - Acceder al chat con el médico
+   - Confirmar que la consulta ha sido realizada
+   - Puntuar al médico
+   - Enviar comentarios, quejas o sugerencias mediante un formulario
+8. El dashboard debe ser accesible sin login, solo con el tracking code (token seguro).
+9. Asegura trazabilidad completa: toda interacción debe quedar registrada con timestamps y asociado al usuario correspondiente.
+
+No cambies el diseño global de la aplicación, solo aplica estas mejoras funcionales. Confirma cuando el sistema esté integrado y funcionando correctamente en sandbox para pruebas públicas.

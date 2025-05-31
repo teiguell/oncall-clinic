@@ -250,6 +250,115 @@ export const guestPatientSchema = z.object({
 
 export type GuestPatient = typeof guestPatients.$inferSelect;
 
+// Revolut Transactions table
+export const revolutTransactions = pgTable("revolut_transactions", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  patientId: integer("patient_id").notNull(),
+  doctorId: integer("doctor_id").notNull(),
+  amount: integer("amount").notNull(), // in cents
+  commission: integer("commission").notNull(), // in cents
+  doctorEarning: integer("doctor_earning").notNull(), // in cents
+  revolutOrderId: text("revolut_order_id"),
+  revolutPaymentId: text("revolut_payment_id"),
+  paymentStatus: text("payment_status").notNull().default("pending"), // pending, completed, failed, refunded
+  transferStatus: text("transfer_status").notNull().default("pending"), // pending, completed, failed
+  transferId: text("transfer_id"), // Revolut transfer ID
+  createdAt: timestamp("created_at").defaultNow(),
+  paidAt: timestamp("paid_at"),
+  transferredAt: timestamp("transferred_at")
+});
+
+// Booking confirmations table
+export const bookingConfirmations = pgTable("booking_confirmations", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  patientConfirmed: boolean("patient_confirmed").default(false),
+  doctorConfirmed: boolean("doctor_confirmed").default(false),
+  patientConfirmedAt: timestamp("patient_confirmed_at"),
+  doctorConfirmedAt: timestamp("doctor_confirmed_at"),
+  trackingCode: text("tracking_code").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Transfer logs table for Make automation
+export const transferLogs = pgTable("transfer_logs", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  revolutTransactionId: integer("revolut_transaction_id").notNull().references(() => revolutTransactions.id),
+  makeWebhookResponse: jsonb("make_webhook_response"),
+  transferResult: text("transfer_result"), // success, failed
+  errorMessage: text("error_message"),
+  processedAt: timestamp("processed_at").defaultNow()
+});
+
+// Doctor location tracking for real-time updates
+export const doctorLocationTracking = pgTable("doctor_location_tracking", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").notNull().references(() => users.id),
+  appointmentId: integer("appointment_id").references(() => appointments.id),
+  latitude: doublePrecision("latitude").notNull(),
+  longitude: doublePrecision("longitude").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+  isActive: boolean("is_active").default(true) // Only show last 15 minutes
+});
+
+// Patient feedback and complaints
+export const patientFeedback = pgTable("patient_feedback", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  patientId: integer("patient_id").notNull(),
+  doctorId: integer("doctor_id").notNull(),
+  feedbackType: text("feedback_type").notNull(), // complaint, suggestion, compliment
+  message: text("message").notNull(),
+  status: text("status").notNull().default("pending"), // pending, reviewed, resolved
+  adminResponse: text("admin_response"),
+  createdAt: timestamp("created_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at")
+});
+
+// Insert schemas for new tables
+export const insertRevolutTransactionSchema = createInsertSchema(revolutTransactions).omit({
+  id: true,
+  createdAt: true
+});
+
+export const insertBookingConfirmationSchema = createInsertSchema(bookingConfirmations).omit({
+  id: true,
+  createdAt: true
+});
+
+export const insertTransferLogSchema = createInsertSchema(transferLogs).omit({
+  id: true,
+  processedAt: true
+});
+
+export const insertDoctorLocationTrackingSchema = createInsertSchema(doctorLocationTracking).omit({
+  id: true,
+  timestamp: true
+});
+
+export const insertPatientFeedbackSchema = createInsertSchema(patientFeedback).omit({
+  id: true,
+  createdAt: true
+});
+
+// Types for new tables
+export type RevolutTransaction = typeof revolutTransactions.$inferSelect;
+export type InsertRevolutTransaction = z.infer<typeof insertRevolutTransactionSchema>;
+
+export type BookingConfirmation = typeof bookingConfirmations.$inferSelect;
+export type InsertBookingConfirmation = z.infer<typeof insertBookingConfirmationSchema>;
+
+export type TransferLog = typeof transferLogs.$inferSelect;
+export type InsertTransferLog = z.infer<typeof insertTransferLogSchema>;
+
+export type DoctorLocationTracking = typeof doctorLocationTracking.$inferSelect;
+export type InsertDoctorLocationTracking = z.infer<typeof insertDoctorLocationTrackingSchema>;
+
+export type PatientFeedback = typeof patientFeedback.$inferSelect;
+export type InsertPatientFeedback = z.infer<typeof insertPatientFeedbackSchema>;
+
 // Weekly availability type and validation schemas
 export const timeSlotSchema = z.object({
   start: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido. Use HH:MM"),

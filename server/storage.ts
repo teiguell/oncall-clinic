@@ -11,7 +11,12 @@ import {
   payments, type Payment, type InsertPayment,
   verificationCodes, type VerificationCode, type InsertVerificationCode,
   type WeeklyAvailability,
-  guestPatients, type GuestPatient, guestPatientSchema
+  guestPatients, type GuestPatient, guestPatientSchema,
+  revolutTransactions, type RevolutTransaction, type InsertRevolutTransaction,
+  bookingConfirmations, type BookingConfirmation, type InsertBookingConfirmation,
+  transferLogs, type TransferLog, type InsertTransferLog,
+  doctorLocationTracking, type DoctorLocationTracking, type InsertDoctorLocationTracking,
+  patientFeedback, type PatientFeedback, type InsertPatientFeedback
 } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -102,6 +107,33 @@ export interface IStorage {
   
   // Guest Patients
   createGuestPatient(guestPatient: z.infer<typeof guestPatientSchema>): Promise<GuestPatient>;
+
+  // Revolut Transactions
+  createRevolutTransaction(transaction: InsertRevolutTransaction): Promise<RevolutTransaction>;
+  getRevolutTransaction(id: number): Promise<RevolutTransaction | undefined>;
+  getRevolutTransactionByAppointment(appointmentId: number): Promise<RevolutTransaction | undefined>;
+  updateRevolutTransaction(id: number, data: Partial<RevolutTransaction>): Promise<RevolutTransaction | undefined>;
+
+  // Booking Confirmations
+  createBookingConfirmation(confirmation: InsertBookingConfirmation): Promise<BookingConfirmation>;
+  getBookingConfirmation(id: number): Promise<BookingConfirmation | undefined>;
+  getBookingConfirmationByTrackingCode(trackingCode: string): Promise<BookingConfirmation | undefined>;
+  getBookingConfirmationByAppointment(appointmentId: number): Promise<BookingConfirmation | undefined>;
+  updateBookingConfirmation(id: number, data: Partial<BookingConfirmation>): Promise<BookingConfirmation | undefined>;
+
+  // Transfer Logs
+  createTransferLog(log: InsertTransferLog): Promise<TransferLog>;
+  getTransferLogsByAppointment(appointmentId: number): Promise<TransferLog[]>;
+
+  // Doctor Location Tracking
+  createDoctorLocationTracking(location: InsertDoctorLocationTracking): Promise<DoctorLocationTracking>;
+  getDoctorActiveLocation(doctorId: number, appointmentId: number): Promise<DoctorLocationTracking[]>;
+  deactivateOldLocations(doctorId: number): Promise<void>;
+
+  // Patient Feedback
+  createPatientFeedback(feedback: InsertPatientFeedback): Promise<PatientFeedback>;
+  getPatientFeedbackByAppointment(appointmentId: number): Promise<PatientFeedback[]>;
+  updatePatientFeedback(id: number, data: Partial<PatientFeedback>): Promise<PatientFeedback | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -117,6 +149,12 @@ export class MemStorage implements IStorage {
   private notifications: Map<number, Notification>;
   private payments: Map<number, Payment>;
   private verificationCodes: Map<number, VerificationCode>;
+  private revolutTransactions: Map<number, RevolutTransaction>;
+  private bookingConfirmations: Map<number, BookingConfirmation>;
+  private transferLogs: Map<number, TransferLog>;
+  private doctorLocationTracking: Map<number, DoctorLocationTracking>;
+  private patientFeedback: Map<number, PatientFeedback>;
+  private guestPatients: Map<number, GuestPatient>;
 
   private currentUserId: number;
   private currentPatientProfileId: number;
