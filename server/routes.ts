@@ -104,18 +104,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; text-decoration: none; display: inline-block; }
         .btn-primary { background: #2563eb; color: white; }
         .btn-ghost { background: transparent; color: #374151; }
-        .hero { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 5rem 0; text-align: center; }
-        .hero h1 { font-size: 3.5rem; font-weight: bold; margin-bottom: 1.5rem; line-height: 1.1; }
-        .hero p { font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9; max-width: 600px; margin-left: auto; margin-right: auto; }
-        .btn-hero { background: white; color: #2563eb; padding: 12px 32px; font-size: 18px; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .benefits { padding: 4rem 0; background: white; }
-        .section-title { font-size: 2.5rem; font-weight: bold; text-align: center; margin-bottom: 3rem; color: #111827; }
-        .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
-        .benefit-item { text-align: center; }
-        .benefit-icon { width: 64px; height: 64px; background: #dbeafe; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; }
-        .benefit-icon-inner { width: 32px; height: 32px; background: #2563eb; border-radius: 4px; }
-        .benefit-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .benefit-text { color: #6b7280; }
+        .hero { 
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%); 
+            color: white; 
+            padding: 6rem 0; 
+            text-align: center; 
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        .hero-content { position: relative; z-index: 1; }
+        .hero h1 { 
+            font-size: 4rem; 
+            font-weight: 800; 
+            margin-bottom: 1.5rem; 
+            line-height: 1.1; 
+            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p { 
+            font-size: 1.4rem; 
+            margin-bottom: 3rem; 
+            opacity: 0.95; 
+            max-width: 700px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            line-height: 1.6;
+        }
+        .btn-hero { 
+            background: white; 
+            color: #2563eb; 
+            padding: 16px 40px; 
+            font-size: 18px; 
+            font-weight: 600; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-hero:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+        }
+        .benefits { 
+            padding: 6rem 0; 
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); 
+        }
+        .section-title { 
+            font-size: 3rem; 
+            font-weight: 800; 
+            text-align: center; 
+            margin-bottom: 4rem; 
+            color: #111827;
+            background: linear-gradient(135deg, #111827, #374151);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .benefits-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 3rem; 
+        }
+        .benefit-item { 
+            text-align: center; 
+            padding: 2.5rem 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+        .benefit-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+        .benefit-icon { 
+            width: 80px; 
+            height: 80px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            border-radius: 20px; 
+            margin: 0 auto 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+        .benefit-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+        .benefit-title { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 1rem; 
+            color: #111827;
+        }
+        .benefit-text { 
+            color: #6b7280; 
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
         .doctors { padding: 4rem 0; background: #f9fafb; }
         .doctor-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 2rem; border: 1px solid #e5e7eb; max-width: 800px; margin: 0 auto; }
         .doctor-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
@@ -133,11 +235,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .status-badge { display: inline-block; background: #dcfce7; color: #166534; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 9999px; margin-top: 0.5rem; }
         .doctor-footer { padding-top: 1rem; border-top: 1px solid #e5e7eb; }
         .doctor-description { color: #374151; margin-bottom: 1rem; }
-        .footer { background: #111827; color: white; padding: 2rem 0; text-align: center; }
-        .footer-logo { display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-        .footer-logo-icon { width: 32px; height: 32px; background: #2563eb; border-radius: 50%; margin-right: 12px; }
-        .footer-logo-text { font-size: 20px; font-weight: bold; }
-        .footer-text { color: #9ca3af; }
+        .footer { 
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%); 
+            color: white; 
+            padding: 4rem 0 2rem; 
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .footer-section h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #f9fafb;
+        }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        .footer-links a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .footer-links a:hover {
+            color: #60a5fa;
+        }
+        .footer-logo { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 0.5rem; 
+            margin-bottom: 2rem; 
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+        }
+        .footer-logo-icon { 
+            width: 32px; 
+            height: 32px; 
+            background: #2563eb; 
+            border-radius: 50%; 
+        }
+        .footer-logo-text { 
+            font-size: 1.25rem; 
+            font-weight: 600; 
+        }
+        .footer-text { 
+            color: #9ca3af; 
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .footer-bottom {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
             .doctor-header { flex-direction: column; text-align: center; }
@@ -171,9 +334,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         </div>
     </nav>
     <section class="hero">
-        <div class="container">
+        <div class="container hero-content">
             <h1>Atención médica a domicilio</h1>
-            <p>Atención médica profesional cuando la necesites, en la comodidad de tu hogar</p>
+            <p>Conectamos pacientes con doctores verificados para consultas médicas profesionales en la comodidad de tu hogar</p>
             <a href="#doctors" class="btn btn-hero">Buscar Doctor Ahora</a>
         </div>
     </section>
@@ -182,24 +345,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <h2 class="section-title">¿Por qué elegir OnCall Clinic?</h2>
             <div class="benefits-grid">
                 <div class="benefit-item">
-                    <div class="benefit-icon"><div class="benefit-icon-inner"></div></div>
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                     <h3 class="benefit-title">Respuesta Rápida</h3>
-                    <p class="benefit-text">Atención médica en casa en menos de 1 hora</p>
+                    <p class="benefit-text">Atención médica profesional en tu hogar en menos de 1 hora</p>
                 </div>
                 <div class="benefit-item">
-                    <div class="benefit-icon"><div class="benefit-icon-inner"></div></div>
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 13H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <h3 class="benefit-title">Pago Seguro</h3>
-                    <p class="benefit-text">Sistema de pago en línea seguro y confiable</p>
+                    <p class="benefit-text">Sistema de pago en línea seguro y confiable con encriptación avanzada</p>
                 </div>
                 <div class="benefit-item">
-                    <div class="benefit-icon"><div class="benefit-icon-inner"></div></div>
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 2A10 10 0 0 0 12 22" stroke="currentColor" stroke-width="2"/>
+                            <path d="M2 12H22" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
                     <h3 class="benefit-title">Seguimiento en Tiempo Real</h3>
-                    <p class="benefit-text">Rastrea la ubicación de tu doctor en tiempo real</p>
+                    <p class="benefit-text">Rastrea la ubicación de tu doctor en tiempo real hasta llegar a tu hogar</p>
                 </div>
                 <div class="benefit-item">
-                    <div class="benefit-icon"><div class="benefit-icon-inner"></div></div>
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 7L11 9L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                     <h3 class="benefit-title">Doctores Verificados</h3>
-                    <p class="benefit-text">Todos los doctores están verificados y licenciados</p>
+                    <p class="benefit-text">Todos los doctores están verificados, licenciados y certificados profesionalmente</p>
                 </div>
             </div>
         </div>
