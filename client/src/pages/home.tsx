@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { Clock, Shield, MapPin, BadgeCheck } from "lucide-react";
 import HeroSection from "@/components/home/hero-section";
 import SearchSection from "@/components/home/search-section";
 import DoctorList from "@/components/home/doctor-list";

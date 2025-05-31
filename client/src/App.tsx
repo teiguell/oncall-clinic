@@ -1,80 +1,98 @@
-import { useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Router, Route, Switch } from "wouter";
+import { AuthProvider } from "@/hooks/use-auth";
+import { I18nextProvider } from "react-i18next";
+import i18n from "@/i18n";
+import { Toaster } from "@/components/ui/toaster";
+import ErrorBoundary from "@/components/error/ErrorBoundary";
+import FallbackError from "@/components/error/FallbackError";
 
-// Esta versión simplificada no depende de i18n o de otros contextos complejos
-function App() {
-  // Estado para verificar la API
-  const [apiStatus, setApiStatus] = useState('Desconocido');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Verificar el estado de la API al cargar
-  useEffect(() => {
-    async function checkApi() {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/health');
-        const data = await response.json();
-        setApiStatus(data.status === 'ok' ? 'Operativo' : 'Con problemas');
-      } catch (error) {
-        console.error('Error al verificar la API:', error);
-        setApiStatus('No disponible');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    checkApi();
-  }, []);
-  
-  // Versión simplificada para diagnóstico
+// Layout Components
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+
+// Pages
+import Home from "@/pages/home";
+import Login from "@/pages/login";
+import Register from "@/pages/register";
+import PatientRegister from "@/pages/patient-register";
+import DoctorRegister from "@/pages/doctor-register";
+import PatientDashboard from "@/pages/patient-dashboard";
+import DoctorDashboard from "@/pages/doctor-dashboard";
+import DoctorSearch from "@/pages/doctor-search";
+import AppointmentBooking from "@/pages/appointment-booking";
+import AppointmentSuccess from "@/pages/appointment-success";
+import Profile from "@/pages/profile";
+import NotFound from "@/pages/not-found";
+import About from "@/pages/about";
+import ForgotPassword from "@/pages/forgot-password";
+import Verify from "@/pages/verify";
+import AdminDoctorVerification from "@/pages/admin-doctor-verification";
+import { ProtectedRoute } from "@/lib/protected-route";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+function AppContent() {
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-700">
-      <div className="text-center text-white p-8">
-        <h1 className="text-4xl font-bold mb-4">OnCall Clinic</h1>
-        <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
-          <p className="text-lg mb-4">
-            Estamos actualizando nuestra aplicación para servirte mejor.
-          </p>
-          
-          <h2 className="text-2xl font-semibold mb-2">Estado del sitio:</h2>
-          <div className="bg-amber-500/20 p-4 rounded-lg mb-4">
-            <p>⚠️ Mantenimiento programado</p>
-            <p>Por favor, vuelve más tarde.</p>
-          </div>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="flex-grow">
+        <Switch>
+          {/* Public Routes */}
+          <Route path="/" component={Home} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+          <Route path="/patient/register" component={PatientRegister} />
+          <Route path="/doctor/register" component={DoctorRegister} />
+          <Route path="/forgot-password" component={ForgotPassword} />
+          <Route path="/verify" component={Verify} />
+          <Route path="/about" component={About} />
+          <Route path="/doctors" component={DoctorSearch} />
 
-          <div className="mt-4 p-4 bg-blue-700/30 rounded-lg">
-            <h3 className="text-xl font-semibold mb-2">Información:</h3>
-            <p>Fecha y hora: {new Date().toLocaleString()}</p>
-            <p className="mt-2">Estado API: 
-              <span className={`ml-2 font-semibold ${
-                apiStatus === 'Operativo' ? 'text-green-300' : 
-                apiStatus === 'Con problemas' ? 'text-yellow-300' : 
-                'text-red-300'
-              }`}>
-                {isLoading ? 'Verificando...' : apiStatus}
-              </span>
-            </p>
-          </div>
+          {/* Protected Routes */}
+          <ProtectedRoute path="/dashboard/patient" component={PatientDashboard} />
+          <ProtectedRoute path="/dashboard/doctor" component={DoctorDashboard} />
+          <ProtectedRoute path="/book/:doctorId" component={AppointmentBooking} />
+          <ProtectedRoute path="/appointment/success" component={AppointmentSuccess} />
+          <ProtectedRoute path="/profile" component={Profile} />
           
-          <div className="mt-6">
-            <a 
-              href="/SimpleApp" 
-              className="inline-block bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg transition-colors mr-4"
-            >
-              Versión Básica
-            </a>
-            <a 
-              href="/api/health" 
-              className="inline-block bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg transition-colors"
-            >
-              Estado API
-            </a>
-          </div>
-        </div>
-      </div>
+          {/* Admin Routes */}
+          <ProtectedRoute 
+            path="/admin/doctors/verify" 
+            component={AdminDoctorVerification}
+          />
+
+          {/* Fallback */}
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+      <Footer />
+      <Toaster />
     </div>
   );
 }
 
-
+function App() {
+  return (
+    <ErrorBoundary FallbackComponent={FallbackError}>
+      <QueryClientProvider client={queryClient}>
+        <I18nextProvider i18n={i18n}>
+          <AuthProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </AuthProvider>
+        </I18nextProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+}
 
 export default App;
