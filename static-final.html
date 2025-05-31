@@ -741,6 +741,62 @@
         </div>
     </footer>
 
+    <!-- Visit Tracking Modal -->
+    <div id="tracking-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px; margin: 5% auto;">
+            <span class="close" onclick="closeTrackingModal()" style="float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa;">&times;</span>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="color: #1f2937; margin-bottom: 0.5rem;">📍 Track Your Visit</h2>
+                <p style="color: #6b7280; margin: 0;">Enter your booking details to track your appointment status</p>
+            </div>
+
+            <form id="tracking-form" style="margin-bottom: 2rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="tracking-code" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                        Tracking Code
+                    </label>
+                    <input 
+                        type="text" 
+                        id="tracking-code" 
+                        placeholder="Enter your 6-digit tracking code" 
+                        style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; transition: border-color 0.3s ease;"
+                        required
+                    >
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <label for="tracking-email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                        Email Address
+                    </label>
+                    <input 
+                        type="email" 
+                        id="tracking-email" 
+                        placeholder="Enter your email address" 
+                        style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; transition: border-color 0.3s ease;"
+                        required
+                    >
+                </div>
+
+                <button 
+                    type="button" 
+                    onclick="trackVisit()" 
+                    style="width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease;"
+                >
+                    Track My Visit
+                </button>
+            </form>
+
+            <div id="tracking-results" style="display: none; margin-top: 2rem;"></div>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; text-align: center;">
+                <p style="color: #6b7280; font-size: 14px; margin: 0;">
+                    Your tracking code was sent to your email after booking. If you can't find it, check your spam folder.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Google Maps API -->
     <script>
         // Load Google Maps with the real API key from environment
@@ -1399,8 +1455,242 @@ Thank you for choosing OnCall Clinic!`);
                 if (event.target === modal) {
                     closeBookingModal();
                 }
+                
+                const trackingModal = document.getElementById('tracking-modal');
+                if (event.target === trackingModal) {
+                    closeTrackingModal();
+                }
             });
         });
+
+        // Tracking Modal Functions
+        function showTrackingModal() {
+            document.getElementById('tracking-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTrackingModal() {
+            document.getElementById('tracking-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('tracking-form').reset();
+            document.getElementById('tracking-results').innerHTML = '';
+            document.getElementById('tracking-results').style.display = 'none';
+        }
+
+        async function trackVisit() {
+            const trackingCode = document.getElementById('tracking-code').value.trim();
+            const email = document.getElementById('tracking-email').value.trim();
+            
+            if (!trackingCode || !email) {
+                alert(translations[currentLang].trackingFormError || 'Please enter both tracking code and email');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('tracking-results');
+            resultsDiv.innerHTML = '<div class="loading">Searching for your booking...</div>';
+            resultsDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/track-booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trackingCode, email })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Booking not found');
+                }
+
+                displayTrackingResults(data);
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div style="background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 1rem; color: #dc2626;">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayTrackingResults(data) {
+            const resultsDiv = document.getElementById('tracking-results');
+            const appointment = data.appointment;
+            const payment = data.payment;
+            const doctor = data.doctor;
+            
+            let statusBadge = '';
+            let statusColor = '';
+            
+            switch (appointment.status) {
+                case 'pending':
+                    statusBadge = 'Pending Confirmation';
+                    statusColor = '#f59e0b';
+                    break;
+                case 'confirmed':
+                    statusBadge = 'Confirmed';
+                    statusColor = '#10b981';
+                    break;
+                case 'in_progress':
+                    statusBadge = 'Doctor En Route';
+                    statusColor = '#3b82f6';
+                    break;
+                case 'completed':
+                    statusBadge = 'Completed';
+                    statusColor = '#6b7280';
+                    break;
+                case 'cancelled':
+                    statusBadge = 'Cancelled';
+                    statusColor = '#ef4444';
+                    break;
+                default:
+                    statusBadge = appointment.status;
+                    statusColor = '#6b7280';
+            }
+
+            let paymentStatus = 'Pending';
+            let paymentColor = '#f59e0b';
+            
+            if (payment) {
+                switch (payment.status) {
+                    case 'completed':
+                        paymentStatus = 'Payment Completed';
+                        paymentColor = '#10b981';
+                        break;
+                    case 'pending':
+                        paymentStatus = 'Payment Pending';
+                        paymentColor = '#f59e0b';
+                        break;
+                    case 'failed':
+                        paymentStatus = 'Payment Failed';
+                        paymentColor = '#ef4444';
+                        break;
+                }
+            }
+
+            const appointmentDate = new Date(appointment.appointmentDate);
+            const timeSlot = appointment.timeSlot || 'Time to be confirmed';
+
+            resultsDiv.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+                        <h3 style="margin: 0; color: #1f2937; font-size: 1.5rem;">Booking Details</h3>
+                        <span style="background: ${statusColor}; color: white; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                            ${statusBadge}
+                        </span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div>
+                            <h4 style="color: #374151; margin-bottom: 1rem; font-size: 1.1rem;">Appointment Information</h4>
+                            <div style="space-y: 0.5rem;">
+                                <p><strong>Tracking Code:</strong> ${data.trackingCode}</p>
+                                <p><strong>Date:</strong> ${appointmentDate.toLocaleDateString()}</p>
+                                <p><strong>Time:</strong> ${timeSlot}</p>
+                                <p><strong>Service:</strong> General Medicine Consultation</p>
+                                <p><strong>Location:</strong> ${appointment.location || 'Home visit'}</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="color: #374151; margin-bottom: 1rem; font-size: 1.1rem;">Doctor Information</h4>
+                            <div style="space-y: 0.5rem;">
+                                <p><strong>Doctor:</strong> Dr. ${doctor.firstName} ${doctor.lastName}</p>
+                                <p><strong>Specialty:</strong> ${doctor.specialty || 'General Medicine'}</p>
+                                <p><strong>Experience:</strong> ${doctor.experience || 0} years</p>
+                                <p><strong>Rating:</strong> ⭐ ${doctor.averageRating || 'New'}/5</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f9fafb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h4 style="color: #374151; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            💳 Payment Information
+                            <span style="background: ${paymentColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                ${paymentStatus}
+                            </span>
+                        </h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <p><strong>Amount:</strong> €${appointment.totalPrice || '80.00'}</p>
+                            <p><strong>Payment Method:</strong> ${payment?.paymentMethod || 'Revolut Pay'}</p>
+                            ${payment?.transactionId ? `<p><strong>Transaction ID:</strong> ${payment.transactionId}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${appointment.status === 'in_progress' ? `
+                        <div style="background: #dbeafe; border: 1px solid #3b82f6; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                            <h4 style="color: #1e40af; margin-bottom: 1rem;">🚗 Doctor Status</h4>
+                            <p style="color: #1e40af; margin: 0;">Your doctor is on the way to your location. You will receive a call when they arrive.</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        ${appointment.status === 'pending' ? `
+                            <button onclick="cancelBooking('${data.trackingCode}')" style="background: #ef4444; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                Cancel Booking
+                            </button>
+                        ` : ''}
+                        
+                        ${appointment.status === 'completed' ? `
+                            <button onclick="downloadInvoice('${data.trackingCode}')" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                📄 Download Invoice
+                            </button>
+                        ` : ''}
+                        
+                        <button onclick="closeTrackingModal()" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function cancelBooking(trackingCode) {
+            if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/cancel-booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trackingCode })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to cancel booking');
+                }
+
+                alert('Booking cancelled successfully. Any payments will be refunded within 3-5 business days.');
+                closeTrackingModal();
+            } catch (error) {
+                alert('Error cancelling booking: ' + error.message);
+            }
+        }
+
+        async function downloadInvoice(trackingCode) {
+            try {
+                const response = await fetch(`/api/download-invoice/${trackingCode}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to download invoice');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `oncall-clinic-invoice-${trackingCode}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Error downloading invoice: ' + error.message);
+            }
+        }
 
         // Initialize
         console.log('OnCall Clinic Alpha Version Loaded');

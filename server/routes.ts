@@ -2884,6 +2884,428 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Visit Tracking Endpoints
+  
+  // Track booking by tracking code and email
+  app.post('/api/track-booking', async (req, res) => {
+    try {
+      const { trackingCode, email } = req.body;
+      
+      if (!trackingCode || !email) {
+        return res.status(400).json({ error: 'Tracking code and email are required' });
+      }
+
+      // Find booking confirmation by tracking code
+      const bookingConfirmation = await storage.getBookingConfirmationByTrackingCode(trackingCode);
+      if (!bookingConfirmation) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+
+      // Get appointment details
+      const appointment = await storage.getAppointment(bookingConfirmation.appointmentId);
+      if (!appointment) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      // Verify email matches
+      const patientProfile = await storage.getPatientProfile(appointment.patientId);
+      const user = patientProfile ? await storage.getUser(patientProfile.userId) : null;
+      
+      if (!user || user.email.toLowerCase() !== email.toLowerCase()) {
+        return res.status(404).json({ error: 'Booking not found or email does not match' });
+      }
+
+      // Get doctor details
+      const doctorProfile = await storage.getDoctorProfile(appointment.doctorId);
+      const doctorUser = doctorProfile ? await storage.getUser(doctorProfile.userId) : null;
+
+      // Get payment information
+      const payment = await storage.getPaymentByAppointmentId(appointment.id);
+      const revolutTransaction = await storage.getRevolutTransactionByAppointment(appointment.id);
+
+      res.json({
+        trackingCode,
+        appointment: {
+          ...appointment,
+          status: appointment.status || 'pending',
+          appointmentDate: appointment.appointmentDate,
+          timeSlot: appointment.timeSlot,
+          location: appointment.location,
+          totalPrice: appointment.totalPrice
+        },
+        doctor: {
+          firstName: doctorUser?.firstName || 'Unknown',
+          lastName: doctorUser?.lastName || 'Doctor',
+          specialty: 'General Medicine',
+          experience: doctorProfile?.experience || 0,
+          averageRating: doctorProfile?.averageRating || null
+        },
+        payment: payment ? {
+          status: payment.status,
+          amount: payment.amount,
+          currency: payment.currency || 'EUR',
+          paymentMethod: payment.paymentMethod || 'Revolut Pay',
+          transactionId: payment.transactionId
+        } : null,
+        revolutTransaction: revolutTransaction ? {
+          paymentStatus: revolutTransaction.paymentStatus,
+          revolutOrderId: revolutTransaction.revolutOrderId,
+          amount: revolutTransaction.amount,
+          doctorEarning: revolutTransaction.doctorEarning
+        } : null
+      });
+
+    } catch (error) {
+      console.error('Error tracking booking:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Cancel booking
+  app.post('/api/cancel-booking', async (req, res) => {
+    try {
+      const { trackingCode } = req.body;
+      
+      if (!trackingCode) {
+        return res.status(400).json({ error: 'Tracking code is required' });
+      }
+
+      // Find booking confirmation
+      const bookingConfirmation = await storage.getBookingConfirmationByTrackingCode(trackingCode);
+      if (!bookingConfirmation) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+
+      // Get appointment
+      const appointment = await storage.getAppointment(bookingConfirmation.appointmentId);
+      if (!appointment) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      // Check if appointment can be cancelled
+      if (appointment.status === 'cancelled') {
+        return res.status(400).json({ error: 'Booking is already cancelled' });
+      }
+
+      if (appointment.status === 'completed') {
+        return res.status(400).json({ error: 'Cannot cancel a completed appointment' });
+      }
+
+      if (appointment.status === 'in_progress') {
+        return res.status(400).json({ error: 'Cannot cancel an appointment in progress' });
+      }
+
+      // Update appointment status
+      const updatedAppointment = await storage.updateAppointment(appointment.id, {
+        status: 'cancelled'
+      });
+
+      // Update payment status if exists
+      const payment = await storage.getPaymentByAppointmentId(appointment.id);
+      if (payment && payment.status !== 'cancelled') {
+        await storage.updatePayment(payment.id, {
+          status: 'cancelled'
+        });
+      }
+
+      // Update Revolut transaction if exists
+      const revolutTransaction = await storage.getRevolutTransactionByAppointment(appointment.id);
+      if (revolutTransaction) {
+        await storage.updateRevolutTransaction(revolutTransaction.id, {
+          paymentStatus: 'cancelled'
+        });
+      }
+
+      // Send cancellation email
+      try {
+        const patientProfile = await storage.getPatientProfile(appointment.patientId);
+        const user = patientProfile ? await storage.getUser(patientProfile.userId) : null;
+        
+        if (user) {
+          await sgMail.send({
+            to: user.email,
+            from: 'noreply@oncallclinic.com',
+            subject: 'Appointment Cancelled - OnCall Clinic',
+            html: `
+              <h2>Appointment Cancelled</h2>
+              <p>Your appointment (Tracking Code: ${trackingCode}) has been successfully cancelled.</p>
+              <p>If you made a payment, you will receive a refund within 3-5 business days.</p>
+              <p>Thank you for using OnCall Clinic.</p>
+            `
+          });
+        }
+      } catch (emailError) {
+        console.error('Error sending cancellation email:', emailError);
+      }
+
+      res.json({
+        success: true,
+        message: 'Booking cancelled successfully',
+        appointment: updatedAppointment
+      });
+
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Download invoice
+  app.get('/api/download-invoice/:trackingCode', async (req, res) => {
+    try {
+      const { trackingCode } = req.params;
+
+      // Find booking confirmation
+      const bookingConfirmation = await storage.getBookingConfirmationByTrackingCode(trackingCode);
+      if (!bookingConfirmation) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+
+      // Get appointment
+      const appointment = await storage.getAppointment(bookingConfirmation.appointmentId);
+      if (!appointment || appointment.status !== 'completed') {
+        return res.status(404).json({ error: 'Invoice not available for this booking' });
+      }
+
+      // Get patient and doctor details
+      const patientProfile = await storage.getPatientProfile(appointment.patientId);
+      const doctorProfile = await storage.getDoctorProfile(appointment.doctorId);
+      const patientUser = patientProfile ? await storage.getUser(patientProfile.userId) : null;
+      const doctorUser = doctorProfile ? await storage.getUser(doctorProfile.userId) : null;
+      
+      // Get payment details
+      const payment = await storage.getPaymentByAppointmentId(appointment.id);
+
+      // Generate simple HTML invoice
+      const invoiceHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>OnCall Clinic Invoice</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; }
+            .header { text-align: center; margin-bottom: 40px; }
+            .invoice-details { margin-bottom: 30px; }
+            .table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            .table th { background-color: #f5f5f5; }
+            .total { text-align: right; font-weight: bold; font-size: 18px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>OnCall Clinic</h1>
+            <h2>Medical Service Invoice</h2>
+          </div>
+          
+          <div class="invoice-details">
+            <p><strong>Invoice Date:</strong> ${new Date().toLocaleDateString()}</p>
+            <p><strong>Tracking Code:</strong> ${trackingCode}</p>
+            <p><strong>Service Date:</strong> ${new Date(appointment.appointmentDate).toLocaleDateString()}</p>
+          </div>
+
+          <table class="table">
+            <tr>
+              <th>Patient Information</th>
+              <th>Doctor Information</th>
+            </tr>
+            <tr>
+              <td>
+                ${patientUser?.firstName} ${patientUser?.lastName}<br>
+                ${patientUser?.email}<br>
+                ${patientUser?.phoneNumber}
+              </td>
+              <td>
+                Dr. ${doctorUser?.firstName} ${doctorUser?.lastName}<br>
+                General Medicine<br>
+                License: ${doctorProfile?.licenseNumber || 'N/A'}
+              </td>
+            </tr>
+          </table>
+
+          <table class="table">
+            <tr>
+              <th>Service Description</th>
+              <th>Amount (EUR)</th>
+            </tr>
+            <tr>
+              <td>General Medicine Home Consultation</td>
+              <td>€${appointment.totalPrice || '80.00'}</td>
+            </tr>
+          </table>
+
+          <div class="total">
+            <p>Total Amount: €${appointment.totalPrice || '80.00'}</p>
+            <p>Payment Status: ${payment?.status || 'Completed'}</p>
+            <p>Payment Method: ${payment?.paymentMethod || 'Revolut Pay'}</p>
+          </div>
+
+          <p style="margin-top: 40px; font-size: 12px; color: #666;">
+            This invoice was generated automatically by OnCall Clinic. 
+            For any questions, please contact our support team.
+          </p>
+        </body>
+        </html>
+      `;
+
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename=oncall-clinic-invoice-${trackingCode}.html`);
+      res.send(invoiceHtml);
+
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Revolut Payment Integration Endpoints
+
+  // Create Revolut payment order
+  app.post('/api/revolut/create-order', async (req, res) => {
+    try {
+      const { appointmentId, amount, currency = 'EUR' } = req.body;
+
+      if (!appointmentId || !amount) {
+        return res.status(400).json({ error: 'Appointment ID and amount are required' });
+      }
+
+      // Get appointment details
+      const appointment = await storage.getAppointment(appointmentId);
+      if (!appointment) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      // Create order ID (in production, this would call Revolut API)
+      const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Create Revolut transaction record
+      const commission = Math.round(amount * 0.15); // 15% commission
+      const doctorEarning = amount - commission;
+
+      const revolutTransaction = await storage.createRevolutTransaction({
+        patientId: appointment.patientId,
+        doctorId: appointment.doctorId,
+        appointmentId: appointment.id,
+        amount: amount,
+        commission: commission,
+        doctorEarning: doctorEarning,
+        paymentStatus: 'pending',
+        revolutOrderId: orderId,
+        revolutPaymentId: null,
+        revolutWebhookId: null
+      });
+
+      res.json({
+        success: true,
+        orderId: orderId,
+        amount: amount,
+        currency: currency,
+        transactionId: revolutTransaction.id,
+        // In production, this would include the actual Revolut payment URL
+        paymentUrl: `https://revolut.com/pay/${orderId}`,
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 minutes
+      });
+
+    } catch (error) {
+      console.error('Error creating Revolut order:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Revolut webhook handler
+  app.post('/api/revolut/webhook', async (req, res) => {
+    try {
+      const { event, data } = req.body;
+
+      if (event === 'ORDER_COMPLETED') {
+        const { order_id, payment_id } = data;
+
+        // Find transaction by order ID
+        const transactions = Array.from((storage as any).revolutTransactions.values());
+        const transaction = transactions.find((t: any) => t.revolutOrderId === order_id);
+
+        if (transaction) {
+          // Update transaction status
+          await storage.updateRevolutTransaction(transaction.id, {
+            paymentStatus: 'completed',
+            revolutPaymentId: payment_id,
+            paidAt: new Date()
+          });
+
+          // Update appointment payment status
+          const appointment = await storage.getAppointment(transaction.appointmentId);
+          if (appointment) {
+            await storage.updateAppointment(appointment.id, {
+              status: 'confirmed'
+            });
+
+            // Create or update payment record
+            let payment = await storage.getPaymentByAppointmentId(appointment.id);
+            if (payment) {
+              await storage.updatePayment(payment.id, {
+                status: 'completed',
+                transactionId: payment_id,
+                paymentMethod: 'Revolut Pay'
+              });
+            } else {
+              await storage.createPayment({
+                appointmentId: appointment.id,
+                amount: transaction.amount,
+                currency: 'EUR',
+                status: 'completed',
+                paymentMethod: 'Revolut Pay',
+                transactionId: payment_id
+              });
+            }
+
+            // Trigger Make webhook for automated transfer
+            try {
+              if (process.env.MAKE_WEBHOOK_URL) {
+                await fetch(process.env.MAKE_WEBHOOK_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    event: 'payment_completed',
+                    transactionId: transaction.id,
+                    appointmentId: appointment.id,
+                    doctorEarning: transaction.doctorEarning,
+                    revolutOrderId: order_id,
+                    revolutPaymentId: payment_id
+                  })
+                });
+
+                // Log the transfer initiation
+                await storage.createTransferLog({
+                  appointmentId: appointment.id,
+                  revolutTransactionId: transaction.id,
+                  makeWebhookResponse: { status: 'sent' },
+                  transferResult: 'initiated',
+                  errorMessage: null
+                });
+              }
+            } catch (webhookError) {
+              console.error('Error calling Make webhook:', webhookError);
+              await storage.createTransferLog({
+                appointmentId: appointment.id,
+                revolutTransactionId: transaction.id,
+                makeWebhookResponse: { error: 'webhook_failed' },
+                transferResult: 'failed',
+                errorMessage: webhookError.message
+              });
+            }
+          }
+        }
+      }
+
+      res.json({ success: true });
+
+    } catch (error) {
+      console.error('Error processing Revolut webhook:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // Add basic user authentication endpoint
   app.get('/api/user', (req, res) => {
     res.status(401).json({ message: "Not authenticated" });
