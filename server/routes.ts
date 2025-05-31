@@ -83,6 +83,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.resolve(process.cwd(), 'doctor-dashboard.html'));
   });
 
+  // Doctor Registration Page
+  app.get('/doctor/register', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'doctor-register.html'));
+  });
+
   // Clean OnCall Clinic page without Vite interference
   app.get('/app', (req, res) => {
     const html = `<!DOCTYPE html>
@@ -387,6 +392,153 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         message: 'Server error loading dashboard'
       });
+    }
+  });
+
+  // Update doctor availability
+  app.post('/api/doctor/availability', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const { weeklyAvailability } = req.body;
+      const doctorProfile = await storage.updateDoctorWeeklyAvailability((req.session as any).userId, weeklyAvailability);
+      
+      if (doctorProfile) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+    } catch (error) {
+      console.error('Error updating availability:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Get active bookings
+  app.get('/api/doctor/active-bookings', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const appointments = await storage.getAppointmentsByDoctorId((req.session as any).userId);
+      const activeBookings = appointments.filter(apt => apt.status === 'confirmed' || apt.status === 'pending');
+      
+      res.json({
+        success: true,
+        bookings: activeBookings.map(booking => ({
+          ...booking,
+          patientName: `Patient #${booking.patientId}`,
+          location: booking.location || 'Location to be confirmed',
+          amount: booking.totalAmount || 8000
+        }))
+      });
+    } catch (error) {
+      console.error('Error loading active bookings:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Get doctor settings
+  app.get('/api/doctor/settings', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const doctorProfile = await storage.getDoctorProfileByUserId((req.session as any).userId);
+      if (!doctorProfile) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+
+      res.json({
+        success: true,
+        settings: {
+          bankAccount: doctorProfile.bankAccount,
+          maxDistance: 30,
+          basePrice: doctorProfile.basePrice
+        }
+      });
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Update doctor IBAN
+  app.post('/api/doctor/iban', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const { bankAccount } = req.body;
+      const doctorProfile = await storage.getDoctorProfileByUserId((req.session as any).userId);
+      
+      if (!doctorProfile) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+
+      await storage.updateDoctorBankAccount(doctorProfile.id, bankAccount);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating IBAN:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Update service area settings
+  app.post('/api/doctor/service-area', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const { maxDistance, basePrice } = req.body;
+      const doctorProfile = await storage.getDoctorProfileByUserId((req.session as any).userId);
+      
+      if (!doctorProfile) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+
+      await storage.updateDoctorProfile(doctorProfile.id, { basePrice });
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating service area:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Chat endpoints
+  app.get('/api/doctor/chat', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      res.json({
+        success: true,
+        messages: []
+      });
+    } catch (error) {
+      console.error('Error loading chat:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/doctor/chat', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const { message } = req.body;
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error sending chat message:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
     }
   });
 

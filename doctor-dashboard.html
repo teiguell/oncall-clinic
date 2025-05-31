@@ -40,6 +40,23 @@
         .doctor-name { font-size: 24px; font-weight: bold; color: #111827; }
         .logout-btn { background: #6b7280; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; }
         .logout-btn:hover { background: #4b5563; }
+        .nav-tabs { display: flex; border-bottom: 1px solid #e5e7eb; margin-bottom: 2rem; }
+        .nav-tab { padding: 1rem 2rem; background: none; border: none; color: #6b7280; cursor: pointer; font-weight: 500; }
+        .nav-tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .availability-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; margin-bottom: 1rem; }
+        .day-card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; text-align: center; }
+        .day-card.available { border-color: #10b981; background: #f0fdf4; }
+        .chat-section { background: white; border-radius: 8px; padding: 1rem; height: 400px; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; }
+        .chat-input { display: flex; gap: 0.5rem; }
+        .file-upload { margin-bottom: 1rem; }
+        .file-upload input { display: none; }
+        .file-upload label { display: inline-block; padding: 8px 16px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; }
+        .booking-card { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .booking-active { background: #dcfce7; border-color: #10b981; }
     </style>
 </head>
 <body>
@@ -69,38 +86,114 @@
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-title">Today's Appointments</div>
-                <div class="stat-value" id="today-appointments">0</div>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+            <button class="nav-tab" onclick="showTab('availability')">Availability</button>
+            <button class="nav-tab" onclick="showTab('bookings')">Current Bookings</button>
+            <button class="nav-tab" onclick="showTab('chat')">Patient Chat</button>
+            <button class="nav-tab" onclick="showTab('settings')">Settings</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Today's Appointments</div>
+                    <div class="stat-value" id="today-appointments">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">This Week</div>
+                    <div class="stat-value" id="week-appointments">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Appointments</div>
+                    <div class="stat-value" id="total-appointments">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Average Rating</div>
+                    <div class="stat-value" id="average-rating">0.0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Earnings</div>
+                    <div class="stat-value" id="total-earnings">€0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Pending Earnings</div>
+                    <div class="stat-value" id="pending-earnings">€0</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">This Week</div>
-                <div class="stat-value" id="week-appointments">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Total Appointments</div>
-                <div class="stat-value" id="total-appointments">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Average Rating</div>
-                <div class="stat-value" id="average-rating">0.0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Total Earnings</div>
-                <div class="stat-value" id="total-earnings">€0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Pending Earnings</div>
-                <div class="stat-value" id="pending-earnings">€0</div>
+
+            <div class="appointments-section">
+                <div class="section-title">Recent Appointments</div>
+                <div id="appointments-list">
+                    <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                        No appointments yet
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="appointments-section">
-            <div class="section-title">Recent Appointments</div>
-            <div id="appointments-list">
-                <div style="text-align: center; color: #6b7280; padding: 2rem;">
-                    No appointments yet
+        <!-- Availability Tab -->
+        <div id="availability-tab" class="tab-content">
+            <div class="section-title">Weekly Availability</div>
+            <div class="availability-grid" id="availability-grid">
+                <!-- Days will be populated by JavaScript -->
+            </div>
+            <button class="btn" onclick="saveAvailability()">Save Availability</button>
+        </div>
+
+        <!-- Current Bookings Tab -->
+        <div id="bookings-tab" class="tab-content">
+            <div class="section-title">Active Bookings</div>
+            <div id="active-bookings">
+                <div class="booking-card booking-active">
+                    <h3>No active bookings</h3>
+                    <p>When you have an active booking, it will appear here with patient details and location.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chat-tab" class="tab-content">
+            <div class="section-title">Patient Communication</div>
+            <div class="chat-section">
+                <div class="chat-messages" id="chat-messages">
+                    <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                        No active conversations
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input" class="form-input" placeholder="Type your message..." style="flex: 1;">
+                    <button class="btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <div class="section-title">Doctor Settings</div>
+            <div class="form-grid">
+                <div class="stat-card">
+                    <div class="section-title">IBAN for Payments</div>
+                    <div class="form-group">
+                        <label class="form-label">Bank Account (IBAN)</label>
+                        <input type="text" id="iban-input" class="form-input" placeholder="ES12 3456 7890 1234 5678 9012">
+                    </div>
+                    <button class="btn" onclick="saveIban()">Update IBAN</button>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="section-title">Service Area</div>
+                    <div class="form-group">
+                        <label class="form-label">Maximum Distance (km)</label>
+                        <input type="number" id="max-distance" class="form-input" value="30" min="5" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Base Price (EUR)</label>
+                        <input type="number" id="base-price" class="form-input" value="80" min="50" max="200">
+                    </div>
+                    <button class="btn" onclick="saveServiceArea()">Update Settings</button>
                 </div>
             </div>
         </div>
@@ -206,10 +299,231 @@
             document.getElementById('login-message').innerHTML = '';
         }
 
+        // Tab management
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load specific tab data
+            if (tabName === 'availability') {
+                loadAvailability();
+            } else if (tabName === 'bookings') {
+                loadActiveBookings();
+            } else if (tabName === 'settings') {
+                loadSettings();
+            }
+        }
+
+        // Load weekly availability
+        function loadAvailability() {
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            
+            const grid = document.getElementById('availability-grid');
+            grid.innerHTML = '';
+            
+            days.forEach((day, index) => {
+                const dayCard = document.createElement('div');
+                dayCard.className = 'day-card';
+                dayCard.innerHTML = `
+                    <h4>${dayNames[index]}</h4>
+                    <label>
+                        <input type="checkbox" id="${day}-available" ${index < 5 ? 'checked' : ''}> Available
+                    </label>
+                    <div style="margin-top: 0.5rem;">
+                        <input type="time" id="${day}-start" value="09:00" class="form-input" style="margin-bottom: 0.25rem;">
+                        <input type="time" id="${day}-end" value="18:00" class="form-input">
+                    </div>
+                `;
+                
+                if (index < 5) {
+                    dayCard.classList.add('available');
+                }
+                
+                grid.appendChild(dayCard);
+            });
+        }
+
+        // Save availability
+        async function saveAvailability() {
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const availability = {};
+            
+            days.forEach(day => {
+                availability[day] = {
+                    available: document.getElementById(day + '-available').checked,
+                    startTime: document.getElementById(day + '-start').value,
+                    endTime: document.getElementById(day + '-end').value
+                };
+            });
+            
+            try {
+                const response = await fetch('/api/doctor/availability', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ weeklyAvailability: availability })
+                });
+                
+                if (response.ok) {
+                    alert('Availability updated successfully!');
+                } else {
+                    alert('Failed to update availability');
+                }
+            } catch (error) {
+                alert('Error updating availability');
+            }
+        }
+
+        // Load active bookings
+        async function loadActiveBookings() {
+            try {
+                const response = await fetch('/api/doctor/active-bookings');
+                const data = await response.json();
+                
+                const container = document.getElementById('active-bookings');
+                if (data.success && data.bookings && data.bookings.length > 0) {
+                    container.innerHTML = data.bookings.map(booking => `
+                        <div class="booking-card booking-active">
+                            <h3>Patient: ${booking.patientName || 'Patient #' + booking.patientId}</h3>
+                            <p><strong>Date:</strong> ${new Date(booking.appointmentDate).toLocaleString()}</p>
+                            <p><strong>Location:</strong> ${booking.location}</p>
+                            <p><strong>Status:</strong> ${booking.status}</p>
+                            <p><strong>Amount:</strong> €${(booking.amount / 100).toFixed(2)}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="booking-card">
+                            <h3>No active bookings</h3>
+                            <p>When you have an active booking, it will appear here with patient details and location.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+            }
+        }
+
+        // Load settings
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/doctor/settings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('iban-input').value = data.settings.bankAccount || '';
+                    document.getElementById('max-distance').value = data.settings.maxDistance || 30;
+                    document.getElementById('base-price').value = (data.settings.basePrice / 100) || 80;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Save IBAN
+        async function saveIban() {
+            const iban = document.getElementById('iban-input').value;
+            
+            try {
+                const response = await fetch('/api/doctor/iban', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bankAccount: iban })
+                });
+                
+                if (response.ok) {
+                    alert('IBAN updated successfully!');
+                } else {
+                    alert('Failed to update IBAN');
+                }
+            } catch (error) {
+                alert('Error updating IBAN');
+            }
+        }
+
+        // Save service area settings
+        async function saveServiceArea() {
+            const maxDistance = document.getElementById('max-distance').value;
+            const basePrice = document.getElementById('base-price').value * 100; // Convert to cents
+            
+            try {
+                const response = await fetch('/api/doctor/service-area', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maxDistance: parseInt(maxDistance), basePrice: parseInt(basePrice) })
+                });
+                
+                if (response.ok) {
+                    alert('Service area settings updated successfully!');
+                } else {
+                    alert('Failed to update settings');
+                }
+            } catch (error) {
+                alert('Error updating settings');
+            }
+        }
+
+        // Send chat message
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            try {
+                const response = await fetch('/api/doctor/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    loadChatMessages();
+                }
+            } catch (error) {
+                alert('Error sending message');
+            }
+        }
+
+        // Load chat messages
+        async function loadChatMessages() {
+            try {
+                const response = await fetch('/api/doctor/chat');
+                const data = await response.json();
+                
+                const container = document.getElementById('chat-messages');
+                if (data.success && data.messages && data.messages.length > 0) {
+                    container.innerHTML = data.messages.map(msg => `
+                        <div style="margin-bottom: 1rem; padding: 0.5rem; background: ${msg.fromDoctor ? '#e0f2fe' : '#f3f4f6'}; border-radius: 4px;">
+                            <strong>${msg.fromDoctor ? 'You' : 'Patient'}:</strong> ${msg.content}
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 0.25rem;">
+                                ${new Date(msg.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">No active conversations</div>';
+                }
+            } catch (error) {
+                console.error('Error loading chat:', error);
+            }
+        }
+
         // Auto-refresh dashboard every 30 seconds
         setInterval(() => {
             if (currentUser) {
                 loadDashboard();
+                loadActiveBookings();
+                loadChatMessages();
             }
         }, 30000);
     </script>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Doctor Registration</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 2rem; }
+        .register-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 3rem; }
+        .logo { text-align: center; margin-bottom: 2rem; }
+        .logo-text { font-size: 28px; font-weight: bold; color: #2563eb; }
+        .subtitle { text-align: center; color: #6b7280; margin-bottom: 3rem; }
+        .form-section { margin-bottom: 2rem; }
+        .section-title { font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 1rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 16px; }
+        .form-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .file-upload { position: relative; }
+        .file-upload input { display: none; }
+        .file-upload label { 
+            display: block; 
+            padding: 3rem; 
+            border: 2px dashed #d1d5db; 
+            border-radius: 8px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s;
+        }
+        .file-upload label:hover { border-color: #2563eb; background: #f8fafc; }
+        .file-preview { margin-top: 1rem; text-align: center; }
+        .file-preview img { max-width: 200px; max-height: 200px; border-radius: 8px; }
+        .btn { width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 2rem; }
+        .btn:hover { background: #1d4ed8; }
+        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .error { color: #dc2626; margin-top: 0.5rem; font-size: 14px; }
+        .success { color: #059669; margin-top: 0.5rem; font-size: 14px; }
+        .specialty-select { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/doctor" class="back-link">← Back to Login</a>
+        
+        <div class="register-card">
+            <div class="logo">
+                <div class="logo-text">OnCall Clinic</div>
+            </div>
+            <div class="subtitle">Doctor Registration Form</div>
+
+            <form id="register-form">
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <div class="section-title">Personal Information</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="firstName">First Name *</label>
+                            <input type="text" id="firstName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email Address *</label>
+                            <input type="email" id="email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" class="form-input" placeholder="+34 600 123 456" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="password">Password *</label>
+                            <input type="password" id="password" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="confirmPassword">Confirm Password *</label>
+                            <input type="password" id="confirmPassword" class="form-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Information -->
+                <div class="form-section">
+                    <div class="section-title">Professional Information</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="licenseNumber">Medical License Number *</label>
+                            <input type="text" id="licenseNumber" class="form-input" placeholder="e.g., 123456789" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="specialty">Medical Specialty *</label>
+                            <select id="specialty" class="form-input specialty-select" required>
+                                <option value="">Select Specialty</option>
+                                <option value="1">General Medicine</option>
+                                <option value="2">Internal Medicine</option>
+                                <option value="3">Pediatrics</option>
+                                <option value="4">Cardiology</option>
+                                <option value="5">Dermatology</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="experience">Years of Experience *</label>
+                            <input type="number" id="experience" class="form-input" min="0" max="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="basePrice">Consultation Fee (EUR) *</label>
+                            <input type="number" id="basePrice" class="form-input" value="80" min="50" max="200" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="education">Education & Qualifications *</label>
+                        <textarea id="education" class="form-input form-textarea" placeholder="Degree, University, Certifications..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="bio">Professional Bio *</label>
+                        <textarea id="bio" class="form-input form-textarea" placeholder="Brief description of your experience and approach to patient care..." required></textarea>
+                    </div>
+                </div>
+
+                <!-- Document Uploads -->
+                <div class="form-section">
+                    <div class="section-title">Required Documents</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Identity Document (Front) *</label>
+                            <div class="file-upload">
+                                <input type="file" id="idFront" accept="image/*" required>
+                                <label for="idFront">
+                                    <div>📄</div>
+                                    <div>Click to upload ID front</div>
+                                    <div style="font-size: 14px; color: #6b7280;">JPG, PNG, PDF up to 5MB</div>
+                                </label>
+                            </div>
+                            <div id="idFrontPreview" class="file-preview"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Identity Document (Back) *</label>
+                            <div class="file-upload">
+                                <input type="file" id="idBack" accept="image/*" required>
+                                <label for="idBack">
+                                    <div>📄</div>
+                                    <div>Click to upload ID back</div>
+                                    <div style="font-size: 14px; color: #6b7280;">JPG, PNG, PDF up to 5MB</div>
+                                </label>
+                            </div>
+                            <div id="idBackPreview" class="file-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Photo -->
+                <div class="form-section">
+                    <div class="section-title">Professional Photo</div>
+                    <div class="form-group">
+                        <label class="form-label">Professional Photo for Website *</label>
+                        <div class="file-upload">
+                            <input type="file" id="professionalPhoto" accept="image/*" required>
+                            <label for="professionalPhoto">
+                                <div>📸</div>
+                                <div>Click to upload professional photo</div>
+                                <div style="font-size: 14px; color: #6b7280;">High quality headshot, JPG or PNG up to 5MB</div>
+                            </label>
+                        </div>
+                        <div id="photoPreview" class="file-preview"></div>
+                    </div>
+                </div>
+
+                <button type="submit" id="register-btn" class="btn">Submit Registration</button>
+                <div id="register-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // File upload preview handlers
+        document.getElementById('idFront').addEventListener('change', function(e) {
+            handleFilePreview(e, 'idFrontPreview');
+        });
+
+        document.getElementById('idBack').addEventListener('change', function(e) {
+            handleFilePreview(e, 'idBackPreview');
+        });
+
+        document.getElementById('professionalPhoto').addEventListener('change', function(e) {
+            handleFilePreview(e, 'photoPreview');
+        });
+
+        function handleFilePreview(event, previewId) {
+            const file = event.target.files[0];
+            const preview = document.getElementById(previewId);
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
+        // Form submission
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('register-btn');
+            const messageDiv = document.getElementById('register-message');
+            
+            // Validate passwords match
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                messageDiv.innerHTML = '<div class="error">Passwords do not match</div>';
+                return;
+            }
+
+            // Validate file uploads
+            const idFront = document.getElementById('idFront').files[0];
+            const idBack = document.getElementById('idBack').files[0];
+            const professionalPhoto = document.getElementById('professionalPhoto').files[0];
+            
+            if (!idFront || !idBack || !professionalPhoto) {
+                messageDiv.innerHTML = '<div class="error">Please upload all required documents</div>';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting Registration...';
+            messageDiv.innerHTML = '';
+
+            try {
+                // Prepare form data
+                const formData = new FormData();
+                
+                // Personal information
+                formData.append('firstName', document.getElementById('firstName').value);
+                formData.append('lastName', document.getElementById('lastName').value);
+                formData.append('email', document.getElementById('email').value);
+                formData.append('phone', document.getElementById('phone').value);
+                formData.append('password', password);
+                
+                // Professional information
+                formData.append('licenseNumber', document.getElementById('licenseNumber').value);
+                formData.append('specialtyId', document.getElementById('specialty').value);
+                formData.append('experience', document.getElementById('experience').value);
+                formData.append('basePrice', document.getElementById('basePrice').value * 100); // Convert to cents
+                formData.append('education', document.getElementById('education').value);
+                formData.append('bio', document.getElementById('bio').value);
+                
+                // Files
+                formData.append('idFront', idFront);
+                formData.append('idBack', idBack);
+                formData.append('professionalPhoto', professionalPhoto);
+
+                const response = await fetch('/api/doctor/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.innerHTML = '<div class="success">Registration submitted successfully! You will receive an email confirmation once your account is verified by our medical team.</div>';
+                    document.getElementById('register-form').reset();
+                    
+                    // Clear previews
+                    document.getElementById('idFrontPreview').innerHTML = '';
+                    document.getElementById('idBackPreview').innerHTML = '';
+                    document.getElementById('photoPreview').innerHTML = '';
+                } else {
+                    messageDiv.innerHTML = '<div class="error">' + data.message + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="error">Connection error. Please try again.</div>';
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Registration';
+        });
+    </script>
+</body>
+</html>
