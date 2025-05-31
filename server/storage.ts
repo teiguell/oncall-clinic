@@ -201,7 +201,15 @@ export class MemStorage implements IStorage {
       commissionRate: 0.15,
       verificationDate: new Date(),
       verifiedBy: 1, // Admin user
-      verificationNotes: "Test doctor verified for sandbox mode",
+      weeklyAvailability: {
+        monday: { available: true, startTime: "09:00", endTime: "18:00" },
+        tuesday: { available: true, startTime: "09:00", endTime: "18:00" },
+        wednesday: { available: true, startTime: "09:00", endTime: "18:00" },
+        thursday: { available: true, startTime: "09:00", endTime: "18:00" },
+        friday: { available: true, startTime: "09:00", endTime: "18:00" },
+        saturday: { available: false, startTime: "", endTime: "" },
+        sunday: { available: false, startTime: "", endTime: "" }
+      },
       identityDocFront: null,
       identityDocBack: null,
       bankAccount: null,
