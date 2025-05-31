@@ -105,12 +105,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .btn-primary { background: #2563eb; color: white; }
         .btn-ghost { background: transparent; color: #374151; }
         .hero { 
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%); 
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(29, 78, 216, 0.95) 50%, rgba(30, 64, 175, 0.95) 100%),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><radialGradient id="pulse1" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:0" /></radialGradient><radialGradient id="pulse2" cx="20%" cy="30%" r="30%"><stop offset="0%" style="stop-color:rgba(99,179,237,0.2);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(99,179,237,0);stop-opacity:0" /></radialGradient></defs><rect width="1200" height="800" fill="url(%23pulse1)"/><circle cx="240" cy="240" r="120" fill="url(%23pulse2)" opacity="0.6"><animate attributeName="r" values="120;140;120" dur="4s" repeatCount="indefinite"/></circle><circle cx="960" cy="160" r="80" fill="url(%23pulse2)" opacity="0.4"><animate attributeName="r" values="80;100;80" dur="3s" repeatCount="indefinite"/></circle><circle cx="600" cy="400" r="100" fill="url(%23pulse1)" opacity="0.3"><animate attributeName="r" values="100;120;100" dur="5s" repeatCount="indefinite"/></circle><path d="M0,400 Q300,300 600,400 T1200,400 L1200,800 L0,800 Z" fill="rgba(255,255,255,0.03)"><animateTransform attributeName="transform" type="translate" values="0,0;-100,10;0,0" dur="8s" repeatCount="indefinite"/></path></svg>');
+            background-size: cover;
+            background-position: center;
             color: white; 
-            padding: 6rem 0; 
+            padding: 8rem 0; 
             text-align: center; 
             position: relative;
             overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
         }
         .hero::before {
             content: '';
@@ -119,44 +125,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-            opacity: 0.3;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+            animation: pulse 6s ease-in-out infinite alternate;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
         .hero-content { position: relative; z-index: 1; }
         .hero h1 { 
-            font-size: 4rem; 
-            font-weight: 800; 
-            margin-bottom: 1.5rem; 
+            font-size: 4.5rem; 
+            font-weight: 900; 
+            margin-bottom: 1rem; 
             line-height: 1.1; 
-            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            background: linear-gradient(45deg, #ffffff, #fbbf24, #ffffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: textGlow 3s ease-in-out infinite alternate;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        @keyframes textGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
+            100% { filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.8)); }
+        }
+        .hero-subtitle {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         .hero p { 
-            font-size: 1.4rem; 
-            margin-bottom: 3rem; 
+            font-size: 1.5rem; 
+            margin-bottom: 2rem; 
             opacity: 0.95; 
-            max-width: 700px; 
+            max-width: 750px; 
             margin-left: auto; 
             margin-right: auto; 
-            line-height: 1.6;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+        .hero-stat {
+            text-align: center;
+            color: white;
+        }
+        .hero-stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #fbbf24;
+            display: block;
+            line-height: 1;
+        }
+        .hero-stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
         }
         .btn-hero { 
-            background: white; 
-            color: #2563eb; 
-            padding: 16px 40px; 
-            font-size: 18px; 
-            font-weight: 600; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border-radius: 50px;
-            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: #1e40af; 
+            padding: 20px 50px; 
+            font-size: 20px; 
+            font-weight: 800; 
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.4);
+            border-radius: 60px;
+            transition: all 0.4s ease;
             border: none;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+        .btn-hero:hover::before {
+            left: 100%;
         }
         .btn-hero:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(251, 191, 36, 0.6);
+            background: linear-gradient(45deg, #f59e0b, #d97706);
         }
         .benefits { 
             padding: 6rem 0; 
@@ -327,17 +400,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     </svg>
                 </div>
                 <div class="nav-buttons">
-                    <a href="#doctors" class="btn btn-primary">Encontrar Doctor</a>
-                    <a href="#login" class="btn btn-ghost">Iniciar Sesión</a>
+                    <a href="/doctors" class="btn btn-primary">Encontrar Doctor</a>
+                    <a href="/login" class="btn btn-ghost">Iniciar Sesión</a>
                 </div>
             </div>
         </div>
     </nav>
     <section class="hero">
-        <div class="container hero-content">
-            <h1>Atención médica a domicilio</h1>
-            <p>Conectamos pacientes con doctores verificados para consultas médicas profesionales en la comodidad de tu hogar</p>
-            <a href="#doctors" class="btn btn-hero">Buscar Doctor Ahora</a>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-subtitle">🏥 Atención Médica Premium</div>
+                <h1>Tu Médico a Domicilio</h1>
+                <p>Conectamos pacientes con médicos verificados para consultas médicas profesionales en la comodidad de tu hogar. Servicio disponible 24/7 con atención inmediata.</p>
+                
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">1500+</span>
+                        <div class="hero-stat-label">Pacientes Atendidos</div>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">24/7</span>
+                        <div class="hero-stat-label">Disponibilidad</div>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">15min</span>
+                        <div class="hero-stat-label">Tiempo Promedio</div>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">4.9★</span>
+                        <div class="hero-stat-label">Calificación</div>
+                    </div>
+                </div>
+                
+                <a href="/booking" class="btn btn-hero">🚀 Solicitar Consulta Ahora</a>
+            </div>
         </div>
     </section>
     <section class="benefits">
