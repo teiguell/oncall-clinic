@@ -69,7 +69,11 @@ async function main() {
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    try {
+      serveStatic(app);
+    } catch (error) {
+      log("Static files not available, continuing with API only");
+    }
   }
 
   // Start server
