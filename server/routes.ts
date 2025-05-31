@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import path from 'path';
+import multer from 'multer';
 import { 
   insertUserSchema, 
   insertPatientProfileSchema, 
@@ -75,6 +76,21 @@ async function isAuthenticated(req: Request, res: Response): Promise<{userId: nu
     userType: req.session.user.userType
   };
 }
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: 'uploads/',
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -508,6 +524,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error updating service area:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Doctor Registration Endpoint
+  app.post('/api/doctor/register', upload.fields([
+    { name: 'idFront', maxCount: 1 },
+    { name: 'idBack', maxCount: 1 },
+    { name: 'professionalPhoto', maxCount: 1 }
+  ]), async (req, res) => {
+    try {
+      const {
+        firstName, lastName, email, phone, password,
+        licenseNumber, specialtyId, experience, basePrice,
+        education, bio
+      } = req.body;
+
+      // Validate required fields
+      if (!firstName || !lastName || !email || !phone || !password ||
+          !licenseNumber || !specialtyId || !experience || !basePrice ||
+          !education || !bio) {
+        return res.status(400).json({
+          success: false,
+          message: 'All fields are required'
+        });
+      }
+
+      // Check if email already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already registered'
+        });
+      }
+
+      // Validate file uploads
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      if (!files.idFront || !files.idBack || !files.professionalPhoto) {
+        return res.status(400).json({
+          success: false,
+          message: 'All required documents must be uploaded'
+        });
+      }
+
+      // Hash password
+      const hashedPassword = hashPassword(password);
+
+      // Create user account
+      const newUser = await storage.createUser({
+        username: email,
+        email,
+        password: hashedPassword,
+        userType: 'doctor',
+        firstName,
+        lastName,
+        phoneNumber: phone,
+        emailVerified: false
+      });
+
+      // Create doctor profile
+      const doctorProfile = await storage.createDoctorProfile({
+        userId: newUser.id,
+        specialtyId: parseInt(specialtyId),
+        licenseNumber,
+        education,
+        experience: parseInt(experience),
+        bio,
+        basePrice: parseInt(basePrice),
+        identityDocFront: files.idFront[0].filename,
+        identityDocBack: files.idBack[0].filename,
+        professionalPhoto: files.professionalPhoto[0].filename,
+        isVerified: false,
+        isAvailable: false
+      });
+
+      res.json({
+        success: true,
+        message: 'Registration submitted successfully. Your account will be reviewed by our medical team.',
+        doctorId: doctorProfile.id
+      });
+
+    } catch (error) {
+      console.error('Doctor registration error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
     }
   });
 
