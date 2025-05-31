@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Professional Home Medical Care</title>
+    <meta name="description" content="Expert medical attention when you need it, in the comfort of your home">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%232563eb'/><path d='M30 50h40M50 30v40' stroke='white' stroke-width='8' stroke-linecap='round'/></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+            line-height: 1.6; 
+            color: #1f2937; 
+            background: #ffffff;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        
+        /* Language Switcher */
+        .lang-switcher { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 1000; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            padding: 4px;
+            border: 1px solid #e5e7eb;
+        }
+        .lang-switcher button {
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+        .lang-switcher button:hover { background: #f3f4f6; color: #1f2937; }
+        .lang-switcher button.active { background: #2563eb; color: white; }
+
+        /* Navigation */
+        .nav { 
+            background: white; 
+            border-bottom: 1px solid #e5e7eb; 
+            padding: 1rem 0; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; }
+        .logo-icon { 
+            width: 36px; 
+            height: 36px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            border-radius: 50%; 
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-icon::after {
+            content: '+';
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .logo-text { 
+            font-size: 28px; 
+            font-weight: 800; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .nav-buttons { display: flex; gap: 1rem; align-items: center; }
+        .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            text-decoration: none; 
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .btn-outline { 
+            background: transparent; 
+            color: #2563eb; 
+            border: 2px solid #2563eb;
+        }
+        .btn-outline:hover { background: #2563eb; color: white; }
+        .btn-primary { 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Hero Section */
+        .hero { 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 5rem 0; 
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23e2e8f0" opacity="0.5"/></svg>') repeat;
+            opacity: 0.3;
+        }
+        .hero-content { position: relative; z-index: 10; }
+        .hero h1 { 
+            font-size: 3.5rem; 
+            font-weight: 900; 
+            margin-bottom: 1.5rem; 
+            background: linear-gradient(135deg, #1f2937, #374151);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        .hero p { 
+            font-size: 1.25rem; 
+            color: #6b7280; 
+            margin-bottom: 2.5rem; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto;
+        }
+        .hero .btn-primary { 
+            font-size: 18px; 
+            padding: 16px 32px;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Features Section */
+        .features { padding: 5rem 0; background: white; }
+        .features h2 { 
+            text-align: center; 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+        .features-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 2rem; 
+        }
+        .feature-card { 
+            background: #f8fafc; 
+            border-radius: 16px; 
+            padding: 2rem; 
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: #2563eb;
+        }
+        .feature-icon { 
+            width: 64px; 
+            height: 64px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            border-radius: 50%; 
+            margin: 0 auto 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .feature-card h3 { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        .feature-card p { 
+            color: #6b7280; 
+            font-size: 1rem;
+        }
+
+        /* Doctors Section */
+        .doctors { padding: 5rem 0; background: #f8fafc; }
+        .doctors h2 { 
+            text-align: center; 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+        .doctor-card { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 2rem; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .doctor-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+        .doctor-header { display: flex; align-items: center; margin-bottom: 1.5rem; }
+        .doctor-avatar { 
+            width: 80px; 
+            height: 80px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            border-radius: 50%; 
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .doctor-info h3 { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        .doctor-specialty { 
+            color: #2563eb; 
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .doctor-details { margin-bottom: 1.5rem; }
+        .doctor-details p { 
+            margin-bottom: 0.5rem; 
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+        .doctor-rating { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            margin-bottom: 1rem;
+        }
+        .stars { color: #fbbf24; font-size: 1.2rem; }
+        .doctor-price { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 1.5rem;
+        }
+        .price { 
+            font-size: 2rem; 
+            font-weight: 800; 
+            color: #2563eb;
+        }
+        .price-text { 
+            color: #6b7280; 
+            font-size: 0.9rem;
+        }
+        .available-badge { 
+            background: #10b981; 
+            color: white; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer { 
+            background: #1f2937; 
+            color: white; 
+            text-align: center; 
+            padding: 3rem 0;
+        }
+        .footer p { 
+            font-size: 1.1rem; 
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1.1rem; }
+            .nav-buttons { gap: 0.5rem; }
+            .btn { padding: 10px 16px; font-size: 14px; }
+            .lang-switcher { top: 10px; right: 10px; }
+        }
+
+        /* Animation */
+        .fade-in { 
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text">OnCall Clinic</div>
+                </div>
+                <div class="nav-buttons">
+                    <a href="#" class="btn btn-outline" data-text="findDoctor">Find Doctor</a>
+                    <a href="#" class="btn btn-primary" data-text="login">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content fade-in">
+                <h1 data-text="heroTitle">Professional Medical Care at Home</h1>
+                <p data-text="heroSubtitle">Expert medical attention when you need it, in the comfort of your home</p>
+                <a href="#" class="btn btn-primary" data-text="bookNow">Book Doctor Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 data-text="whyChoose">Why Choose OnCall Clinic?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 data-text="fastResponse">Fast Response</h3>
+                    <p data-text="fastResponseDesc">Medical care at home in less than 1 hour</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 data-text="securePayment">Secure Payment</h3>
+                    <p data-text="securePaymentDesc">Safe and reliable online payment system</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <h3 data-text="realTimeTracking">Real-Time Tracking</h3>
+                    <p data-text="realTimeTrackingDesc">Track your doctor's location in real time</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✓</div>
+                    <h3 data-text="verifiedDoctors">Verified Doctors</h3>
+                    <p data-text="verifiedDoctorsDesc">All doctors are verified and licensed</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doctors Section -->
+    <section class="doctors">
+        <div class="container">
+            <h2 data-text="availableDoctors">Available Doctors</h2>
+            <div class="doctor-card">
+                <div class="doctor-header">
+                    <div class="doctor-avatar">MG</div>
+                    <div class="doctor-info">
+                        <h3 data-text="doctorName">Dr. Maria Gonzalez</h3>
+                        <div class="doctor-specialty" data-text="specialty">General Medicine</div>
+                    </div>
+                </div>
+                <div class="doctor-details">
+                    <p data-text="education">Medical Degree, National University</p>
+                    <div class="doctor-rating">
+                        <span class="stars">★★★★★</span>
+                        <span data-text="rating">4.8 rating</span>
+                    </div>
+                    <p data-text="doctorDesc">General physician with extensive experience in home medical care</p>
+                </div>
+                <div class="doctor-price">
+                    <div>
+                        <div class="price" data-text="price">$80</div>
+                        <div class="price-text" data-text="priceText">per visit</div>
+                    </div>
+                    <div class="available-badge" data-text="availableNow">Available Now</div>
+                </div>
+                <a href="#" class="btn btn-primary" style="width: 100%; text-align: center;" data-text="bookAppointment">Book Appointment</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p data-text="footerText">Professional home medical care. Available 24 hours.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                title: "OnCall Clinic - Professional Home Medical Care",
+                findDoctor: "Find Doctor",
+                login: "Login",
+                heroTitle: "Professional Medical Care at Home",
+                heroSubtitle: "Expert medical attention when you need it, in the comfort of your home",
+                bookNow: "Book Doctor Now",
+                whyChoose: "Why Choose OnCall Clinic?",
+                fastResponse: "Fast Response",
+                fastResponseDesc: "Medical care at home in less than 1 hour",
+                securePayment: "Secure Payment",
+                securePaymentDesc: "Safe and reliable online payment system",
+                realTimeTracking: "Real-Time Tracking",
+                realTimeTrackingDesc: "Track your doctor's location in real time",
+                verifiedDoctors: "Verified Doctors",
+                verifiedDoctorsDesc: "All doctors are verified and licensed",
+                availableDoctors: "Available Doctors",
+                doctorName: "Dr. Maria Gonzalez",
+                specialty: "General Medicine",
+                education: "Medical Degree, National University",
+                rating: "4.8 rating",
+                price: "$80",
+                priceText: "per visit",
+                availableNow: "Available Now",
+                doctorDesc: "General physician with extensive experience in home medical care",
+                bookAppointment: "Book Appointment",
+                footerText: "Professional home medical care. Available 24 hours."
+            },
+            es: {
+                title: "OnCall Clinic - Atención Médica Profesional a Domicilio",
+                findDoctor: "Encontrar Doctor",
+                login: "Iniciar Sesión",
+                heroTitle: "Atención Médica Profesional a Domicilio",
+                heroSubtitle: "Atención médica experta cuando la necesites, en la comodidad de tu hogar",
+                bookNow: "Reservar Doctor Ahora",
+                whyChoose: "¿Por qué elegir OnCall Clinic?",
+                fastResponse: "Respuesta Rápida",
+                fastResponseDesc: "Atención médica en casa en menos de 1 hora",
+                securePayment: "Pago Seguro",
+                securePaymentDesc: "Sistema de pago en línea seguro y confiable",
+                realTimeTracking: "Seguimiento en Tiempo Real",
+                realTimeTrackingDesc: "Rastrea la ubicación de tu doctor en tiempo real",
+                verifiedDoctors: "Doctores Verificados",
+                verifiedDoctorsDesc: "Todos los doctores están verificados y licenciados",
+                availableDoctors: "Doctores Disponibles",
+                doctorName: "Dra. María González",
+                specialty: "Medicina General",
+                education: "Título Médico, Universidad Nacional",
+                rating: "4.8 calificación",
+                price: "$80",
+                priceText: "por visita",
+                availableNow: "Disponible Ahora",
+                doctorDesc: "Médico general con amplia experiencia en atención médica domiciliaria",
+                bookAppointment: "Reservar Cita",
+                footerText: "Atención médica profesional a domicilio. Disponible las 24 horas."
+            }
+        };
+
+        let currentLang = 'en';
+
+        function updateLanguage(lang) {
+            currentLang = lang;
+            const htmlRoot = document.getElementById('html-root');
+            htmlRoot.setAttribute('lang', lang);
+            
+            // Update title
+            document.title = translations[lang].title;
+            
+            // Update all text elements
+            document.querySelectorAll('[data-text]').forEach(element => {
+                const key = element.getAttribute('data-text');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Store preference
+            localStorage.setItem('oncall-clinic-lang', lang);
+        }
+
+        // Initialize language
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved language preference
+            const savedLang = localStorage.getItem('oncall-clinic-lang') || 'en';
+            updateLanguage(savedLang);
+
+            // Add language switcher event listeners
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    updateLanguage(lang);
+                });
+            });
+
+            // Add smooth scroll behavior
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
