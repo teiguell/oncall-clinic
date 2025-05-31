@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Connect with Verified Doctors</title>
+    <meta name="description" content="Connect with verified general medicine doctors for professional home consultations. We are not a clinic - we connect you with licensed medical professionals in your area.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%232563eb' stroke='white' stroke-width='8'/><path d='M35 50h30M50 35v30' stroke='white' stroke-width='6' stroke-linecap='round'/></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+            line-height: 1.6; 
+            color: #1f2937; 
+            background: #ffffff;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        
+        /* Language Switcher - Fixed position top right */
+        .lang-switcher { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 1000; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
+            padding: 4px;
+            border: 1px solid #e5e7eb;
+        }
+        .lang-switcher button {
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+        .lang-switcher button:hover { background: #f3f4f6; color: #1f2937; }
+        .lang-switcher button.active { background: #2563eb; color: white; }
+
+        /* Navigation */
+        .nav { 
+            background: white; 
+            border-bottom: 1px solid #e5e7eb; 
+            padding: 1rem 0; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; cursor: pointer; }
+        .logo-icon { 
+            width: 40px; 
+            height: 40px; 
+            background: transparent;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%232563eb" stroke="white" stroke-width="4"/><path d="M35 50h30M50 35v30" stroke="white" stroke-width="5" stroke-linecap="round"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-right: 12px;
+        }
+        .logo-text { 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: #2563eb;
+        }
+
+        /* Hero Section */
+        .hero { 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 3rem 0; 
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-content { position: relative; z-index: 10; width: 100%; }
+        .hero h1 { 
+            font-size: 3rem; 
+            font-weight: 900; 
+            margin-bottom: 1rem; 
+            color: #1f2937;
+            line-height: 1.2;
+        }
+        .hero-disclaimer {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem auto 2rem;
+            max-width: 600px;
+            font-weight: 600;
+            color: #92400e;
+        }
+        .hero p { 
+            font-size: 1.3rem; 
+            color: #4b5563; 
+            margin-bottom: 2.5rem; 
+            max-width: 700px; 
+            margin-left: auto; 
+            margin-right: auto;
+            font-weight: 500;
+        }
+        
+        /* Main Action Buttons */
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .btn-hero {
+            padding: 18px 36px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+        .btn-patient {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+        .btn-patient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.4);
+        }
+        .btn-doctor {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+        }
+        .btn-doctor:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(5, 150, 105, 0.4);
+        }
+
+        /* Buttons */
+        .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            text-decoration: none; 
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            text-align: center;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+        .btn-secondary { 
+            background: #f3f4f6; 
+            color: #374151; 
+            border: 2px solid #e5e7eb;
+        }
+        .btn-secondary:hover { 
+            background: #e5e7eb; 
+        }
+
+        /* Forms */
+        .form-container { 
+            max-width: 500px; 
+            margin: 2rem auto; 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            color: #374151;
+        }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 8px; 
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            outline: none; 
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Modal */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content { 
+            background-color: white; 
+            margin: 2% auto; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            width: 95%; 
+            max-width: 600px;
+            position: relative;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        .close { 
+            color: #aaa; 
+            float: right; 
+            font-size: 28px; 
+            font-weight: bold; 
+            cursor: pointer;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+        .close:hover { color: black; }
+
+        /* Progress Indicator */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.5rem;
+            font-weight: 600;
+            color: #6b7280;
+            position: relative;
+        }
+        .progress-step.active {
+            background: #2563eb;
+            color: white;
+        }
+        .progress-step.completed {
+            background: #10b981;
+            color: white;
+        }
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 20px;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: -1;
+        }
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        /* Step Navigation */
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 300px;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border: 2px solid #e5e7eb;
+        }
+
+        /* Doctor Cards */
+        .doctors-grid {
+            display: grid;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .doctor-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .doctor-card:hover, .doctor-card.selected { 
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .doctor-header { display: flex; align-items: center; margin-bottom: 1rem; }
+        .doctor-avatar { 
+            width: 60px; 
+            height: 60px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            border-radius: 50%; 
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .doctor-info h3 { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            margin-bottom: 0.25rem;
+            color: #1f2937;
+        }
+        .doctor-specialty { 
+            color: #6b7280; 
+            font-size: 0.9rem;
+        }
+        .doctor-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .doctor-rating {
+            color: #fbbf24;
+        }
+        .doctor-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .availability-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Time Slots */
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .time-slot {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .time-slot:hover, .time-slot.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        /* Verification */
+        .verification-container {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        /* Footer */
+        .footer { 
+            background: #1f2937; 
+            color: white; 
+            padding: 3rem 0;
+        }
+        .footer-content { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .footer-section h4 { 
+            margin-bottom: 1rem; 
+            font-size: 1.2rem;
+        }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.5rem; }
+        .footer-links a { 
+            color: #d1d5db; 
+            text-decoration: none; 
+            transition: color 0.3s ease;
+        }
+        .footer-links a:hover { color: white; }
+        .footer-bottom { 
+            border-top: 1px solid #374151; 
+            padding-top: 2rem; 
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1.1rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .btn-hero { min-width: 250px; }
+            .step-navigation { flex-direction: column; }
+            .progress-steps { margin-bottom: 1rem; }
+            .progress-step { margin: 0.25rem; }
+            .lang-switcher { top: 10px; right: 10px; }
+        }
+
+        /* Page visibility */
+        .page { display: none; }
+        .page.active { display: block; }
+        .booking-step { display: none; }
+        .booking-step.active { display: block; }
+        .hidden { display: none !important; }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo" onclick="showPage('home')">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text">OnCall Clinic</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 data-text="heroTitle">Connect with Verified Doctors</h1>
+                    
+                    <div class="hero-disclaimer">
+                        <p data-text="disclaimer">We are not a clinic. We connect patients with verified, licensed general medicine doctors for professional home consultations.</p>
+                    </div>
+                    
+                    <p data-text="heroSubtitle">Book verified general medicine doctors for home consultations. Available 24/7 with secure payment and real-time tracking.</p>
+                    
+                    <div class="hero-buttons">
+                        <button class="btn-hero btn-patient" onclick="startPatientFlow()" data-text="imPatient">I'm a Patient</button>
+                        <button class="btn-hero btn-doctor" onclick="showPage('doctor')" data-text="imDoctor">I'm a Doctor</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" style="padding: 4rem 0; background: white;">
+            <div class="container">
+                <h2 data-text="whyChoose" style="text-align: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 3rem; color: #1f2937;">Why Choose OnCall Clinic?</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                    <div style="background: #f8fafc; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid #e2e8f0;">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 24px;">⚡</div>
+                        <h3 data-text="fastResponse" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1f2937;">Fast Response</h3>
+                        <p data-text="fastResponseDesc" style="color: #6b7280;">General medicine doctors available within 30 minutes in your area</p>
+                    </div>
+                    <div style="background: #f8fafc; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid #e2e8f0;">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 24px;">🔒</div>
+                        <h3 data-text="securePayment" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1f2937;">Secure Payment</h3>
+                        <p data-text="securePaymentDesc" style="color: #6b7280;">Safe payment processing with SMS and email confirmation</p>
+                    </div>
+                    <div style="background: #f8fafc; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid #e2e8f0;">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 24px;">📱</div>
+                        <h3 data-text="phoneVerification" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1f2937;">Phone Verification</h3>
+                        <p data-text="phoneVerificationDesc" style="color: #6b7280;">SMS verification with tracking code for your appointment</p>
+                    </div>
+                    <div style="background: #f8fafc; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid #e2e8f0;">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 24px;">✓</div>
+                        <h3 data-text="verifiedDoctors" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1f2937;">Verified Doctors</h3>
+                        <p data-text="verifiedDoctorsDesc" style="color: #6b7280;">Licensed general medicine doctors, verified and background-checked</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Doctor Page -->
+    <div id="doctor-page" class="page">
+        <section style="padding: 4rem 0; background: #f8fafc;">
+            <div class="container">
+                <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                    <h2 data-text="joinOnCall" style="font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem; color: #1f2937;">Join OnCall Clinic</h2>
+                    
+                    <div style="background: white; padding: 2.5rem; border-radius: 16px; margin: 2rem 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 4px solid #059669;">
+                        <p data-text="businessPlan" style="font-size: 1.1rem; color: #374151; margin-bottom: 1.5rem; line-height: 1.7;">Join OnCall Clinic and start receiving verified home consultation requests in your area. We charge only a 10% fee per service (including payment processing). You receive your payment as soon as the consultation is marked completed. Patients are verified and geolocated. Join now and get your first three months free.</p>
+                        
+                        <button class="btn btn-secondary" onclick="openBusinessPlan()" style="margin-top: 1rem;" data-text="viewBusinessPlan">
+                            View Complete Business Plan
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
+                        <button class="btn btn-primary" onclick="showDoctorLogin()" data-text="doctorLogin">Doctor Login</button>
+                        <button class="btn btn-secondary" onclick="showDoctorRegister()" data-text="joinAsDoctor">Join as Doctor</button>
+                    </div>
+
+                    <!-- Doctor Login/Register Forms would go here -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Patient Booking Modal -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBookingModal()">&times;</span>
+            
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="progress-step active" id="step-1">1</div>
+                <div class="progress-step" id="step-2">2</div>
+                <div class="progress-step" id="step-3">3</div>
+                <div class="progress-step" id="step-4">4</div>
+                <div class="progress-step" id="step-5">5</div>
+            </div>
+
+            <!-- Step 1: Time Selection -->
+            <div id="booking-step-1" class="booking-step active">
+                <h2 style="text-align: center; margin-bottom: 1.5rem;" data-text="selectTime">Select Preferred Time</h2>
+                
+                <div class="form-group">
+                    <label data-text="preferredDate">Preferred Date</label>
+                    <input type="date" id="appointment-date" min="">
+                </div>
+                
+                <div class="form-group">
+                    <label data-text="preferredTime">Preferred Time</label>
+                    <div class="time-slots" id="time-slots">
+                        <div class="time-slot" data-time="asap">ASAP</div>
+                        <div class="time-slot" data-time="09:00">9:00 AM</div>
+                        <div class="time-slot" data-time="10:00">10:00 AM</div>
+                        <div class="time-slot" data-time="11:00">11:00 AM</div>
+                        <div class="time-slot" data-time="14:00">2:00 PM</div>
+                        <div class="time-slot" data-time="15:00">3:00 PM</div>
+                        <div class="time-slot" data-time="16:00">4:00 PM</div>
+                        <div class="time-slot" data-time="17:00">5:00 PM</div>
+                    </div>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn btn-secondary" onclick="closeBookingModal()" data-text="cancel">Cancel</button>
+                    <button class="btn btn-primary" onclick="nextStep(2)" data-text="continue">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Location -->
+            <div id="booking-step-2" class="booking-step">
+                <h2 style="text-align: center; margin-bottom: 1.5rem;" data-text="yourLocation">Your Location</h2>
+                
+                <div class="form-group">
+                    <label data-text="address">Address</label>
+                    <input type="text" id="address-input" placeholder="Start typing your address...">
+                    <div id="address-suggestions" style="border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; display: none;"></div>
+                </div>
+                
+                <div class="map-container" id="map"></div>
+                
+                <div style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 12px; padding: 1rem; margin: 1rem 0; text-align: center;">
+                    <p data-text="locationNote">We'll use this location to find doctors in your area (within 30km)</p>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn btn-secondary" onclick="prevStep(1)" data-text="back">Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)" data-text="continue">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Doctor Selection -->
+            <div id="booking-step-3" class="booking-step">
+                <h2 style="text-align: center; margin-bottom: 1.5rem;" data-text="doctorsInArea">Doctors in Your Area</h2>
+                
+                <div id="doctors-loading" style="text-align: center; padding: 2rem;">
+                    <div class="loading"></div>
+                    <p data-text="searchingDoctors" style="margin-top: 1rem;">Searching for available doctors...</p>
+                </div>
+                
+                <div class="doctors-grid" id="doctors-grid"></div>
+
+                <div class="step-navigation">
+                    <button class="btn btn-secondary" onclick="prevStep(2)" data-text="back">Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(4)" disabled id="select-doctor-btn" data-text="selectDoctor">Select Doctor</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Contact Information -->
+            <div id="booking-step-4" class="booking-step">
+                <h2 style="text-align: center; margin-bottom: 1.5rem;" data-text="contactInfo">Contact Information</h2>
+                
+                <div class="form-group">
+                    <label data-text="fullName">Full Name</label>
+                    <input type="text" id="patient-name" placeholder="John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label data-text="phoneNumber">Phone Number</label>
+                    <input type="tel" id="patient-phone" placeholder="+1 (555) 123-4567">
+                </div>
+                
+                <div class="form-group">
+                    <label data-text="email">Email</label>
+                    <input type="email" id="patient-email" placeholder="john@example.com">
+                </div>
+
+                <div class="verification-container">
+                    <p data-text="verificationNote">We'll send an SMS verification code to confirm your phone number and provide appointment tracking.</p>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn btn-secondary" onclick="prevStep(3)" data-text="back">Back</button>
+                    <button class="btn btn-primary" onclick="verifyPhone()" data-text="verify">Verify & Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Payment -->
+            <div id="booking-step-5" class="booking-step">
+                <h2 style="text-align: center; margin-bottom: 1.5rem;" data-text="payment">Payment</h2>
+                
+                <div id="booking-summary" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <!-- Booking summary will be populated here -->
+                </div>
+                
+                <div class="form-group">
+                    <label data-text="cardNumber">Card Number</label>
+                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label data-text="expiry">Expiry</label>
+                        <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label data-text="cvv">CVV</label>
+                        <input type="text" id="card-cvv" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+                
+                <div class="step-navigation">
+                    <button class="btn btn-secondary" onclick="prevStep(4)" data-text="back">Back</button>
+                    <button class="btn btn-primary" onclick="processPayment()" style="font-size: 18px; padding: 16px;" data-text="completeBooking">Complete Booking</button>
+                </div>
+                
+                <p style="text-align: center; font-size: 0.9rem; color: #6b7280; margin-top: 1rem;" data-text="testMode">
+                    Test mode - No real charges will be made
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>OnCall Clinic</h4>
+                    <p style="color: #d1d5db;" data-text="footerDescription">Connecting patients with verified general medicine doctors. Available 24/7.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 data-text="legal">Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="showLegalPage('privacy')" data-text="privacyPolicy">Privacy Policy</a></li>
+                        <li><a href="#" onclick="showLegalPage('terms')" data-text="termsOfUse">Terms of Use</a></li>
+                        <li><a href="#" onclick="showLegalPage('cookies')" data-text="cookiesPolicy">Cookies Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-text="contact">Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@oncallclinic.com">support@oncallclinic.com</a></li>
+                        <li><a href="tel:+1-555-ONCALL">+1 (555) ON-CALL</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 OnCall Clinic. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+    
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                heroTitle: "Connect with Verified Doctors",
+                disclaimer: "We are not a clinic. We connect patients with verified, licensed general medicine doctors for professional home consultations.",
+                heroSubtitle: "Book verified general medicine doctors for home consultations. Available 24/7 with secure payment and real-time tracking.",
+                imPatient: "I'm a Patient",
+                imDoctor: "I'm a Doctor",
+                whyChoose: "Why Choose OnCall Clinic?",
+                fastResponse: "Fast Response",
+                fastResponseDesc: "General medicine doctors available within 30 minutes in your area",
+                securePayment: "Secure Payment",
+                securePaymentDesc: "Safe payment processing with SMS and email confirmation",
+                phoneVerification: "Phone Verification",
+                phoneVerificationDesc: "SMS verification with tracking code for your appointment",
+                verifiedDoctors: "Verified Doctors",
+                verifiedDoctorsDesc: "Licensed general medicine doctors, verified and background-checked",
+                joinOnCall: "Join OnCall Clinic",
+                businessPlan: "Join OnCall Clinic and start receiving verified home consultation requests in your area. We charge only a 10% fee per service (including payment processing). You receive your payment as soon as the consultation is marked completed. Patients are verified and geolocated. Join now and get your first three months free.",
+                viewBusinessPlan: "View Complete Business Plan",
+                doctorLogin: "Doctor Login",
+                joinAsDoctor: "Join as Doctor",
+                selectTime: "Select Preferred Time",
+                preferredDate: "Preferred Date",
+                preferredTime: "Preferred Time",
+                yourLocation: "Your Location",
+                address: "Address",
+                locationNote: "We'll use this location to find doctors in your area (within 30km)",
+                doctorsInArea: "Doctors in Your Area",
+                searchingDoctors: "Searching for available doctors...",
+                contactInfo: "Contact Information",
+                fullName: "Full Name",
+                phoneNumber: "Phone Number",
+                email: "Email",
+                verificationNote: "We'll send an SMS verification code to confirm your phone number and provide appointment tracking.",
+                payment: "Payment",
+                cardNumber: "Card Number",
+                expiry: "Expiry",
+                cvv: "CVV",
+                completeBooking: "Complete Booking",
+                testMode: "Test mode - No real charges will be made",
+                cancel: "Cancel",
+                continue: "Continue",
+                back: "Back",
+                selectDoctor: "Select Doctor",
+                verify: "Verify & Continue",
+                footerDescription: "Connecting patients with verified general medicine doctors. Available 24/7.",
+                legal: "Legal",
+                privacyPolicy: "Privacy Policy",
+                termsOfUse: "Terms of Use",
+                cookiesPolicy: "Cookies Policy",
+                contact: "Contact"
+            },
+            es: {
+                heroTitle: "Conéctate con Doctores Verificados",
+                disclaimer: "No somos una clínica. Conectamos pacientes con doctores de medicina general verificados y licenciados para consultas profesionales a domicilio.",
+                heroSubtitle: "Reserva doctores de medicina general verificados para consultas a domicilio. Disponible 24/7 con pago seguro y seguimiento en tiempo real.",
+                imPatient: "Soy Paciente",
+                imDoctor: "Soy Doctor",
+                whyChoose: "¿Por qué elegir OnCall Clinic?",
+                fastResponse: "Respuesta Rápida",
+                fastResponseDesc: "Doctores de medicina general disponibles en 30 minutos en tu área",
+                securePayment: "Pago Seguro",
+                securePaymentDesc: "Procesamiento de pago seguro con confirmación por SMS y email",
+                phoneVerification: "Verificación Telefónica",
+                phoneVerificationDesc: "Verificación por SMS con código de seguimiento para tu cita",
+                verifiedDoctors: "Doctores Verificados",
+                verifiedDoctorsDesc: "Doctores de medicina general licenciados, verificados y con antecedentes revisados",
+                joinOnCall: "Únete a OnCall Clinic",
+                businessPlan: "Únete a OnCall Clinic y comienza a recibir solicitudes verificadas de consultas a domicilio en tu área. Cobramos solo un 10% de comisión por servicio (incluyendo procesamiento de pagos). Recibes tu pago tan pronto como la consulta se marca como completada. Los pacientes están verificados y geolocalizados. Únete ahora y obtén tus primeros tres meses gratis.",
+                viewBusinessPlan: "Ver Plan de Negocio Completo",
+                doctorLogin: "Iniciar Sesión Doctor",
+                joinAsDoctor: "Unirse como Doctor",
+                selectTime: "Seleccionar Hora Preferida",
+                preferredDate: "Fecha Preferida",
+                preferredTime: "Hora Preferida",
+                yourLocation: "Tu Ubicación",
+                address: "Dirección",
+                locationNote: "Usaremos esta ubicación para encontrar doctores en tu área (dentro de 30km)",
+                doctorsInArea: "Doctores en Tu Área",
+                searchingDoctors: "Buscando doctores disponibles...",
+                contactInfo: "Información de Contacto",
+                fullName: "Nombre Completo",
+                phoneNumber: "Número de Teléfono",
+                email: "Email",
+                verificationNote: "Enviaremos un código de verificación por SMS para confirmar tu número de teléfono y proporcionar seguimiento de la cita.",
+                payment: "Pago",
+                cardNumber: "Número de Tarjeta",
+                expiry: "Vencimiento",
+                cvv: "CVV",
+                completeBooking: "Completar Reserva",
+                testMode: "Modo de prueba - No se realizarán cargos reales",
+                cancel: "Cancelar",
+                continue: "Continuar",
+                back: "Atrás",
+                selectDoctor: "Seleccionar Doctor",
+                verify: "Verificar y Continuar",
+                footerDescription: "Conectando pacientes con doctores de medicina general verificados. Disponible 24/7.",
+                legal: "Legal",
+                privacyPolicy: "Política de Privacidad",
+                termsOfUse: "Términos de Uso",
+                cookiesPolicy: "Política de Cookies",
+                contact: "Contacto"
+            }
+        };
+
+        // Global variables
+        let currentStep = 1;
+        let currentLang = 'en';
+        let map, geocoder, placesService;
+        let selectedLocation = null;
+        let selectedTime = null;
+        let selectedDoctor = null;
+        let verificationCode = null;
+        let transactions = [];
+        let errorLog = [];
+
+        // Sample doctors data (simulating API response)
+        const sampleDoctors = [
+            {
+                id: 1,
+                name: "Dr. Test Martinez",
+                specialty: "General Medicine",
+                rating: 4.9,
+                price: 85,
+                avatar: "TM",
+                distance: 2.3,
+                available: true,
+                nextSlot: "15 min"
+            },
+            {
+                id: 2,
+                name: "Dr. Sarah Johnson",
+                specialty: "General Medicine", 
+                rating: 4.8,
+                price: 90,
+                avatar: "SJ",
+                distance: 5.1,
+                available: true,
+                nextSlot: "30 min"
+            },
+            {
+                id: 3,
+                name: "Dr. Carlos Rodriguez",
+                specialty: "General Medicine",
+                rating: 4.7,
+                price: 80,
+                avatar: "CR", 
+                distance: 8.7,
+                available: true,
+                nextSlot: "45 min"
+            }
+        ];
+
+        // Language Management
+        function updateLanguage(lang) {
+            currentLang = lang;
+            const htmlRoot = document.getElementById('html-root');
+            htmlRoot.setAttribute('lang', lang);
+            document.title = lang === 'en' ? 'OnCall Clinic - Connect with Verified Doctors' : 'OnCall Clinic - Conéctate con Doctores Verificados';
+            
+            document.querySelectorAll('[data-text]').forEach(element => {
+                const key = element.getAttribute('data-text');
+                if (translations[lang][key]) {
+                    if (element.tagName === 'INPUT' && element.placeholder) {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            localStorage.setItem('oncall-clinic-lang', lang);
+        }
+
+        // Page Management
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId + '-page').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Booking Flow
+        function startPatientFlow() {
+            document.getElementById('booking-modal').style.display = 'block';
+            currentStep = 1;
+            showBookingStep(1);
+            initializeDateInput();
+        }
+
+        function showBookingStep(step) {
+            document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`booking-step-${step}`).classList.add('active');
+            
+            document.querySelectorAll('.progress-step').forEach((s, i) => {
+                s.classList.remove('active', 'completed');
+                if (i + 1 < step) s.classList.add('completed');
+                else if (i + 1 === step) s.classList.add('active');
+            });
+
+            if (step === 2) {
+                setTimeout(initializeMap, 100);
+            } else if (step === 3) {
+                searchDoctors();
+            } else if (step === 5) {
+                updateBookingSummary();
+            }
+        }
+
+        function nextStep(step) {
+            if (validateCurrentStep()) {
+                currentStep = step;
+                showBookingStep(step);
+            }
+        }
+
+        function prevStep(step) {
+            currentStep = step;
+            showBookingStep(step);
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').style.display = 'none';
+            resetBookingFlow();
+        }
+
+        function resetBookingFlow() {
+            currentStep = 1;
+            selectedLocation = null;
+            selectedTime = null;
+            selectedDoctor = null;
+            verificationCode = null;
+        }
+
+        // Validation
+        function validateCurrentStep() {
+            switch(currentStep) {
+                case 1:
+                    return selectedTime !== null;
+                case 2:
+                    return selectedLocation !== null;
+                case 3:
+                    return selectedDoctor !== null;
+                case 4:
+                    const name = document.getElementById('patient-name').value;
+                    const phone = document.getElementById('patient-phone').value;
+                    const email = document.getElementById('patient-email').value;
+                    return name && phone && email;
+                default:
+                    return true;
+            }
+        }
+
+        // Initialize date input with today's date
+        function initializeDateInput() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointment-date').min = today;
+            document.getElementById('appointment-date').value = today;
+        }
+
+        // Time slot selection
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('time-slot')) {
+                document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedTime = {
+                    slot: e.target.dataset.time,
+                    date: document.getElementById('appointment-date').value
+                };
+            }
+        });
+
+        // Google Maps Integration
+        function initializeMap() {
+            if (typeof google === 'undefined') {
+                console.error('Google Maps API not loaded');
+                alert('Google Maps is required for location services. Please check your API key.');
+                return;
+            }
+
+            const mapElement = document.getElementById('map');
+            if (!mapElement) return;
+
+            map = new google.maps.Map(mapElement, {
+                center: { lat: 40.7128, lng: -74.0060 }, // Default to New York
+                zoom: 13
+            });
+
+            geocoder = new google.maps.Geocoder();
+            placesService = new google.maps.places.PlacesService(map);
+
+            // Get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        map.setCenter(pos);
+                        selectedLocation = pos;
+                        
+                        new google.maps.Marker({
+                            position: pos,
+                            map: map,
+                            title: 'Your Location'
+                        });
+                    },
+                    () => {
+                        console.log('Geolocation failed');
+                    }
+                );
+            }
+
+            // Address autocomplete
+            const addressInput = document.getElementById('address-input');
+            const autocomplete = new google.maps.places.Autocomplete(addressInput);
+            
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.geometry) {
+                    const location = place.geometry.location;
+                    selectedLocation = {
+                        lat: location.lat(),
+                        lng: location.lng()
+                    };
+                    
+                    map.setCenter(selectedLocation);
+                    map.setZoom(15);
+                    
+                    new google.maps.Marker({
+                        position: selectedLocation,
+                        map: map,
+                        title: 'Selected Location'
+                    });
+                }
+            });
+        }
+
+        // Doctor search
+        function searchDoctors() {
+            document.getElementById('doctors-loading').style.display = 'block';
+            document.getElementById('doctors-grid').innerHTML = '';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                document.getElementById('doctors-loading').style.display = 'none';
+                renderDoctors();
+            }, 2000);
+        }
+
+        function renderDoctors() {
+            const grid = document.getElementById('doctors-grid');
+            grid.innerHTML = '';
+            
+            sampleDoctors.forEach(doctor => {
+                const doctorCard = document.createElement('div');
+                doctorCard.className = 'doctor-card';
+                doctorCard.dataset.doctorId = doctor.id;
+                doctorCard.innerHTML = `
+                    <div class="doctor-header">
+                        <div class="doctor-avatar">${doctor.avatar}</div>
+                        <div class="doctor-info">
+                            <h3>${doctor.name}</h3>
+                            <div class="doctor-specialty">${doctor.specialty}</div>
+                        </div>
+                    </div>
+                    <div class="doctor-details">
+                        <div>
+                            <div class="doctor-rating">${'★'.repeat(Math.floor(doctor.rating))} ${doctor.rating}</div>
+                            <div style="color: #6b7280; font-size: 0.9rem;">${doctor.distance}km away</div>
+                        </div>
+                        <div>
+                            <div class="doctor-price">$${doctor.price}</div>
+                            <div class="availability-badge">${doctor.nextSlot}</div>
+                        </div>
+                    </div>
+                `;
+                
+                doctorCard.addEventListener('click', () => selectDoctor(doctor, doctorCard));
+                grid.appendChild(doctorCard);
+            });
+        }
+
+        function selectDoctor(doctor, element) {
+            document.querySelectorAll('.doctor-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedDoctor = doctor;
+            document.getElementById('select-doctor-btn').disabled = false;
+        }
+
+        // Phone verification
+        function verifyPhone() {
+            const phone = document.getElementById('patient-phone').value;
+            if (!phone) {
+                alert('Please enter your phone number');
+                return;
+            }
+            
+            // Generate verification code
+            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Simulate SMS sending
+            alert(`SMS sent to ${phone}\nVerification code: ${verificationCode}\n(In production, this would be sent via SMS)`);
+            
+            // For demo, auto-verify after 2 seconds
+            setTimeout(() => {
+                alert('Phone verified! Your tracking code is: OC' + Date.now().toString().slice(-6));
+                nextStep(5);
+            }, 2000);
+        }
+
+        // Booking summary
+        function updateBookingSummary() {
+            const summary = document.getElementById('booking-summary');
+            const serviceFeePct = 10;
+            const consultationFee = selectedDoctor.price;
+            const serviceFee = Math.round(consultationFee * serviceFeePct / 100 * 100) / 100;
+            const total = consultationFee + serviceFee;
+            
+            summary.innerHTML = `
+                <h3 style="margin-bottom: 1rem; color: #1f2937;">Booking Summary</h3>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>${selectedDoctor.name} - Consultation</span>
+                    <span>$${consultationFee}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Service Fee (${serviceFeePct}%)</span>
+                    <span>$${serviceFee}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #6b7280; font-size: 0.9rem;">
+                    <span>Date & Time</span>
+                    <span>${selectedTime.date} ${selectedTime.slot === 'asap' ? 'ASAP' : selectedTime.slot}</span>
+                </div>
+                <hr style="margin: 1rem 0;">
+                <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; color: #1f2937;">
+                    <span>Total</span>
+                    <span>$${total}</span>
+                </div>
+            `;
+        }
+
+        // Payment processing
+        function processPayment() {
+            const cardNumber = document.getElementById('card-number').value;
+            const expiry = document.getElementById('card-expiry').value;
+            const cvv = document.getElementById('card-cvv').value;
+            
+            if (!cardNumber || !expiry || !cvv) {
+                alert('Please fill in all payment fields');
+                return;
+            }
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                const transactionId = 'OC' + Date.now();
+                const trackingCode = 'TK' + Date.now().toString().slice(-6);
+                
+                // Log transaction
+                logTransaction({
+                    id: transactionId,
+                    patient: document.getElementById('patient-name').value,
+                    doctor: selectedDoctor.name,
+                    amount: selectedDoctor.price + Math.round(selectedDoctor.price * 0.1),
+                    method: 'Credit Card',
+                    status: 'Completed',
+                    trackingCode: trackingCode
+                });
+                
+                closeBookingModal();
+                
+                // Success message
+                alert(`Payment successful! 
+                
+Transaction ID: ${transactionId}
+Tracking Code: ${trackingCode}
+
+${selectedDoctor.name} has been notified and will arrive at your scheduled time.
+
+Confirmations sent to:
+- SMS: ${document.getElementById('patient-phone').value}
+- Email: ${document.getElementById('patient-email').value}
+
+Thank you for choosing OnCall Clinic!`);
+                
+                resetBookingFlow();
+            }, 2000);
+        }
+
+        // Utility functions
+        function logTransaction(transaction) {
+            transactions.push({
+                ...transaction,
+                date: new Date().toISOString(),
+                timestamp: Date.now()
+            });
+            localStorage.setItem('oncall_transactions', JSON.stringify(transactions));
+            console.log('Transaction logged:', transaction);
+        }
+
+        function logError(description, user = null, details = null) {
+            const error = {
+                id: 'ERR' + Date.now(),
+                date: new Date().toISOString(),
+                description: description,
+                user: user,
+                details: details,
+                timestamp: Date.now()
+            };
+            
+            errorLog.push(error);
+            localStorage.setItem('oncall_errors', JSON.stringify(errorLog));
+            console.error('Error logged:', error);
+        }
+
+        // Doctor page functions
+        function showDoctorLogin() {
+            alert('Doctor login functionality will be implemented in the next phase.');
+        }
+
+        function showDoctorRegister() {
+            alert('Doctor registration functionality will be implemented in the next phase.');
+        }
+
+        function openBusinessPlan() {
+            alert('Complete business plan document will be available in the next update.');
+        }
+
+        // Legal pages
+        function showLegalPage(type) {
+            const content = {
+                privacy: 'Privacy Policy: OnCall Clinic respects your privacy and protects your personal information...',
+                terms: 'Terms of Use: By using OnCall Clinic services, you agree to these terms...',
+                cookies: 'Cookies Policy: We use cookies to improve your experience...'
+            };
+            alert(content[type] + '\n\nFull legal documents will be available in the next update.');
+        }
+
+        // Form formatting
+        function formatCardNumber(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            input.value = value;
+        }
+
+        function formatExpiry(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            input.value = value;
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved language
+            const savedLang = localStorage.getItem('oncall-clinic-lang') || 'en';
+            updateLanguage(savedLang);
+
+            // Language switcher
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    updateLanguage(this.getAttribute('data-lang'));
+                });
+            });
+
+            // Card formatting
+            const cardNumberInput = document.getElementById('card-number');
+            if (cardNumberInput) {
+                cardNumberInput.addEventListener('input', function() {
+                    formatCardNumber(this);
+                });
+            }
+            
+            const expiryInput = document.getElementById('card-expiry');
+            if (expiryInput) {
+                expiryInput.addEventListener('input', function() {
+                    formatExpiry(this);
+                });
+            }
+
+            // Load saved data
+            const savedTransactions = localStorage.getItem('oncall_transactions');
+            if (savedTransactions) {
+                transactions = JSON.parse(savedTransactions);
+            }
+            
+            const savedErrors = localStorage.getItem('oncall_errors');
+            if (savedErrors) {
+                errorLog = JSON.parse(savedErrors);
+            }
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('booking-modal');
+                if (event.target === modal) {
+                    closeBookingModal();
+                }
+            });
+        });
+
+        // Initialize
+        console.log('OnCall Clinic Alpha Version Loaded');
+        console.log('Required APIs: Google Maps, Google Places, Twilio SMS, SendGrid Email');
+        console.log('All transactions and errors are logged to localStorage for testing');
+    </script>
+</body>
+</html>

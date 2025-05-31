@@ -18,17 +18,17 @@ app.use((err: any, req: Request, res: Response, next: any) => {
 });
 
 async function main() {
-  // Read the improved HTML file
-  const improvedHtmlPath = path.join(process.cwd(), 'static-improved.html');
-  let improvedHtml: string;
+  // Read the final HTML file
+  const finalHtmlPath = path.join(process.cwd(), 'static-final.html');
+  let finalHtml: string;
   
   try {
-    improvedHtml = fs.readFileSync(improvedHtmlPath, 'utf8');
-    log("Improved HTML loaded successfully");
+    finalHtml = fs.readFileSync(finalHtmlPath, 'utf8');
+    log("Final HTML loaded successfully");
   } catch (error) {
-    console.error('Error reading improved HTML file:', error);
+    console.error('Error reading final HTML file:', error);
     // Fallback to basic HTML if file not found
-    improvedHtml = `<!DOCTYPE html>
+    finalHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -51,15 +51,15 @@ async function main() {
 </html>`;
   }
 
-  // Serve the improved OnCall Clinic page
+  // Serve the final OnCall Clinic page
   app.get("/", (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
-    res.send(improvedHtml);
+    res.send(finalHtml);
   });
 
   app.get("/clinic", (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
-    res.send(improvedHtml);
+    res.send(finalHtml);
   });
 
   // Register API routes
