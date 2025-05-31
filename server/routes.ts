@@ -3246,5 +3246,409 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(html);
   });
 
+  // Página de búsqueda de doctores
+  app.get('/doctors', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Doctores - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; background: #f8fafc; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .header { text-align: center; margin-bottom: 3rem; }
+        .header h1 { font-size: 3rem; font-weight: 800; color: #111827; margin-bottom: 1rem; }
+        .search-form { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 3rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; }
+        .form-control:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .btn-search { background: linear-gradient(45deg, #2563eb, #1d4ed8); color: white; padding: 12px 32px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; }
+        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3); }
+        .doctors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .doctor-card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); transition: all 0.3s ease; }
+        .doctor-card:hover { transform: translateY(-5px); box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .doctor-avatar { width: 80px; height: 80px; background: #2563eb; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; }
+        .doctor-name { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; }
+        .doctor-specialty { text-align: center; color: #6b7280; margin-bottom: 1rem; }
+        .doctor-rating { text-align: center; margin-bottom: 1rem; }
+        .stars { color: #fbbf24; font-size: 1.2rem; }
+        .doctor-info { text-align: center; margin-bottom: 1.5rem; }
+        .btn-book { background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #1e40af; padding: 12px 24px; border: none; border-radius: 25px; font-weight: 700; cursor: pointer; width: 100%; }
+        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver al inicio</a>
+        <div class="header">
+            <h1>Buscar Doctores</h1>
+            <p>Encuentra el médico perfecto para tu consulta</p>
+        </div>
+        
+        <div class="search-form">
+            <div class="form-group">
+                <label for="specialty">Especialidad</label>
+                <select class="form-control" id="specialty">
+                    <option value="">Todas las especialidades</option>
+                    <option value="general">Medicina General</option>
+                    <option value="cardiology">Cardiología</option>
+                    <option value="dermatology">Dermatología</option>
+                    <option value="pediatrics">Pediatría</option>
+                </select>
+            </div>
+            <button class="btn-search" onclick="searchDoctors()">🔍 Buscar Doctores</button>
+        </div>
+        
+        <div class="doctors-grid">
+            <div class="doctor-card">
+                <div class="doctor-avatar">DR</div>
+                <div class="doctor-name">Dr. Ana Rodríguez</div>
+                <div class="doctor-specialty">Medicina General</div>
+                <div class="doctor-rating">
+                    <span class="stars">★★★★★</span>
+                    <span>(4.9/5)</span>
+                </div>
+                <div class="doctor-info">
+                    <p>15 años de experiencia</p>
+                    <p>Disponible 24/7</p>
+                    <p><strong>€75/consulta</strong></p>
+                </div>
+                <button class="btn-book" onclick="bookDoctor(1)">Reservar Consulta</button>
+            </div>
+            
+            <div class="doctor-card">
+                <div class="doctor-avatar">DR</div>
+                <div class="doctor-name">Dr. Carlos Martín</div>
+                <div class="doctor-specialty">Cardiología</div>
+                <div class="doctor-rating">
+                    <span class="stars">★★★★★</span>
+                    <span>(4.8/5)</span>
+                </div>
+                <div class="doctor-info">
+                    <p>20 años de experiencia</p>
+                    <p>Especialista en emergencias</p>
+                    <p><strong>€90/consulta</strong></p>
+                </div>
+                <button class="btn-book" onclick="bookDoctor(2)">Reservar Consulta</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function searchDoctors() {
+            const specialty = document.getElementById('specialty').value;
+            alert('Buscando doctores' + (specialty ? ' en ' + specialty : '') + '...');
+        }
+        
+        function bookDoctor(doctorId) {
+            window.location.href = '/booking?doctor=' + doctorId;
+        }
+    </script>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  // Página de login
+  app.get('/login', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); min-height: 100vh; display: flex; align-items: center; }
+        .container { max-width: 400px; margin: 0 auto; padding: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: white; text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .login-form { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .form-header { text-align: center; margin-bottom: 2rem; }
+        .form-header h1 { font-size: 2rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; }
+        .form-control:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .btn-login { background: linear-gradient(45deg, #2563eb, #1d4ed8); color: white; padding: 14px 0; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 1rem; }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3); }
+        .form-links { text-align: center; }
+        .form-links a { color: #2563eb; text-decoration: none; }
+        .form-links a:hover { text-decoration: underline; }
+        .user-type { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .user-type label { background: #f3f4f6; padding: 12px; border-radius: 12px; cursor: pointer; flex: 1; text-align: center; font-weight: 600; }
+        .user-type input[type="radio"]:checked + span { background: #2563eb; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver al inicio</a>
+        <div class="login-form">
+            <div class="form-header">
+                <h1>Iniciar Sesión</h1>
+                <p>Accede a tu cuenta de OnCall Clinic</p>
+            </div>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="user-type">
+                    <label>
+                        <input type="radio" name="userType" value="patient" checked style="display: none;">
+                        <span>Paciente</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="userType" value="doctor" style="display: none;">
+                        <span>Doctor</span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                
+                <button type="submit" class="btn-login">Iniciar Sesión</button>
+                
+                <div class="form-links">
+                    <p><a href="/register">¿No tienes cuenta? Regístrate</a></p>
+                    <p><a href="/forgot-password">¿Olvidaste tu contraseña?</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const userType = document.querySelector('input[name="userType"]:checked').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (userType === 'doctor') {
+                // Redirect to doctor dashboard for demo
+                window.location.href = '/doctor-dashboard';
+            } else {
+                // Redirect to patient dashboard
+                alert('Iniciando sesión como paciente...');
+                window.location.href = '/app';
+            }
+        }
+    </script>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  // Página de reserva de citas
+  app.get('/booking', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservar Consulta - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; background: #f8fafc; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .booking-form { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .form-header { text-align: center; margin-bottom: 3rem; }
+        .form-header h1 { font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 1rem; }
+        .form-step { margin-bottom: 2rem; padding: 2rem; border: 2px solid #e5e7eb; border-radius: 16px; }
+        .form-step.active { border-color: #2563eb; background: #f0f9ff; }
+        .step-title { font-size: 1.3rem; font-weight: 700; color: #2563eb; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; }
+        .form-control:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .time-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; }
+        .time-slot { padding: 12px; border: 2px solid #e5e7eb; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .time-slot:hover { border-color: #2563eb; background: #f0f9ff; }
+        .time-slot.selected { border-color: #2563eb; background: #2563eb; color: white; }
+        .btn-book { background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #1e40af; padding: 16px 32px; border: none; border-radius: 25px; font-weight: 700; cursor: pointer; font-size: 18px; width: 100%; margin-top: 2rem; }
+        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4); }
+        .summary { background: #f0f9ff; padding: 2rem; border-radius: 16px; margin-top: 2rem; }
+        .summary h3 { color: #2563eb; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/doctors" class="back-link">← Volver a doctores</a>
+        <div class="booking-form">
+            <div class="form-header">
+                <h1>Reservar Consulta</h1>
+                <p>Completa los siguientes pasos para agendar tu cita médica</p>
+            </div>
+            
+            <div class="form-step active">
+                <div class="step-title">📅 1. Selecciona fecha y hora</div>
+                <div class="form-group">
+                    <label for="date">Fecha de la consulta</label>
+                    <input type="date" class="form-control" id="date" min="${new Date().toISOString().split('T')[0]}">
+                </div>
+                <div class="form-group">
+                    <label>Hora disponible</label>
+                    <div class="time-slots">
+                        <div class="time-slot" onclick="selectTime(this)">09:00</div>
+                        <div class="time-slot" onclick="selectTime(this)">10:00</div>
+                        <div class="time-slot" onclick="selectTime(this)">11:00</div>
+                        <div class="time-slot" onclick="selectTime(this)">14:00</div>
+                        <div class="time-slot" onclick="selectTime(this)">15:00</div>
+                        <div class="time-slot" onclick="selectTime(this)">16:00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-step">
+                <div class="step-title">📍 2. Dirección de la consulta</div>
+                <div class="form-group">
+                    <label for="address">Dirección completa</label>
+                    <input type="text" class="form-control" id="address" placeholder="Calle, número, piso, puerta">
+                </div>
+                <div class="form-group">
+                    <label for="city">Ciudad</label>
+                    <input type="text" class="form-control" id="city" placeholder="Madrid">
+                </div>
+                <div class="form-group">
+                    <label for="postal">Código postal</label>
+                    <input type="text" class="form-control" id="postal" placeholder="28001">
+                </div>
+            </div>
+            
+            <div class="form-step">
+                <div class="step-title">👤 3. Información del paciente</div>
+                <div class="form-group">
+                    <label for="name">Nombre completo</label>
+                    <input type="text" class="form-control" id="name" placeholder="Nombre y apellidos">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="tel" class="form-control" id="phone" placeholder="+34 600 000 000">
+                </div>
+                <div class="form-group">
+                    <label for="symptoms">Motivo de la consulta</label>
+                    <textarea class="form-control" id="symptoms" rows="3" placeholder="Describe brevemente tus síntomas o motivo de consulta"></textarea>
+                </div>
+            </div>
+            
+            <div class="summary">
+                <h3>Resumen de tu consulta</h3>
+                <p><strong>Doctor:</strong> Dr. Ana Rodríguez - Medicina General</p>
+                <p><strong>Precio:</strong> €75</p>
+                <p><strong>Duración estimada:</strong> 30-45 minutos</p>
+            </div>
+            
+            <button class="btn-book" onclick="confirmBooking()">🚀 Confirmar Reserva</button>
+        </div>
+    </div>
+    
+    <script>
+        function selectTime(element) {
+            document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+        
+        function confirmBooking() {
+            const date = document.getElementById('date').value;
+            const selectedTime = document.querySelector('.time-slot.selected');
+            const address = document.getElementById('address').value;
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!date || !selectedTime || !address || !name || !phone) {
+                alert('Por favor, completa todos los campos obligatorios.');
+                return;
+            }
+            
+            alert('¡Consulta reservada con éxito! Recibirás un SMS de confirmación en breve.');
+            window.location.href = '/booking-success';
+        }
+    </script>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  // Página de confirmación de reserva
+  app.get('/booking-success', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva Confirmada - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #10b981 0%, #059669 100%); min-height: 100vh; display: flex; align-items: center; }
+        .container { max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center; }
+        .success-card { background: white; padding: 4rem 3rem; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .success-icon { font-size: 4rem; margin-bottom: 2rem; }
+        .success-title { font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 1rem; }
+        .success-message { font-size: 1.2rem; color: #6b7280; margin-bottom: 3rem; line-height: 1.8; }
+        .booking-details { background: #f9fafb; padding: 2rem; border-radius: 16px; margin-bottom: 3rem; text-align: left; }
+        .booking-details h3 { color: #10b981; margin-bottom: 1rem; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .detail-row strong { color: #374151; }
+        .btn-home { background: linear-gradient(45deg, #2563eb, #1d4ed8); color: white; padding: 14px 32px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; text-decoration: none; display: inline-block; }
+        .btn-home:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-card">
+            <div class="success-icon">✅</div>
+            <h1 class="success-title">¡Reserva Confirmada!</h1>
+            <p class="success-message">
+                Tu consulta médica ha sido programada exitosamente. 
+                Recibirás un SMS y email de confirmación con todos los detalles.
+            </p>
+            
+            <div class="booking-details">
+                <h3>Detalles de tu consulta</h3>
+                <div class="detail-row">
+                    <span>Número de reserva:</span>
+                    <strong>#OCC-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Doctor:</span>
+                    <strong>Dr. Ana Rodríguez</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Especialidad:</span>
+                    <strong>Medicina General</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Fecha:</span>
+                    <strong>Próxima disponibilidad</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Precio:</span>
+                    <strong>€75</strong>
+                </div>
+            </div>
+            
+            <a href="/app" class="btn-home">Volver al inicio</a>
+        </div>
+    </div>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
   return httpServer;
 }
