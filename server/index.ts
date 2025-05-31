@@ -18,17 +18,17 @@ app.use((err: any, req: Request, res: Response, next: any) => {
 });
 
 async function main() {
-  // Read the professional HTML file
-  const professionalHtmlPath = path.join(process.cwd(), 'static-professional.html');
-  let professionalHtml: string;
+  // Read the functional HTML file
+  const functionalHtmlPath = path.join(process.cwd(), 'static-functional.html');
+  let functionalHtml: string;
   
   try {
-    professionalHtml = fs.readFileSync(professionalHtmlPath, 'utf8');
-    log("Professional HTML loaded successfully");
+    functionalHtml = fs.readFileSync(functionalHtmlPath, 'utf8');
+    log("Functional HTML loaded successfully");
   } catch (error) {
-    console.error('Error reading professional HTML file:', error);
+    console.error('Error reading functional HTML file:', error);
     // Fallback to basic HTML if file not found
-    professionalHtml = `<!DOCTYPE html>
+    functionalHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -45,21 +45,21 @@ async function main() {
     <div class="hero">
         <h1>OnCall Clinic</h1>
         <p>Professional medical care at home</p>
-        <p>Service temporarily unavailable</p>
+        <p>Loading...</p>
     </div>
 </body>
 </html>`;
   }
 
-  // Serve the professional OnCall Clinic page
+  // Serve the functional OnCall Clinic page
   app.get("/", (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
-    res.send(professionalHtml);
+    res.send(functionalHtml);
   });
 
   app.get("/clinic", (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
-    res.send(professionalHtml);
+    res.send(functionalHtml);
   });
 
   // Register API routes
