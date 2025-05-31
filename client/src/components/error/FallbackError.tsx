@@ -5,25 +5,24 @@ import { XCircle, ArrowRight, Home, RefreshCcw } from 'lucide-react';
 import { FallbackProps } from './ErrorBoundary';
 
 /**
- * Componente visual que se muestra cuando se captura un error
- * Proporciona información sobre el error y opciones para recuperarse
+ * Error fallback component that displays when an error is caught
+ * Provides error information and recovery options
  */
 const FallbackError: React.FC<FallbackProps> = ({ error, resetError }) => {
-  
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 space-y-4">
         <div className="flex items-center space-x-3 text-red-500">
           <XCircle size={32} />
-          <h2 className="text-2xl font-bold">{safeT('error.title')}</h2>
+          <h2 className="text-2xl font-bold">Oops! Something went wrong</h2>
         </div>
         
         <div className="border-t border-gray-200 pt-4">
           <p className="text-gray-600 mb-2">
-            {safeT('error.message')}
+            An unexpected error has occurred. Our team has been automatically notified.
           </p>
           
-          {/* Si estamos en modo SANDBOX, mostrar detalles del error para debugging */}
+          {/* Show error details in sandbox mode for debugging */}
           {IS_SANDBOX && (
             <div className="mt-4 p-3 bg-gray-100 rounded text-sm font-mono overflow-x-auto">
               <p className="font-bold text-red-600">{error.name}</p>
@@ -44,7 +43,7 @@ const FallbackError: React.FC<FallbackProps> = ({ error, resetError }) => {
             className="flex items-center justify-center space-x-2"
           >
             <Home size={16} />
-            <span>{safeT('error.goHome')}</span>
+            <span>Go Home</span>
           </Button>
           
           <Button 
@@ -52,14 +51,14 @@ const FallbackError: React.FC<FallbackProps> = ({ error, resetError }) => {
             className="flex items-center justify-center space-x-2"
           >
             <RefreshCcw size={16} />
-            <span>{safeT('error.tryAgain')}</span>
+            <span>Try Again</span>
           </Button>
         </div>
       </div>
       
-      {/* Información adicional */}
+      {/* Additional information */}
       <p className="mt-8 text-gray-500 text-sm text-center max-w-md">
-        {safeT('error.supportMessage')}
+        If the problem persists, contact our support team:
         <a 
           href="mailto:support@oncall.clinic" 
           className="text-blue-500 hover:text-blue-700 ml-1"
