@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Professional Home Medical Care</title>
+    <meta name="description" content="Connect with verified doctors for professional home medical consultations">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%232563eb' stroke='white' stroke-width='8'/><path d='M35 50h30M50 35v30' stroke='white' stroke-width='6' stroke-linecap='round'/></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+            line-height: 1.6; 
+            color: #1f2937; 
+            background: #ffffff;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        
+        /* Navigation */
+        .nav { 
+            background: white; 
+            border-bottom: 1px solid #e5e7eb; 
+            padding: 1rem 0; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; cursor: pointer; }
+        .logo-icon { 
+            width: 40px; 
+            height: 40px; 
+            background: transparent;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%232563eb" stroke="white" stroke-width="4"/><path d="M35 50h30M50 35v30" stroke="white" stroke-width="5" stroke-linecap="round"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-right: 12px;
+        }
+        .logo-text { 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: #2563eb;
+        }
+
+        /* Hero Section - Reduced height */
+        .hero { 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 3rem 0; 
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-content { position: relative; z-index: 10; width: 100%; }
+        .hero h1 { 
+            font-size: 3rem; 
+            font-weight: 900; 
+            margin-bottom: 1.5rem; 
+            color: #1f2937;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .hero p { 
+            font-size: 1.3rem; 
+            color: #4b5563; 
+            margin-bottom: 2.5rem; 
+            max-width: 700px; 
+            margin-left: auto; 
+            margin-right: auto;
+            font-weight: 500;
+        }
+        
+        /* Main Action Buttons */
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .btn-hero {
+            padding: 18px 36px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+        .btn-patient {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+        .btn-patient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.4);
+        }
+        .btn-doctor {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+        }
+        .btn-doctor:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(5, 150, 105, 0.4);
+        }
+
+        /* Features Section */
+        .features { padding: 4rem 0; background: white; }
+        .features h2 { 
+            text-align: center; 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+        .features-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 2rem; 
+        }
+        .feature-card { 
+            background: #f8fafc; 
+            border-radius: 16px; 
+            padding: 2rem; 
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: #2563eb;
+        }
+        .feature-icon { 
+            width: 64px; 
+            height: 64px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            border-radius: 50%; 
+            margin: 0 auto 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 24px;
+        }
+        .feature-card h3 { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        .feature-card p { 
+            color: #6b7280; 
+            font-size: 1rem;
+        }
+
+        /* Doctor Registration Section */
+        .doctor-section { padding: 4rem 0; background: #f8fafc; }
+        .doctor-content { max-width: 800px; margin: 0 auto; text-align: center; }
+        .doctor-section h2 { 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            margin-bottom: 2rem;
+            color: #1f2937;
+        }
+        .business-plan { 
+            background: white; 
+            padding: 2.5rem; 
+            border-radius: 16px; 
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 4px solid #059669;
+        }
+        .business-plan p { 
+            font-size: 1.1rem; 
+            color: #374151; 
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        /* Forms */
+        .form-container { 
+            max-width: 400px; 
+            margin: 2rem auto; 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            color: #374151;
+        }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 8px; 
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            outline: none; 
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Buttons */
+        .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            text-decoration: none; 
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            text-align: center;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+        .btn-secondary { 
+            background: linear-gradient(135deg, #059669, #047857); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        .btn-secondary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+        }
+
+        /* Available Doctor Card */
+        .doctor-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 2rem; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 2rem auto;
+            border: 2px solid #10b981;
+        }
+        .doctor-header { display: flex; align-items: center; margin-bottom: 1.5rem; }
+        .doctor-avatar { 
+            width: 80px; 
+            height: 80px; 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            border-radius: 50%; 
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .doctor-info h3 { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        .available-24h { 
+            background: #10b981; 
+            color: white; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer { 
+            background: #1f2937; 
+            color: white; 
+            padding: 3rem 0;
+        }
+        .footer-content { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .footer-section h4 { 
+            margin-bottom: 1rem; 
+            font-size: 1.2rem;
+        }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.5rem; }
+        .footer-links a { 
+            color: #d1d5db; 
+            text-decoration: none; 
+            transition: color 0.3s ease;
+        }
+        .footer-links a:hover { color: white; }
+        .footer-bottom { 
+            border-top: 1px solid #374151; 
+            padding-top: 2rem; 
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        /* Modal */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content { 
+            background-color: white; 
+            margin: 5% auto; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            width: 90%; 
+            max-width: 600px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .close { 
+            color: #aaa; 
+            float: right; 
+            font-size: 28px; 
+            font-weight: bold; 
+            cursor: pointer;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+        .close:hover { color: black; }
+
+        /* Progress Indicator */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 1rem;
+            font-weight: 600;
+            color: #6b7280;
+        }
+        .progress-step.active {
+            background: #2563eb;
+            color: white;
+        }
+        .progress-step.completed {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Location Tracking */
+        .location-tracking {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1.1rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .btn-hero { min-width: 250px; }
+            .footer-content { grid-template-columns: 1fr; }
+        }
+
+        /* Page visibility */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Hide elements */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo" onclick="showPage('home')">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text">OnCall Clinic</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Professional Medical Care at Your Home</h1>
+                    <p>Connect with verified doctors for professional consultations in the comfort of your home. Available 24/7 with secure payment and real-time tracking.</p>
+                    
+                    <div class="hero-buttons">
+                        <button class="btn-hero btn-patient" onclick="startPatientFlow()">I'm a Patient</button>
+                        <button class="btn-hero btn-doctor" onclick="showPage('doctor')">I'm a Doctor</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <h2>Why Choose OnCall Clinic?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Fast Response</h3>
+                        <p>Medical care at home in less than 1 hour with verified professionals</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Secure Payment</h3>
+                        <p>Safe and reliable payment processing with full transaction protection</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📍</div>
+                        <h3>Real-Time Tracking</h3>
+                        <p>Track your doctor's location and communicate directly before the appointment</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✓</div>
+                        <h3>Verified Doctors</h3>
+                        <p>All medical professionals are licensed, verified and background-checked</p>
+                    </div>
+                </div>
+
+                <!-- Available Doctor -->
+                <div class="doctor-card">
+                    <div class="doctor-header">
+                        <div class="doctor-avatar">DT</div>
+                        <div class="doctor-info">
+                            <h3>Dr. Test</h3>
+                            <div class="available-24h">Available 24h</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <p style="color: #6b7280; margin-bottom: 1rem;">General Medicine • Medical Degree, Johns Hopkins</p>
+                        <p style="color: #059669; font-weight: 600; font-size: 1.1rem;">Ready for immediate consultation</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Doctor Page -->
+    <div id="doctor-page" class="page">
+        <section class="doctor-section">
+            <div class="container">
+                <div class="doctor-content">
+                    <h2>Join OnCall Clinic</h2>
+                    
+                    <div class="business-plan">
+                        <p>Join OnCall Clinic and start receiving verified home consultation requests in your area. We charge only a 10% fee per service (including payment processing). You receive your payment as soon as the consultation is marked completed. Patients are verified and geolocated. Join now and get your first three months free.</p>
+                        
+                        <button class="btn btn-secondary" onclick="openBusinessPlan()" style="margin-top: 1rem;">
+                            View Complete Business Plan
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
+                        <button class="btn btn-primary" onclick="showDoctorLogin()">Doctor Login</button>
+                        <button class="btn btn-secondary" onclick="showDoctorRegister()">Join as Doctor</button>
+                    </div>
+
+                    <!-- Doctor Login Form -->
+                    <div id="doctor-login-form" class="form-container hidden">
+                        <h3 style="text-align: center; margin-bottom: 1.5rem;">Doctor Login</h3>
+                        <div class="form-group">
+                            <label>Medical License Number</label>
+                            <input type="text" id="doctor-license" placeholder="License Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="doctor-password" placeholder="Password">
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="handleDoctorLogin()">Login</button>
+                    </div>
+
+                    <!-- Doctor Registration Form -->
+                    <div id="doctor-register-form" class="form-container hidden">
+                        <h3 style="text-align: center; margin-bottom: 1.5rem;">Doctor Registration</h3>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="doctor-name" placeholder="Dr. John Smith">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="doctor-email" placeholder="doctor@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Medical License Number</label>
+                            <input type="text" id="doctor-license-reg" placeholder="License Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Specialty</label>
+                            <select id="doctor-specialty">
+                                <option value="general">General Medicine</option>
+                                <option value="pediatrics">Pediatrics</option>
+                                <option value="cardiology">Cardiology</option>
+                                <option value="dermatology">Dermatology</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="handleDoctorRegister()">Register</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Patient Booking Modal -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBookingModal()">&times;</span>
+            
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="progress-step active" id="step-1">1</div>
+                <div class="progress-step" id="step-2">2</div>
+                <div class="progress-step" id="step-3">3</div>
+                <div class="progress-step" id="step-4">4</div>
+            </div>
+
+            <!-- Step 1: Doctor Selection -->
+            <div id="booking-step-1" class="booking-step">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Select Your Doctor</h2>
+                <div class="doctor-card">
+                    <div class="doctor-header">
+                        <div class="doctor-avatar">DT</div>
+                        <div class="doctor-info">
+                            <h3>Dr. Test</h3>
+                            <div style="color: #059669; font-weight: 600;">Available Now</div>
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">General Medicine • $85 consultation fee</p>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="nextStep(2)">Select Dr. Test</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Address & Location -->
+            <div id="booking-step-2" class="booking-step hidden">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Your Location</h2>
+                <div class="form-group">
+                    <label>Full Address</label>
+                    <input type="text" id="patient-address" placeholder="123 Main St, City, State 12345">
+                </div>
+                <div class="location-tracking">
+                    <p><strong>Location Services</strong></p>
+                    <p>We'll enable real-time location sharing 15 minutes before your appointment for seamless coordination.</p>
+                    <button class="btn btn-primary" onclick="enableLocationTracking()" style="margin-top: 1rem;">Enable Location Services</button>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="nextStep(3)">Continue</button>
+            </div>
+
+            <!-- Step 3: Schedule -->
+            <div id="booking-step-3" class="booking-step hidden">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Select Time</h2>
+                <div class="form-group">
+                    <label>Preferred Time</label>
+                    <select id="appointment-time">
+                        <option value="asap">As soon as possible (15-30 min)</option>
+                        <option value="1hour">Within 1 hour</option>
+                        <option value="2hours">Within 2 hours</option>
+                        <option value="4hours">Within 4 hours</option>
+                        <option value="scheduled">Schedule for later</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Patient Name</label>
+                    <input type="text" id="patient-name" placeholder="Full Name">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="patient-phone" placeholder="+1 (555) 123-4567">
+                </div>
+                <button class="btn btn-primary" style="width: 100%;" onclick="nextStep(4)">Continue to Payment</button>
+            </div>
+
+            <!-- Step 4: Payment -->
+            <div id="booking-step-4" class="booking-step hidden">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Payment</h2>
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Dr. Test - Consultation</span>
+                        <span>$85.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Service Fee</span>
+                        <span>$8.50</span>
+                    </div>
+                    <hr style="margin: 1rem 0;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem;">
+                        <span>Total</span>
+                        <span>$93.50</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Card Number</label>
+                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Expiry</label>
+                        <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>CVV</label>
+                        <input type="text" id="card-cvv" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%; font-size: 18px; padding: 16px;" onclick="processPayment()">Complete Booking - $93.50</button>
+                
+                <p style="text-align: center; font-size: 0.9rem; color: #6b7280; margin-top: 1rem;">
+                    This is a test environment. No real charges will be made.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>OnCall Clinic</h4>
+                    <p style="color: #d1d5db;">Professional home medical care. Available 24 hours.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="showLegalPage('privacy')">Privacy Policy</a></li>
+                        <li><a href="#" onclick="showLegalPage('terms')">Terms of Use</a></li>
+                        <li><a href="#" onclick="showLegalPage('cookies')">Cookies Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@oncallclinic.com">support@oncallclinic.com</a></li>
+                        <li><a href="tel:+1-555-ONCALL">+1 (555) ON-CALL</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 OnCall Clinic. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let currentStep = 1;
+        let locationEnabled = false;
+        let transactions = [];
+        let errorLog = [];
+
+        // Page management
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId + '-page').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Patient flow
+        function startPatientFlow() {
+            document.getElementById('booking-modal').style.display = 'block';
+            currentStep = 1;
+            showBookingStep(1);
+        }
+
+        function showBookingStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.booking-step').forEach(s => s.classList.add('hidden'));
+            // Show current step
+            document.getElementById(`booking-step-${step}`).classList.remove('hidden');
+            
+            // Update progress
+            document.querySelectorAll('.progress-step').forEach((s, i) => {
+                s.classList.remove('active', 'completed');
+                if (i + 1 < step) s.classList.add('completed');
+                else if (i + 1 === step) s.classList.add('active');
+            });
+        }
+
+        function nextStep(step) {
+            currentStep = step;
+            showBookingStep(step);
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').style.display = 'none';
+        }
+
+        // Doctor functions
+        function showDoctorLogin() {
+            document.getElementById('doctor-login-form').classList.remove('hidden');
+            document.getElementById('doctor-register-form').classList.add('hidden');
+        }
+
+        function showDoctorRegister() {
+            document.getElementById('doctor-register-form').classList.remove('hidden');
+            document.getElementById('doctor-login-form').classList.add('hidden');
+        }
+
+        function handleDoctorLogin() {
+            const license = document.getElementById('doctor-license').value;
+            const password = document.getElementById('doctor-password').value;
+            
+            if (license && password) {
+                alert('Doctor login functionality will be implemented in the next phase.');
+                logError('Doctor login attempted', 'Doctor login form', 'Feature not yet implemented');
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function handleDoctorRegister() {
+            const name = document.getElementById('doctor-name').value;
+            const email = document.getElementById('doctor-email').value;
+            const license = document.getElementById('doctor-license-reg').value;
+            
+            if (name && email && license) {
+                alert('Doctor registration received! You will be contacted within 24 hours for verification.');
+                logTransaction(null, 'System', 0, 'Registration', 'Doctor Registration Submitted');
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function openBusinessPlan() {
+            alert('Complete business plan document will be available in the next update.');
+        }
+
+        // Location tracking
+        function enableLocationTracking() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        locationEnabled = true;
+                        alert('Location services enabled! We\'ll activate real-time tracking 15 minutes before your appointment.');
+                    },
+                    function(error) {
+                        alert('Location access denied. You can still proceed, but manual address will be used.');
+                        logError('Geolocation failed', 'Patient', error.message);
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+                logError('Geolocation not supported', 'Patient', 'Browser compatibility issue');
+            }
+        }
+
+        // Payment processing
+        function processPayment() {
+            const cardNumber = document.getElementById('card-number').value;
+            const expiry = document.getElementById('card-expiry').value;
+            const cvv = document.getElementById('card-cvv').value;
+            const patientName = document.getElementById('patient-name').value;
+            const phone = document.getElementById('patient-phone').value;
+            const address = document.getElementById('patient-address').value;
+            
+            if (!cardNumber || !expiry || !cvv || !patientName || !phone || !address) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                const transactionId = 'TXN' + Date.now();
+                logTransaction(patientName, 'Dr. Test', 93.50, 'Credit Card', 'Completed', transactionId);
+                
+                closeBookingModal();
+                
+                alert(`Payment successful! 
+                
+Transaction ID: ${transactionId}
+Dr. Test has been notified and will arrive within the requested timeframe.
+
+You will receive:
+- SMS confirmation with tracking link
+- Real-time location sharing (starting 15 minutes before arrival)
+- Direct messaging with your doctor
+
+Thank you for choosing OnCall Clinic!`);
+                
+                // Reset form
+                currentStep = 1;
+                showBookingStep(1);
+                
+            }, 2000);
+        }
+
+        // Legal pages
+        function showLegalPage(type) {
+            let content = '';
+            switch(type) {
+                case 'privacy':
+                    content = 'Privacy Policy: OnCall Clinic respects your privacy and protects your personal information...';
+                    break;
+                case 'terms':
+                    content = 'Terms of Use: By using OnCall Clinic services, you agree to these terms...';
+                    break;
+                case 'cookies':
+                    content = 'Cookies Policy: We use cookies to improve your experience...';
+                    break;
+            }
+            alert(content + '\n\nFull legal documents will be available in the next update.');
+        }
+
+        // Logging functions
+        function logTransaction(patient, doctor, amount, method, status, transactionId = null) {
+            const transaction = {
+                id: transactionId || 'TXN' + Date.now(),
+                date: new Date().toISOString(),
+                patient: patient,
+                doctor: doctor,
+                amount: amount,
+                paymentMethod: method,
+                status: status,
+                timestamp: Date.now()
+            };
+            
+            transactions.push(transaction);
+            console.log('Transaction logged:', transaction);
+            
+            // In a real app, this would be sent to a server
+            localStorage.setItem('oncall_transactions', JSON.stringify(transactions));
+        }
+
+        function logError(description, user = null, details = null) {
+            const error = {
+                id: 'ERR' + Date.now(),
+                date: new Date().toISOString(),
+                description: description,
+                user: user,
+                details: details,
+                timestamp: Date.now()
+            };
+            
+            errorLog.push(error);
+            console.error('Error logged:', error);
+            
+            // In a real app, this would be sent to a server
+            localStorage.setItem('oncall_errors', JSON.stringify(errorLog));
+        }
+
+        // Form formatting
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format card number
+            const cardNumberInput = document.getElementById('card-number');
+            if (cardNumberInput) {
+                cardNumberInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                    e.target.value = value;
+                });
+            }
+            
+            // Format expiry
+            const expiryInput = document.getElementById('card-expiry');
+            if (expiryInput) {
+                expiryInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 2) {
+                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            // Load saved data
+            const savedTransactions = localStorage.getItem('oncall_transactions');
+            if (savedTransactions) {
+                transactions = JSON.parse(savedTransactions);
+            }
+            
+            const savedErrors = localStorage.getItem('oncall_errors');
+            if (savedErrors) {
+                errorLog = JSON.parse(savedErrors);
+            }
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('booking-modal');
+            if (event.target === modal) {
+                closeBookingModal();
+            }
+        });
+
+        // Simulate real-time tracking (for demo)
+        function simulateRealTimeTracking() {
+            // This would be implemented with WebSocket or similar in production
+            console.log('Real-time tracking would be active here');
+        }
+
+        // Initialize
+        console.log('OnCall Clinic Alpha Version Loaded');
+        console.log('All transactions and errors are logged to localStorage for testing');
+    </script>
+</body>
+</html>

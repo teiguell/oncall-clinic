@@ -18,17 +18,17 @@ app.use((err: any, req: Request, res: Response, next: any) => {
 });
 
 async function main() {
-  // Read the functional HTML file
-  const functionalHtmlPath = path.join(process.cwd(), 'static-functional.html');
-  let functionalHtml: string;
+  // Read the improved HTML file
+  const improvedHtmlPath = path.join(process.cwd(), 'static-improved.html');
+  let improvedHtml: string;
   
   try {
-    functionalHtml = fs.readFileSync(functionalHtmlPath, 'utf8');
-    log("Functional HTML loaded successfully");
+    improvedHtml = fs.readFileSync(improvedHtmlPath, 'utf8');
+    log("Improved HTML loaded successfully");
   } catch (error) {
-    console.error('Error reading functional HTML file:', error);
+    console.error('Error reading improved HTML file:', error);
     // Fallback to basic HTML if file not found
-    functionalHtml = `<!DOCTYPE html>
+    improvedHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -51,15 +51,15 @@ async function main() {
 </html>`;
   }
 
-  // Serve the functional OnCall Clinic page
+  // Serve the improved OnCall Clinic page
   app.get("/", (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
-    res.send(functionalHtml);
+    res.send(improvedHtml);
   });
 
   app.get("/clinic", (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
-    res.send(functionalHtml);
+    res.send(improvedHtml);
   });
 
   // Register API routes

@@ -1,0 +1,30 @@
+Revisa y mejora completamente la webapp OnCall Clinic alojada en https://on-call-clinic-teiguell.replit.app según estas instrucciones, y asegúrate de dejarla lista para pruebas públicas estables:
+
+1. Reduce la altura del hero de la home para una mejor visualización en pantallas medianas y móviles.
+2. Mejora el contraste y disposición del texto principal del hero para garantizar legibilidad.
+3. Sustituye los botones actuales por dos bien visibles: “I’m a Patient” y “I’m a Doctor”.
+4. El botón “I’m a Patient” debe llevar directamente al flujo de reserva, sin necesidad de login.
+5. El botón “I’m a Doctor” debe llevar a una página con:
+   - Login y registro para médicos
+   - Un resumen del plan de negocio con el siguiente texto:
+
+     “Join OnCall Clinic and start receiving verified home consultation requests in your area. We charge only a 10% fee per service (including payment processing). You receive your payment as soon as the consultation is marked completed. Patients are verified and geolocated. Join now and get your first three months free.”
+
+   - Un botón visible con enlace al documento completo del plan de negocio
+6. No debe haber login en la página de inicio. Solo los médicos pueden iniciar sesión desde “I’m a Doctor”.
+7. Asegúrate de que el logo se muestre con fondo transparente, en buena proporción y correctamente integrado.
+8. Estabiliza todos los textos en inglés, evitando términos técnicos sin explicación como “pending auth” o “schedule slot”.
+9. Añade en el footer enlaces funcionales a: Privacy Policy, Terms of Use y Cookies.
+10. Asegura que haya un médico simulado activo (ej. “Dr. Test”) visible como disponible 24 h en las búsquedas.
+11. Revisa el flujo completo del paciente hasta el pago:
+    - Selección del médico
+    - Entrada de dirección
+    - Geolocalización activa
+    - Confirmación de horario
+    - Pago completo por pasarela (en modo pruebas)
+12. Implementa localización mutua en tiempo real entre médico y paciente en los últimos 15 minutos antes de la cita.
+13. Asegura que se habilite una mensajería directa entre ambos usuarios en esa misma fase.
+14. Crea una hoja o base de datos que registre automáticamente todas las transacciones (fecha, paciente, médico, importe, método de pago, estado).
+15. Crea también un registro automático de errores del sistema, incluyendo fecha, usuario afectado (si aplica), y descripción del fallo.
+
+No modifiques el diseño general ni la estructura de navegación más allá de lo indicado. Confirma cuando todos estos cambios estén aplicados correctamente y la versión alpha esté lista para test público.
