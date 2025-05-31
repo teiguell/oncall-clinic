@@ -77,6 +77,227 @@ async function isAuthenticated(req: Request, res: Response): Promise<{userId: nu
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Doctor Login Page
+  app.get('/doctor', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Doctor Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .login-card { max-width: 400px; margin: 4rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 2rem; }
+        .dashboard { display: none; }
+        .logo { text-align: center; margin-bottom: 2rem; }
+        .logo-text { font-size: 24px; font-weight: bold; color: #2563eb; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 16px; }
+        .form-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 500; cursor: pointer; }
+        .btn:hover { background: #1d4ed8; }
+        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .error { color: #dc2626; margin-top: 0.5rem; font-size: 14px; }
+        .success { color: #059669; margin-top: 0.5rem; font-size: 14px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-title { font-size: 14px; color: #6b7280; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #111827; }
+        .appointments-section { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 1rem; color: #111827; }
+        .appointment-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #e5e7eb; }
+        .appointment-item:last-child { border-bottom: none; }
+        .patient-info { flex: 1; }
+        .patient-name { font-weight: 500; color: #111827; }
+        .appointment-time { font-size: 14px; color: #6b7280; }
+        .appointment-status { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+        .status-confirmed { background: #dcfce7; color: #166534; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #dbeafe; color: #1e40af; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .doctor-name { font-size: 24px; font-weight: bold; color: #111827; }
+        .logout-btn { background: #6b7280; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; }
+        .logout-btn:hover { background: #4b5563; }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div id="login-section" class="login-card">
+        <div class="logo">
+            <div class="logo-text">OnCall Clinic - Doctor Portal</div>
+        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" class="form-input" placeholder="doctortest@oncall.clinic" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="pepe" required>
+            </div>
+            <button type="submit" id="login-btn" class="btn">Sign In</button>
+            <div id="login-message"></div>
+        </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-section" class="dashboard container">
+        <div class="header">
+            <div class="doctor-name" id="doctor-name">Dr. Loading...</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Today's Appointments</div>
+                <div class="stat-value" id="today-appointments">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">This Week</div>
+                <div class="stat-value" id="week-appointments">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Appointments</div>
+                <div class="stat-value" id="total-appointments">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Average Rating</div>
+                <div class="stat-value" id="average-rating">0.0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Earnings</div>
+                <div class="stat-value" id="total-earnings">€0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Pending Earnings</div>
+                <div class="stat-value" id="pending-earnings">€0</div>
+            </div>
+        </div>
+
+        <div class="appointments-section">
+            <div class="section-title">Recent Appointments</div>
+            <div id="appointments-list">
+                <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                    No appointments yet
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // Login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('login-btn');
+            const messageDiv = document.getElementById('login-message');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+            messageDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/doctor/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUser = data.user;
+                    messageDiv.innerHTML = '<div class="success">Login successful!</div>';
+                    
+                    // Hide login, show dashboard
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('dashboard-section').style.display = 'block';
+                    
+                    // Load dashboard data
+                    loadDashboard();
+                } else {
+                    messageDiv.innerHTML = '<div class="error">' + data.message + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="error">Connection error. Please try again.</div>';
+            }
+            
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Sign In';
+        });
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/doctor/dashboard');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update doctor name
+                    document.getElementById('doctor-name').textContent = 
+                        currentUser.firstName + ' ' + currentUser.lastName;
+                    
+                    // Update stats
+                    document.getElementById('today-appointments').textContent = data.stats.todayAppointments;
+                    document.getElementById('week-appointments').textContent = data.stats.thisWeekAppointments;
+                    document.getElementById('total-appointments').textContent = data.stats.totalAppointments;
+                    document.getElementById('average-rating').textContent = data.stats.averageRating.toFixed(1);
+                    document.getElementById('total-earnings').textContent = '€' + (data.stats.totalEarnings / 100).toFixed(2);
+                    document.getElementById('pending-earnings').textContent = '€' + (data.stats.pendingEarnings / 100).toFixed(2);
+                    
+                    // Update appointments list
+                    const appointmentsList = document.getElementById('appointments-list');
+                    if (data.recentAppointments && data.recentAppointments.length > 0) {
+                        appointmentsList.innerHTML = data.recentAppointments.map(apt => 
+                            '<div class="appointment-item">' +
+                                '<div class="patient-info">' +
+                                    '<div class="patient-name">Patient #' + apt.patientId + '</div>' +
+                                    '<div class="appointment-time">' + new Date(apt.appointmentDate).toLocaleDateString() + ' ' + new Date(apt.appointmentDate).toLocaleTimeString() + '</div>' +
+                                '</div>' +
+                                '<span class="appointment-status status-' + apt.status.toLowerCase() + '">' + apt.status + '</span>' +
+                            '</div>'
+                        ).join('');
+                    } else {
+                        appointmentsList.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">No appointments yet</div>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('dashboard-section').style.display = 'none';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-message').innerHTML = '';
+        }
+
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(() => {
+            if (currentUser) {
+                loadDashboard();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
   // Clean OnCall Clinic page without Vite interference
   app.get('/app', (req, res) => {
     const html = `<!DOCTYPE html>
@@ -256,6 +477,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Google Maps API key endpoint
   app.get('/api/config/maps-key', (req, res) => {
     res.json({ apiKey: process.env.GOOGLE_MAPS_API_KEY });
+  });
+
+  // Doctor login endpoint
+  app.post('/api/doctor/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Email and password are required' 
+        });
+      }
+
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user || user.userType !== 'doctor') {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Invalid credentials or not a doctor account' 
+        });
+      }
+
+      // Verify password (simple comparison for testing)
+      if (user.password !== password) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Invalid credentials' 
+        });
+      }
+
+      // Get doctor profile
+      const doctorProfile = await storage.getDoctorProfileByUserId(user.id);
+      if (!doctorProfile) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Doctor profile not found' 
+        });
+      }
+
+      // Create session
+      req.session.userId = user.id;
+      req.session.userType = user.userType;
+
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          userType: user.userType
+        },
+        profile: doctorProfile
+      });
+
+    } catch (error) {
+      console.error('Doctor login error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error during login'
+      });
+    }
+  });
+
+  // Doctor dashboard data endpoint
+  app.get('/api/doctor/dashboard', async (req, res) => {
+    try {
+      // Check if doctor is authenticated
+      if (!req.session.userId || req.session.userType !== 'doctor') {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Authentication required' 
+        });
+      }
+
+      const doctorProfile = await storage.getDoctorProfileByUserId(req.session.userId);
+      if (!doctorProfile) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Doctor profile not found' 
+        });
+      }
+
+      // Get doctor appointments
+      const appointments = await storage.getAppointmentsByDoctorId(req.session.userId);
+      
+      // Get earnings data
+      const earnings = await storage.getDoctorEarnings(req.session.userId);
+
+      // Calculate stats
+      const totalAppointments = appointments.length;
+      const todayAppointments = appointments.filter(apt => {
+        const today = new Date();
+        const aptDate = new Date(apt.appointmentDate);
+        return aptDate.toDateString() === today.toDateString();
+      }).length;
+
+      const thisWeekAppointments = appointments.filter(apt => {
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const aptDate = new Date(apt.appointmentDate);
+        return aptDate >= oneWeekAgo && aptDate <= now;
+      }).length;
+
+      res.json({
+        success: true,
+        profile: doctorProfile,
+        stats: {
+          totalAppointments,
+          todayAppointments,
+          thisWeekAppointments,
+          averageRating: doctorProfile.averageRating || 0,
+          totalEarnings: earnings?.totalEarnings || 0,
+          pendingEarnings: earnings?.pendingEarnings || 0
+        },
+        recentAppointments: appointments.slice(0, 5) // Last 5 appointments
+      });
+
+    } catch (error) {
+      console.error('Dashboard error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error loading dashboard'
+      });
+    }
   });
 
   // SMS verification endpoint

@@ -169,13 +169,13 @@ export class MemStorage implements IStorage {
     // Add test doctor profile
     const testDoctorUser: User = {
       id: 999,
-      username: "dr.test",
-      email: "test@oncall.clinic",
-      password: "test123", // Only for testing
+      username: "doctortest",
+      email: "doctortest@oncall.clinic",
+      password: "pepe", // Test credentials as requested
       userType: "doctor",
-      firstName: "Dr.",
-      lastName: "Test",
-      phoneNumber: "+1234567890",
+      firstName: "Dr. María",
+      lastName: "González",
+      phoneNumber: "+34600123456",
       emailVerified: true,
       twoFactorEnabled: false,
       profilePicture: "/img/doctor-avatar.svg",
@@ -192,7 +192,7 @@ export class MemStorage implements IStorage {
       education: "Medical Degree, Test University",
       experience: 10,
       bio: "General practitioner with extensive experience in home healthcare",
-      basePrice: 8000, // $80
+      basePrice: 8000, // €80
       isAvailable: true,
       isVerified: true,
       averageRating: 4.8,
