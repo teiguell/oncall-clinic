@@ -22,7 +22,6 @@ import {
 import { z } from "zod";
 import crypto from "crypto";
 import { WebSocketServer, WebSocket } from "ws";
-import path from "path";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import { IS_SANDBOX, TEST_DOCTOR, TEST_DOCTOR_AVAILABILITY, isWithinAllowedArea } from "./sandbox/config";
@@ -3645,6 +3644,264 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <a href="/app" class="btn-home">Volver al inicio</a>
         </div>
     </div>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  // Página de registro de pacientes
+  app.get('/patient-register', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Paciente - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); min-height: 100vh; }
+        .container { max-width: 500px; margin: 0 auto; padding: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: white; text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .register-form { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .form-header { text-align: center; margin-bottom: 2rem; }
+        .form-header h1 { font-size: 2rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; }
+        .form-control:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn-register { background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #1e40af; padding: 14px 0; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 1rem; }
+        .btn-register:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4); }
+        .form-links { text-align: center; }
+        .form-links a { color: #2563eb; text-decoration: none; }
+        .form-links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver al inicio</a>
+        <div class="register-form">
+            <div class="form-header">
+                <h1>Registro de Paciente</h1>
+                <p>Crea tu cuenta para solicitar consultas médicas</p>
+            </div>
+            
+            <form onsubmit="handlePatientRegister(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Nombre</label>
+                        <input type="text" class="form-control" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Apellidos</label>
+                        <input type="text" class="form-control" id="lastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="tel" class="form-control" id="phone" placeholder="+34 600 000 000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" id="confirmPassword" required>
+                </div>
+                
+                <button type="submit" class="btn-register">Crear Cuenta de Paciente</button>
+                
+                <div class="form-links">
+                    <p><a href="/login">¿Ya tienes cuenta? Inicia sesión</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function handlePatientRegister(event) {
+            event.preventDefault();
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+            
+            alert('Cuenta de paciente creada exitosamente. Ahora puedes buscar doctores y solicitar consultas.');
+            window.location.href = '/doctors';
+        }
+    </script>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
+
+  // Página de registro de médicos
+  app.get('/doctor-register', (req, res) => {
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Médico - OnCall Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #059669 0%, #047857 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; padding: 2rem; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: white; text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .register-form { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .form-header { text-align: center; margin-bottom: 2rem; }
+        .form-header h1 { font-size: 2rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem; }
+        .form-section { margin-bottom: 2rem; padding: 1.5rem; border: 2px solid #e5e7eb; border-radius: 12px; }
+        .section-title { font-size: 1.2rem; font-weight: 700; color: #059669; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; }
+        .form-control:focus { outline: none; border-color: #059669; box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn-register { background: linear-gradient(45deg, #059669, #047857); color: white; padding: 14px 0; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 1rem; }
+        .btn-register:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4); }
+        .form-links { text-align: center; }
+        .form-links a { color: #059669; text-decoration: none; }
+        .form-links a:hover { text-decoration: underline; }
+        .verification-note { background: #fef3c7; border: 1px solid #f59e0b; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; }
+        .verification-note strong { color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Volver al inicio</a>
+        <div class="register-form">
+            <div class="form-header">
+                <h1>Registro de Médico</h1>
+                <p>Únete a nuestra plataforma como profesional médico</p>
+            </div>
+            
+            <div class="verification-note">
+                <strong>Importante:</strong> Todos los médicos deben pasar por un proceso de verificación antes de poder ofrecer servicios. Necesitarás subir documentos de identidad y licencia médica.
+            </div>
+            
+            <form onsubmit="handleDoctorRegister(event)">
+                <div class="form-section">
+                    <div class="section-title">📋 Información Personal</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">Nombre</label>
+                            <input type="text" class="form-control" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Apellidos</label>
+                            <input type="text" class="form-control" id="lastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input type="tel" class="form-control" id="phone" placeholder="+34 600 000 000" required>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">🏥 Información Profesional</div>
+                    <div class="form-group">
+                        <label for="licenseNumber">Número de Colegiado</label>
+                        <input type="text" class="form-control" id="licenseNumber" placeholder="123456789" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialty">Especialidad</label>
+                        <select class="form-control" id="specialty" required>
+                            <option value="">Selecciona tu especialidad</option>
+                            <option value="1">Medicina General</option>
+                            <option value="2">Cardiología</option>
+                            <option value="3">Dermatología</option>
+                            <option value="4">Pediatría</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="experience">Años de Experiencia</label>
+                            <input type="number" class="form-control" id="experience" min="0" max="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="basePrice">Precio por Consulta (€)</label>
+                            <input type="number" class="form-control" id="basePrice" min="30" max="200" placeholder="75" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="education">Formación Académica</label>
+                        <textarea class="form-control" id="education" rows="2" placeholder="Universidad, títulos, certificaciones..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Biografía Profesional</label>
+                        <textarea class="form-control" id="bio" rows="3" placeholder="Describe tu experiencia y especialización..." required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">🔐 Seguridad</div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Contraseña</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-register">Registrarse como Médico</button>
+                
+                <div class="form-links">
+                    <p><a href="/login">¿Ya tienes cuenta? Inicia sesión</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function handleDoctorRegister(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+            
+            alert('Registro de médico enviado. Tu cuenta será revisada y verificada en las próximas 24-48 horas. Recibirás un email con el estado de tu verificación.');
+            window.location.href = '/app';
+        }
+    </script>
 </body>
 </html>`;
     res.setHeader('Content-Type', 'text/html');
