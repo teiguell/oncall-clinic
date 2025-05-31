@@ -98,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .nav { background: white; border-bottom: 1px solid #e5e7eb; padding: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .nav-content { display: flex; justify-content: space-between; align-items: center; }
         .logo { display: flex; align-items: center; }
-        .logo-icon { width: 32px; height: 32px; background: #2563eb; border-radius: 50%; margin-right: 12px; }
+        .logo-svg { height: 35px; width: auto; margin-right: 12px; }
         .logo-text { font-size: 24px; font-weight: bold; color: #111827; }
         .nav-buttons { display: flex; gap: 1rem; }
         .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; text-decoration: none; display: inline-block; }
@@ -150,8 +150,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         <div class="container">
             <div class="nav-content">
                 <div class="logo">
-                    <div class="logo-icon"></div>
-                    <span class="logo-text">OnCall Clinic</span>
+                    <svg class="logo-svg" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Medical pin icon -->
+                        <g transform="translate(5,5)">
+                            <path d="M15 3C10.03 3 6 7.03 6 12c0 7.5 9 17 9 17s9-9.5 9-17c0-4.97-4.03-9-9-9zm0 12.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" fill="#2563eb"/>
+                            <!-- Medical cross inside pin -->
+                            <rect x="13.5" y="9" width="3" height="6" fill="white"/>
+                            <rect x="11" y="11.5" width="8" height="1.5" fill="white"/>
+                        </g>
+                        <!-- Text -->
+                        <text x="45" y="16" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#111827">OnCall</text>
+                        <text x="45" y="30" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#111827">Clinic</text>
+                    </svg>
                 </div>
                 <div class="nav-buttons">
                     <a href="#doctors" class="btn btn-primary">Encontrar Doctor</a>
