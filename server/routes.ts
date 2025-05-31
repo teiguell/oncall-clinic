@@ -441,10 +441,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 <div class="footer-section">
                     <h4>Legal</h4>
                     <ul class="footer-links">
-                        <li><a href="/legal/terms">Términos y Condiciones</a></li>
+                        <li><a href="/legal/terms">Términos de Uso</a></li>
                         <li><a href="/legal/privacy">Política de Privacidad</a></li>
                         <li><a href="/legal/cookies">Política de Cookies</a></li>
-                        <li><a href="/legal/disclaimer">Aviso Legal</a></li>
+                        <li><a href="/legal/refunds">Cancelaciones y Reembolsos</a></li>
                     </ul>
                 </div>
             </div>
@@ -3008,13 +3008,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(html);
   });
 
-  app.get('/legal/disclaimer', (req, res) => {
+  app.get('/legal/refunds', (req, res) => {
     const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviso Legal - OnCall Clinic</title>
+    <title>Cancelaciones y Reembolsos - OnCall Clinic</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
@@ -3027,27 +3027,119 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .back-link { display: inline-block; margin-bottom: 2rem; color: #2563eb; text-decoration: none; }
         .back-link:hover { text-decoration: underline; }
         .footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 0.9rem; }
+        .highlight { background: #dcfce7; border: 1px solid #16a34a; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
         .warning { background: #fef3c7; border: 1px solid #f59e0b; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+        .time-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .time-table th, .time-table td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+        .time-table th { background: #f9fafb; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="/app" class="back-link">← Volver a OnCall Clinic</a>
         <div class="header">
-            <h1>Aviso Legal</h1>
-            <p class="subtitle">Información legal y responsabilidades</p>
+            <h1>Cancelaciones y Reembolsos</h1>
+            <p class="subtitle">Política de cancelación y devoluciones</p>
         </div>
+
+        <div class="highlight">
+            <p><strong>Política Flexible:</strong> Entendemos que las circunstancias pueden cambiar. Ofrecemos opciones flexibles para cancelaciones y reembolsos.</p>
+        </div>
+
+        <div class="section">
+            <h2>Cancelaciones Gratuitas</h2>
+            <p>Puedes cancelar tu cita sin coste adicional en los siguientes casos:</p>
+            
+            <table class="time-table">
+                <thead>
+                    <tr>
+                        <th>Tiempo de Cancelación</th>
+                        <th>Reembolso</th>
+                        <th>Condiciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Más de 2 horas antes</strong></td>
+                        <td>100% del importe</td>
+                        <td>Sin restricciones</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Entre 1-2 horas antes</strong></td>
+                        <td>75% del importe</td>
+                        <td>Cargo por gestión aplicado</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Menos de 1 hora antes</strong></td>
+                        <td>50% del importe</td>
+                        <td>Solo en casos excepcionales</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Doctor en camino</strong></td>
+                        <td>25% del importe</td>
+                        <td>Emergencia médica comprobada</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Casos de Reembolso Completo</h2>
+            <p>Ofrecemos reembolso del 100% en las siguientes situaciones:</p>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                <li>El médico cancela la cita por cualquier motivo</li>
+                <li>Problemas técnicos de la plataforma que impidan el servicio</li>
+                <li>Condiciones meteorológicas extremas que impidan el acceso</li>
+                <li>Emergencia médica del paciente que requiera hospitalización</li>
+                <li>Error en la programación o información de la cita</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Proceso de Cancelación</h2>
+            <p>Para cancelar tu cita:</p>
+            <ol style="margin-left: 2rem; margin-top: 0.5rem;">
+                <li>Accede a tu perfil en la aplicación</li>
+                <li>Selecciona "Mis Citas" y encuentra la cita a cancelar</li>
+                <li>Haz clic en "Cancelar Cita" y confirma la acción</li>
+                <li>Recibirás confirmación por email y SMS</li>
+                <li>El reembolso se procesará según la política aplicable</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Tiempos de Reembolso</h2>
+            <p>Los reembolsos se procesan de la siguiente manera:</p>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                <li><strong>Tarjeta de crédito/débito:</strong> 3-5 días hábiles</li>
+                <li><strong>PayPal:</strong> 1-2 días hábiles</li>
+                <li><strong>Transferencia bancaria:</strong> 2-3 días hábiles</li>
+                <li><strong>Casos especiales:</strong> Hasta 10 días hábiles</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Modificaciones de Cita</h2>
+            <p>Como alternativa a la cancelación, puedes:</p>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                <li>Reprogramar tu cita hasta 1 hora antes sin coste</li>
+                <li>Cambiar la dirección de la consulta (con al menos 2 horas de antelación)</li>
+                <li>Solicitar un médico diferente (sujeto a disponibilidad)</li>
+            </ul>
+        </div>
+
         <div class="warning">
-            <strong>Importante:</strong> OnCall Clinic es una plataforma de conexión. No proporcionamos servicios médicos directos.
+            <strong>Importante:</strong> En caso de no presentarse (no-show) sin cancelación previa, no se aplicará reembolso alguno.
         </div>
+
         <div class="section">
-            <h2>Naturaleza del Servicio</h2>
-            <p>Facilitamos el contacto entre pacientes y profesionales médicos independientes.</p>
+            <h2>Contacto para Reembolsos</h2>
+            <p>Para consultas sobre reembolsos o asistencia:</p>
+            <p><strong>Email:</strong> reembolsos@oncallclinic.es<br>
+            <strong>Teléfono:</strong> +34 900 123 456<br>
+            <strong>Horario:</strong> Lunes a Domingo, 24 horas</p>
         </div>
-        <div class="section">
-            <h2>Versión Alpha</h2>
-            <p>Esta es una versión de pruebas destinada únicamente para validación técnica.</p>
-        </div>
+
         <div class="footer">
             <p>&copy; 2025 OnCall Clinic. Todos los derechos reservados.</p>
         </div>

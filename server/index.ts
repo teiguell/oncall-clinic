@@ -53,8 +53,8 @@ async function main() {
 
   // Serve the final OnCall Clinic page
   app.get("/", (req: Request, res: Response) => {
-    res.setHeader('Content-Type', 'text/html');
-    res.send(finalHtml);
+    // Redirect to the modern design page
+    res.redirect("/app");
   });
 
   app.get("/clinic", (req: Request, res: Response) => {
