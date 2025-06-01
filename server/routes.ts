@@ -122,8 +122,29 @@ export function registerRoutes(app: Express): Server {
       
       const trackingSession = await storage.getPatientTrackingSessionByCode(code);
       if (!trackingSession) {
+        await logEvent({
+          tracking_code: code,
+          event_type: 'patient_confirmation_failed',
+          event_payload: {
+            reason: 'invalid_tracking_code',
+            ip: req.ip
+          }
+        });
         return res.status(404).json({ message: 'Código de seguimiento no válido' });
       }
+
+      // Log patient confirmation event
+      const appointment = await storage.getAppointment(trackingSession.appointmentId);
+      await logEvent({
+        tracking_code: code,
+        user_id: appointment?.patientId?.toString(),
+        user_role: 'patient',
+        event_type: 'patient_visit_confirmed',
+        event_payload: {
+          appointment_id: trackingSession.appointmentId,
+          confirmed_at: new Date().toISOString()
+        }
+      });
 
       // Update patient confirmation
       await storage.updatePatientTrackingSession(trackingSession.id, {
@@ -133,15 +154,39 @@ export function registerRoutes(app: Express): Server {
 
       // Check if both parties confirmed to complete appointment
       if (trackingSession.doctorConfirmed) {
-        const appointment = await storage.getAppointment(trackingSession.appointmentId);
         if (appointment) {
           await storage.updateAppointment(appointment.id, { status: 'completed' });
+          
+          // Log appointment completion
+          await logEvent({
+            tracking_code: code,
+            user_id: appointment.patientId.toString(),
+            user_role: 'patient',
+            event_type: 'appointment_completed',
+            event_payload: {
+              appointment_id: appointment.id,
+              completed_at: new Date().toISOString(),
+              both_parties_confirmed: true
+            }
+          });
           
           // Trigger automatic invoicing
           try {
             await invoicingService.processAppointmentInvoicing(appointment.id);
+            await logEvent({
+              tracking_code: code,
+              event_type: 'invoicing_triggered',
+              event_payload: {
+                appointment_id: appointment.id,
+                triggered_at: new Date().toISOString()
+              }
+            });
           } catch (invoiceError) {
             console.error('Error generating invoices:', invoiceError);
+            await logError(invoiceError, 'invoicing_process', {
+              tracking_code: code,
+              appointment_id: appointment.id
+            });
           }
         }
       }
@@ -149,6 +194,9 @@ export function registerRoutes(app: Express): Server {
       res.json({ success: true });
     } catch (error) {
       console.error('Error confirming completion:', error);
+      await logError(error, 'patient_confirmation', {
+        tracking_code: code
+      });
       res.status(500).json({ message: 'Error interno del servidor' });
     }
   });
@@ -157,6 +205,17 @@ export function registerRoutes(app: Express): Server {
     try {
       const { code } = req.params;
       const validatedData = reviewSchema.parse(req.body);
+      
+      // Log review submission event
+      await logEvent({
+        tracking_code: code,
+        event_type: 'patient_review_submitted',
+        event_payload: {
+          rating: validatedData.rating,
+          has_comment: !!validatedData.comment,
+          submitted_at: new Date().toISOString()
+        }
+      });
       
       const trackingSession = await storage.getPatientTrackingSessionByCode(code);
       if (!trackingSession) {
@@ -190,13 +249,39 @@ export function registerRoutes(app: Express): Server {
       const { code } = req.params;
       const validatedData = complaintSchema.parse(req.body);
       
+      // Log complaint submission event
+      await logEvent({
+        tracking_code: code,
+        event_type: 'patient_complaint_submitted',
+        event_payload: {
+          feedback_type: validatedData.feedbackType,
+          message_length: validatedData.message.length,
+          submitted_at: new Date().toISOString()
+        }
+      });
+      
       const trackingSession = await storage.getPatientTrackingSessionByCode(code);
       if (!trackingSession) {
+        await logEvent({
+          tracking_code: code,
+          event_type: 'complaint_submission_failed',
+          event_payload: {
+            reason: 'invalid_tracking_code'
+          }
+        });
         return res.status(404).json({ message: 'Código de seguimiento no válido' });
       }
 
       const appointment = await storage.getAppointment(trackingSession.appointmentId);
       if (!appointment) {
+        await logEvent({
+          tracking_code: code,
+          event_type: 'complaint_submission_failed',
+          event_payload: {
+            reason: 'appointment_not_found',
+            tracking_session_id: trackingSession.id
+          }
+        });
         return res.status(404).json({ message: 'Cita no encontrada' });
       }
 
@@ -211,6 +296,20 @@ export function registerRoutes(app: Express): Server {
         message: validatedData.message,
         feedbackType: validatedData.feedbackType,
         complaintCode
+      });
+
+      // Log successful complaint creation
+      await logEvent({
+        tracking_code: code,
+        user_id: appointment.patientId.toString(),
+        user_role: 'patient',
+        event_type: 'complaint_created',
+        event_payload: {
+          complaint_code: complaintCode,
+          appointment_id: appointment.id,
+          feedback_type: validatedData.feedbackType,
+          created_at: new Date().toISOString()
+        }
       });
 
       res.json({ 
@@ -305,6 +404,22 @@ export function registerRoutes(app: Express): Server {
         doctorConfirmed: false
       });
 
+      // Log appointment creation event
+      await logEvent({
+        tracking_code: trackingCode,
+        user_id: validatedData.patientId.toString(),
+        user_role: 'patient',
+        event_type: 'appointment_created',
+        event_payload: {
+          appointment_id: appointment.id,
+          doctor_id: validatedData.doctorId,
+          service_type: validatedData.serviceType || 'consultation',
+          total_amount: validatedData.totalAmount,
+          appointment_date: validatedData.appointmentDate,
+          created_at: new Date().toISOString()
+        }
+      });
+
       res.status(201).json({
         appointment,
         trackingCode: trackingSession.trackingCode,
@@ -312,6 +427,9 @@ export function registerRoutes(app: Express): Server {
       });
     } catch (error) {
       console.error('Error creating appointment:', error);
+      await logError(error, 'appointment_creation', {
+        patient_id: validatedData?.patientId
+      });
       res.status(500).json({ message: 'Error interno del servidor' });
     }
   });
@@ -387,6 +505,145 @@ export function registerRoutes(app: Express): Server {
       });
     } catch (error) {
       console.error('Error creating sample data:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  });
+
+  // Admin routes for event traceability system (require authentication)
+  app.get('/api/admin/events', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { limit = 100, offset = 0, tracking_code, user_id, event_type } = req.query;
+      
+      let events;
+      if (tracking_code) {
+        events = await getEventsByTrackingCode(tracking_code as string);
+      } else if (user_id) {
+        events = await getEventsByUser(user_id as string);
+      } else {
+        events = await getAllEvents(Number(limit), Number(offset));
+      }
+
+      // Filter by event type if provided
+      if (event_type && events) {
+        events = events.filter(event => event.event_type === event_type);
+      }
+
+      res.json({
+        events: events || [],
+        total: events?.length || 0,
+        filters: {
+          tracking_code: tracking_code || null,
+          user_id: user_id || null,
+          event_type: event_type || null,
+          limit: Number(limit),
+          offset: Number(offset)
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  });
+
+  app.get('/api/admin/events/stats', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const allEvents = await getAllEvents(1000); // Get recent events for stats
+      
+      if (!allEvents) {
+        return res.json({ message: 'No events found' });
+      }
+
+      // Calculate statistics
+      const stats = {
+        total_events: allEvents.length,
+        event_types: {},
+        user_activity: {},
+        tracking_codes: new Set(),
+        date_range: {
+          oldest: null,
+          newest: null
+        }
+      };
+
+      allEvents.forEach(event => {
+        // Event type counts
+        stats.event_types[event.event_type] = (stats.event_types[event.event_type] || 0) + 1;
+        
+        // User activity counts
+        if (event.user_id) {
+          stats.user_activity[event.user_id] = (stats.user_activity[event.user_id] || 0) + 1;
+        }
+        
+        // Tracking codes
+        if (event.tracking_code) {
+          stats.tracking_codes.add(event.tracking_code);
+        }
+
+        // Date range
+        const eventDate = new Date(event.timestamp);
+        if (!stats.date_range.oldest || eventDate < new Date(stats.date_range.oldest)) {
+          stats.date_range.oldest = event.timestamp;
+        }
+        if (!stats.date_range.newest || eventDate > new Date(stats.date_range.newest)) {
+          stats.date_range.newest = event.timestamp;
+        }
+      });
+
+      stats.tracking_codes = stats.tracking_codes.size;
+
+      res.json(stats);
+    } catch (error) {
+      console.error('Error calculating event stats:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  });
+
+  app.post('/api/admin/events/export', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { tracking_code, user_id, event_type, date_from, date_to } = req.body;
+      
+      let events = await getAllEvents(10000); // Get more events for export
+      
+      if (!events) {
+        return res.json({ events: [], message: 'No events found' });
+      }
+
+      // Apply filters
+      if (tracking_code) {
+        events = events.filter(event => event.tracking_code === tracking_code);
+      }
+      if (user_id) {
+        events = events.filter(event => event.user_id === user_id);
+      }
+      if (event_type) {
+        events = events.filter(event => event.event_type === event_type);
+      }
+      if (date_from) {
+        events = events.filter(event => new Date(event.timestamp) >= new Date(date_from));
+      }
+      if (date_to) {
+        events = events.filter(event => new Date(event.timestamp) <= new Date(date_to));
+      }
+
+      // Log export action
+      await logEvent({
+        user_id: req.user?.id?.toString(),
+        user_role: 'admin',
+        event_type: 'event_log_exported',
+        event_payload: {
+          exported_count: events.length,
+          filters: { tracking_code, user_id, event_type, date_from, date_to },
+          exported_at: new Date().toISOString()
+        }
+      });
+
+      res.json({
+        events,
+        exported_count: events.length,
+        exported_at: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error exporting events:', error);
       res.status(500).json({ message: 'Error interno del servidor' });
     }
   });
