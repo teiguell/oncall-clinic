@@ -37,10 +37,11 @@ async function main() {
     log("Vite setup failed, continuing with static HTML");
   }
 
-  // Start server
+  // Start server - use Replit's expected port
   const PORT = Number(process.env.PORT) || 5000;
   httpServer.listen(PORT, "0.0.0.0", () => {
     log(`Server running at http://0.0.0.0:${PORT}`);
+    log(`Public URL: https://${process.env.REPLIT_DEV_DOMAIN}`);
   });
 }
 
