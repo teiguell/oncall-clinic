@@ -674,6 +674,76 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Admin routes for user management
+  app.get('/api/admin/doctors', async (req: Request, res: Response) => {
+    try {
+      const doctors = await storage.getAllDoctors();
+      res.json(doctors);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      res.status(500).json({ error: 'Error fetching doctors' });
+    }
+  });
+
+  app.get('/api/admin/patients', async (req: Request, res: Response) => {
+    try {
+      const patients = await storage.getAllPatients();
+      res.json(patients);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      res.status(500).json({ error: 'Error fetching patients' });
+    }
+  });
+
+  app.post('/api/admin/verify-doctor', async (req: Request, res: Response) => {
+    try {
+      const { doctorId, verified, notes } = req.body;
+      
+      await storage.updateDoctorVerification(doctorId, verified);
+      
+      // Log the verification event
+      await logEvent({
+        user_id: doctorId.toString(),
+        user_role: 'doctor', 
+        event_type: 'doctor_verification_updated',
+        event_payload: {
+          verified,
+          notes,
+          verified_by: 'admin'
+        }
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error verifying doctor:', error);
+      res.status(500).json({ error: 'Error verifying doctor' });
+    }
+  });
+
+  app.post('/api/admin/toggle-user', async (req: Request, res: Response) => {
+    try {
+      const { userId, active } = req.body;
+      
+      await storage.updateUserStatus(userId, active);
+      
+      // Log the user status change
+      await logEvent({
+        user_id: userId.toString(),
+        user_role: 'admin',
+        event_type: 'user_status_changed',
+        event_payload: {
+          active,
+          changed_by: 'admin'
+        }
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      res.status(500).json({ error: 'Error updating user status' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

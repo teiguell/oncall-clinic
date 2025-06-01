@@ -174,6 +174,12 @@ export interface IStorage {
   getComplaint(id: number): Promise<Complaint | undefined>;
   getComplaintsByAppointment(appointmentId: number): Promise<Complaint[]>;
   updateComplaint(id: number, data: Partial<Complaint>): Promise<Complaint | undefined>;
+
+  // Admin Methods
+  getAllDoctors(): Promise<Array<DoctorProfile & { user: User }>>;
+  getAllPatients(): Promise<Array<PatientProfile & { user: User }>>;
+  updateDoctorVerification(doctorId: number, verified: boolean): Promise<void>;
+  updateUserStatus(userId: number, active: boolean): Promise<void>;
 }
 
 const MemoryStore = createMemoryStore(session);
