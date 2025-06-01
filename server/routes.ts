@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { invoicingService } from "./services/invoicing";
+import { logEvent, logError, getEventsByTrackingCode, getAllEvents, initializeEventLogTable } from "./supabase";
 import crypto from 'crypto';
 import { z } from 'zod';
 
@@ -35,14 +36,39 @@ const chatMessageSchema = z.object({
 
 export function registerRoutes(app: Express): Server {
   
+  // Initialize Supabase event log table
+  initializeEventLogTable().catch(error => {
+    console.error('Failed to initialize event log table:', error);
+  });
+  
   // Patient tracking endpoints (public - no authentication required)
   app.get('/api/tracking/:code', async (req: Request, res: Response) => {
     try {
       const { code } = req.params;
       
+      // Log tracking access event
+      await logEvent({
+        tracking_code: code,
+        event_type: 'tracking_access',
+        event_payload: {
+          user_agent: req.headers['user-agent'],
+          ip: req.ip,
+          timestamp: new Date().toISOString()
+        }
+      });
+      
       // Get tracking session
       const trackingSession = await storage.getPatientTrackingSessionByCode(code);
       if (!trackingSession) {
+        await logEvent({
+          tracking_code: code,
+          event_type: 'tracking_access_failed',
+          event_payload: {
+            reason: 'invalid_code',
+            user_agent: req.headers['user-agent'],
+            ip: req.ip
+          }
+        });
         return res.status(404).json({ message: 'Código de seguimiento no válido' });
       }
 
