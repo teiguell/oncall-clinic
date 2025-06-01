@@ -24,6 +24,7 @@ import About from "@/pages/about";
 import ForgotPassword from "@/pages/forgot-password";
 import Verify from "@/pages/verify";
 import AdminDoctorVerification from "@/pages/admin-doctor-verification";
+import AdminTraceability from "@/pages/admin-traceability";
 import { ProtectedRoute } from "@/lib/protected-route";
 
 // Legal Pages
@@ -80,6 +81,10 @@ function AppContent() {
           <ProtectedRoute 
             path="/admin/doctors/verify" 
             component={AdminDoctorVerification}
+          />
+          <ProtectedRoute 
+            path="/admin/traceability" 
+            component={AdminTraceability}
           />
 
           {/* Fallback */}
