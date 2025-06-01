@@ -649,13 +649,12 @@ export const complaints = pgTable("complaints", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Insert schemas for new tables
+// Additional insert schemas for new tables
 export const insertInvoiceSchema = createInsertSchema(invoices);
 export const insertPatientTrackingSessionSchema = createInsertSchema(patientTrackingSessions);
 export const insertDoctorLocationSchema = createInsertSchema(doctorLocations);
-export const insertComplaintSchema = createInsertSchema(complaints);
 
-// Types for new tables
+// Additional types for new tables
 export type Invoice = typeof invoices.$inferSelect;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 
@@ -664,6 +663,3 @@ export type InsertPatientTrackingSession = z.infer<typeof insertPatientTrackingS
 
 export type DoctorLocation = typeof doctorLocations.$inferSelect;
 export type InsertDoctorLocation = z.infer<typeof insertDoctorLocationSchema>;
-
-export type Complaint = typeof complaints.$inferSelect;
-export type InsertComplaint = z.infer<typeof insertComplaintSchema>;
