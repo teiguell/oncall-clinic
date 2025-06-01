@@ -23,7 +23,6 @@ import {
 import { z } from "zod";
 import crypto from "crypto";
 import { WebSocketServer, WebSocket } from "ws";
-import path from "path";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import { IS_SANDBOX, TEST_DOCTOR, TEST_DOCTOR_AVAILABILITY, isWithinAllowedArea } from "./sandbox/config";
@@ -93,6 +92,21 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure session middleware
+  const MemoryStoreSession = MemoryStore(session);
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'oncallclinic_dev_secret',
+    resave: false,
+    saveUninitialized: false,
+    store: new MemoryStoreSession({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
+    cookie: {
+      secure: false, // set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
   
   // Doctor Login Page
   app.get('/doctor', (req, res) => {
@@ -324,8 +338,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create session
-      (req.session as any).userId = user.id;
-      (req.session as any).userType = user.userType;
+      req.session.user = {
+        id: user.id,
+        userType: user.userType,
+        emailVerified: user.emailVerified
+      };
 
       res.json({
         success: true,
@@ -940,21 +957,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   
-  // Setup express-session with memorystore
-  const MemoryStoreSession = MemoryStore(session);
-  const sessionStore = new MemoryStoreSession({
-    checkPeriod: 86400000 // prune expired entries every 24h
-  });
 
-  app.use(session({
-    store: sessionStore,
-    secret: 'medical-app-session-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false, // set to true if using https
-      maxAge: 1000 * 60 * 60 * 24 // 24 hours
-    }
   }));
   
   // Create WebSocket server with specific path to avoid conflict with Vite HMR
