@@ -3308,59 +3308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Doctor Authentication Endpoints
-  
-  // Doctor login
-  app.post('/api/doctor/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' });
-      }
 
-      // Find user by email
-      const user = await storage.getUserByEmail(email);
-      if (!user || user.userType !== 'doctor') {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
-
-      // In a real app, you'd verify the password hash here
-      // For testing, we'll use the test account
-      if (email === 'doctortest@oncall.clinic' && password === 'pepe') {
-        // Get doctor profile
-        const doctorProfile = await storage.getDoctorProfileByUserId(user.id);
-        
-        if (!doctorProfile) {
-          return res.status(404).json({ message: 'Doctor profile not found' });
-        }
-
-        // Create session data
-        const doctorData = {
-          id: doctorProfile.id,
-          userId: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          isVerified: doctorProfile.isVerified,
-          isAvailable: doctorProfile.isAvailable,
-          licenseNumber: doctorProfile.licenseNumber
-        };
-
-        res.json({
-          success: true,
-          message: 'Login successful',
-          doctor: doctorData
-        });
-      } else {
-        res.status(401).json({ message: 'Invalid credentials' });
-      }
-
-    } catch (error) {
-      console.error('Doctor login error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
 
   // Get doctor's today appointments
   app.get('/api/doctor/:doctorId/appointments/today', async (req, res) => {
