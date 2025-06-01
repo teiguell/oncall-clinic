@@ -53,6 +53,36 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Doctor search endpoint with location filtering
+  app.get('/api/doctors', async (req: Request, res: Response) => {
+    try {
+      const { lat, lng, distance, specialty, verified, available } = req.query;
+      
+      let doctors = [];
+      
+      if (lat && lng) {
+        // Location-based search
+        const latitude = parseFloat(lat as string);
+        const longitude = parseFloat(lng as string);
+        const maxDistance = distance ? parseFloat(distance as string) : 50; // Default 50km
+        
+        doctors = await storage.searchDoctorsByLocation(latitude, longitude, maxDistance);
+      } else {
+        // Regular search without location
+        const specialtyId = specialty && specialty !== 'all' ? parseInt(specialty as string) : undefined;
+        const isVerified = verified === 'true';
+        const isAvailable = available !== 'false'; // Default to true
+        
+        doctors = await storage.searchDoctors(specialtyId, isAvailable, isVerified);
+      }
+      
+      res.json(doctors);
+    } catch (error) {
+      console.error('Error searching doctors:', error);
+      res.status(500).json({ message: 'Error searching doctors' });
+    }
+  });
+
   app.get('/api/doctors/:id', async (req: Request, res: Response) => {
     try {
       const doctorId = parseInt(req.params.id);
