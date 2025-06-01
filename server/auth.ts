@@ -60,8 +60,8 @@ export const sessionStore = new MemoryStore({
 // Set up Google OAuth client
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Configure authentication middleware and routes
-export function setupAuth(app: Express) {
+// Legacy function - will be removed
+function legacySetupAuth(app: Express) {
   // Session configuration
   app.use(
     session({
