@@ -1,0 +1,49 @@
+Implementa un sistema de trazabilidad externo en OnCall Clinic utilizando Supabase como base de datos de eventos separada. Esto servirá como sistema de auditoría, registro legal y análisis de eventos críticos de la app.
+
+1. Verifica si están definidas las variables de entorno:
+   - SUPABASE_URL
+   - SUPABASE_SERVICE_ROLE_KEY
+
+   Si no lo están, solicita al usuario que cree una cuenta gratuita en https://supabase.com, cree un nuevo proyecto y proporcione:
+   - La URL del proyecto Supabase (SUPABASE_URL)
+   - La clave secreta service_role (SUPABASE_SERVICE_ROLE_KEY)
+
+2. Una vez configuradas las variables, crea en Supabase una tabla llamada `event_log` con la siguiente estructura:
+
+   - `id` (UUID, primary key, default uuid_generate_v4())
+   - `tracking_code` (text)
+   - `user_id` (text)
+   - `user_role` (text) – 'patient' o 'doctor'
+   - `event_type` (text)
+   - `event_payload` (jsonb)
+   - `timestamp` (timestamp with time zone, default now())
+
+3. Implementa una función en el backend que permita registrar eventos genéricos en Supabase mediante una llamada HTTP o desde cualquier parte del código.
+
+4. Integra los siguientes eventos clave para ser registrados:
+
+   - Creación de reserva
+   - Aceptación por médico
+   - Confirmación por paciente
+   - Inicio de trayecto
+   - Llegada al domicilio
+   - Inicio del chat
+   - Apertura de geolocalización (últimos 15 min)
+   - Finalización de visita por cada parte
+   - Pago confirmado / fallido
+   - Valoración del médico
+   - Quejas del paciente
+   - Actualización manual desde administración
+
+5. Implementa trazabilidad independiente del sistema de usuarios. El paciente podrá acceder al dashboard temporal de su reserva introduciendo únicamente su código de reserva. Desde ese dashboard podrá:
+
+   - Ver su cita y estado en tiempo real
+   - Ver al médico en el mapa si está en los últimos 15 min
+   - Acceder al chat
+   - Marcar como finalizada la visita (obligatorio)
+   - Valorar con estrellas y comentario
+   - Enviar queja y hacer seguimiento por email con código de seguimiento
+
+6. Registra todos estos eventos en Supabase y asegúrate de que se puedan consultar en modo lectura desde un panel de administración. 
+
+Todos los errores deben ser registrados en un log separado para revisión técnica posterior. Confirma una vez esté todo implementado y funcionando sin errores en entorno de pruebas.
