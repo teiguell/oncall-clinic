@@ -220,23 +220,48 @@
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Iniciando sesión...';
 
-            // Check test credentials
-            if (email === 'doctortest@oncall.clinic' && password === 'pepe') {
-                // Simulate successful login
-                localStorage.setItem('doctor_session', JSON.stringify({
-                    id: 999,
-                    name: 'Dra. María González',
-                    email: email,
-                    specialty: 'Medicina General',
-                    isVerified: true,
-                    loginTime: new Date().toISOString()
-                }));
-                
-                alert('¡Login exitoso! Redirigiendo al dashboard...');
-                window.location.href = 'doctor-dashboard.html';
-            } else {
-                alert('Credenciales incorrectas. Usa: doctortest@oncall.clinic / pepe');
+            try {
+                const response = await fetch('/api/doctor/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store session data
+                    localStorage.setItem('doctor_session', JSON.stringify({
+                        id: data.doctor.id,
+                        userId: data.doctor.userId,
+                        name: `Dr. ${data.doctor.firstName} ${data.doctor.lastName}`,
+                        email: data.doctor.email,
+                        licenseNumber: data.doctor.licenseNumber,
+                        isVerified: data.doctor.isVerified,
+                        isAvailable: data.doctor.isAvailable,
+                        loginTime: new Date().toISOString()
+                    }));
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'doctor-dashboard.html';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Error de conexión. Por favor, intenta de nuevo.');
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Iniciar Sesión';
             }
         });
 

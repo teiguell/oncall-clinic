@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Visita - OnCall Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .form-input {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .timeline {
+            position: relative;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+        .timeline-item {
+            position: relative;
+            margin-left: 50px;
+            margin-bottom: 30px;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -46px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #e5e7eb;
+        }
+        .timeline-dot.active {
+            background: #3b82f6;
+            box-shadow: 0 0 0 3px #3b82f6, 0 0 0 6px #dbeafe;
+        }
+        .timeline-dot.pending {
+            background: #d1d5db;
+        }
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index-with-search.html" class="flex items-center">
+                        <i class="fas fa-user-md text-2xl text-indigo-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">OnCall Clinic</span>
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    <a href="index-with-search.html" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Volver al Inicio</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="min-h-screen py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">Seguimiento de tu Visita</h1>
+                <p class="text-lg text-gray-600">Ingresa tu código de seguimiento para ver el estado de tu consulta médica</p>
+            </div>
+
+            <!-- Search Form -->
+            <div id="searchForm" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                <form id="trackingForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Código de Seguimiento</label>
+                            <input 
+                                type="text" 
+                                id="trackingCode" 
+                                class="form-input"
+                                placeholder="APT-123456"
+                                required
+                            >
+                            <p class="text-xs text-gray-500 mt-1">Código enviado por SMS y email</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email de Confirmación</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                class="form-input"
+                                placeholder="tu@email.com"
+                                required
+                            >
+                            <p class="text-xs text-gray-500 mt-1">Email usado al reservar</p>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">
+                        <i class="fas fa-search mr-2"></i>
+                        Buscar mi Visita
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tracking Results -->
+            <div id="trackingResults" class="hidden">
+                <!-- Appointment Info Card -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                    <div class="flex items-start justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Consulta Médica</h2>
+                            <p class="text-lg text-gray-600">Código: <span id="resultTrackingCode" class="font-mono text-indigo-600"></span></p>
+                        </div>
+                        <div class="text-right">
+                            <div id="appointmentStatus" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Confirmada
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Fecha y Hora</h3>
+                            <p id="appointmentDateTime" class="text-gray-700">-</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Médico Asignado</h3>
+                            <p id="doctorName" class="text-gray-700">-</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Costo Total</h3>
+                            <p id="totalAmount" class="text-gray-700 font-bold">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Estado de tu Consulta</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-800">Reserva Confirmada</h4>
+                                <p class="text-sm text-green-600 mt-1">Tu consulta ha sido confirmada y el pago procesado</p>
+                                <p class="text-xs text-green-500 mt-2" id="confirmedTime">-</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending" id="assignedDot"></div>
+                            <div class="bg-gray-50 p-4 rounded-lg" id="assignedCard">
+                                <h4 class="font-semibold text-gray-800">Médico Asignado</h4>
+                                <p class="text-sm text-gray-600 mt-1">Hemos asignado un médico a tu consulta</p>
+                                <p class="text-xs text-gray-500 mt-2" id="assignedTime">Pendiente</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending" id="routeDot"></div>
+                            <div class="bg-gray-50 p-4 rounded-lg" id="routeCard">
+                                <h4 class="font-semibold text-gray-800">En Camino</h4>
+                                <p class="text-sm text-gray-600 mt-1">El médico está en camino a tu ubicación</p>
+                                <p class="text-xs text-gray-500 mt-2" id="routeTime">Pendiente</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending" id="arrivedDot"></div>
+                            <div class="bg-gray-50 p-4 rounded-lg" id="arrivedCard">
+                                <h4 class="font-semibold text-gray-800">Médico Llegó</h4>
+                                <p class="text-sm text-gray-600 mt-1">El médico ha llegado y comenzará la consulta</p>
+                                <p class="text-xs text-gray-500 mt-2" id="arrivedTime">Pendiente</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending" id="completedDot"></div>
+                            <div class="bg-gray-50 p-4 rounded-lg" id="completedCard">
+                                <h4 class="font-semibold text-gray-800">Consulta Completada</h4>
+                                <p class="text-sm text-gray-600 mt-1">La consulta ha sido completada satisfactoriamente</p>
+                                <p class="text-xs text-gray-500 mt-2" id="completedTime">Pendiente</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Section (Only visible 15 min before appointment) -->
+                <div id="chatSection" class="bg-white rounded-lg shadow-lg p-8 mb-8 hidden">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Chat con el Médico</h3>
+                    <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                        <p class="text-sm text-blue-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            El chat se activará 15 minutos antes de tu cita programada
+                        </p>
+                    </div>
+                    
+                    <div id="chatMessages" class="space-y-4 mb-4 h-64 overflow-y-auto">
+                        <!-- Messages will appear here -->
+                    </div>
+                    
+                    <div id="chatInput" class="hidden">
+                        <div class="flex space-x-2">
+                            <input 
+                                type="text" 
+                                id="messageInput" 
+                                placeholder="Escribe un mensaje..." 
+                                class="flex-1 form-input"
+                            >
+                            <button id="sendMessage" class="btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">¿Necesitas Ayuda?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-phone text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Soporte Telefónico</h4>
+                                <p class="text-gray-600">+34 900 123 456</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-envelope text-green-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Email</h4>
+                                <p class="text-gray-600">soporte@oncall.clinic</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-4"></i>
+                <h3 class="text-lg font-semibold text-red-800 mb-2">Consulta No Encontrada</h3>
+                <p class="text-red-600 mb-4">No pudimos encontrar una consulta con esos datos. Verifica:</p>
+                <ul class="text-sm text-red-600 text-left max-w-md mx-auto">
+                    <li>• El código de seguimiento esté escrito correctamente</li>
+                    <li>• El email coincida con el usado al hacer la reserva</li>
+                    <li>• La consulta no haya sido cancelada</li>
+                </ul>
+                <button onclick="showSearchForm()" class="btn-primary mt-4">
+                    Intentar de Nuevo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let appointmentData = null;
+        let chatEnabled = false;
+
+        // Handle tracking form submission
+        document.getElementById('trackingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const trackingCode = document.getElementById('trackingCode').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            if (!trackingCode || !email) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Buscando...';
+
+            try {
+                const response = await fetch('/api/track-booking', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ trackingCode, email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.appointment) {
+                    appointmentData = data;
+                    showTrackingResults(data);
+                    setupRealtimeUpdates();
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Tracking error:', error);
+                showError();
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Buscar mi Visita';
+            }
+        });
+
+        // Show tracking results
+        function showTrackingResults(data) {
+            document.getElementById('searchForm').classList.add('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('trackingResults').classList.remove('hidden');
+
+            // Update appointment info
+            document.getElementById('resultTrackingCode').textContent = data.trackingCode;
+            document.getElementById('appointmentDateTime').textContent = formatDateTime(data.appointment.appointmentDate);
+            document.getElementById('doctorName').textContent = data.doctorName || 'Asignando médico...';
+            document.getElementById('totalAmount').textContent = `${(data.appointment.totalAmount / 100).toFixed(2)}€`;
+            document.getElementById('confirmedTime').textContent = formatDateTime(data.appointment.createdAt);
+
+            // Update status
+            updateAppointmentStatus(data.appointment.status);
+            
+            // Check if chat should be enabled
+            checkChatAvailability(data.appointment);
+        }
+
+        // Update appointment status in timeline
+        function updateAppointmentStatus(status) {
+            const statusMap = {
+                'confirmed': 1,
+                'assigned': 2,
+                'en_route': 3,
+                'arrived': 4,
+                'completed': 5
+            };
+
+            const currentStep = statusMap[status] || 1;
+
+            // Update timeline dots and cards
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.getElementById(getDotId(i));
+                const card = document.getElementById(getCardId(i));
+                
+                if (i <= currentStep) {
+                    dot.classList.remove('pending');
+                    dot.classList.add(i === currentStep ? 'active' : '');
+                    updateCardStyle(card, i === currentStep ? 'active' : 'completed');
+                }
+            }
+        }
+
+        // Get timeline element IDs
+        function getDotId(step) {
+            const ids = ['', 'confirmedDot', 'assignedDot', 'routeDot', 'arrivedDot', 'completedDot'];
+            return ids[step];
+        }
+
+        function getCardId(step) {
+            const ids = ['', 'confirmedCard', 'assignedCard', 'routeCard', 'arrivedCard', 'completedCard'];
+            return ids[step];
+        }
+
+        // Update card visual style
+        function updateCardStyle(card, type) {
+            card.classList.remove('bg-gray-50', 'bg-blue-50', 'bg-green-50');
+            
+            if (type === 'active') {
+                card.classList.add('bg-blue-50');
+                card.querySelector('h4').className = 'font-semibold text-blue-800';
+                card.querySelector('p').className = 'text-sm text-blue-600 mt-1';
+            } else if (type === 'completed') {
+                card.classList.add('bg-green-50');
+                card.querySelector('h4').className = 'font-semibold text-green-800';
+                card.querySelector('p').className = 'text-sm text-green-600 mt-1';
+            }
+        }
+
+        // Check if chat should be available
+        function checkChatAvailability(appointment) {
+            const appointmentTime = new Date(appointment.appointmentDate);
+            const now = new Date();
+            const timeDiff = appointmentTime.getTime() - now.getTime();
+            const minutesDiff = Math.floor(timeDiff / (1000 * 60));
+
+            if (minutesDiff <= 15 && minutesDiff >= -60) {
+                enableChat();
+            } else {
+                document.getElementById('chatSection').classList.remove('hidden');
+            }
+        }
+
+        // Enable chat functionality
+        function enableChat() {
+            if (chatEnabled) return;
+            
+            chatEnabled = true;
+            document.getElementById('chatSection').classList.remove('hidden');
+            document.getElementById('chatInput').classList.remove('hidden');
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="text-center text-green-600 text-sm mb-4">
+                    <i class="fas fa-comments mr-1"></i>
+                    Chat activado - Puedes comunicarte con tu médico
+                </div>
+            `;
+        }
+
+        // Setup realtime updates
+        function setupRealtimeUpdates() {
+            // Simulate realtime updates every 30 seconds
+            setInterval(async () => {
+                if (appointmentData) {
+                    // Refresh appointment data
+                    try {
+                        const response = await fetch('/api/track-booking', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                trackingCode: appointmentData.trackingCode, 
+                                email: document.getElementById('email').value 
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            updateAppointmentStatus(data.appointment.status);
+                            checkChatAvailability(data.appointment);
+                        }
+                    } catch (error) {
+                        console.error('Update error:', error);
+                    }
+                }
+            }, 30000);
+        }
+
+        // Show error message
+        function showError() {
+            document.getElementById('searchForm').classList.add('hidden');
+            document.getElementById('trackingResults').classList.add('hidden');
+            document.getElementById('errorMessage').classList.remove('hidden');
+        }
+
+        // Show search form again
+        function showSearchForm() {
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('trackingResults').classList.add('hidden');
+            document.getElementById('searchForm').classList.remove('hidden');
+        }
+
+        // Format date and time
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Chat functionality
+        document.getElementById('sendMessage').addEventListener('click', sendChatMessage);
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        function sendChatMessage() {
+            if (!chatEnabled) return;
+            
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add message to chat
+            const chatMessages = document.getElementById('chatMessages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'chat-message';
+            messageEl.innerHTML = `
+                <div class="flex justify-end mb-3">
+                    <div class="bg-indigo-600 text-white rounded-lg px-4 py-2 max-w-xs">
+                        <p class="text-sm">${message}</p>
+                        <p class="text-xs opacity-75 mt-1">${new Date().toLocaleTimeString()}</p>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(messageEl);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            input.value = '';
+        }
+
+        // Auto-fill test data for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            // You can set test values here if needed
+            // document.getElementById('trackingCode').value = 'APT-123456';
+            // document.getElementById('email').value = 'test@example.com';
+        });
+    </script>
+</body>
+</html>
