@@ -1,444 +1,207 @@
-function WorkingApp() {
+import { useState, useEffect } from "react";
+
+export default function WorkingApp() {
+  const [doctors, setDoctors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [location, setLocation] = useState("Cala de Bou, Ibiza");
+
+  const searchDoctors = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/doctors?lat=38.9532&lng=1.2989&distance=50&verified=true');
+      const data = await response.json();
+      setDoctors(data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    searchDoctors();
+  }, []);
+
   return (
-    <div style={{ fontFamily: "system-ui", margin: 0, padding: 0 }}>
-      {/* Navigation */}
-      <nav style={{ 
-        background: "white", 
-        borderBottom: "1px solid #e5e7eb", 
-        padding: "1rem 2rem",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
-      }}>
-        <div style={{ 
-          maxWidth: "1200px", 
-          margin: "0 auto", 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center" 
-        }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ 
-              width: "32px", 
-              height: "32px", 
-              background: "#2563eb", 
-              borderRadius: "50%", 
-              marginRight: "12px" 
-            }}></div>
-            <span style={{ fontSize: "24px", fontWeight: "bold", color: "#111827" }}>
-              OnCall Clinic
-            </span>
-          </div>
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <button style={{
-              background: "#2563eb",
-              color: "white",
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontWeight: "500"
-            }}>
-              Encontrar Doctor
-            </button>
-            <button style={{
-              background: "transparent",
-              color: "#374151",
-              padding: "8px 16px",
-              border: "none",
-              cursor: "pointer"
-            }}>
-              Iniciar Sesión
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', backgroundColor: '#f0f8ff', minHeight: '100vh' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <h1 style={{ fontSize: '48px', color: '#1e40af', margin: '0 0 16px 0' }}>OnCall Clinic</h1>
+          <p style={{ fontSize: '20px', color: '#6b7280', margin: '0' }}>Médicos profesionales a domicilio en España</p>
+        </header>
+
+        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', marginBottom: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ fontSize: '24px', marginBottom: '16px', color: '#374151' }}>Buscar Médicos Disponibles</h2>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              style={{ 
+                flex: 1, 
+                padding: '12px', 
+                border: '1px solid #d1d5db', 
+                borderRadius: '8px',
+                fontSize: '16px'
+              }}
+              placeholder="Ubicación"
+            />
+            <button
+              onClick={searchDoctors}
+              disabled={isLoading}
+              style={{ 
+                padding: '12px 24px', 
+                backgroundColor: '#2563eb', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              {isLoading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>
         </div>
-      </nav>
 
-      {/* Hero Section */}
-      <section style={{ 
-        background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", 
-        color: "white", 
-        padding: "5rem 2rem",
-        textAlign: "center"
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h1 style={{ 
-            fontSize: "3.5rem", 
-            fontWeight: "bold", 
-            marginBottom: "1.5rem",
-            lineHeight: "1.1"
-          }}>
-            Atención médica a domicilio
-          </h1>
-          <p style={{ 
-            fontSize: "1.25rem", 
-            marginBottom: "2rem", 
-            opacity: "0.9",
-            maxWidth: "600px",
-            margin: "0 auto 2rem"
-          }}>
-            Atención médica profesional cuando la necesites, en la comodidad de tu hogar
-          </p>
-          <button style={{
-            background: "white",
-            color: "#2563eb",
-            padding: "12px 32px",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "18px",
-            fontWeight: "600",
-            cursor: "pointer",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-          }}>
-            Buscar Doctor Ahora
-          </button>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section style={{ padding: "4rem 2rem", background: "white" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h2 style={{ 
-            fontSize: "2.5rem", 
-            fontWeight: "bold", 
-            textAlign: "center", 
-            marginBottom: "3rem",
-            color: "#111827"
-          }}>
-            ¿Por qué elegir OnCall Clinic?
-          </h2>
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", 
-            gap: "2rem" 
-          }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "64px", 
-                height: "64px", 
-                background: "#dbeafe", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}>
-                <div style={{ 
-                  width: "32px", 
-                  height: "32px", 
-                  background: "#2563eb", 
-                  borderRadius: "4px" 
-                }}></div>
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Respuesta Rápida
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                Atención médica en casa en menos de 1 hora
-              </p>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "64px", 
-                height: "64px", 
-                background: "#dbeafe", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}>
-                <div style={{ 
-                  width: "32px", 
-                  height: "32px", 
-                  background: "#2563eb", 
-                  borderRadius: "4px" 
-                }}></div>
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Pago Seguro
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                Sistema de pago en línea seguro y confiable
-              </p>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "64px", 
-                height: "64px", 
-                background: "#dbeafe", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}>
-                <div style={{ 
-                  width: "32px", 
-                  height: "32px", 
-                  background: "#2563eb", 
-                  borderRadius: "4px" 
-                }}></div>
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Seguimiento en Tiempo Real
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                Rastrea la ubicación de tu doctor en tiempo real
-              </p>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "64px", 
-                height: "64px", 
-                background: "#dbeafe", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}>
-                <div style={{ 
-                  width: "32px", 
-                  height: "32px", 
-                  background: "#2563eb", 
-                  borderRadius: "4px" 
-                }}></div>
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Doctores Verificados
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                Todos los doctores están verificados y licenciados
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section style={{ padding: "4rem 2rem", background: "#f9fafb" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h2 style={{ 
-            fontSize: "2.5rem", 
-            fontWeight: "bold", 
-            textAlign: "center", 
-            marginBottom: "3rem",
-            color: "#111827"
-          }}>
-            ¿Cómo funciona?
-          </h2>
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
-            gap: "2rem" 
-          }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "48px", 
-                height: "48px", 
-                background: "#2563eb", 
-                color: "white", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.5rem",
-                fontWeight: "bold"
-              }}>
-                1
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Buscar Doctor
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                Busca doctores disponibles por especialidad
-              </p>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "48px", 
-                height: "48px", 
-                background: "#2563eb", 
-                color: "white", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.5rem",
-                fontWeight: "bold"
-              }}>
-                2
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Reservar Cita
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                Selecciona un horario y proporciona tu dirección
-              </p>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "48px", 
-                height: "48px", 
-                background: "#2563eb", 
-                color: "white", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.5rem",
-                fontWeight: "bold"
-              }}>
-                3
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Doctor Llega
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                El doctor llega a tu ubicación
-              </p>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ 
-                width: "48px", 
-                height: "48px", 
-                background: "#2563eb", 
-                color: "white", 
-                borderRadius: "50%", 
-                margin: "0 auto 1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.5rem",
-                fontWeight: "bold"
-              }}>
-                4
-              </div>
-              <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-                Recibir Tratamiento
-              </h3>
-              <p style={{ color: "#6b7280" }}>
-                Recibe atención médica profesional
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Doctor Example */}
-      <section style={{ padding: "4rem 2rem", background: "white" }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <h2 style={{ 
-            fontSize: "2.5rem", 
-            fontWeight: "bold", 
-            textAlign: "center", 
-            marginBottom: "3rem",
-            color: "#111827"
-          }}>
-            Doctores Disponibles
-          </h2>
-          <div style={{
-            background: "white",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            padding: "2rem",
-            border: "1px solid #e5e7eb"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
-              <div style={{
-                width: "64px",
-                height: "64px",
-                background: "#dbeafe",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}>
-                <div style={{ 
-                  width: "32px", 
-                  height: "32px", 
-                  background: "#2563eb", 
-                  borderRadius: "4px" 
-                }}></div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.25rem" }}>
-                  Dr. María González
-                </h3>
-                <p style={{ color: "#6b7280", marginBottom: "0.5rem" }}>Medicina General</p>
-                <p style={{ fontSize: "0.875rem", color: "#9ca3af" }}>
-                  Título Médico, Universidad Nacional
-                </p>
-                <div style={{ display: "flex", alignItems: "center", marginTop: "0.5rem" }}>
-                  <span style={{ color: "#fbbf24" }}>★★★★★</span>
-                  <span style={{ marginLeft: "0.5rem", fontSize: "0.875rem", color: "#6b7280" }}>
-                    4.8 calificación
+        <div style={{ display: 'grid', gap: '16px' }}>
+          {doctors.length > 0 ? doctors.map((doctor: any, index) => (
+            <div key={index} style={{ 
+              backgroundColor: 'white', 
+              borderRadius: '12px', 
+              padding: '24px', 
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)' 
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <h3 style={{ fontSize: '24px', margin: '0 0 8px 0', color: '#1f2937' }}>{doctor.name}</h3>
+                  <p style={{ margin: '0 0 4px 0', color: '#6b7280', fontSize: '16px' }}>{doctor.specialty}</p>
+                  <p style={{ margin: '0 0 4px 0', color: '#9ca3af', fontSize: '14px' }}>Licencia: {doctor.licenseNumber}</p>
+                  <p style={{ margin: '0', color: '#2563eb', fontSize: '14px' }}>Distancia: {doctor.distance}km</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ 
+                    display: 'inline-block', 
+                    padding: '4px 12px', 
+                    backgroundColor: '#dcfce7', 
+                    color: '#166534', 
+                    borderRadius: '20px', 
+                    fontSize: '14px' 
+                  }}>
+                    Disponible 24/7
                   </span>
+                  <p style={{ fontSize: '20px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#1f2937' }}>
+                    €{doctor.hourlyRate}/hora
+                  </p>
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <p style={{ fontSize: "2rem", fontWeight: "bold", color: "#111827" }}>$80</p>
-                <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>por visita</p>
-                <span style={{
-                  display: "inline-block",
-                  background: "#dcfce7",
-                  color: "#166534",
-                  fontSize: "0.75rem",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "9999px",
-                  marginTop: "0.5rem"
+              <div style={{ marginTop: '16px', display: 'flex', gap: '12px' }}>
+                <button style={{ 
+                  padding: '8px 16px', 
+                  backgroundColor: '#2563eb', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '6px',
+                  cursor: 'pointer'
                 }}>
-                  Disponible Ahora
-                </span>
+                  Reservar Cita
+                </button>
+                <button style={{ 
+                  padding: '8px 16px', 
+                  backgroundColor: '#f3f4f6', 
+                  color: '#374151', 
+                  border: 'none', 
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}>
+                  Ver Perfil
+                </button>
               </div>
             </div>
-            <div style={{ paddingTop: "1rem", borderTop: "1px solid #e5e7eb" }}>
-              <p style={{ color: "#374151", marginBottom: "1rem" }}>
-                Médico general con amplia experiencia en atención médica domiciliaria
-              </p>
-              <button style={{
-                background: "#2563eb",
-                color: "white",
-                padding: "0.75rem 1.5rem",
-                border: "none",
-                borderRadius: "6px",
-                fontWeight: "600",
-                cursor: "pointer"
-              }}>
-                Reservar Cita
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer style={{ 
-        background: "#111827", 
-        color: "white", 
-        padding: "2rem", 
-        textAlign: "center" 
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1rem" }}>
+          )) : (
             <div style={{ 
-              width: "32px", 
-              height: "32px", 
-              background: "#2563eb", 
-              borderRadius: "50%", 
-              marginRight: "12px" 
-            }}></div>
-            <span style={{ fontSize: "20px", fontWeight: "bold" }}>OnCall Clinic</span>
-          </div>
-          <p style={{ color: "#9ca3af" }}>
-            Atención médica profesional a domicilio. Disponible las 24 horas.
-          </p>
+              backgroundColor: 'white', 
+              borderRadius: '12px', 
+              padding: '24px', 
+              textAlign: 'center',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)' 
+            }}>
+              <p style={{ color: '#6b7280', fontSize: '16px', margin: '0' }}>
+                {isLoading ? 'Buscando médicos disponibles...' : 'No se encontraron médicos en esta área'}
+              </p>
+            </div>
+          )}
         </div>
-      </footer>
+
+        {/* Enlaces rápidos */}
+        <div style={{ marginTop: '40px', textAlign: 'center' }}>
+          <a 
+            href="/doctor-login" 
+            style={{ 
+              display: 'inline-block',
+              margin: '0 12px',
+              padding: '12px 24px',
+              backgroundColor: '#059669',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontSize: '16px'
+            }}
+          >
+            Login Médicos
+          </a>
+          <a 
+            href="/legal/privacy-policy-es" 
+            style={{ 
+              margin: '0 12px',
+              color: '#6b7280',
+              textDecoration: 'none'
+            }}
+          >
+            Política de Privacidad
+          </a>
+          <a 
+            href="/legal/terms-of-use-es" 
+            style={{ 
+              margin: '0 12px',
+              color: '#6b7280',
+              textDecoration: 'none'
+            }}
+          >
+            Términos de Uso
+          </a>
+        </div>
+
+        {/* Botón de administración */}
+        <div style={{ 
+          position: 'fixed', 
+          bottom: '20px', 
+          right: '20px' 
+        }}>
+          <button
+            onClick={() => {
+              const password = prompt('Contraseña de administrador:');
+              if (password === 'Pepillo2727#') {
+                window.location.href = '/admin';
+              } else if (password) {
+                alert('Contraseña incorrecta');
+              }
+            }}
+            style={{ 
+              width: '50px', 
+              height: '50px', 
+              backgroundColor: 'white', 
+              border: '2px solid #e5e7eb', 
+              borderRadius: '50%',
+              cursor: 'pointer',
+              fontSize: '20px',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+            }}
+          >
+            🛡️
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
-
-export default WorkingApp;
