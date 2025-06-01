@@ -222,40 +222,62 @@ export class MemStorage implements IStorage {
   }
 
   private initializeData() {
-    // Add test doctor profile
+    // Create General Medicine specialty first
+    const generalMedicineSpecialty: Specialty = {
+      id: 1,
+      name: "General Medicine",
+      description: "General medical practice and primary healthcare"
+    };
+    this.specialties.set(1, generalMedicineSpecialty);
+
+    // Add test doctor user
     const testDoctorUser: User = {
       id: 999,
       username: "doctortest",
       email: "doctortest@oncall.clinic",
       password: "pepe", // Test credentials as requested
       userType: "doctor",
-      firstName: "Dr. María",
+      firstName: "María",
       lastName: "González",
       phoneNumber: "+34600123456",
       emailVerified: true,
       twoFactorEnabled: false,
-      profilePicture: "/img/doctor-avatar.svg",
+      profilePicture: null,
       authProvider: "local",
       authProviderId: null,
       createdAt: new Date()
     };
+    this.users.set(999, testDoctorUser);
 
+    // Add test doctor profile
     const testDoctorProfile: DoctorProfile = {
       id: 999,
       userId: 999,
       specialtyId: 1, // General Medicine
-      licenseNumber: "TEST123",
-      education: "Medical Degree, Test University",
+      licenseNumber: "TEST123456",
+      education: "Medical Degree, Universidad Complutense Madrid",
       experience: 10,
-      bio: "General practitioner with extensive experience in home healthcare",
-      basePrice: 8000, // €80
+      bio: "General practitioner with extensive experience in home healthcare services",
+      basePrice: 8000, // 80.00 EUR in cents
       isAvailable: true,
       isVerified: true,
       averageRating: 4.8,
       totalEarnings: 0,
       pendingEarnings: 0,
-      commissionRate: 0.15,
+      commissionRate: 15,
       verificationDate: new Date(),
+      verifiedBy: 1,
+      bankAccount: "ES123456789",
+      identityDocFront: null,
+      identityDocBack: null,
+      medicalLicense: null,
+      insuranceCert: null,
+      locationLat: 39.5696,
+      locationLng: 2.6502,
+      locationAddress: "Palma de Mallorca, Islas Baleares"
+    };
+    this.doctorProfiles.set(999, testDoctorProfile);
+  }
       verifiedBy: 1, // Admin user
       weeklyAvailability: {
         monday: { available: true, startTime: "09:00", endTime: "18:00" },

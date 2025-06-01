@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCall Clinic - Médicos a Domicilio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-input {
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            padding: 15px 60px 15px 20px;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+        }
+        .doctor-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .specialty-tag {
+            background: #f0f4ff;
+            color: #6366f1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-user-md text-2xl text-indigo-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">OnCall Clinic</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#como-funciona" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Cómo funciona</a>
+                    <a href="#servicios" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Servicios</a>
+                    <a href="doctor-login-simple.html" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium">Portal Médico</a>
+                    <button class="btn-primary">Emergencia</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Search -->
+    <section class="gradient-bg pt-20 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Médicos a tu Domicilio
+                <span class="block text-2xl md:text-3xl font-normal mt-2 opacity-90">
+                    Atención médica profesional donde la necesites
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-12 opacity-90 max-w-3xl mx-auto">
+                Conectamos pacientes con médicos verificados para consultas domiciliarias. 
+                Rápido, seguro y profesional.
+            </p>
+
+            <!-- Search Form -->
+            <div class="search-container mb-8">
+                <div class="bg-white rounded-full p-2 shadow-2xl">
+                    <div class="flex flex-col md:flex-row gap-2">
+                        <div class="flex-1">
+                            <input 
+                                type="text" 
+                                id="locationInput"
+                                placeholder="¿Dónde necesitas el médico? (ej: Palma de Mallorca)"
+                                class="w-full px-6 py-4 text-gray-700 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                        </div>
+                        <div class="flex-1">
+                            <select 
+                                id="specialtySelect"
+                                class="w-full px-6 py-4 text-gray-700 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                                <option value="">Seleccionar especialidad</option>
+                                <option value="general">Medicina General</option>
+                                <option value="pediatria">Pediatría</option>
+                                <option value="cardiologia">Cardiología</option>
+                                <option value="dermatologia">Dermatología</option>
+                            </select>
+                        </div>
+                        <button 
+                            id="searchButton"
+                            class="btn-primary px-8 py-4 rounded-full flex items-center justify-center"
+                        >
+                            <i class="fas fa-search mr-2"></i>
+                            Buscar Médicos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <div class="text-center">
+                    <div class="text-3xl font-bold">500+</div>
+                    <div class="text-sm opacity-75">Médicos Verificados</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">24/7</div>
+                    <div class="text-sm opacity-75">Disponibilidad</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">30min</div>
+                    <div class="text-sm opacity-75">Tiempo Promedio</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">4.9★</div>
+                    <div class="text-sm opacity-75">Calificación</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results -->
+    <section id="searchResults" class="py-12 hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Médicos Disponibles</h2>
+            <div id="doctorsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Doctors will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section id="como-funciona" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Cómo Funciona</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center card-hover">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">1. Busca</h3>
+                    <p class="text-gray-600">Ingresa tu ubicación y selecciona la especialidad médica que necesitas</p>
+                </div>
+                <div class="text-center card-hover">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-calendar-check text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">2. Reserva</h3>
+                    <p class="text-gray-600">Elige tu médico preferido y agenda tu cita para hoy mismo</p>
+                </div>
+                <div class="text-center card-hover">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-md text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">3. Recibe Atención</h3>
+                    <p class="text-gray-600">El médico llega a tu domicilio con todo lo necesario para la consulta</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="servicios" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Nuestros Servicios</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-stethoscope text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Medicina General</h3>
+                    <p class="text-gray-600 text-sm">Consultas generales y diagnósticos</p>
+                </div>
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-baby text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Pediatría</h3>
+                    <p class="text-gray-600 text-sm">Atención especializada para niños</p>
+                </div>
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-heartbeat text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Cardiología</h3>
+                    <p class="text-gray-600 text-sm">Cuidado del corazón y sistema circulatorio</p>
+                </div>
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-allergies text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Dermatología</h3>
+                    <p class="text-gray-600 text-sm">Tratamiento de piel y problemas cutáneos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-user-md text-2xl mr-2"></i>
+                        <span class="text-xl font-bold">OnCall Clinic</span>
+                    </div>
+                    <p class="text-gray-400">Conectando pacientes con médicos profesionales para atención domiciliaria de calidad.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Servicios</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Medicina General</li>
+                        <li>Pediatría</li>
+                        <li>Cardiología</li>
+                        <li>Dermatología</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Soporte</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Centro de Ayuda</li>
+                        <li>Contacto</li>
+                        <li>Términos de Uso</li>
+                        <li>Privacidad</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Contacto</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-phone mr-2"></i>+34 900 123 456</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@oncallclinic.es</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>Palma, Baleares</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 OnCall Clinic. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample doctor data
+        const sampleDoctors = [
+            {
+                id: 1,
+                name: "Dra. María González",
+                specialty: "Medicina General",
+                rating: 4.9,
+                reviews: 127,
+                price: "80€",
+                distance: "2.5 km",
+                image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
+                available: true,
+                experience: "10 años de experiencia"
+            },
+            {
+                id: 2,
+                name: "Dr. Carlos Ruiz",
+                specialty: "Pediatría",
+                rating: 4.8,
+                reviews: 89,
+                price: "90€",
+                distance: "1.8 km",
+                image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&crop=face",
+                available: true,
+                experience: "8 años de experiencia"
+            },
+            {
+                id: 3,
+                name: "Dra. Ana López",
+                specialty: "Cardiología",
+                rating: 4.9,
+                reviews: 156,
+                price: "120€",
+                distance: "3.2 km",
+                image: "https://images.unsplash.com/photo-1594824720280-1fbe194fdd6b?w=150&h=150&fit=crop&crop=face",
+                available: false,
+                experience: "15 años de experiencia"
+            }
+        ];
+
+        // Search functionality
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const location = document.getElementById('locationInput').value;
+            const specialty = document.getElementById('specialtySelect').value;
+            
+            if (!location.trim()) {
+                alert('Por favor ingresa una ubicación');
+                return;
+            }
+
+            // Show results section
+            document.getElementById('searchResults').classList.remove('hidden');
+            
+            // Filter doctors based on specialty
+            let filteredDoctors = sampleDoctors;
+            if (specialty) {
+                filteredDoctors = sampleDoctors.filter(doctor => 
+                    doctor.specialty.toLowerCase().includes(specialty)
+                );
+            }
+
+            // Display doctors
+            displayDoctors(filteredDoctors);
+            
+            // Scroll to results
+            document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        function displayDoctors(doctors) {
+            const container = document.getElementById('doctorsContainer');
+            
+            if (doctors.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-gray-500">No se encontraron médicos disponibles</div>';
+                return;
+            }
+
+            container.innerHTML = doctors.map(doctor => `
+                <div class="doctor-card card-hover">
+                    <div class="flex items-start space-x-4">
+                        <img src="${doctor.image}" alt="${doctor.name}" class="w-16 h-16 rounded-full object-cover">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-lg">${doctor.name}</h3>
+                                <span class="specialty-tag">${doctor.specialty}</span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+                                <span><i class="fas fa-star text-yellow-400"></i> ${doctor.rating} (${doctor.reviews})</span>
+                                <span><i class="fas fa-map-marker-alt"></i> ${doctor.distance}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">${doctor.experience}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-2xl font-bold text-indigo-600">${doctor.price}</span>
+                                <button 
+                                    class="btn-primary text-sm px-4 py-2 ${!doctor.available ? 'opacity-50 cursor-not-allowed' : ''}"
+                                    ${!doctor.available ? 'disabled' : ''}
+                                    onclick="bookAppointment(${doctor.id})"
+                                >
+                                    ${doctor.available ? 'Reservar Cita' : 'No Disponible'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function bookAppointment(doctorId) {
+            const doctor = sampleDoctors.find(d => d.id === doctorId);
+            if (doctor) {
+                alert(`Redirigiendo a la reserva de cita con ${doctor.name}`);
+                // Here you would redirect to the booking page
+                // window.location.href = `appointment-booking.html?doctor=${doctorId}`;
+            }
+        }
+
+        // Allow Enter key to search
+        document.getElementById('locationInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchButton').click();
+            }
+        });
+    </script>
+</body>
+</html>
