@@ -1,8 +1,8 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import LoginForm from "@/components/auth/login-form";
+import { Link } from "wouter";
 
 export default function LoginPage() {
-
   return (
     <div className="container max-w-md mx-auto py-8 px-4">
       <Card>
@@ -11,10 +11,10 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-center">
-            {t('login.noAccount')}{' '}
-            <a href="/register" className="text-primary font-semibold hover:underline">
-              {t('login.createAccount')}
-            </a>
+            ¿No tienes cuenta?{' '}
+            <Link href="/register" className="text-primary font-semibold hover:underline">
+              Crear cuenta
+            </Link>
           </p>
         </CardFooter>
       </Card>

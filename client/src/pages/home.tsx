@@ -13,14 +13,14 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Healthcare at your doorstep
+                Atención médica a domicilio
               </h1>
               <p className="text-xl md:text-2xl mb-8 text-blue-100">
-                Professional medical care when you need it
+                Cuidado médico profesional cuando lo necesitas
               </p>
               <Link href="/doctors">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                  Find a Doctor Now
+                  Encontrar un Médico
                 </Button>
               </Link>
             </div>
@@ -30,31 +30,28 @@ export default function Home() {
         {/* Benefits Section */}
         <section className="py-12 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12">Why Choose OnCall Clinic</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <h2 className="text-3xl font-bold text-center mb-12">Por qué elegir OnCall Clinic</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <div className="flex flex-col items-center p-6 text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                   <Clock className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Medical care at home in less than 1 hour</h3>
+                <h3 className="text-lg font-semibold mb-2">Atención médica domiciliaria</h3>
+                <p className="text-gray-600 text-sm">Médicos certificados que vienen a tu hogar</p>
               </div>
               <div className="flex flex-col items-center p-6 text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                   <Shield className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Secure online payment</h3>
-              </div>
-              <div className="flex flex-col items-center p-6 text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Track your doctor's location in real-time</h3>
+                <h3 className="text-lg font-semibold mb-2">Pago seguro online</h3>
+                <p className="text-gray-600 text-sm">Transacciones protegidas y transparentes</p>
               </div>
               <div className="flex flex-col items-center p-6 text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                   <BadgeCheck className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Verified and licensed doctors</h3>
+                <h3 className="text-lg font-semibold mb-2">Médicos verificados</h3>
+                <p className="text-gray-600 text-sm">Profesionales colegiados y licenciados</p>
               </div>
             </div>
           </div>
