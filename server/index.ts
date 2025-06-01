@@ -9,6 +9,15 @@ const app = express();
 app.use(express.json());
 app.use(express.static("dist"));
 
+// Configure for Replit proxy
+app.set('trust proxy', true);
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  next();
+});
+
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: any) => {
   console.error(err.stack);
