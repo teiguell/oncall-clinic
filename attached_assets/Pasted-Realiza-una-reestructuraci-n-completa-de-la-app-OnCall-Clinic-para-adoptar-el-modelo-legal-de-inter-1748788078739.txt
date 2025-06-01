@@ -1,0 +1,32 @@
+Realiza una reestructuración completa de la app OnCall Clinic para adoptar el modelo legal de "intermediario en nombre ajeno", donde el médico es el prestador directo del servicio médico y la app solo actúa como intermediaria. A partir de este cambio, haz lo siguiente:
+
+1. Crea las páginas legales de:
+   - Privacy Policy
+   - Terms of Use
+   - Cookies Policy
+
+   En español e inglés, correctamente enlazadas desde el footer en toda la web. Estas páginas deben adaptarse a la normativa española y europea, incluyendo RGPD y Ley de Cookies.
+
+2. Implementa un sistema automático de facturación:
+   - El paciente paga a través de Revolut Pay
+   - Se genera una factura automática del médico al paciente (exenta de IVA) usando los datos de la reserva y del médico (nombre, colegiado, NIF, domicilio fiscal)
+   - Se genera una factura automática de la app al médico por la comisión (con IVA), enviada también por correo y guardada en base de datos
+   - Si no se tienen los datos fiscales del médico, bloquear la activación hasta completarlos
+
+3. Automatiza el envío de estas facturas con Make o desde backend. Asegúrate de que todo está correctamente trazado en la base de datos y con logs de errores visibles para administración.
+
+4. Corrige cualquier error en la app. La aplicación debe quedar completamente funcional, sin errores de rutas, interfaz, roles o sesiones. Revisa cada componente afectado por los cambios.
+
+5. Añade un sistema de trazabilidad de la reserva desde el home sin necesidad de login ni email. El botón "Seguimiento de mi reserva" debe permitir al paciente introducir su código de reserva (tracking code).
+
+6. Este código llevará a un **dashboard temporal del paciente** con las siguientes funcionalidades:
+   - Ver estado de la reserva y evolución en tiempo real
+   - Ver al médico en el mapa en tiempo real durante los últimos 15 minutos antes de la cita
+   - Acceso a chat directo con el médico
+   - Botón obligatorio de "Finalizar visita" que deben pulsar médico y paciente
+   - Formulario para puntuar al médico con estrellas y comentarios
+   - Link a formulario de quejas con posibilidad de hacer seguimiento por mail con un código único
+
+7. Todos los eventos relevantes (pago, aceptación, finalización, quejas, puntuaciones) deben registrarse con timestamps en la base de datos.
+
+Revisa el historial de errores anteriores y asegúrate de que no se repitan. Confirma cuando todo esté implementado, funcionando correctamente en entorno de pruebas, y preparado para producción.

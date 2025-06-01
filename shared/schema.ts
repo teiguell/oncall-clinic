@@ -48,6 +48,12 @@ export const doctorProfiles = pgTable("doctor_profiles", {
   identityDocBack: text("identity_doc_back"), // DNI reverso
   bankAccount: text("bank_account"), // IBAN
   averageRating: doublePrecision("average_rating").default(0),
+  // Fiscal data for invoicing
+  nif: text("nif"), // NIF/CIF for invoicing
+  fiscalAddress: text("fiscal_address"), // Domicilio fiscal
+  fiscalCity: text("fiscal_city"),
+  fiscalPostalCode: text("fiscal_postal_code"),
+  fiscalDataComplete: boolean("fiscal_data_complete").default(false),
   weeklyAvailability: jsonb("weekly_availability"),
   commissionRate: doublePrecision("commission_rate").default(15.0), // Platform commission percentage
   totalEarnings: integer("total_earnings").default(0), // Total earnings in cents
@@ -503,3 +509,83 @@ export const appointmentBookingSchema = z.object({
 });
 
 export type AppointmentBookingData = z.infer<typeof appointmentBookingSchema>;
+
+// Invoices table for automated billing
+export const invoices = pgTable("invoices", {
+  id: serial("id").primaryKey(),
+  invoiceNumber: text("invoice_number").notNull().unique(),
+  type: text("type").notNull(), // "medical_service" or "platform_commission"
+  fromEntityType: text("from_entity_type").notNull(), // "doctor" or "platform"
+  fromEntityId: integer("from_entity_id"), // doctor ID or null for platform
+  toEntityType: text("to_entity_type").notNull(), // "patient" or "doctor"
+  toEntityId: integer("to_entity_id").notNull(),
+  appointmentId: integer("appointment_id").references(() => appointments.id),
+  amount: integer("amount").notNull(), // in cents
+  vatRate: doublePrecision("vat_rate").default(0), // VAT percentage (21% for platform, 0% for medical)
+  vatAmount: integer("vat_amount").default(0), // VAT amount in cents
+  totalAmount: integer("total_amount").notNull(), // amount + vat in cents
+  currency: text("currency").default("EUR"),
+  description: text("description").notNull(),
+  status: text("status").default("pending"), // "pending", "sent", "paid", "error"
+  pdfPath: text("pdf_path"), // Path to generated PDF
+  sentAt: timestamp("sent_at"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Patient tracking sessions (temporary dashboard access)
+export const patientTrackingSessions = pgTable("patient_tracking_sessions", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  trackingCode: text("tracking_code").notNull().unique(),
+  patientConfirmed: boolean("patient_confirmed").default(false),
+  doctorConfirmed: boolean("doctor_confirmed").default(false),
+  patientConfirmedAt: timestamp("patient_confirmed_at"),
+  doctorConfirmedAt: timestamp("doctor_confirmed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Real-time doctor location tracking
+export const doctorLocations = pgTable("doctor_locations", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").notNull().references(() => users.id),
+  appointmentId: integer("appointment_id").references(() => appointments.id),
+  latitude: doublePrecision("latitude").notNull(),
+  longitude: doublePrecision("longitude").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
+// Complaints and feedback system
+export const complaints = pgTable("complaints", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  patientId: integer("patient_id").notNull().references(() => users.id),
+  doctorId: integer("doctor_id").notNull().references(() => users.id),
+  complaintCode: text("complaint_code").notNull().unique(),
+  message: text("message").notNull(),
+  status: text("status").default("pending"), // "pending", "in_review", "resolved", "closed"
+  feedbackType: text("feedback_type").notNull(), // "complaint", "suggestion", "compliment"
+  adminResponse: text("admin_response"),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for new tables
+export const insertInvoiceSchema = createInsertSchema(invoices);
+export const insertPatientTrackingSessionSchema = createInsertSchema(patientTrackingSessions);
+export const insertDoctorLocationSchema = createInsertSchema(doctorLocations);
+export const insertComplaintSchema = createInsertSchema(complaints);
+
+// Types for new tables
+export type Invoice = typeof invoices.$inferSelect;
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+
+export type PatientTrackingSession = typeof patientTrackingSessions.$inferSelect;
+export type InsertPatientTrackingSession = z.infer<typeof insertPatientTrackingSessionSchema>;
+
+export type DoctorLocation = typeof doctorLocations.$inferSelect;
+export type InsertDoctorLocation = z.infer<typeof insertDoctorLocationSchema>;
+
+export type Complaint = typeof complaints.$inferSelect;
+export type InsertComplaint = z.infer<typeof insertComplaintSchema>;
