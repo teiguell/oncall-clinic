@@ -323,6 +323,55 @@ export const patientFeedback = pgTable("patient_feedback", {
   reviewedAt: timestamp("reviewed_at")
 });
 
+// Invoice system for legal intermediary model
+export const invoices = pgTable("invoices", {
+  id: serial("id").primaryKey(),
+  invoiceNumber: text("invoice_number").notNull().unique(),
+  type: text("type").notNull(), // medical_service, platform_commission
+  fromEntityType: text("from_entity_type").notNull(), // doctor, platform
+  fromEntityId: integer("from_entity_id"), // nullable for platform
+  toEntityType: text("to_entity_type").notNull(), // patient, doctor
+  toEntityId: integer("to_entity_id").notNull(),
+  appointmentId: integer("appointment_id").references(() => appointments.id),
+  amount: integer("amount").notNull(), // in cents, before VAT
+  vatRate: integer("vat_rate").notNull().default(0), // percentage
+  vatAmount: integer("vat_amount").notNull().default(0), // in cents
+  totalAmount: integer("total_amount").notNull(), // in cents, including VAT
+  currency: text("currency").notNull().default("EUR"),
+  description: text("description").notNull(),
+  status: text("status").notNull().default("pending"), // pending, sent, paid, cancelled
+  createdAt: timestamp("created_at").defaultNow(),
+  sentAt: timestamp("sent_at"),
+  paidAt: timestamp("paid_at")
+});
+
+// Patient tracking sessions (access without login using tracking code)
+export const patientTrackingSessions = pgTable("patient_tracking_sessions", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  trackingCode: text("tracking_code").notNull().unique(),
+  patientConfirmed: boolean("patient_confirmed").default(false),
+  doctorConfirmed: boolean("doctor_confirmed").default(false),
+  patientConfirmedAt: timestamp("patient_confirmed_at"),
+  doctorConfirmedAt: timestamp("doctor_confirmed_at"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Complaint system with tracking codes
+export const complaints = pgTable("complaints", {
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id").notNull().references(() => appointments.id),
+  patientId: integer("patient_id").notNull(),
+  doctorId: integer("doctor_id").notNull(),
+  complaintCode: text("complaint_code").notNull().unique(),
+  feedbackType: text("feedback_type").notNull(), // complaint, suggestion, compliment
+  message: text("message").notNull(),
+  status: text("status").notNull().default("pending"), // pending, reviewed, resolved
+  adminResponse: text("admin_response"),
+  createdAt: timestamp("created_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at")
+});
+
 // Insert schemas for new tables
 export const insertRevolutTransactionSchema = createInsertSchema(revolutTransactions).omit({
   id: true,
@@ -349,6 +398,26 @@ export const insertPatientFeedbackSchema = createInsertSchema(patientFeedback).o
   createdAt: true
 });
 
+export const insertInvoiceSchema = createInsertSchema(invoices).omit({
+  id: true,
+  createdAt: true,
+  sentAt: true,
+  paidAt: true
+});
+
+export const insertPatientTrackingSessionSchema = createInsertSchema(patientTrackingSessions).omit({
+  id: true,
+  createdAt: true,
+  patientConfirmedAt: true,
+  doctorConfirmedAt: true
+});
+
+export const insertComplaintSchema = createInsertSchema(complaints).omit({
+  id: true,
+  createdAt: true,
+  reviewedAt: true
+});
+
 // Types for new tables
 export type RevolutTransaction = typeof revolutTransactions.$inferSelect;
 export type InsertRevolutTransaction = z.infer<typeof insertRevolutTransactionSchema>;
@@ -364,6 +433,15 @@ export type InsertDoctorLocationTracking = z.infer<typeof insertDoctorLocationTr
 
 export type PatientFeedback = typeof patientFeedback.$inferSelect;
 export type InsertPatientFeedback = z.infer<typeof insertPatientFeedbackSchema>;
+
+export type Invoice = typeof invoices.$inferSelect;
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+
+export type PatientTrackingSession = typeof patientTrackingSessions.$inferSelect;
+export type InsertPatientTrackingSession = z.infer<typeof insertPatientTrackingSessionSchema>;
+
+export type Complaint = typeof complaints.$inferSelect;
+export type InsertComplaint = z.infer<typeof insertComplaintSchema>;
 
 // Weekly availability type and validation schemas
 export const timeSlotSchema = z.object({
