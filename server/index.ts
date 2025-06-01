@@ -18,15 +18,15 @@ app.use((err: any, req: Request, res: Response, next: any) => {
 });
 
 async function main() {
-  // Read the final HTML file
-  const finalHtmlPath = path.join(process.cwd(), 'static-final.html');
+  // Read the main HTML file
+  const mainHtmlPath = path.join(process.cwd(), 'index.html');
   let finalHtml: string;
   
   try {
-    finalHtml = fs.readFileSync(finalHtmlPath, 'utf8');
-    log("Final HTML loaded successfully");
+    finalHtml = fs.readFileSync(mainHtmlPath, 'utf8');
+    log("Main HTML loaded successfully");
   } catch (error) {
-    console.error('Error reading final HTML file:', error);
+    console.error('Error reading main HTML file:', error);
     // Fallback to basic HTML if file not found
     finalHtml = `<!DOCTYPE html>
 <html lang="en">
