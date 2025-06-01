@@ -469,6 +469,14 @@ export class MemStorage implements IStorage {
     return updatedProfile;
   }
 
+  async getDoctorByUserId(userId: number): Promise<DoctorProfile | undefined> {
+    return Array.from(this.doctorProfiles.values()).find(profile => profile.userId === userId);
+  }
+
+  async getAppointmentsByDoctorId(doctorId: number): Promise<Appointment[]> {
+    return Array.from(this.appointments.values()).filter(appointment => appointment.doctorId === doctorId);
+  }
+
   async updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined> {
     const profile = this.doctorProfiles.get(doctorId);
     if (!profile) return undefined;
