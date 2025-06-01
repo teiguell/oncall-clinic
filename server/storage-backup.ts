@@ -1,42 +1,28 @@
-import createMemoryStore from "memorystore";
-import session from "express-session";
-import { z } from "zod";
-import {
-  User,
-  PatientProfile,
-  DoctorProfile,
-  Specialty,
-  Availability,
-  Location,
-  Appointment,
-  Review,
-  Notification,
-  Payment,
-  VerificationCode,
-  RevolutTransaction,
-  BookingConfirmation,
-  TransferLog,
-  DoctorLocationTracking,
-  PatientFeedback,
+import { 
+  User, InsertUser, 
+  PatientProfile, InsertPatientProfile,
+  DoctorProfile, InsertDoctorProfile,
+  Specialty, InsertSpecialty,
+  Availability, InsertAvailability,
+  Location, InsertLocation,
+  Appointment, InsertAppointment,
+  Review, InsertReview,
+  Notification, InsertNotification,
+  Payment, InsertPayment,
+  VerificationCode, InsertVerificationCode,
+  RevolutTransaction, InsertRevolutTransaction,
+  BookingConfirmation, InsertBookingConfirmation,
+  TransferLog, InsertTransferLog,
+  DoctorLocationTracking, InsertDoctorLocationTracking,
+  PatientFeedback, InsertPatientFeedback,
   GuestPatient,
-  InsertUser,
-  InsertPatientProfile,
-  InsertDoctorProfile,
-  InsertSpecialty,
-  InsertAvailability,
-  InsertLocation,
-  InsertAppointment,
-  InsertReview,
-  InsertNotification,
-  InsertPayment,
-  InsertVerificationCode,
-  InsertRevolutTransaction,
-  InsertBookingConfirmation,
-  InsertTransferLog,
-  InsertDoctorLocationTracking,
-  InsertPatientFeedback,
   WeeklyAvailability
-} from "@shared/schema";
+} from '@shared/schema';
+import { z } from 'zod';
+import createMemoryStore from 'memorystore';
+import session from 'express-session';
+
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   sessionStore: any;
@@ -150,8 +136,6 @@ export interface IStorage {
   updatePatientFeedback(id: number, data: Partial<PatientFeedback>): Promise<PatientFeedback | undefined>;
 }
 
-const MemoryStore = createMemoryStore(session);
-
 export class MemStorage implements IStorage {
   public sessionStore: any;
   private users = new Map<number, User>();
@@ -194,7 +178,6 @@ export class MemStorage implements IStorage {
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000,
     });
-
     this.initializeData();
   }
 
@@ -202,12 +185,79 @@ export class MemStorage implements IStorage {
     // Create General Medicine specialty
     const generalMedicineSpecialty: Specialty = {
       id: 1,
-      name: "Medicina General",
-      description: "Atención médica integral y diagnóstico general"
+      name: "General Medicine",
+      description: "General medical practice and primary healthcare"
     };
     this.specialties.set(1, generalMedicineSpecialty);
 
     // Create test doctor user
+    const testDoctorUser: User = {
+      id: 999,
+      username: "doctortest",
+      email: "doctortest@oncall.clinic",
+      password: "pepe",
+      userType: "doctor",
+      firstName: "María",
+      lastName: "González",
+      phoneNumber: "+34600123456",
+      emailVerified: true,
+      twoFactorEnabled: false,
+      profilePicture: null,
+      authProvider: "local",
+      authProviderId: null,
+      createdAt: new Date()
+    };
+    this.users.set(999, testDoctorUser);
+
+    // Create test doctor profile
+    const testDoctorProfile: DoctorProfile = {
+      id: 999,
+      userId: 999,
+      specialtyId: 1,
+      licenseNumber: "TEST123456",
+      education: "Medical Degree, Universidad Complutense Madrid",
+      experience: 10,
+      bio: "General practitioner with extensive experience in home healthcare services",
+      basePrice: 8000,
+      isAvailable: true,
+      isVerified: true,
+      averageRating: 4.8,
+      totalEarnings: 0,
+      pendingEarnings: 0,
+      commissionRate: 15,
+      verificationDate: new Date(),
+      verifiedBy: 1,
+      bankAccount: "ES123456789",
+      identityDocFront: null,
+      identityDocBack: null,
+      medicalLicense: null,
+      insuranceCert: null,
+      locationLat: 39.5696,
+      locationLng: 2.6502,
+      locationAddress: "Palma de Mallorca, Islas Baleares"
+    };
+    this.doctorProfiles.set(999, testDoctorProfile);
+
+    // Create admin user
+    const adminUser: User = {
+      id: 1,
+      username: 'admin',
+      email: 'admin@oncall.clinic',
+      password: 'admin123',
+      userType: 'admin',
+      firstName: 'Admin',
+      lastName: 'User',
+      phoneNumber: '123456789',
+      emailVerified: true,
+      twoFactorEnabled: false,
+      profilePicture: null,
+      authProvider: 'local',
+      authProviderId: null,
+      createdAt: new Date()
+    };
+    this.users.set(1, adminUser);
+
+    // Add test doctor user (plaintext password for testing)
     const testDoctorUser: User = {
       id: 2,
       username: "doctortest",
@@ -227,7 +277,7 @@ export class MemStorage implements IStorage {
     };
     this.users.set(2, testDoctorUser);
 
-    // Create doctor profile for test doctor
+    // Add doctor profile for test doctor
     const testDoctorProfile: DoctorProfile = {
       id: 1,
       userId: 2,
@@ -250,27 +300,7 @@ export class MemStorage implements IStorage {
     };
     this.doctorProfiles.set(1, testDoctorProfile);
 
-    // Create admin user
-    const adminUser: User = {
-      id: 1,
-      username: 'admin',
-      email: 'admin@oncall.clinic',
-      password: 'admin123',
-      userType: 'admin',
-      firstName: 'Admin',
-      lastName: 'User',
-      phoneNumber: '123456789',
-      emailVerified: true,
-      twoFactorEnabled: false,
-      profilePicture: null,
-      authProvider: 'local',
-      authProviderId: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.users.set(1, adminUser);
-
-    // Create test patient user
+    // Add test patient user (plaintext password for testing)
     const testPatientUser: User = {
       id: 999,
       email: "patient@test.com",
@@ -317,7 +347,7 @@ export class MemStorage implements IStorage {
   async createUser(user: InsertUser): Promise<User> {
     const id = this.currentUserId++;
     const createdAt = new Date();
-    const newUser: User = { ...user, id, createdAt, updatedAt: createdAt };
+    const newUser: User = { ...user, id, createdAt };
     this.users.set(id, newUser);
     return newUser;
   }
@@ -325,8 +355,8 @@ export class MemStorage implements IStorage {
   async updateUser(id: number, data: Partial<User>): Promise<User | undefined> {
     const user = this.users.get(id);
     if (!user) return undefined;
-    
-    const updatedUser = { ...user, ...data, updatedAt: new Date() };
+
+    const updatedUser = { ...user, ...data };
     this.users.set(id, updatedUser);
     return updatedUser;
   }
@@ -352,7 +382,7 @@ export class MemStorage implements IStorage {
   async updatePatientProfile(id: number, data: Partial<PatientProfile>): Promise<PatientProfile | undefined> {
     const profile = this.patientProfiles.get(id);
     if (!profile) return undefined;
-    
+
     const updatedProfile = { ...profile, ...data };
     this.patientProfiles.set(id, updatedProfile);
     return updatedProfile;
@@ -376,7 +406,7 @@ export class MemStorage implements IStorage {
   async markVerificationCodeAsUsed(id: number): Promise<VerificationCode | undefined> {
     const code = this.verificationCodes.get(id);
     if (!code) return undefined;
-    
+
     const updatedCode = { ...code, usedAt: new Date() };
     this.verificationCodes.set(id, updatedCode);
     return updatedCode;
@@ -408,15 +438,21 @@ export class MemStorage implements IStorage {
     const newProfile: DoctorProfile = { 
       ...profile, 
       id,
+      averageRating: 0,
       isAvailable: false,
       isVerified: false,
+      totalEarnings: 0,
+      pendingEarnings: 0,
+      commissionRate: 15,
+      verificationDate: null,
+      verifiedBy: null,
       identityDocFront: profile.identityDocFront || null,
       identityDocBack: profile.identityDocBack || null,
-      criminalRecordCert: profile.criminalRecordCert || null,
-      professionalPhoto: profile.professionalPhoto || null,
+      medicalLicense: profile.medicalLicense || null,
+      insuranceCert: profile.insuranceCert || null,
       bankAccount: profile.bankAccount || null,
-      locationLatitude: profile.locationLatitude || null,
-      locationLongitude: profile.locationLongitude || null,
+      locationLat: profile.locationLat || null,
+      locationLng: profile.locationLng || null,
       locationAddress: profile.locationAddress || null
     };
     this.doctorProfiles.set(id, newProfile);
@@ -426,7 +462,7 @@ export class MemStorage implements IStorage {
   async updateDoctorProfile(id: number, data: Partial<DoctorProfile>): Promise<DoctorProfile | undefined> {
     const profile = this.doctorProfiles.get(id);
     if (!profile) return undefined;
-    
+
     const updatedProfile = { ...profile, ...data };
     this.doctorProfiles.set(id, updatedProfile);
     return updatedProfile;
@@ -435,7 +471,7 @@ export class MemStorage implements IStorage {
   async updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined> {
     const profile = this.doctorProfiles.get(doctorId);
     if (!profile) return undefined;
-    
+
     const updatedProfile = { ...profile, weeklyAvailability };
     this.doctorProfiles.set(doctorId, updatedProfile);
     return updatedProfile;
@@ -444,52 +480,44 @@ export class MemStorage implements IStorage {
   async verifyDoctor(doctorId: number, adminId: number, notes?: string): Promise<DoctorProfile | undefined> {
     const profile = this.doctorProfiles.get(doctorId);
     if (!profile) return undefined;
-    
+
     const updatedProfile = { 
       ...profile, 
       isVerified: true, 
       verificationDate: new Date(),
-      verifiedBy: adminId,
-      verificationNotes: notes || null
+      verifiedBy: adminId 
     };
     this.doctorProfiles.set(doctorId, updatedProfile);
     return updatedProfile;
   }
 
   async searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]> {
-    let results = Array.from(this.doctorProfiles.values());
-    
-    if (specialtyId !== undefined) {
-      results = results.filter(doctor => doctor.specialtyId === specialtyId);
+    let doctors = Array.from(this.doctorProfiles.values());
+
+    if (specialtyId) {
+      doctors = doctors.filter(doctor => doctor.specialtyId === specialtyId);
     }
-    
     if (available !== undefined) {
-      results = results.filter(doctor => doctor.isAvailable === available);
+      doctors = doctors.filter(doctor => doctor.isAvailable === available);
     }
-    
     if (verified !== undefined) {
-      results = results.filter(doctor => doctor.isVerified === verified);
+      doctors = doctors.filter(doctor => doctor.isVerified === verified);
     }
-    
-    return results;
+
+    return doctors;
   }
 
   async searchDoctorsByLocation(lat: number, lng: number, maxDistance?: number, specialtyName?: string): Promise<Array<DoctorProfile & { distance: number }>> {
     const doctors = Array.from(this.doctorProfiles.values())
-      .filter(doctor => doctor.isVerified && doctor.isAvailable)
-      .filter(doctor => doctor.locationLatitude && doctor.locationLongitude);
+      .filter(doctor => doctor.locationLat && doctor.locationLng)
+      .map(doctor => ({
+        ...doctor,
+        distance: this.calculateDistance(lat, lng, doctor.locationLat!, doctor.locationLng!)
+      }))
+      .filter(doctor => !maxDistance || doctor.distance <= maxDistance)
+      .sort((a, b) => a.distance - b.distance);
 
-    const doctorsWithDistance = doctors.map(doctor => ({
-      ...doctor,
-      distance: this.calculateDistance(lat, lng, doctor.locationLatitude!, doctor.locationLongitude!)
-    }));
-
-    let filtered = doctorsWithDistance;
-    if (maxDistance) {
-      filtered = filtered.filter(doctor => doctor.distance <= maxDistance);
-    }
-
-    return filtered.sort((a, b) => a.distance - b.distance);
+    return doctors;
   }
 
   private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -506,7 +534,7 @@ export class MemStorage implements IStorage {
   async updateDoctorBankAccount(doctorId: number, bankAccount: string): Promise<DoctorProfile | undefined> {
     const profile = this.doctorProfiles.get(doctorId);
     if (!profile) return undefined;
-    
+
     const updatedProfile = { ...profile, bankAccount };
     this.doctorProfiles.set(doctorId, updatedProfile);
     return updatedProfile;
@@ -518,25 +546,14 @@ export class MemStorage implements IStorage {
     commissionRate: number;
     netEarnings: number;
   } | undefined> {
-    const payments = Array.from(this.payments.values())
-      .filter(payment => payment.doctorId === doctorId);
-
-    const totalEarnings = payments
-      .filter(payment => payment.paymentStatus === 'completed')
-      .reduce((sum, payment) => sum + payment.doctorEarning, 0);
-
-    const pendingEarnings = payments
-      .filter(payment => payment.paymentStatus === 'pending')
-      .reduce((sum, payment) => sum + payment.doctorEarning, 0);
-
-    const commissionRate = 15; // 15% commission
-    const netEarnings = totalEarnings * (1 - commissionRate / 100);
+    const profile = this.doctorProfiles.get(doctorId);
+    if (!profile) return undefined;
 
     return {
-      totalEarnings,
-      pendingEarnings,
-      commissionRate,
-      netEarnings
+      totalEarnings: profile.totalEarnings || 0,
+      pendingEarnings: profile.pendingEarnings || 0,
+      commissionRate: profile.commissionRate || 15,
+      netEarnings: (profile.totalEarnings || 0) * (1 - (profile.commissionRate || 15) / 100)
     };
   }
 
@@ -575,10 +592,10 @@ export class MemStorage implements IStorage {
   }
 
   async updateAvailability(id: number, data: Partial<Availability>): Promise<Availability | undefined> {
-    const avail = this.availability.get(id);
-    if (!avail) return undefined;
-    
-    const updatedAvailability = { ...avail, ...data };
+    const availability = this.availability.get(id);
+    if (!availability) return undefined;
+
+    const updatedAvailability = { ...availability, ...data };
     this.availability.set(id, updatedAvailability);
     return updatedAvailability;
   }
@@ -604,7 +621,7 @@ export class MemStorage implements IStorage {
   async updateLocation(id: number, data: Partial<Location>): Promise<Location | undefined> {
     const location = this.locations.get(id);
     if (!location) return undefined;
-    
+
     const updatedLocation = { ...location, ...data };
     this.locations.set(id, updatedLocation);
     return updatedLocation;
@@ -639,7 +656,7 @@ export class MemStorage implements IStorage {
   async updateAppointment(id: number, data: Partial<Appointment>): Promise<Appointment | undefined> {
     const appointment = this.appointments.get(id);
     if (!appointment) return undefined;
-    
+
     const updatedAppointment = { ...appointment, ...data, updatedAt: new Date() };
     this.appointments.set(id, updatedAppointment);
     return updatedAppointment;
@@ -682,7 +699,7 @@ export class MemStorage implements IStorage {
   async markNotificationAsRead(id: number): Promise<Notification | undefined> {
     const notification = this.notifications.get(id);
     if (!notification) return undefined;
-    
+
     const updatedNotification = { ...notification, read: true };
     this.notifications.set(id, updatedNotification);
     return updatedNotification;
@@ -710,7 +727,7 @@ export class MemStorage implements IStorage {
   async updatePayment(id: number, data: Partial<Payment>): Promise<Payment | undefined> {
     const payment = this.payments.get(id);
     if (!payment) return undefined;
-    
+
     const updatedPayment = { ...payment, ...data };
     this.payments.set(id, updatedPayment);
     return updatedPayment;
@@ -719,11 +736,10 @@ export class MemStorage implements IStorage {
   // Guest Patients
   async createGuestPatient(guestPatient: z.infer<typeof import('@shared/schema').guestPatientSchema>): Promise<GuestPatient> {
     const id = this.currentGuestPatientId++;
-    const createdAt = new Date();
     const newGuestPatient: GuestPatient = {
       id,
       ...guestPatient,
-      createdAt
+      createdAt: new Date()
     };
     this.guestPatients.set(id, newGuestPatient);
     return newGuestPatient;
@@ -732,11 +748,12 @@ export class MemStorage implements IStorage {
   // Revolut Transactions
   async createRevolutTransaction(transaction: InsertRevolutTransaction): Promise<RevolutTransaction> {
     const id = this.currentRevolutTransactionId++;
-    const createdAt = new Date();
     const newTransaction: RevolutTransaction = {
-      ...transaction,
       id,
-      createdAt
+      createdAt: new Date(),
+      paidAt: null,
+      transferredAt: null,
+      ...transaction
     };
     this.revolutTransactions.set(id, newTransaction);
     return newTransaction;
@@ -755,7 +772,7 @@ export class MemStorage implements IStorage {
   async updateRevolutTransaction(id: number, data: Partial<RevolutTransaction>): Promise<RevolutTransaction | undefined> {
     const transaction = this.revolutTransactions.get(id);
     if (!transaction) return undefined;
-    
+
     const updatedTransaction = { ...transaction, ...data };
     this.revolutTransactions.set(id, updatedTransaction);
     return updatedTransaction;
@@ -764,11 +781,12 @@ export class MemStorage implements IStorage {
   // Booking Confirmations
   async createBookingConfirmation(confirmation: InsertBookingConfirmation): Promise<BookingConfirmation> {
     const id = this.currentBookingConfirmationId++;
-    const createdAt = new Date();
     const newConfirmation: BookingConfirmation = {
-      ...confirmation,
       id,
-      createdAt
+      createdAt: new Date(),
+      patientConfirmedAt: null,
+      doctorConfirmedAt: null,
+      ...confirmation
     };
     this.bookingConfirmations.set(id, newConfirmation);
     return newConfirmation;
@@ -793,7 +811,7 @@ export class MemStorage implements IStorage {
   async updateBookingConfirmation(id: number, data: Partial<BookingConfirmation>): Promise<BookingConfirmation | undefined> {
     const confirmation = this.bookingConfirmations.get(id);
     if (!confirmation) return undefined;
-    
+
     const updatedConfirmation = { ...confirmation, ...data };
     this.bookingConfirmations.set(id, updatedConfirmation);
     return updatedConfirmation;
@@ -802,11 +820,10 @@ export class MemStorage implements IStorage {
   // Transfer Logs
   async createTransferLog(log: InsertTransferLog): Promise<TransferLog> {
     const id = this.currentTransferLogId++;
-    const createdAt = new Date();
     const newLog: TransferLog = {
-      ...log,
       id,
-      createdAt
+      processedAt: new Date(),
+      ...log
     };
     this.transferLogs.set(id, newLog);
     return newLog;
@@ -821,11 +838,10 @@ export class MemStorage implements IStorage {
   // Doctor Location Tracking
   async createDoctorLocationTracking(location: InsertDoctorLocationTracking): Promise<DoctorLocationTracking> {
     const id = this.currentDoctorLocationTrackingId++;
-    const createdAt = new Date();
     const newLocation: DoctorLocationTracking = {
-      ...location,
       id,
-      createdAt
+      timestamp: new Date(),
+      ...location
     };
     this.doctorLocationTracking.set(id, newLocation);
     return newLocation;
@@ -833,45 +849,39 @@ export class MemStorage implements IStorage {
 
   async getDoctorActiveLocation(doctorId: number, appointmentId: number): Promise<DoctorLocationTracking[]> {
     return Array.from(this.doctorLocationTracking.values()).filter(
-      (location) => location.doctorId === doctorId && 
-                   location.appointmentId === appointmentId && 
-                   location.isActive
+      (location) => location.doctorId === doctorId && location.appointmentId === appointmentId && location.isActive
     );
   }
 
   async deactivateOldLocations(doctorId: number): Promise<void> {
-    const locations = Array.from(this.doctorLocationTracking.values())
-      .filter(location => location.doctorId === doctorId && location.isActive);
-    
-    locations.forEach(location => {
-      const updatedLocation = { ...location, isActive: false };
-      this.doctorLocationTracking.set(location.id, updatedLocation);
-    });
+    for (const [id, location] of this.doctorLocationTracking.entries()) {
+      if (location.doctorId === doctorId) {
+        const updatedLocation = { ...location, isActive: false };
+        this.doctorLocationTracking.set(id, updatedLocation);
+      }
+    }
   }
 
   // Patient Feedback
   async createPatientFeedback(feedback: InsertPatientFeedback): Promise<PatientFeedback> {
     const id = this.currentPatientFeedbackId++;
-    const createdAt = new Date();
     const newFeedback: PatientFeedback = {
-      ...feedback,
       id,
-      createdAt
+      createdAt: new Date(),
+      ...feedback
     };
     this.patientFeedback.set(id, newFeedback);
     return newFeedback;
   }
 
   async getPatientFeedbackByAppointment(appointmentId: number): Promise<PatientFeedback[]> {
-    return Array.from(this.patientFeedback.values()).filter(
-      (feedback) => feedback.appointmentId === appointmentId
-    );
+    return Array.from(this.patientFeedback.values()).filter(f => f.appointmentId === appointmentId);
   }
 
   async updatePatientFeedback(id: number, data: Partial<PatientFeedback>): Promise<PatientFeedback | undefined> {
     const feedback = this.patientFeedback.get(id);
     if (!feedback) return undefined;
-    
+
     const updatedFeedback = { ...feedback, ...data };
     this.patientFeedback.set(id, updatedFeedback);
     return updatedFeedback;
