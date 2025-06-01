@@ -35,7 +35,15 @@ import {
   InsertTransferLog,
   InsertDoctorLocationTracking,
   InsertPatientFeedback,
-  WeeklyAvailability
+  WeeklyAvailability,
+  Invoice,
+  InsertInvoice,
+  PatientTrackingSession,
+  InsertPatientTrackingSession,
+  DoctorLocation,
+  InsertDoctorLocation,
+  Complaint,
+  InsertComplaint
 } from "@shared/schema";
 
 export interface IStorage {
@@ -148,6 +156,23 @@ export interface IStorage {
   createPatientFeedback(feedback: InsertPatientFeedback): Promise<PatientFeedback>;
   getPatientFeedbackByAppointment(appointmentId: number): Promise<PatientFeedback[]>;
   updatePatientFeedback(id: number, data: Partial<PatientFeedback>): Promise<PatientFeedback | undefined>;
+
+  // Invoices
+  createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+  getInvoice(id: number): Promise<Invoice | undefined>;
+  getInvoicesByAppointment(appointmentId: number): Promise<Invoice[]>;
+  updateInvoice(id: number, data: Partial<Invoice>): Promise<Invoice | undefined>;
+
+  // Patient Tracking Sessions
+  createPatientTrackingSession(session: InsertPatientTrackingSession): Promise<PatientTrackingSession>;
+  getPatientTrackingSessionByCode(trackingCode: string): Promise<PatientTrackingSession | undefined>;
+  updatePatientTrackingSession(id: number, data: Partial<PatientTrackingSession>): Promise<PatientTrackingSession | undefined>;
+
+  // Complaints
+  createComplaint(complaint: InsertComplaint): Promise<Complaint>;
+  getComplaint(id: number): Promise<Complaint | undefined>;
+  getComplaintsByAppointment(appointmentId: number): Promise<Complaint[]>;
+  updateComplaint(id: number, data: Partial<Complaint>): Promise<Complaint | undefined>;
 }
 
 const MemoryStore = createMemoryStore(session);
@@ -171,6 +196,9 @@ export class MemStorage implements IStorage {
   private doctorLocationTracking = new Map<number, DoctorLocationTracking>();
   private patientFeedback = new Map<number, PatientFeedback>();
   private guestPatients = new Map<number, GuestPatient>();
+  private invoices = new Map<number, Invoice>();
+  private patientTrackingSessions = new Map<number, PatientTrackingSession>();
+  private complaints = new Map<number, Complaint>();
 
   private currentUserId = 1000;
   private currentPatientProfileId = 1;
@@ -189,6 +217,9 @@ export class MemStorage implements IStorage {
   private currentDoctorLocationTrackingId = 1;
   private currentPatientFeedbackId = 1;
   private currentGuestPatientId = 1;
+  private currentInvoiceId = 1;
+  private currentPatientTrackingSessionId = 1;
+  private currentComplaintId = 1;
 
   constructor() {
     this.sessionStore = new MemoryStore({
@@ -881,6 +912,97 @@ export class MemStorage implements IStorage {
     const updatedFeedback = { ...feedback, ...data };
     this.patientFeedback.set(id, updatedFeedback);
     return updatedFeedback;
+  }
+
+  // Invoice methods
+  async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
+    const newInvoice: Invoice = {
+      id: this.currentInvoiceId++,
+      createdAt: new Date(),
+      sentAt: null,
+      paidAt: null,
+      ...invoice,
+    };
+    this.invoices.set(newInvoice.id, newInvoice);
+    return newInvoice;
+  }
+
+  async getInvoice(id: number): Promise<Invoice | undefined> {
+    return this.invoices.get(id);
+  }
+
+  async getInvoicesByAppointment(appointmentId: number): Promise<Invoice[]> {
+    return Array.from(this.invoices.values()).filter(
+      (invoice) => invoice.appointmentId === appointmentId
+    );
+  }
+
+  async updateInvoice(id: number, data: Partial<Invoice>): Promise<Invoice | undefined> {
+    const invoice = this.invoices.get(id);
+    if (!invoice) return undefined;
+    
+    const updatedInvoice = { ...invoice, ...data };
+    this.invoices.set(id, updatedInvoice);
+    return updatedInvoice;
+  }
+
+  // Patient Tracking Session methods
+  async createPatientTrackingSession(session: InsertPatientTrackingSession): Promise<PatientTrackingSession> {
+    const newSession: PatientTrackingSession = {
+      id: this.currentPatientTrackingSessionId++,
+      createdAt: new Date(),
+      ...session,
+    };
+    this.patientTrackingSessions.set(newSession.id, newSession);
+    return newSession;
+  }
+
+  async getPatientTrackingSessionByCode(trackingCode: string): Promise<PatientTrackingSession | undefined> {
+    return Array.from(this.patientTrackingSessions.values()).find(
+      (session) => session.trackingCode === trackingCode
+    );
+  }
+
+  async updatePatientTrackingSession(id: number, data: Partial<PatientTrackingSession>): Promise<PatientTrackingSession | undefined> {
+    const session = this.patientTrackingSessions.get(id);
+    if (!session) return undefined;
+    
+    const updatedSession = { ...session, ...data };
+    this.patientTrackingSessions.set(id, updatedSession);
+    return updatedSession;
+  }
+
+  // Complaint methods
+  async createComplaint(complaint: InsertComplaint): Promise<Complaint> {
+    const newComplaint: Complaint = {
+      id: this.currentComplaintId++,
+      createdAt: new Date(),
+      status: 'pending',
+      adminResponse: null,
+      reviewedAt: null,
+      ...complaint,
+    };
+    this.complaints.set(newComplaint.id, newComplaint);
+    return newComplaint;
+  }
+
+  async getComplaint(id: number): Promise<Complaint | undefined> {
+    return this.complaints.get(id);
+  }
+
+  async getComplaintsByAppointment(appointmentId: number): Promise<Complaint[]> {
+    return Array.from(this.complaints.values()).filter(
+      (complaint) => complaint.appointmentId === appointmentId
+    );
+  }
+
+  async updateComplaint(id: number, data: Partial<Complaint>): Promise<Complaint | undefined> {
+    const complaint = this.complaints.get(id);
+    if (!complaint) return undefined;
+    
+    const updatedComplaint = { ...complaint, ...data };
+    this.complaints.set(id, updatedComplaint);
+    return updatedComplaint;
   }
 }
 
