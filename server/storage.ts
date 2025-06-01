@@ -258,7 +258,7 @@ export class MemStorage implements IStorage {
     };
     this.users.set(2, testDoctorUser);
 
-    // Create doctor profile for test doctor
+    // Create doctor profile for test doctor - Available 24/7 in all areas
     const testDoctorProfile: DoctorProfile = {
       id: 1,
       userId: 2,
@@ -266,18 +266,20 @@ export class MemStorage implements IStorage {
       licenseNumber: "MD-12345",
       education: "Universidad de Barcelona - Medicina",
       experience: 10,
-      bio: "Especialista en medicina general con 10 años de experiencia",
-      basePrice: 80,
+      bio: "Dr Test - Médico disponible 24/7 en todas las áreas de España. Especialista en medicina general con amplia experiencia en atención domiciliaria.",
+      basePrice: 60,
       isAvailable: true,
       isVerified: true,
       identityDocFront: null,
       identityDocBack: null,
-      criminalRecordCert: null,
-      professionalPhoto: null,
+      medicalLicense: "MD-TEST-24-7",
+      professionalCertificate: null,
       bankAccount: "ES12 3456 7890 1234 5678 9012",
-      locationLatitude: 39.5696,
-      locationLongitude: 2.6502,
-      locationAddress: "Palma de Mallorca, Baleares"
+      locationLat: 40.4168,
+      locationLng: -3.7038,
+      locationAddress: "Madrid, España - Cobertura Nacional 24/7",
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     this.doctorProfiles.set(1, testDoctorProfile);
 
