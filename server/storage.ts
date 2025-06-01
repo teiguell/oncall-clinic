@@ -278,26 +278,6 @@ export class MemStorage implements IStorage {
     };
     this.doctorProfiles.set(999, testDoctorProfile);
   }
-      verifiedBy: 1, // Admin user
-      weeklyAvailability: {
-        monday: { available: true, startTime: "09:00", endTime: "18:00" },
-        tuesday: { available: true, startTime: "09:00", endTime: "18:00" },
-        wednesday: { available: true, startTime: "09:00", endTime: "18:00" },
-        thursday: { available: true, startTime: "09:00", endTime: "18:00" },
-        friday: { available: true, startTime: "09:00", endTime: "18:00" },
-        saturday: { available: false, startTime: "", endTime: "" },
-        sunday: { available: false, startTime: "", endTime: "" }
-      },
-      identityDocFront: null,
-      identityDocBack: null,
-      bankAccount: null,
-      locationLat: 40.7128,
-      locationLng: -74.0060,
-      locationAddress: "123 Test Street, New York, NY 10001"
-    };
-
-    this.users.set(testDoctorUser.id, testDoctorUser);
-    this.doctorProfiles.set(testDoctorProfile.id, testDoctorProfile);
 
     // Add sample specialties
     const specialties = [
