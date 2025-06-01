@@ -4,386 +4,771 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Médico - OnCall Clinic</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
         }
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #f3f4f6;
+        .sidebar-closed {
+            transform: translateX(-100%);
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
+        .status-badge {
+            animation: pulse 2s infinite;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-        .status-available {
-            background: #10b981;
-            color: white;
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
         }
-        .status-unavailable {
-            background: #ef4444;
-            color: white;
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .notification {
+            animation: slideDown 0.5s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 flex items-center">
-                        <i class="fas fa-user-md text-2xl text-indigo-600 mr-2"></i>
-                        <span class="text-xl font-bold text-gray-900">OnCall Clinic</span>
-                        <span class="ml-2 text-sm text-gray-500">Portal Médico</span>
+                    <button id="sidebarToggle" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 lg:hidden">
+                        <i class="fas fa-bars h-6 w-6"></i>
+                    </button>
+                    <div class="flex-shrink-0 flex items-center ml-4 lg:ml-0">
+                        <div class="w-8 h-8 bg-indigo-600 rounded-full mr-3"></div>
+                        <h1 class="text-xl font-semibold text-gray-900">OnCall Clinic</h1>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="flex items-center text-sm text-gray-700">
-                        <span>Dra. María González</span>
-                        <span id="statusBadge" class="ml-2 px-2 py-1 rounded-full text-xs status-available">Disponible</span>
+                    <div class="flex items-center space-x-2">
+                        <div id="statusIndicator" class="w-3 h-3 bg-green-500 rounded-full status-badge"></div>
+                        <span id="statusText" class="text-sm text-gray-600">Disponible</span>
                     </div>
-                    <button onclick="toggleAvailability()" class="btn-primary text-sm">
-                        <i class="fas fa-toggle-on"></i>
+                    <button id="logoutBtn" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-sign-out-alt h-5 w-5"></i>
                     </button>
-                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">
-                        <i class="fas fa-sign-out-alt"></i> Salir
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex h-screen pt-16">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-white w-64 shadow-lg">
+            <div class="p-6">
+                <!-- Doctor Profile Section -->
+                <div class="flex flex-col items-center mb-8">
+                    <div class="w-24 h-24 bg-gray-300 rounded-full mb-4 flex items-center justify-center overflow-hidden">
+                        <img id="doctorPhoto" src="" alt="Foto del médico" class="w-full h-full object-cover hidden">
+                        <i id="defaultAvatar" class="fas fa-user-md text-gray-500 text-2xl"></i>
+                    </div>
+                    <h2 id="doctorName" class="text-lg font-semibold text-gray-900 text-center">Cargando...</h2>
+                    <p id="doctorLicense" class="text-sm text-gray-500 text-center">Col. #</p>
+                    <div id="verificationStatus" class="mt-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <i class="fas fa-clock mr-1"></i>
+                            Verificando
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="space-y-2">
+                    <a href="#dashboard" class="nav-link active flex items-center px-4 py-2 text-sm font-medium rounded-md bg-indigo-100 text-indigo-700">
+                        <i class="fas fa-home mr-3"></i>
+                        Dashboard
                     </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Dashboard Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Welcome Section -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Panel de Control Médico</h1>
-            <p class="text-gray-600 mt-2">Gestiona tus consultas y pacientes en Islas Baleares</p>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="card">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-calendar-day text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Citas Hoy</p>
-                        <p class="text-2xl font-bold text-gray-900" id="todayAppointments">3</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-euro-sign text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Ingresos Mes</p>
-                        <p class="text-2xl font-bold text-gray-900" id="monthlyEarnings">2,480€</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-star text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Calificación</p>
-                        <p class="text-2xl font-bold text-gray-900">4.9</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-user-friends text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Pacientes</p>
-                        <p class="text-2xl font-bold text-gray-900">127</p>
-                    </div>
-                </div>
+                    <a href="#bookings" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                        <i class="fas fa-calendar-alt mr-3"></i>
+                        Reservas Activas
+                    </a>
+                    <a href="#settings" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                        <i class="fas fa-cog mr-3"></i>
+                        Configuración
+                    </a>
+                    <a href="#earnings" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                        <i class="fas fa-euro-sign mr-3"></i>
+                        Ganancias
+                    </a>
+                </nav>
             </div>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Today's Appointments -->
-            <div class="lg:col-span-2">
-                <div class="card">
-                    <h2 class="text-xl font-bold text-gray-900 mb-6">Citas de Hoy</h2>
-                    <div id="appointmentsList" class="space-y-4">
-                        <!-- Appointments will be loaded here -->
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-6">
+                <!-- Dashboard Content -->
+                <div id="dashboardContent" class="content-section">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i class="fas fa-calendar-check text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Hoy</p>
+                                    <p id="todayAppointments" class="text-2xl font-semibold text-gray-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-green-100 rounded-lg">
+                                    <i class="fas fa-chart-line text-green-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Esta Semana</p>
+                                    <p id="weekAppointments" class="text-2xl font-semibold text-gray-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-yellow-100 rounded-lg">
+                                    <i class="fas fa-star text-yellow-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Calificación</p>
+                                    <p id="averageRating" class="text-2xl font-semibold text-gray-900">0.0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-purple-100 rounded-lg">
+                                    <i class="fas fa-euro-sign text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Ganancias</p>
+                                    <p id="totalEarnings" class="text-2xl font-semibold text-gray-900">0€</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Actividad Reciente</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="recentActivity" class="space-y-4">
+                                <p class="text-gray-500 text-center">No hay actividad reciente</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Quick Actions -->
-            <div class="space-y-6">
-                <!-- Availability Toggle -->
-                <div class="card">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado de Disponibilidad</h3>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-700">Disponible para nuevas citas</span>
-                        <button onclick="toggleAvailability()" id="availabilityToggle" class="status-available px-3 py-1 rounded-full text-sm">
-                            Disponible
-                        </button>
+                <!-- Active Bookings Content -->
+                <div id="bookingsContent" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Reservas Activas</h2>
+                        <p class="text-gray-600">Gestiona tus citas en curso y próximas</p>
                     </div>
-                    <p class="text-sm text-gray-500 mt-2">Activa/desactiva tu disponibilidad para recibir nuevas solicitudes de citas</p>
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="card">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen Semanal</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Consultas completadas</span>
-                            <span class="font-semibold">18</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Tiempo promedio</span>
-                            <span class="font-semibold">45 min</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Ingresos brutos</span>
-                            <span class="font-semibold">1,440€</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Comisión OnCall (15%)</span>
-                            <span class="font-semibold text-red-600">-216€</span>
-                        </div>
-                        <hr>
-                        <div class="flex justify-between font-bold">
-                            <span class="text-gray-900">Ingresos netos</span>
-                            <span class="text-green-600">1,224€</span>
-                        </div>
+                    
+                    <div id="activeBookings" class="space-y-6">
+                        <!-- Bookings will be loaded here -->
                     </div>
                 </div>
 
-                <!-- Emergency Contact -->
-                <div class="card bg-red-50 border-red-200">
-                    <h3 class="text-lg font-semibold text-red-900 mb-2">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Emergencias
-                    </h3>
-                    <p class="text-red-700 text-sm mb-3">Para emergencias médicas graves, deriva inmediatamente al 112</p>
-                    <button class="bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700">
-                        <i class="fas fa-phone mr-2"></i>
-                        Llamar 112
-                    </button>
+                <!-- Settings Content -->
+                <div id="settingsContent" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Configuración</h2>
+                        <p class="text-gray-600">Gestiona tu información y preferencias</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- IBAN Configuration -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Bancaria</h3>
+                            <form id="ibanForm">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">IBAN</label>
+                                    <input type="text" id="ibanInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ES12 3456 7890 1234 5678 9012">
+                                    <p class="text-xs text-gray-500 mt-1">Los pagos se transferirán a esta cuenta</p>
+                                </div>
+                                <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    Guardar IBAN
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Availability Settings -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado de Disponibilidad</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-700">Disponible para nuevas citas</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="availabilityToggle" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    <p>Radio de servicio: <span class="font-medium">30 km</span></p>
+                                    <p>Precio base: <span class="font-medium">80€</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earnings Content -->
+                <div id="earningsContent" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Ganancias</h2>
+                        <p class="text-gray-600">Resumen de tus ingresos y comisiones</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-sm font-medium text-gray-600">Total Ganado</h3>
+                            <p id="totalEarningsDetail" class="text-3xl font-bold text-gray-900">0€</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-sm font-medium text-gray-600">Pendiente</h3>
+                            <p id="pendingEarnings" class="text-3xl font-bold text-yellow-600">0€</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-sm font-medium text-gray-600">Comisión</h3>
+                            <p class="text-3xl font-bold text-gray-500">15%</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Historial de Pagos</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="paymentHistory" class="space-y-4">
+                                <p class="text-gray-500 text-center">No hay historial de pagos</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Active Booking Modal -->
+    <div id="bookingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Reserva en Curso</h2>
+                        <button id="closeBookingModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Booking Details -->
+                        <div class="space-y-6">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-900 mb-2">Información del Paciente</h3>
+                                <div class="space-y-2">
+                                    <p><span class="font-medium">Nombre:</span> <span id="patientName">-</span></p>
+                                    <p><span class="font-medium">Teléfono:</span> <span id="patientPhone">-</span></p>
+                                    <p><span class="font-medium">Código de Reserva:</span> <span id="bookingCode" class="font-mono text-indigo-600">-</span></p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-900 mb-2">Ubicación</h3>
+                                <p id="patientAddress" class="text-gray-700 mb-4">-</p>
+                                <div id="map" class="h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <p class="text-gray-500">Mapa se cargará aquí</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-900 mb-2">Estado de la Consulta</h3>
+                                <div id="appointmentStatus" class="space-y-2">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                        <span>Confirmada</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Section -->
+                        <div class="flex flex-col h-96">
+                            <div class="bg-gray-50 rounded-t-lg p-4 border-b">
+                                <h3 class="font-semibold text-gray-900">Chat con Paciente</h3>
+                                <p class="text-sm text-gray-500">Disponible 15 min antes de la cita</p>
+                            </div>
+                            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-white">
+                                <div class="text-center text-gray-500 text-sm">
+                                    El chat se activará 15 minutos antes de la cita
+                                </div>
+                            </div>
+                            <div id="chatInput" class="p-4 border-t bg-gray-50 rounded-b-lg hidden">
+                                <div class="flex space-x-2">
+                                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <button id="sendMessage" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notifications" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry"></script>
     <script>
-        // Sample appointments data
-        const todayAppointments = [
-            {
-                id: 1,
-                time: "09:30",
-                patient: "Carlos Mendoza",
-                reason: "Consulta general",
-                address: "Calle Aragón 45, Palma",
-                phone: "+34 600 123 456",
-                status: "confirmed",
-                price: "80€"
-            },
-            {
-                id: 2,
-                time: "11:15",
-                patient: "María López",
-                reason: "Revisión pediatría",
-                address: "Avda. Jaime III 89, Palma",
-                phone: "+34 600 789 123",
-                status: "in-progress",
-                price: "90€"
-            },
-            {
-                id: 3,
-                time: "14:00",
-                patient: "Antonio García",
-                reason: "Control tensión arterial",
-                address: "Plaza España 12, Palma",
-                phone: "+34 600 456 789",
-                status: "pending",
-                price: "80€"
-            }
-        ];
+        let doctorData = null;
+        let activeBookings = [];
+        let chatEnabled = false;
 
-        let isAvailable = true;
-
-        // Load appointments on page load
+        // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            loadAppointments();
-            checkAuthentication();
+            loadDoctorProfile();
+            loadDashboardData();
+            setupEventListeners();
+            setupRealtimeUpdates();
         });
 
-        function checkAuthentication() {
-            // In a real app, you would check server-side authentication
-            // For demo purposes, we'll check if user came from login
-            const urlParams = new URLSearchParams(window.location.search);
-            const fromLogin = urlParams.get('login');
-            
-            if (!fromLogin) {
-                // Redirect to home if not authenticated
-                // window.location.href = 'index.html';
+        // Load doctor profile
+        async function loadDoctorProfile() {
+            try {
+                // Get doctor name from URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const doctorName = urlParams.get('doctor');
+                
+                if (doctorName) {
+                    document.getElementById('doctorName').textContent = decodeURIComponent(doctorName);
+                }
+
+                // Load full profile data
+                const response = await fetch('/api/doctor/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        doctorData = data.profile;
+                        updateDoctorProfile(data.profile);
+                        updateDashboardStats(data.stats);
+                    }
+                } else {
+                    showNotification('Error al cargar el perfil del médico', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading doctor profile:', error);
+                showNotification('Error de conexión', 'error');
             }
         }
 
-        function loadAppointments() {
-            const container = document.getElementById('appointmentsList');
+        // Update doctor profile display
+        function updateDoctorProfile(profile) {
+            document.getElementById('doctorName').textContent = `Dr. ${profile.firstName || ''} ${profile.lastName || ''}`;
+            document.getElementById('doctorLicense').textContent = `Col. ${profile.licenseNumber || 'N/A'}`;
             
-            if (todayAppointments.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-8">No tienes citas programadas para hoy</p>';
+            // Update verification status
+            const statusEl = document.getElementById('verificationStatus');
+            if (profile.isVerified) {
+                statusEl.innerHTML = `
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Verificado
+                    </span>
+                `;
+            } else {
+                statusEl.innerHTML = `
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <i class="fas fa-clock mr-1"></i>
+                        Pendiente Verificación
+                    </span>
+                `;
+            }
+
+            // Update availability
+            const availabilityToggle = document.getElementById('availabilityToggle');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            if (profile.isAvailable) {
+                availabilityToggle.checked = true;
+                statusIndicator.className = 'w-3 h-3 bg-green-500 rounded-full status-badge';
+                statusText.textContent = 'Disponible';
+            } else {
+                availabilityToggle.checked = false;
+                statusIndicator.className = 'w-3 h-3 bg-red-500 rounded-full status-badge';
+                statusText.textContent = 'No Disponible';
+            }
+
+            // Update IBAN if available
+            if (profile.bankAccount) {
+                document.getElementById('ibanInput').value = profile.bankAccount;
+            }
+        }
+
+        // Update dashboard stats
+        function updateDashboardStats(stats) {
+            document.getElementById('todayAppointments').textContent = stats.todayAppointments || 0;
+            document.getElementById('weekAppointments').textContent = stats.thisWeekAppointments || 0;
+            document.getElementById('averageRating').textContent = (stats.averageRating || 0).toFixed(1);
+            document.getElementById('totalEarnings').textContent = `${stats.totalEarnings || 0}€`;
+            document.getElementById('totalEarningsDetail').textContent = `${stats.totalEarnings || 0}€`;
+            document.getElementById('pendingEarnings').textContent = `${stats.pendingEarnings || 0}€`;
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load active bookings
+                const bookingsResponse = await fetch('/api/doctor/active-bookings');
+                if (bookingsResponse.ok) {
+                    const bookingsData = await bookingsResponse.json();
+                    if (bookingsData.success) {
+                        activeBookings = bookingsData.bookings || [];
+                        updateActiveBookings();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Update active bookings display
+        function updateActiveBookings() {
+            const container = document.getElementById('activeBookings');
+            
+            if (activeBookings.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-calendar-check text-gray-400 text-4xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No hay reservas activas</h3>
+                        <p class="text-gray-500">Cuando tengas citas programadas aparecerán aquí</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = todayAppointments.map(appointment => `
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            container.innerHTML = activeBookings.map(booking => `
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-500">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <div class="flex items-center space-x-3 mb-2">
-                                <span class="text-lg font-semibold text-gray-900">${appointment.time}</span>
-                                <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(appointment.status)}">
-                                    ${getStatusText(appointment.status)}
-                                </span>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">${booking.patientName || 'Paciente'}</h3>
+                                    <p class="text-sm text-gray-500">Código: ${booking.trackingCode || booking.id}</p>
+                                </div>
                             </div>
-                            <h4 class="font-semibold text-gray-900">${appointment.patient}</h4>
-                            <p class="text-gray-600 text-sm">${appointment.reason}</p>
-                            <p class="text-gray-500 text-sm mt-1">
-                                <i class="fas fa-map-marker-alt mr-1"></i>
-                                ${appointment.address}
-                            </p>
-                            <p class="text-gray-500 text-sm">
-                                <i class="fas fa-phone mr-1"></i>
-                                ${appointment.phone}
-                            </p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700">Fecha y Hora</p>
+                                    <p class="text-sm text-gray-600">${formatDateTime(booking.appointmentDate)}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700">Estado</p>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}">
+                                        ${getStatusText(booking.status)}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-lg font-bold text-green-600 mb-2">${appointment.price}</div>
-                            <button onclick="manageAppointment(${appointment.id})" class="btn-primary text-sm px-3 py-1">
-                                ${getActionText(appointment.status)}
-                            </button>
-                        </div>
+                        <button onclick="openBookingModal(${booking.id})" class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            Ver Detalles
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function getStatusClass(status) {
-            switch(status) {
-                case 'confirmed': return 'bg-blue-100 text-blue-800';
-                case 'in-progress': return 'bg-yellow-100 text-yellow-800';
-                case 'pending': return 'bg-gray-100 text-gray-800';
-                case 'completed': return 'bg-green-100 text-green-800';
+        // Open booking modal
+        function openBookingModal(bookingId) {
+            const booking = activeBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+
+            // Update modal content
+            document.getElementById('patientName').textContent = booking.patientName || 'N/A';
+            document.getElementById('patientPhone').textContent = booking.patientPhone || 'N/A';
+            document.getElementById('bookingCode').textContent = booking.trackingCode || booking.id;
+            document.getElementById('patientAddress').textContent = booking.location || 'Dirección pendiente';
+
+            // Check if chat should be enabled (15 minutes before appointment)
+            const appointmentTime = new Date(booking.appointmentDate);
+            const now = new Date();
+            const timeDiff = appointmentTime.getTime() - now.getTime();
+            const minutesDiff = Math.floor(timeDiff / (1000 * 60));
+
+            if (minutesDiff <= 15 && minutesDiff >= -60) { // Enable chat 15 min before until 1 hour after
+                enableChat();
+            }
+
+            // Show modal
+            document.getElementById('bookingModal').classList.remove('hidden');
+
+            // Initialize map if available
+            if (booking.latitude && booking.longitude) {
+                initializeMap(booking.latitude, booking.longitude);
+            }
+        }
+
+        // Enable chat functionality
+        function enableChat() {
+            if (chatEnabled) return;
+            
+            chatEnabled = true;
+            document.getElementById('chatInput').classList.remove('hidden');
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="text-center text-green-600 text-sm mb-4">
+                    <i class="fas fa-comments mr-1"></i>
+                    Chat activado - Puedes comunicarte con el paciente
+                </div>
+            `;
+        }
+
+        // Initialize Google Maps
+        function initializeMap(lat, lng) {
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: parseFloat(lat), lng: parseFloat(lng) },
+                zoom: 15
+            });
+
+            new google.maps.Marker({
+                position: { lat: parseFloat(lat), lng: parseFloat(lng) },
+                map: map,
+                title: 'Ubicación del Paciente'
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('href').substring(1);
+                    showSection(target);
+                    
+                    // Update active nav
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'bg-indigo-100', 'text-indigo-700'));
+                    this.classList.add('active', 'bg-indigo-100', 'text-indigo-700');
+                });
+            });
+
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('sidebar-closed');
+            });
+
+            // IBAN form
+            document.getElementById('ibanForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const iban = document.getElementById('ibanInput').value;
+                await updateIBAN(iban);
+            });
+
+            // Availability toggle
+            document.getElementById('availabilityToggle').addEventListener('change', async function() {
+                await updateAvailability(this.checked);
+            });
+
+            // Modal close
+            document.getElementById('closeBookingModal').addEventListener('click', function() {
+                document.getElementById('bookingModal').classList.add('hidden');
+            });
+
+            // Chat send message
+            document.getElementById('sendMessage').addEventListener('click', sendChatMessage);
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                    window.location.href = '/';
+                }
+            });
+        }
+
+        // Show section
+        function showSection(sectionName) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionName + 'Content').classList.remove('hidden');
+        }
+
+        // Update IBAN
+        async function updateIBAN(iban) {
+            try {
+                const response = await fetch('/api/doctor/iban', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bankAccount: iban })
+                });
+
+                if (response.ok) {
+                    showNotification('IBAN actualizado correctamente', 'success');
+                } else {
+                    showNotification('Error al actualizar el IBAN', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating IBAN:', error);
+                showNotification('Error de conexión', 'error');
+            }
+        }
+
+        // Update availability
+        async function updateAvailability(available) {
+            try {
+                const response = await fetch('/api/doctor/availability', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ isAvailable: available })
+                });
+
+                if (response.ok) {
+                    const statusIndicator = document.getElementById('statusIndicator');
+                    const statusText = document.getElementById('statusText');
+                    
+                    if (available) {
+                        statusIndicator.className = 'w-3 h-3 bg-green-500 rounded-full status-badge';
+                        statusText.textContent = 'Disponible';
+                        showNotification('Ahora estás disponible para nuevas citas', 'success');
+                    } else {
+                        statusIndicator.className = 'w-3 h-3 bg-red-500 rounded-full status-badge';
+                        statusText.textContent = 'No Disponible';
+                        showNotification('Estado cambiado a no disponible', 'info');
+                    }
+                } else {
+                    showNotification('Error al actualizar la disponibilidad', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating availability:', error);
+                showNotification('Error de conexión', 'error');
+            }
+        }
+
+        // Send chat message
+        function sendChatMessage() {
+            if (!chatEnabled) return;
+            
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add message to chat
+            const chatMessages = document.getElementById('chatMessages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'chat-message mb-3';
+            messageEl.innerHTML = `
+                <div class="flex justify-end">
+                    <div class="bg-indigo-600 text-white rounded-lg px-4 py-2 max-w-xs">
+                        <p class="text-sm">${message}</p>
+                        <p class="text-xs opacity-75 mt-1">${new Date().toLocaleTimeString()}</p>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(messageEl);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            input.value = '';
+
+            // Here you would send the message to the server
+            // sendMessageToServer(message);
+        }
+
+        // Setup real-time updates
+        function setupRealtimeUpdates() {
+            // Simulate real-time updates every 30 seconds
+            setInterval(() => {
+                loadDashboardData();
+            }, 30000);
+        }
+
+        // Utility functions
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'confirmed': return 'bg-green-100 text-green-800';
+                case 'pending': return 'bg-yellow-100 text-yellow-800';
+                case 'completed': return 'bg-blue-100 text-blue-800';
+                case 'cancelled': return 'bg-red-100 text-red-800';
                 default: return 'bg-gray-100 text-gray-800';
             }
         }
 
         function getStatusText(status) {
-            switch(status) {
+            switch (status) {
                 case 'confirmed': return 'Confirmada';
-                case 'in-progress': return 'En curso';
                 case 'pending': return 'Pendiente';
                 case 'completed': return 'Completada';
+                case 'cancelled': return 'Cancelada';
                 default: return 'Desconocido';
             }
         }
 
-        function getActionText(status) {
-            switch(status) {
-                case 'confirmed': return 'Iniciar';
-                case 'in-progress': return 'Finalizar';
-                case 'pending': return 'Confirmar';
-                case 'completed': return 'Ver';
-                default: return 'Gestionar';
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification p-4 rounded-lg shadow-lg ${getNotificationColor(type)} max-w-sm`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${getNotificationIcon(type)} mr-2"></i>
+                    <p class="text-sm font-medium">${message}</p>
+                </div>
+            `;
+
+            document.getElementById('notifications').appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function getNotificationColor(type) {
+            switch (type) {
+                case 'success': return 'bg-green-500 text-white';
+                case 'error': return 'bg-red-500 text-white';
+                case 'warning': return 'bg-yellow-500 text-white';
+                default: return 'bg-blue-500 text-white';
             }
         }
 
-        function manageAppointment(appointmentId) {
-            const appointment = todayAppointments.find(apt => apt.id === appointmentId);
-            if (appointment) {
-                switch(appointment.status) {
-                    case 'pending':
-                        appointment.status = 'confirmed';
-                        alert(`Cita con ${appointment.patient} confirmada para las ${appointment.time}`);
-                        break;
-                    case 'confirmed':
-                        appointment.status = 'in-progress';
-                        alert(`Iniciando consulta con ${appointment.patient}. ¡Buen trabajo!`);
-                        break;
-                    case 'in-progress':
-                        appointment.status = 'completed';
-                        alert(`Consulta con ${appointment.patient} completada. Pago procesado: ${appointment.price}`);
-                        break;
-                    default:
-                        alert(`Gestionando cita con ${appointment.patient}`);
-                }
-                loadAppointments();
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'success': return 'fa-check-circle';
+                case 'error': return 'fa-exclamation-circle';
+                case 'warning': return 'fa-exclamation-triangle';
+                default: return 'fa-info-circle';
             }
         }
-
-        function toggleAvailability() {
-            isAvailable = !isAvailable;
-            const badge = document.getElementById('statusBadge');
-            const toggle = document.getElementById('availabilityToggle');
-            
-            if (isAvailable) {
-                badge.className = 'ml-2 px-2 py-1 rounded-full text-xs status-available';
-                badge.textContent = 'Disponible';
-                toggle.className = 'status-available px-3 py-1 rounded-full text-sm';
-                toggle.textContent = 'Disponible';
-                alert('Estado actualizado: Disponible para nuevas citas');
-            } else {
-                badge.className = 'ml-2 px-2 py-1 rounded-full text-xs status-unavailable';
-                badge.textContent = 'No disponible';
-                toggle.className = 'status-unavailable px-3 py-1 rounded-full text-sm';
-                toggle.textContent = 'No disponible';
-                alert('Estado actualizado: No disponible para nuevas citas');
-            }
-        }
-
-        // Update time every minute
-        setInterval(function() {
-            const now = new Date();
-            console.log(`Dashboard actualizado: ${now.toLocaleTimeString()}`);
-        }, 60000);
-
-        console.log('Dashboard Médico OnCall Clinic cargado');
-        console.log('Médico: Dra. María González');
-        console.log('Especialidad: Medicina General');
-        console.log('Citas hoy:', todayAppointments.length);
     </script>
 </body>
 </html>

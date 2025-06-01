@@ -420,13 +420,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ success: false, message: 'Authentication required' });
       }
 
-      const { weeklyAvailability } = req.body;
-      const doctorProfile = await storage.updateDoctorWeeklyAvailability((req.session as any).userId, weeklyAvailability);
+      const { isAvailable } = req.body;
+      const doctorProfile = await storage.getDoctorProfileByUserId((req.session as any).userId);
       
-      if (doctorProfile) {
+      if (!doctorProfile) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+
+      const updatedProfile = await storage.updateDoctorProfile(doctorProfile.id, { isAvailable });
+      
+      if (updatedProfile) {
         res.json({ success: true });
       } else {
-        res.status(404).json({ success: false, message: 'Doctor profile not found' });
+        res.status(500).json({ success: false, message: 'Failed to update availability' });
       }
     } catch (error) {
       console.error('Error updating availability:', error);
@@ -441,20 +447,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ success: false, message: 'Authentication required' });
       }
 
-      const appointments = await storage.getAppointmentsByDoctorId((req.session as any).userId);
+      const doctorProfile = await storage.getDoctorProfileByUserId((req.session as any).userId);
+      if (!doctorProfile) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+
+      const appointments = await storage.getAppointmentsByDoctorId(doctorProfile.id);
       const activeBookings = appointments.filter(apt => apt.status === 'confirmed' || apt.status === 'pending');
+      
+      // Enhanced bookings with patient info and tracking codes
+      const enhancedBookings = [];
+      for (const booking of activeBookings) {
+        // Get booking confirmation for tracking code
+        const confirmation = await storage.getBookingConfirmationByAppointment(booking.id);
+        
+        enhancedBookings.push({
+          ...booking,
+          patientName: `Paciente #${booking.patientId}`,
+          patientPhone: 'Información disponible en consulta',
+          trackingCode: confirmation?.trackingCode || `APT-${booking.id}`,
+          location: 'Dirección confirmada por paciente',
+          amount: booking.totalAmount || 8000
+        });
+      }
       
       res.json({
         success: true,
-        bookings: activeBookings.map(booking => ({
-          ...booking,
-          patientName: `Patient #${booking.patientId}`,
-          location: booking.location || 'Location to be confirmed',
-          amount: booking.totalAmount || 8000
-        }))
+        bookings: enhancedBookings
       });
     } catch (error) {
       console.error('Error loading active bookings:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Get doctor dashboard data
+  app.get('/api/doctor/dashboard', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const user = await storage.getUser((req.session as any).userId);
+      const doctorProfile = await storage.getDoctorProfileByUserId((req.session as any).userId);
+      
+      if (!user || !doctorProfile) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+
+      // Get appointments for statistics
+      const appointments = await storage.getAppointmentsByDoctorId(doctorProfile.id);
+      
+      // Calculate today's appointments
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const todayAppointments = appointments.filter(apt => {
+        const aptDate = new Date(apt.appointmentDate);
+        return aptDate >= today && aptDate < tomorrow;
+      });
+
+      // Calculate this week's appointments
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 7);
+      
+      const thisWeekAppointments = appointments.filter(apt => {
+        const aptDate = new Date(apt.appointmentDate);
+        return aptDate >= startOfWeek && aptDate < endOfWeek;
+      });
+
+      // Calculate earnings
+      const completedAppointments = appointments.filter(apt => apt.status === 'completed');
+      const totalEarnings = completedAppointments.reduce((sum, apt) => sum + (apt.totalAmount * 0.85), 0); // 15% commission
+      
+      res.json({
+        success: true,
+        profile: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          licenseNumber: doctorProfile.licenseNumber,
+          isVerified: doctorProfile.isVerified,
+          isAvailable: doctorProfile.isAvailable,
+          bankAccount: doctorProfile.bankAccount,
+          basePrice: doctorProfile.basePrice
+        },
+        stats: {
+          todayAppointments: todayAppointments.length,
+          thisWeekAppointments: thisWeekAppointments.length,
+          totalEarnings: Math.round(totalEarnings / 100), // Convert to euros
+          pendingEarnings: Math.round(totalEarnings * 0.3 / 100), // Simulate pending
+          averageRating: 4.8 // Mock rating for now
+        }
+      });
+    } catch (error) {
+      console.error('Error loading doctor dashboard:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  // Update doctor IBAN
+  app.post('/api/doctor/iban', async (req, res) => {
+    try {
+      if (!(req.session as any).userId || (req.session as any).userType !== 'doctor') {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+
+      const { bankAccount } = req.body;
+      
+      if (!bankAccount) {
+        return res.status(400).json({ success: false, message: 'IBAN is required' });
+      }
+
+      const doctorProfile = await storage.getDoctorProfileByUserId((req.session as any).userId);
+      if (!doctorProfile) {
+        return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+      }
+
+      const updatedProfile = await storage.updateDoctorProfile(doctorProfile.id, { bankAccount });
+      
+      if (updatedProfile) {
+        res.json({ success: true, message: 'IBAN updated successfully' });
+      } else {
+        res.status(500).json({ success: false, message: 'Failed to update IBAN' });
+      }
+    } catch (error) {
+      console.error('Error updating IBAN:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   });

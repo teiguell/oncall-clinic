@@ -778,6 +778,12 @@ export class MemStorage implements IStorage {
     return this.bookingConfirmations.get(id);
   }
 
+  async getBookingConfirmationByAppointment(appointmentId: number): Promise<BookingConfirmation | undefined> {
+    return Array.from(this.bookingConfirmations.values()).find(
+      (confirmation) => confirmation.appointmentId === appointmentId
+    );
+  }
+
   async getBookingConfirmationByTrackingCode(trackingCode: string): Promise<BookingConfirmation | undefined> {
     return Array.from(this.bookingConfirmations.values()).find(
       (confirmation) => confirmation.trackingCode === trackingCode
