@@ -171,10 +171,10 @@ export default function CookiesPolicyES() {
                 También puede gestionar las cookies directamente desde su navegador:
               </p>
               <ul className="list-disc pl-6 mb-4">
-                <li><strong>Chrome:</strong> Configuración > Privacidad y seguridad > Cookies y otros datos de sitios</li>
-                <li><strong>Firefox:</strong> Preferencias > Privacidad y seguridad > Cookies y datos del sitio</li>
-                <li><strong>Safari:</strong> Preferencias > Privacidad > Gestionar datos de sitios web</li>
-                <li><strong>Edge:</strong> Configuración > Privacidad, búsqueda y servicios > Cookies</li>
+                <li><strong>Chrome:</strong> Configuración → Privacidad y seguridad → Cookies y otros datos de sitios</li>
+                <li><strong>Firefox:</strong> Preferencias → Privacidad y seguridad → Cookies y datos del sitio</li>
+                <li><strong>Safari:</strong> Preferencias → Privacidad → Gestionar datos de sitios web</li>
+                <li><strong>Edge:</strong> Configuración → Privacidad, búsqueda y servicios → Cookies</li>
               </ul>
             </section>
 
