@@ -8,6 +8,10 @@ import path from "path";
 const app = express();
 app.use(express.json());
 app.use(express.static("dist"));
+// Serve static HTML files from root directory
+app.use(express.static(process.cwd(), {
+  extensions: ['html']
+}));
 
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: any) => {
