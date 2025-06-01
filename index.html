@@ -87,7 +87,7 @@
             <div class="bg-white rounded-2xl p-6 shadow-2xl max-w-4xl mx-auto mb-8">
                 <div class="text-gray-900 mb-4">
                     <h3 class="text-2xl font-bold mb-2">Encuentra tu médico ahora</h3>
-                    <p class="text-gray-600">Servicios disponibles en Palma de Mallorca y alrededores</p>
+                    <p class="text-gray-600" id="locationDescription">Detectando tu ubicación para mostrar médicos cercanos...</p>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -97,11 +97,17 @@
                             <input 
                                 type="text" 
                                 id="locationInput"
-                                value="Palma de Mallorca, Baleares"
+                                placeholder="Detectando tu ubicación..."
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 readonly
                             >
-                            <i class="fas fa-map-marker-alt absolute right-3 top-3 text-gray-400"></i>
+                            <button 
+                                onclick="detectLocation()" 
+                                class="absolute right-3 top-3 text-gray-400 hover:text-indigo-600"
+                                title="Detectar mi ubicación"
+                            >
+                                <i id="locationIcon" class="fas fa-map-marker-alt"></i>
+                            </button>
                         </div>
                     </div>
                     <div>
