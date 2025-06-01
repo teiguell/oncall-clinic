@@ -331,6 +331,15 @@
     </footer>
 
     <script>
+        // Current user location
+        let userLocation = {
+            latitude: null,
+            longitude: null,
+            address: '',
+            city: '',
+            area: ''
+        };
+
         // Sample doctor data with realistic information for Baleares
         const availableDoctors = [
             {
@@ -471,19 +480,55 @@
         }
 
         // Handle doctor login
-        document.getElementById('doctorLoginForm').addEventListener('submit', function(e) {
+        document.getElementById('doctorLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const email = document.getElementById('doctorEmail').value;
             const password = document.getElementById('doctorPassword').value;
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            // Show loading state
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Iniciando sesión...';
+            submitButton.disabled = true;
 
-            // Check test credentials
-            if (email === 'doctortest@oncall.clinic' && password === 'pepe') {
-                alert('¡Login exitoso! Bienvenida Dra. María González\n\nRedirigiendo al dashboard médico...');
-                closeDoctorLogin();
-                window.location.href = 'doctor-dashboard.html?login=success';
-            } else {
-                alert('Credenciales incorrectas. Por favor verifica tu email y contraseña.');
+            try {
+                // Make API call to login endpoint
+                const response = await fetch('/api/doctor/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                if (response.ok) {
+                    const doctor = await response.json();
+                    alert(`¡Login exitoso! Bienvenido/a ${doctor.firstName} ${doctor.lastName}\n\nRedirigiendo al dashboard médico...`);
+                    closeDoctorLogin();
+                    window.location.href = 'doctor-dashboard.html?login=success&doctor=' + encodeURIComponent(doctor.firstName + ' ' + doctor.lastName);
+                } else {
+                    const errorData = await response.text();
+                    throw new Error(errorData || 'Error de autenticación');
+                }
+            } catch (error) {
+                console.error('Error de login:', error);
+                
+                // Fallback to test credentials for demo
+                if (email === 'doctortest@oncall.clinic' && password === 'pepe') {
+                    alert('¡Login exitoso! Bienvenida Dra. María González\n\nUsando credenciales de prueba - Redirigiendo al dashboard médico...');
+                    closeDoctorLogin();
+                    window.location.href = 'doctor-dashboard.html?login=success&doctor=María González';
+                } else {
+                    alert('Credenciales incorrectas. Para pruebas usa:\nEmail: doctortest@oncall.clinic\nContraseña: pepe');
+                }
+            } finally {
+                // Restore button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
         });
 
@@ -491,11 +536,124 @@
             alert('🚨 SERVICIO DE EMERGENCIA 🚨\n\nPara emergencias médicas reales:\n📞 Llama al 112\n\nPara urgencias médicas no críticas:\n📞 +34 900 123 456\n\nNuestro equipo médico de guardia te atenderá inmediatamente.');
         }
 
-        // Auto-load doctors on page load
+        // Geolocation functions
+        function detectLocation() {
+            const locationInput = document.getElementById('locationInput');
+            const locationIcon = document.getElementById('locationIcon');
+            const locationDescription = document.getElementById('locationDescription');
+            
+            // Show loading state
+            locationInput.placeholder = 'Detectando ubicación...';
+            locationIcon.className = 'fas fa-spinner fa-spin';
+            locationDescription.textContent = 'Detectando tu ubicación actual...';
+            
+            if (!navigator.geolocation) {
+                showLocationError('La geolocalización no está disponible en tu navegador');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    userLocation.latitude = position.coords.latitude;
+                    userLocation.longitude = position.coords.longitude;
+                    
+                    try {
+                        // Use reverse geocoding to get address
+                        const address = await reverseGeocode(userLocation.latitude, userLocation.longitude);
+                        userLocation.address = address.formatted_address;
+                        userLocation.city = address.city;
+                        userLocation.area = address.area;
+                        
+                        // Update UI
+                        locationInput.value = address.formatted_address;
+                        locationDescription.textContent = `Servicios disponibles en ${address.city} y alrededores`;
+                        locationIcon.className = 'fas fa-map-marker-alt text-green-500';
+                        
+                        // Auto-search doctors in the area
+                        searchDoctors();
+                        
+                        console.log('Ubicación detectada:', address);
+                    } catch (error) {
+                        console.error('Error en geocodificación:', error);
+                        showLocationFallback();
+                    }
+                },
+                function(error) {
+                    console.error('Error de geolocalización:', error);
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            showLocationError('Acceso a ubicación denegado. Por favor, permite el acceso para mejores resultados.');
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            showLocationError('Ubicación no disponible. Usando área por defecto.');
+                            break;
+                        case error.TIMEOUT:
+                            showLocationError('Tiempo de espera agotado. Usando área por defecto.');
+                            break;
+                        default:
+                            showLocationError('Error desconocido. Usando área por defecto.');
+                            break;
+                    }
+                    showLocationFallback();
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        }
+
+        async function reverseGeocode(lat, lng) {
+            // Simulate reverse geocoding - in production, you would use Google Maps Geocoding API
+            // For demo purposes, we'll use a mock response based on coordinates
+            
+            // Check if coordinates are in Balearic Islands area (approximate)
+            if (lat >= 38.5 && lat <= 40.2 && lng >= 1.0 && lng <= 4.5) {
+                return {
+                    formatted_address: `${lat.toFixed(4)}, ${lng.toFixed(4)} - Islas Baleares`,
+                    city: 'Palma de Mallorca',
+                    area: 'Islas Baleares'
+                };
+            } else {
+                return {
+                    formatted_address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+                    city: 'Área actual',
+                    area: 'Ubicación detectada'
+                };
+            }
+        }
+
+        function showLocationError(message) {
+            const locationDescription = document.getElementById('locationDescription');
+            locationDescription.textContent = message;
+            locationDescription.className = 'text-orange-600';
+        }
+
+        function showLocationFallback() {
+            const locationInput = document.getElementById('locationInput');
+            const locationIcon = document.getElementById('locationIcon');
+            const locationDescription = document.getElementById('locationDescription');
+            
+            // Set fallback location
+            userLocation.address = 'Área de cobertura general';
+            userLocation.city = 'España';
+            userLocation.area = 'Zona de servicio';
+            
+            locationInput.value = 'Área de cobertura general';
+            locationDescription.textContent = 'Servicios disponibles en tu zona';
+            locationDescription.className = 'text-gray-600';
+            locationIcon.className = 'fas fa-map-marker-alt text-gray-400';
+            
+            // Still show doctors
+            searchDoctors();
+        }
+
+        // Auto-detect location on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Show available doctors by default
+            // Automatically detect location when page loads
             setTimeout(() => {
-                searchDoctors();
+                detectLocation();
             }, 1000);
         });
 
