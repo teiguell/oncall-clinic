@@ -26,6 +26,14 @@ import Verify from "@/pages/verify";
 import AdminDoctorVerification from "@/pages/admin-doctor-verification";
 import { ProtectedRoute } from "@/lib/protected-route";
 
+// Legal Pages
+import PrivacyPolicyES from "@/pages/legal/privacy-policy-es";
+import PrivacyPolicyEN from "@/pages/legal/privacy-policy-en";
+import TermsOfUseES from "@/pages/legal/terms-of-use-es";
+import TermsOfUseEN from "@/pages/legal/terms-of-use-en";
+import CookiesPolicyES from "@/pages/legal/cookies-policy-es";
+import CookiesPolicyEN from "@/pages/legal/cookies-policy-en";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -51,6 +59,14 @@ function AppContent() {
           <Route path="/verify" component={Verify} />
           <Route path="/about" component={About} />
           <Route path="/doctors" component={DoctorSearch} />
+
+          {/* Legal Pages */}
+          <Route path="/legal/privacy-policy-es" component={PrivacyPolicyES} />
+          <Route path="/legal/privacy-policy-en" component={PrivacyPolicyEN} />
+          <Route path="/legal/terms-of-use-es" component={TermsOfUseES} />
+          <Route path="/legal/terms-of-use-en" component={TermsOfUseEN} />
+          <Route path="/legal/cookies-policy-es" component={CookiesPolicyES} />
+          <Route path="/legal/cookies-policy-en" component={CookiesPolicyEN} />
 
           {/* Protected Routes */}
           <Route path="/dashboard/patient" component={PatientDashboard} />
