@@ -1,32 +1,32 @@
 import { 
-  User, InsertUser, 
-  PatientProfile, InsertPatientProfile,
-  DoctorProfile, InsertDoctorProfile,
-  Specialty, InsertSpecialty,
-  Availability, InsertAvailability,
-  Location, InsertLocation,
-  Appointment, InsertAppointment,
-  Review, InsertReview,
-  Notification, InsertNotification,
-  Payment, InsertPayment,
-  VerificationCode, InsertVerificationCode,
-  RevolutTransaction, InsertRevolutTransaction,
-  BookingConfirmation, InsertBookingConfirmation,
-  TransferLog, InsertTransferLog,
-  DoctorLocationTracking, InsertDoctorLocationTracking,
-  PatientFeedback, InsertPatientFeedback,
-  GuestPatient,
-  WeeklyAvailability
-} from '@shared/schema';
-import { z } from 'zod';
-import createMemoryStore from 'memorystore';
-import session from 'express-session';
-
-const MemoryStore = createMemoryStore(session);
+  users, type User, type InsertUser,
+  patientProfiles, type PatientProfile, type InsertPatientProfile,
+  doctorProfiles, type DoctorProfile, type InsertDoctorProfile,
+  specialties, type Specialty, type InsertSpecialty,
+  availability, type Availability, type InsertAvailability,
+  locations, type Location, type InsertLocation,
+  appointments, type Appointment, type InsertAppointment,
+  reviews, type Review, type InsertReview,
+  notifications, type Notification, type InsertNotification,
+  payments, type Payment, type InsertPayment,
+  verificationCodes, type VerificationCode, type InsertVerificationCode,
+  type WeeklyAvailability,
+  guestPatients, type GuestPatient, guestPatientSchema,
+  revolutTransactions, type RevolutTransaction, type InsertRevolutTransaction,
+  bookingConfirmations, type BookingConfirmation, type InsertBookingConfirmation,
+  transferLogs, type TransferLog, type InsertTransferLog,
+  doctorLocationTracking, type DoctorLocationTracking, type InsertDoctorLocationTracking,
+  patientFeedback, type PatientFeedback, type InsertPatientFeedback
+} from "@shared/schema";
+import { z } from "zod";
+import crypto from "crypto";
+import session from "express-session";
+import memorystore from "memorystore";
 
 export interface IStorage {
-  sessionStore: any;
-  
+  // Session Store
+  sessionStore: any; // Usar any para evitar problemas con el tipo SessionStore
+
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -106,7 +106,7 @@ export interface IStorage {
   updatePayment(id: number, data: Partial<Payment>): Promise<Payment | undefined>;
   
   // Guest Patients
-  createGuestPatient(guestPatient: z.infer<typeof import('@shared/schema').guestPatientSchema>): Promise<GuestPatient>;
+  createGuestPatient(guestPatient: z.infer<typeof guestPatientSchema>): Promise<GuestPatient>;
 
   // Revolut Transactions
   createRevolutTransaction(transaction: InsertRevolutTransaction): Promise<RevolutTransaction>;
@@ -137,52 +137,92 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  public sessionStore: any;
-  private users = new Map<number, User>();
-  private patientProfiles = new Map<number, PatientProfile>();
-  private doctorProfiles = new Map<number, DoctorProfile>();
-  private specialties = new Map<number, Specialty>();
-  private availability = new Map<number, Availability>();
-  private locations = new Map<number, Location>();
-  private appointments = new Map<number, Appointment>();
-  private reviews = new Map<number, Review>();
-  private notifications = new Map<number, Notification>();
-  private payments = new Map<number, Payment>();
-  private verificationCodes = new Map<number, VerificationCode>();
-  private revolutTransactions = new Map<number, RevolutTransaction>();
-  private bookingConfirmations = new Map<number, BookingConfirmation>();
-  private transferLogs = new Map<number, TransferLog>();
-  private doctorLocationTracking = new Map<number, DoctorLocationTracking>();
-  private patientFeedback = new Map<number, PatientFeedback>();
-  private guestPatients = new Map<number, GuestPatient>();
+  public sessionStore: any; // Usar any para evitar problemas con el tipo SessionStore
+  private users: Map<number, User>;
+  private patientProfiles: Map<number, PatientProfile>;
+  private doctorProfiles: Map<number, DoctorProfile>;
+  private specialties: Map<number, Specialty>;
+  private availability: Map<number, Availability>;
+  private locations: Map<number, Location>;
+  private appointments: Map<number, Appointment>;
+  private reviews: Map<number, Review>;
+  private notifications: Map<number, Notification>;
+  private payments: Map<number, Payment>;
+  private verificationCodes: Map<number, VerificationCode>;
+  private revolutTransactions: Map<number, RevolutTransaction>;
+  private bookingConfirmations: Map<number, BookingConfirmation>;
+  private transferLogs: Map<number, TransferLog>;
+  private doctorLocationTracking: Map<number, DoctorLocationTracking>;
+  private patientFeedback: Map<number, PatientFeedback>;
+  private guestPatients: Map<number, GuestPatient>;
 
-  private currentUserId = 1000;
-  private currentPatientProfileId = 1;
-  private currentDoctorProfileId = 1;
-  private currentSpecialtyId = 2;
-  private currentAvailabilityId = 1;
-  private currentLocationId = 1;
-  private currentAppointmentId = 1;
-  private currentReviewId = 1;
-  private currentNotificationId = 1;
-  private currentPaymentId = 1;
-  private currentVerificationCodeId = 1;
-  private currentRevolutTransactionId = 1;
-  private currentBookingConfirmationId = 1;
-  private currentTransferLogId = 1;
-  private currentDoctorLocationTrackingId = 1;
-  private currentPatientFeedbackId = 1;
-  private currentGuestPatientId = 1;
+  private currentUserId: number;
+  private currentPatientProfileId: number;
+  private currentDoctorProfileId: number;
+  private currentSpecialtyId: number;
+  private currentAvailabilityId: number;
+  private currentLocationId: number;
+  private currentAppointmentId: number;
+  private currentReviewId: number;
+  private currentNotificationId: number;
+  private currentPaymentId: number;
+  private currentVerificationCodeId: number;
+  private currentRevolutTransactionId: number;
+  private currentBookingConfirmationId: number;
+  private currentTransferLogId: number;
+  private currentDoctorLocationTrackingId: number;
+  private currentPatientFeedbackId: number;
+  private currentGuestPatientId: number;
 
   constructor() {
+    this.users = new Map();
+    this.patientProfiles = new Map();
+    this.doctorProfiles = new Map();
+    this.specialties = new Map();
+    this.availability = new Map();
+    this.locations = new Map();
+    this.appointments = new Map();
+    this.reviews = new Map();
+    this.notifications = new Map();
+    this.payments = new Map();
+    this.verificationCodes = new Map();
+    this.revolutTransactions = new Map();
+    this.bookingConfirmations = new Map();
+    this.transferLogs = new Map();
+    this.doctorLocationTracking = new Map();
+    this.patientFeedback = new Map();
+    this.guestPatients = new Map();
+
+    // Initialize the session store
+    const MemoryStore = memorystore(session);
     this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+      checkPeriod: 86400000, // Prune expired entries every 24h
     });
+
+    this.currentUserId = 1;
+    this.currentPatientProfileId = 1;
+    this.currentDoctorProfileId = 1;
+    this.currentSpecialtyId = 1;
+    this.currentAvailabilityId = 1;
+    this.currentLocationId = 1;
+    this.currentAppointmentId = 1;
+    this.currentReviewId = 1;
+    this.currentNotificationId = 1;
+    this.currentPaymentId = 1;
+    this.currentVerificationCodeId = 1;
+    this.currentRevolutTransactionId = 1;
+    this.currentBookingConfirmationId = 1;
+    this.currentTransferLogId = 1;
+    this.currentDoctorLocationTrackingId = 1;
+    this.currentPatientFeedbackId = 1;
+    this.currentGuestPatientId = 1;
+
+    // Initialize with sample data
     this.initializeData();
   }
 
   private initializeData() {
-    // Create General Medicine specialty
+    // Create General Medicine specialty first
     const generalMedicineSpecialty: Specialty = {
       id: 1,
       name: "General Medicine",
@@ -190,12 +230,12 @@ export class MemStorage implements IStorage {
     };
     this.specialties.set(1, generalMedicineSpecialty);
 
-    // Create test doctor user
+    // Add test doctor user
     const testDoctorUser: User = {
       id: 999,
       username: "doctortest",
       email: "doctortest@oncall.clinic",
-      password: "pepe",
+      password: "pepe", // Test credentials as requested
       userType: "doctor",
       firstName: "María",
       lastName: "González",
@@ -209,16 +249,16 @@ export class MemStorage implements IStorage {
     };
     this.users.set(999, testDoctorUser);
 
-    // Create test doctor profile
+    // Add test doctor profile
     const testDoctorProfile: DoctorProfile = {
       id: 999,
       userId: 999,
-      specialtyId: 1,
+      specialtyId: 1, // General Medicine
       licenseNumber: "TEST123456",
       education: "Medical Degree, Universidad Complutense Madrid",
       experience: 10,
       bio: "General practitioner with extensive experience in home healthcare services",
-      basePrice: 8000,
+      basePrice: 8000, // 80.00 EUR in cents
       isAvailable: true,
       isVerified: true,
       averageRating: 4.8,
@@ -336,7 +376,7 @@ export class MemStorage implements IStorage {
 
   async getVerificationCode(userId: number, code: string, type: string): Promise<VerificationCode | undefined> {
     return Array.from(this.verificationCodes.values()).find(
-      (vc) => vc.userId === userId && vc.code === code && vc.type === type && !vc.usedAt
+      (vc) => vc.userId === userId && vc.code === code && vc.type === type && !vc.usedAt && new Date() < new Date(vc.expiresAt)
     );
   }
 
@@ -344,7 +384,8 @@ export class MemStorage implements IStorage {
     const code = this.verificationCodes.get(id);
     if (!code) return undefined;
 
-    const updatedCode = { ...code, usedAt: new Date() };
+    const usedAt = new Date();
+    const updatedCode = { ...code, usedAt };
     this.verificationCodes.set(id, updatedCode);
     return updatedCode;
   }
@@ -365,32 +406,23 @@ export class MemStorage implements IStorage {
   }
 
   async getUnverifiedDoctorProfiles(): Promise<DoctorProfile[]> {
-    return Array.from(this.doctorProfiles.values()).filter(
-      (profile) => !profile.isVerified
-    );
+    return Array.from(this.doctorProfiles.values())
+      .filter(profile => profile.isVerified === false);
   }
 
   async createDoctorProfile(profile: InsertDoctorProfile): Promise<DoctorProfile> {
     const id = this.currentDoctorProfileId++;
     const newProfile: DoctorProfile = { 
       ...profile, 
-      id,
+      id, 
       averageRating: 0,
       isAvailable: false,
       isVerified: false,
       totalEarnings: 0,
       pendingEarnings: 0,
-      commissionRate: 15,
+      commissionRate: 15.0,
       verificationDate: null,
-      verifiedBy: null,
-      identityDocFront: profile.identityDocFront || null,
-      identityDocBack: profile.identityDocBack || null,
-      medicalLicense: profile.medicalLicense || null,
-      insuranceCert: profile.insuranceCert || null,
-      bankAccount: profile.bankAccount || null,
-      locationLat: profile.locationLat || null,
-      locationLng: profile.locationLng || null,
-      locationAddress: profile.locationAddress || null
+      verifiedBy: null
     };
     this.doctorProfiles.set(id, newProfile);
     return newProfile;
@@ -406,75 +438,52 @@ export class MemStorage implements IStorage {
   }
 
   async updateDoctorWeeklyAvailability(doctorId: number, weeklyAvailability: WeeklyAvailability): Promise<DoctorProfile | undefined> {
-    const profile = this.doctorProfiles.get(doctorId);
-    if (!profile) return undefined;
+    // Primero obtenemos el perfil del doctor por ID de usuario
+    const doctorProfile = await this.getDoctorProfileByUserId(doctorId);
+    if (!doctorProfile) return undefined;
 
-    const updatedProfile = { ...profile, weeklyAvailability };
-    this.doctorProfiles.set(doctorId, updatedProfile);
+    // Actualizamos la disponibilidad semanal
+    const updatedProfile = await this.updateDoctorProfile(doctorProfile.id, {
+      weeklyAvailability: weeklyAvailability as any // Usamos 'any' para evitar problemas de tipos con jsonb
+    });
+
     return updatedProfile;
   }
 
   async verifyDoctor(doctorId: number, adminId: number, notes?: string): Promise<DoctorProfile | undefined> {
-    const profile = this.doctorProfiles.get(doctorId);
+    const profile = await this.getDoctorProfile(doctorId);
     if (!profile) return undefined;
 
-    const updatedProfile = { 
-      ...profile, 
-      isVerified: true, 
-      verificationDate: new Date(),
-      verifiedBy: adminId 
-    };
-    this.doctorProfiles.set(doctorId, updatedProfile);
+    // Verificar el perfil del médico
+    const verificationDate = new Date();
+    const updatedProfile = await this.updateDoctorProfile(profile.id, {
+      isVerified: true,
+      verificationDate,
+      verifiedBy: adminId
+    });
+
+    if (updatedProfile) {
+      // Crear notificación para el médico
+      await this.createNotification({
+        userId: profile.userId,
+        type: "verification",
+        content: notes || "Su cuenta ha sido verificada. Ya puede comenzar a recibir solicitudes de citas.",
+        data: {
+          doctorId: profile.id,
+          verifiedBy: adminId,
+          verificationDate
+        } as any
+      });
+    }
+
     return updatedProfile;
-  }
-
-  async searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]> {
-    let doctors = Array.from(this.doctorProfiles.values());
-
-    if (specialtyId) {
-      doctors = doctors.filter(doctor => doctor.specialtyId === specialtyId);
-    }
-    if (available !== undefined) {
-      doctors = doctors.filter(doctor => doctor.isAvailable === available);
-    }
-    if (verified !== undefined) {
-      doctors = doctors.filter(doctor => doctor.isVerified === verified);
-    }
-
-    return doctors;
-  }
-
-  async searchDoctorsByLocation(lat: number, lng: number, maxDistance?: number, specialtyName?: string): Promise<Array<DoctorProfile & { distance: number }>> {
-    const doctors = Array.from(this.doctorProfiles.values())
-      .filter(doctor => doctor.locationLat && doctor.locationLng)
-      .map(doctor => ({
-        ...doctor,
-        distance: this.calculateDistance(lat, lng, doctor.locationLat!, doctor.locationLng!)
-      }))
-      .filter(doctor => !maxDistance || doctor.distance <= maxDistance)
-      .sort((a, b) => a.distance - b.distance);
-
-    return doctors;
-  }
-
-  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-    const R = 6371; // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
   }
 
   async updateDoctorBankAccount(doctorId: number, bankAccount: string): Promise<DoctorProfile | undefined> {
-    const profile = this.doctorProfiles.get(doctorId);
+    const profile = await this.getDoctorProfile(doctorId);
     if (!profile) return undefined;
 
-    const updatedProfile = { ...profile, bankAccount };
-    this.doctorProfiles.set(doctorId, updatedProfile);
-    return updatedProfile;
+    return this.updateDoctorProfile(profile.id, { bankAccount });
   }
 
   async getDoctorEarnings(doctorId: number): Promise<{
@@ -483,18 +492,145 @@ export class MemStorage implements IStorage {
     commissionRate: number;
     netEarnings: number;
   } | undefined> {
-    const profile = this.doctorProfiles.get(doctorId);
+    const profile = await this.getDoctorProfile(doctorId);
     if (!profile) return undefined;
 
     return {
-      totalEarnings: profile.totalEarnings || 0,
-      pendingEarnings: profile.pendingEarnings || 0,
-      commissionRate: profile.commissionRate || 15,
-      netEarnings: (profile.totalEarnings || 0) * (1 - (profile.commissionRate || 15) / 100)
+      totalEarnings: profile.totalEarnings,
+      pendingEarnings: profile.pendingEarnings,
+      commissionRate: profile.commissionRate,
+      netEarnings: Math.round(profile.totalEarnings * (1 - profile.commissionRate / 100))
     };
   }
 
+  // Calcular distancia entre dos puntos geográficos usando la fórmula de Haversine
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radio de la Tierra en km
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  private deg2rad(deg: number): number {
+    return deg * (Math.PI/180);
+  }
+
+  async searchDoctors(specialtyId?: number, available?: boolean, verified?: boolean): Promise<DoctorProfile[]> {
+    let doctors = Array.from(this.doctorProfiles.values());
+
+    if (specialtyId !== undefined) {
+      doctors = doctors.filter(doctor => doctor.specialtyId === specialtyId);
+    }
+
+    if (available !== undefined) {
+      doctors = doctors.filter(doctor => doctor.isAvailable === available);
+    }
+
+    if (verified !== undefined) {
+      doctors = doctors.filter(doctor => doctor.isVerified === verified);
+    }
+
+    return doctors;
+  }
+
+  async searchDoctorsByLocation(
+    lat: number, 
+    lng: number, 
+    maxDistance: number = 10,
+    specialtyName?: string
+  ): Promise<Array<DoctorProfile & { distance: number }>> {
+    const doctors = await this.getAllDoctorProfiles();
+    let filteredDoctors = doctors.filter(d => d.isVerified && d.isAvailable);
+
+    // Filtrar por especialidad si se proporciona
+    if (specialtyName) {
+      const specialties = await this.getAllSpecialties();
+      const specialty = specialties.find(s => 
+        s.name.toLowerCase().includes(specialtyName.toLowerCase())
+      );
+
+      if (specialty) {
+        filteredDoctors = filteredDoctors.filter(d => d.specialtyId === specialty.id);
+      }
+    }
+
+    // Para cada médico, necesitamos:
+    // 1. Obtener sus ubicaciones
+    // 2. Calcular la distancia desde la ubicación del paciente a cada ubicación del médico
+    // 3. Seleccionar la ubicación más cercana dentro del rango máximo
+    const result = await Promise.all(
+      filteredDoctors.map(async (doctor) => {
+        const doctorLocations = await this.getLocationsByUserId(doctor.userId);
+
+        if (doctorLocations.length === 0) {
+          // El médico no tiene ubicaciones registradas
+          return null;
+        }
+
+        // Calcular distancias a todas las ubicaciones del médico
+        const distances = doctorLocations.map(location => ({
+          location,
+          distance: this.calculateDistance(lat, lng, location.lat, location.lng)
+        }));
+
+        // Ordenar por distancia y tomar la más cercana
+        distances.sort((a, b) => a.distance - b.distance);
+        const nearestLocation = distances[0];
+
+        // Verificar si está dentro del rango máximo
+        if (nearestLocation.distance <= maxDistance) {
+          return {
+            ...doctor,
+            distance: nearestLocation.distance
+          };
+        }
+
+        return null;
+      })
+    );
+
+    // Filtrar los doctores que no tienen ubicaciones en el rango
+    return result.filter(doctor => doctor !== null) as Array<DoctorProfile & { distance: number }>;
+  }
+
   // Specialties
+  private async createTestDoctor() {
+    const testDoctor = {
+      id: 1,
+      userId: 1,
+      specialtyId: 1, // General Medicine
+      licenseNumber: "TEST1234",
+      education: "Universidad de Test",
+      experience: 10,
+      bio: "Médico de prueba para el entorno sandbox",
+      basePrice: 8000, // 80€
+      isAvailable: true,
+      isVerified: true,
+      location: {
+        lat: 38.9067339,
+        lng: 1.4206979,
+        address: "Avenida Ignacio Wallis, Ibiza",
+        city: "Ibiza",
+        postalCode: "07800"
+      },
+      user: {
+        id: 1,
+        firstName: "Marina",
+        lastName: "Prueba",
+        email: "dra.marina@test.com",
+        phoneNumber: "+34600000000",
+        profilePicture: null
+      }
+    };
+
+    return testDoctor;
+  }
+
   async getSpecialty(id: number): Promise<Specialty | undefined> {
     return this.specialties.get(id);
   }
@@ -517,7 +653,7 @@ export class MemStorage implements IStorage {
 
   async getAvailabilityByDoctorId(doctorProfileId: number): Promise<Availability[]> {
     return Array.from(this.availability.values()).filter(
-      (avail) => avail.doctorProfileId === doctorProfileId
+      avail => avail.doctorProfileId === doctorProfileId
     );
   }
 
@@ -529,10 +665,10 @@ export class MemStorage implements IStorage {
   }
 
   async updateAvailability(id: number, data: Partial<Availability>): Promise<Availability | undefined> {
-    const availability = this.availability.get(id);
-    if (!availability) return undefined;
+    const avail = this.availability.get(id);
+    if (!avail) return undefined;
 
-    const updatedAvailability = { ...availability, ...data };
+    const updatedAvailability = { ...avail, ...data };
     this.availability.set(id, updatedAvailability);
     return updatedAvailability;
   }
@@ -544,7 +680,7 @@ export class MemStorage implements IStorage {
 
   async getLocationsByUserId(userId: number): Promise<Location[]> {
     return Array.from(this.locations.values()).filter(
-      (location) => location.userId === userId
+      location => location.userId === userId
     );
   }
 
@@ -571,20 +707,20 @@ export class MemStorage implements IStorage {
 
   async getAppointmentsByPatientId(patientId: number): Promise<Appointment[]> {
     return Array.from(this.appointments.values()).filter(
-      (appointment) => appointment.patientId === patientId
+      appointment => appointment.patientId === patientId
     );
   }
 
   async getAppointmentsByDoctorId(doctorId: number): Promise<Appointment[]> {
     return Array.from(this.appointments.values()).filter(
-      (appointment) => appointment.doctorId === doctorId
+      appointment => appointment.doctorId === doctorId
     );
   }
 
   async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
     const id = this.currentAppointmentId++;
     const createdAt = new Date();
-    const updatedAt = new Date();
+    const updatedAt = createdAt;
     const newAppointment: Appointment = { ...appointment, id, createdAt, updatedAt };
     this.appointments.set(id, newAppointment);
     return newAppointment;
@@ -594,7 +730,8 @@ export class MemStorage implements IStorage {
     const appointment = this.appointments.get(id);
     if (!appointment) return undefined;
 
-    const updatedAppointment = { ...appointment, ...data, updatedAt: new Date() };
+    const updatedAt = new Date();
+    const updatedAppointment = { ...appointment, ...data, updatedAt };
     this.appointments.set(id, updatedAppointment);
     return updatedAppointment;
   }
@@ -606,7 +743,7 @@ export class MemStorage implements IStorage {
 
   async getReviewsByRevieweeId(revieweeId: number): Promise<Review[]> {
     return Array.from(this.reviews.values()).filter(
-      (review) => review.revieweeId === revieweeId
+      review => review.revieweeId === revieweeId
     );
   }
 
@@ -621,7 +758,7 @@ export class MemStorage implements IStorage {
   // Notifications
   async getNotifications(userId: number): Promise<Notification[]> {
     return Array.from(this.notifications.values()).filter(
-      (notification) => notification.userId === userId
+      notification => notification.userId === userId
     );
   }
 
@@ -649,7 +786,7 @@ export class MemStorage implements IStorage {
 
   async getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined> {
     return Array.from(this.payments.values()).find(
-      (payment) => payment.appointmentId === appointmentId
+      payment => payment.appointmentId === appointmentId
     );
   }
 
@@ -671,27 +808,47 @@ export class MemStorage implements IStorage {
   }
 
   // Guest Patients
-  async createGuestPatient(guestPatient: z.infer<typeof import('@shared/schema').guestPatientSchema>): Promise<GuestPatient> {
-    const id = this.currentGuestPatientId++;
+  async createGuestPatient(guestPatient: z.infer<typeof guestPatientSchema>): Promise<GuestPatient> {
+    // Generamos un token de autenticación para el paciente invitado
+    const authToken = crypto.randomBytes(32).toString('hex');
+    
+    // La fecha de expiración será 24 horas desde ahora
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    
+    // Crear el paciente invitado con ID único
+    const id = Math.floor(1000 + Math.random() * 9000); // ID único para guest patients
+    const createdAt = new Date();
+    
     const newGuestPatient: GuestPatient = {
       id,
-      ...guestPatient,
-      createdAt: new Date()
+      name: guestPatient.name,
+      email: guestPatient.email,
+      phone: guestPatient.phone,
+      appointmentId: null, // Se asignará cuando se cree la cita
+      authToken,
+      createdAt,
+      expiresAt,
+      privacyAccepted: guestPatient.privacyAccepted,
+      termsAccepted: guestPatient.termsAccepted
     };
-    this.guestPatients.set(id, newGuestPatient);
+    
     return newGuestPatient;
   }
 
-  // Revolut Transactions
+  // Revolut Transactions methods
   async createRevolutTransaction(transaction: InsertRevolutTransaction): Promise<RevolutTransaction> {
     const id = this.currentRevolutTransactionId++;
+    const createdAt = new Date();
+    
     const newTransaction: RevolutTransaction = {
+      ...transaction,
       id,
-      createdAt: new Date(),
+      createdAt,
       paidAt: null,
-      transferredAt: null,
-      ...transaction
+      transferredAt: null
     };
+
     this.revolutTransactions.set(id, newTransaction);
     return newTransaction;
   }
@@ -701,9 +858,7 @@ export class MemStorage implements IStorage {
   }
 
   async getRevolutTransactionByAppointment(appointmentId: number): Promise<RevolutTransaction | undefined> {
-    return Array.from(this.revolutTransactions.values()).find(
-      (transaction) => transaction.appointmentId === appointmentId
-    );
+    return Array.from(this.revolutTransactions.values()).find(t => t.appointmentId === appointmentId);
   }
 
   async updateRevolutTransaction(id: number, data: Partial<RevolutTransaction>): Promise<RevolutTransaction | undefined> {
@@ -715,16 +870,19 @@ export class MemStorage implements IStorage {
     return updatedTransaction;
   }
 
-  // Booking Confirmations
+  // Booking Confirmations methods
   async createBookingConfirmation(confirmation: InsertBookingConfirmation): Promise<BookingConfirmation> {
     const id = this.currentBookingConfirmationId++;
+    const createdAt = new Date();
+    
     const newConfirmation: BookingConfirmation = {
+      ...confirmation,
       id,
-      createdAt: new Date(),
+      createdAt,
       patientConfirmedAt: null,
-      doctorConfirmedAt: null,
-      ...confirmation
+      doctorConfirmedAt: null
     };
+
     this.bookingConfirmations.set(id, newConfirmation);
     return newConfirmation;
   }
@@ -734,15 +892,11 @@ export class MemStorage implements IStorage {
   }
 
   async getBookingConfirmationByTrackingCode(trackingCode: string): Promise<BookingConfirmation | undefined> {
-    return Array.from(this.bookingConfirmations.values()).find(
-      (confirmation) => confirmation.trackingCode === trackingCode
-    );
+    return Array.from(this.bookingConfirmations.values()).find(c => c.trackingCode === trackingCode);
   }
 
   async getBookingConfirmationByAppointment(appointmentId: number): Promise<BookingConfirmation | undefined> {
-    return Array.from(this.bookingConfirmations.values()).find(
-      (confirmation) => confirmation.appointmentId === appointmentId
-    );
+    return Array.from(this.bookingConfirmations.values()).find(c => c.appointmentId === appointmentId);
   }
 
   async updateBookingConfirmation(id: number, data: Partial<BookingConfirmation>): Promise<BookingConfirmation | undefined> {
@@ -754,59 +908,70 @@ export class MemStorage implements IStorage {
     return updatedConfirmation;
   }
 
-  // Transfer Logs
+  // Transfer Logs methods
   async createTransferLog(log: InsertTransferLog): Promise<TransferLog> {
     const id = this.currentTransferLogId++;
+    const processedAt = new Date();
+    
     const newLog: TransferLog = {
+      ...log,
       id,
-      processedAt: new Date(),
-      ...log
+      processedAt
     };
+
     this.transferLogs.set(id, newLog);
     return newLog;
   }
 
   async getTransferLogsByAppointment(appointmentId: number): Promise<TransferLog[]> {
-    return Array.from(this.transferLogs.values()).filter(
-      (log) => log.appointmentId === appointmentId
-    );
+    return Array.from(this.transferLogs.values()).filter(l => l.appointmentId === appointmentId);
   }
 
-  // Doctor Location Tracking
+  // Doctor Location Tracking methods
   async createDoctorLocationTracking(location: InsertDoctorLocationTracking): Promise<DoctorLocationTracking> {
     const id = this.currentDoctorLocationTrackingId++;
+    const timestamp = new Date();
+    
     const newLocation: DoctorLocationTracking = {
+      ...location,
       id,
-      timestamp: new Date(),
-      ...location
+      timestamp
     };
+
     this.doctorLocationTracking.set(id, newLocation);
     return newLocation;
   }
 
   async getDoctorActiveLocation(doctorId: number, appointmentId: number): Promise<DoctorLocationTracking[]> {
-    return Array.from(this.doctorLocationTracking.values()).filter(
-      (location) => location.doctorId === doctorId && location.appointmentId === appointmentId && location.isActive
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    return Array.from(this.doctorLocationTracking.values()).filter(l => 
+      l.doctorId === doctorId && 
+      l.appointmentId === appointmentId &&
+      l.isActive && 
+      l.timestamp && l.timestamp > fifteenMinutesAgo
     );
   }
 
   async deactivateOldLocations(doctorId: number): Promise<void> {
     for (const [id, location] of this.doctorLocationTracking.entries()) {
       if (location.doctorId === doctorId) {
-        const updatedLocation = { ...location, isActive: false };
-        this.doctorLocationTracking.set(id, updatedLocation);
+        this.doctorLocationTracking.set(id, { ...location, isActive: false });
       }
     }
   }
 
-  // Patient Feedback
+  // Patient Feedback methods
   async createPatientFeedback(feedback: InsertPatientFeedback): Promise<PatientFeedback> {
     const id = this.currentPatientFeedbackId++;
+    const createdAt = new Date();
+    
     const newFeedback: PatientFeedback = {
+      ...feedback,
       id,
-      createdAt: new Date(),
-      ...feedback
+      createdAt,
+      reviewedAt: null
     };
+
     this.patientFeedback.set(id, newFeedback);
     return newFeedback;
   }
@@ -822,6 +987,32 @@ export class MemStorage implements IStorage {
     const updatedFeedback = { ...feedback, ...data };
     this.patientFeedback.set(id, updatedFeedback);
     return updatedFeedback;
+  }
+
+  // Additional methods for doctor authentication
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email.toLowerCase() === email.toLowerCase());
+  }
+
+  async getDoctorProfileByUserId(userId: number): Promise<DoctorProfile | undefined> {
+    return Array.from(this.doctorProfiles.values()).find(profile => profile.userId === userId);
+  }
+
+  async getAppointmentsByDoctor(doctorId: number): Promise<Appointment[]> {
+    return Array.from(this.appointments.values()).filter(appointment => appointment.doctorId === doctorId);
+  }
+
+  async updateDoctorProfile(id: number, data: Partial<DoctorProfile>): Promise<DoctorProfile | undefined> {
+    const profile = this.doctorProfiles.get(id);
+    if (!profile) return undefined;
+
+    const updatedProfile = { ...profile, ...data };
+    this.doctorProfiles.set(id, updatedProfile);
+    return updatedProfile;
+  }
+
+  async getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined> {
+    return Array.from(this.payments.values()).find(payment => payment.appointmentId === appointmentId);
   }
 }
 
