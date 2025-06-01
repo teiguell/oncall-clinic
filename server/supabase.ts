@@ -1,13 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables are required');
+  console.warn('Supabase not configured - event logging disabled');
 }
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export const supabase = supabaseUrl && supabaseServiceKey ? 
+  createClient(supabaseUrl, supabaseServiceKey) : null;
 
 // Interface for event logging
 export interface EventLogEntry {
@@ -20,6 +21,11 @@ export interface EventLogEntry {
 
 // Create the event_log table if it doesn't exist
 export async function initializeEventLogTable() {
+  if (!supabase) {
+    console.log('Supabase not configured - skipping event log initialization');
+    return;
+  }
+  
   try {
     const { error } = await supabase.rpc('create_event_log_table_if_not_exists');
     
