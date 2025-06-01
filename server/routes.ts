@@ -42,6 +42,31 @@ export function registerRoutes(app: Express): Server {
     console.error('Failed to initialize event log table:', error);
   });
   
+  // Doctor availability endpoints
+  app.get('/api/doctors/available', async (req: Request, res: Response) => {
+    try {
+      const doctors = await storage.getAvailableDoctors();
+      res.json(doctors);
+    } catch (error) {
+      console.error('Error fetching available doctors:', error);
+      res.status(500).json({ message: 'Error fetching doctors' });
+    }
+  });
+
+  app.get('/api/doctors/:id', async (req: Request, res: Response) => {
+    try {
+      const doctorId = parseInt(req.params.id);
+      const doctor = await storage.getDoctorProfile(doctorId);
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+      res.json(doctor);
+    } catch (error) {
+      console.error('Error fetching doctor:', error);
+      res.status(500).json({ message: 'Error fetching doctor' });
+    }
+  });
+
   // Patient tracking endpoints (public - no authentication required)
   app.get('/api/tracking/:code', async (req: Request, res: Response) => {
     try {

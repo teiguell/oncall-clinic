@@ -72,6 +72,7 @@ export interface IStorage {
   getDoctorProfile(id: number): Promise<DoctorProfile | undefined>;
   getDoctorProfileByUserId(userId: number): Promise<DoctorProfile | undefined>;
   getAllDoctorProfiles(): Promise<DoctorProfile[]>;
+  getAvailableDoctors(): Promise<DoctorProfile[]>;
   getUnverifiedDoctorProfiles(): Promise<DoctorProfile[]>;
   createDoctorProfile(profile: InsertDoctorProfile): Promise<DoctorProfile>;
   updateDoctorProfile(id: number, data: Partial<DoctorProfile>): Promise<DoctorProfile | undefined>;
@@ -502,6 +503,11 @@ export class MemStorage implements IStorage {
     }
     
     return results;
+  }
+
+  async getAvailableDoctors(): Promise<DoctorProfile[]> {
+    return Array.from(this.doctorProfiles.values())
+      .filter(doctor => doctor.isAvailable === true && doctor.isVerified === true);
   }
 
   async searchDoctorsByLocation(lat: number, lng: number, maxDistance?: number, specialtyName?: string): Promise<Array<DoctorProfile & { distance: number }>> {
