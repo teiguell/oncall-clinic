@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
-import DirectApp from "./DirectApp";
+import App from "./App";
 import "./index.css";
 
 const rootElement = document.getElementById("root");
@@ -9,7 +9,7 @@ if (rootElement) {
   const reactRoot = createRoot(rootElement);
   reactRoot.render(
     <React.StrictMode>
-      <DirectApp />
+      <App />
     </React.StrictMode>
   );
 } else {

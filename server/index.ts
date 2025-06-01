@@ -39,20 +39,21 @@ async function main() {
   // Register API routes first
   const httpServer = registerRoutes(app);
 
-  // Serve functional HTML temporarily
-  const htmlPath = path.join(process.cwd(), 'static-oncall.html');
-  const functionalHtml = fs.readFileSync(htmlPath, 'utf8');
-  
-  app.get('/', (req: Request, res: Response) => {
-    res.setHeader('Content-Type', 'text/html');
-    res.send(functionalHtml);
-  });
-
   // Setup Vite development server for React app
   try {
     await setupVite(app, httpServer);
+    log("Vite development server initialized successfully");
   } catch (error) {
-    log("Vite setup failed, continuing with static HTML");
+    log("Vite setup failed, serving static fallback");
+    // Fallback to static HTML only if Vite fails
+    const htmlPath = path.join(process.cwd(), 'static-oncall.html');
+    if (fs.existsSync(htmlPath)) {
+      const functionalHtml = fs.readFileSync(htmlPath, 'utf8');
+      app.get('/', (req: Request, res: Response) => {
+        res.setHeader('Content-Type', 'text/html');
+        res.send(functionalHtml);
+      });
+    }
   }
 
   // Start server - use Replit's expected port
