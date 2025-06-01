@@ -26,7 +26,7 @@ const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   sessionStore: any;
-  
+
   // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -104,7 +104,7 @@ export interface IStorage {
   getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined>;
   createPayment(payment: InsertPayment): Promise<Payment>;
   updatePayment(id: number, data: Partial<Payment>): Promise<Payment | undefined>;
-  
+
   // Guest Patients
   createGuestPatient(guestPatient: z.infer<typeof import('@shared/schema').guestPatientSchema>): Promise<GuestPatient>;
 
@@ -256,6 +256,21 @@ export class MemStorage implements IStorage {
       createdAt: new Date()
     };
     this.users.set(1, adminUser);
+
+    // Add test patient user (plaintext password for testing)
+    const testPatientUser: User = {
+      id: 999,
+      email: "patient@test.com",
+      password: "test123", // Simple password for testing
+      name: "Test Patient",
+      phone: "+34600000000",
+      userType: "patient",
+      isVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    this.users.set(testPatientUser.id, testPatientUser);
   }
 
   // Users

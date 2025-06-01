@@ -16,7 +16,7 @@ import { Search, MapPin } from "lucide-react";
 
 export default function SearchSection() {
   const [, navigate] = useLocation();
-  const [specialty, setSpecialty] = useState<string>("");
+  const [specialty, setSpecialty] = useState<string>("1"); // Default to General Medicine
   const [location, setLocation] = useState<string>("");
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -48,9 +48,8 @@ export default function SearchSection() {
     // Prepare search params
     const searchParams = new URLSearchParams();
     
-    if (specialty && specialty !== "all") {
-      searchParams.append("specialty", specialty);
-    }
+    // Always include specialty (default to General Medicine)
+    searchParams.append("specialty", specialty || "1");
     
     if (date) {
       searchParams.append("date", date);
@@ -67,6 +66,11 @@ export default function SearchSection() {
         console.error("Error geocoding address:", error);
         searchParams.append("location", location);
       }
+    } else {
+      // If no location, use default coordinates (Madrid)
+      searchParams.append("latitude", "40.4168");
+      searchParams.append("longitude", "-3.7038");
+      searchParams.append("location", "Madrid, España");
     }
     
     // Navigate to search results page with query parameters

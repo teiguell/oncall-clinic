@@ -1,6 +1,8 @@
 import { Clock, Shield, MapPin, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import SearchSection from "@/components/home/search-section";
+import DoctorList from "@/components/home/doctor-list";
 
 export default function Home() {
   return (
@@ -120,6 +122,12 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Search Section */}
+        <SearchSection />
+
+        {/* Featured Doctors */}
+        <DoctorList />
 
         {/* CTA Section */}
         <section className="py-12 bg-blue-600 text-white">

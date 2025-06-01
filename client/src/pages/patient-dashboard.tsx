@@ -18,8 +18,8 @@ export default function PatientDashboard() {
     if (!isLoading) {
       if (!isAuthenticated) {
         navigate("/login");
-      } else if (user && user.userType !== "patient") {
-        navigate("/dashboard/doctor");
+      } else if (user && user.userType === "doctor") {
+        navigate("/doctor-dashboard");
       }
     }
   }, [isAuthenticated, user, isLoading, navigate]);

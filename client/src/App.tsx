@@ -53,12 +53,13 @@ function AppContent() {
           <Route path="/doctors" component={DoctorSearch} />
 
           {/* Protected Routes */}
-          <ProtectedRoute path="/dashboard/patient" component={PatientDashboard} />
-          <ProtectedRoute path="/dashboard/doctor" component={DoctorDashboard} />
+          <Route path="/dashboard/patient" component={PatientDashboard} />
+          <Route path="/dashboard/doctor" component={DoctorDashboard} />
+          <Route path="/doctor-dashboard" component={DoctorDashboard} />
           <ProtectedRoute path="/book/:doctorId" component={AppointmentBooking} />
           <ProtectedRoute path="/appointment/success" component={AppointmentSuccess} />
           <ProtectedRoute path="/profile" component={Profile} />
-          
+
           {/* Admin Routes */}
           <ProtectedRoute 
             path="/admin/doctors/verify" 
