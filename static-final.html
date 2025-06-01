@@ -481,7 +481,7 @@
                         📍 Track My Visit
                     </button>
                     <span style="color: #6b7280; font-size: 14px;">|</span>
-                    <a href="/doctor" style="color: #2563eb; text-decoration: none; font-weight: 600; padding: 8px 16px;">Doctor Portal</a>
+                    <a onclick="showPage('doctor-auth')" style="color: #2563eb; text-decoration: none; font-weight: 600; padding: 8px 16px; cursor: pointer;">Doctor Portal</a>
                 </div>
             </div>
         </div>
@@ -707,6 +707,424 @@
                 <p style="text-align: center; font-size: 0.9rem; color: #6b7280; margin-top: 1rem;" data-text="testMode">
                     Test mode - No real charges will be made
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Authentication Page -->
+    <div id="doctor-auth-page" class="page">
+        <div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; min-height: 80vh; align-items: center;">
+                
+                <!-- Left Column - Forms -->
+                <div style="background: white; border-radius: 16px; padding: 3rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h1 style="color: #1f2937; font-size: 2rem; margin-bottom: 0.5rem;">Doctor Portal</h1>
+                        <p style="color: #6b7280;">Access your professional dashboard</p>
+                    </div>
+
+                    <!-- Login/Register Toggle -->
+                    <div style="display: flex; background: #f3f4f6; border-radius: 12px; margin-bottom: 2rem; padding: 4px;">
+                        <button id="doctor-login-tab" onclick="showDoctorForm('login')" style="flex: 1; padding: 12px; border: none; background: #2563eb; color: white; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                            Sign In
+                        </button>
+                        <button id="doctor-register-tab" onclick="showDoctorForm('register')" style="flex: 1; padding: 12px; border: none; background: transparent; color: #6b7280; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                            Register
+                        </button>
+                    </div>
+
+                    <!-- Doctor Login Form -->
+                    <div id="doctor-login-form" class="doctor-form active">
+                        <form onsubmit="doctorLogin(event)" style="space-y: 1.5rem;">
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                    Email Address
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="doctor-login-email" 
+                                    placeholder="doctor@example.com" 
+                                    required
+                                    style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; transition: border-color 0.3s ease;"
+                                >
+                            </div>
+
+                            <div style="margin-bottom: 2rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                    Password
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="doctor-login-password" 
+                                    placeholder="Enter your password" 
+                                    required
+                                    style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; transition: border-color 0.3s ease;"
+                                >
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                style="width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease;"
+                            >
+                                Sign In to Dashboard
+                            </button>
+                        </form>
+
+                        <div style="text-align: center; margin-top: 1.5rem;">
+                            <p style="color: #6b7280; font-size: 14px;">
+                                Test Account: doctortest@oncall.clinic / password: pepe
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Registration Form -->
+                    <div id="doctor-register-form" class="doctor-form" style="display: none;">
+                        <form onsubmit="doctorRegister(event)" style="space-y: 1.5rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                        First Name
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="doctor-register-firstname" 
+                                        placeholder="John" 
+                                        required
+                                        style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;"
+                                    >
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                        Last Name
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="doctor-register-lastname" 
+                                        placeholder="Smith" 
+                                        required
+                                        style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;"
+                                    >
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                    Email Address
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="doctor-register-email" 
+                                    placeholder="doctor@example.com" 
+                                    required
+                                    style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;"
+                                >
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                    Phone Number
+                                </label>
+                                <input 
+                                    type="tel" 
+                                    id="doctor-register-phone" 
+                                    placeholder="+34 600 000 000" 
+                                    required
+                                    style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;"
+                                >
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                    Medical License Number
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="doctor-register-license" 
+                                    placeholder="ES123456789" 
+                                    required
+                                    style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;"
+                                >
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                                    Password
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="doctor-register-password" 
+                                    placeholder="Create a secure password" 
+                                    required
+                                    style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;"
+                                >
+                            </div>
+
+                            <div style="margin-bottom: 2rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px; color: #374151;">
+                                    <input type="checkbox" required style="width: 16px; height: 16px;">
+                                    I agree to the medical professional terms and verification process
+                                </label>
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                style="width: 100%; background: #10b981; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease;"
+                            >
+                                Submit Registration
+                            </button>
+                        </form>
+
+                        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-top: 1.5rem;">
+                            <p style="color: #92400e; font-size: 14px; margin: 0;">
+                                <strong>Note:</strong> All doctor registrations require medical license verification. 
+                                You'll be contacted within 24-48 hours for document verification.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Hero -->
+                <div style="text-align: center;">
+                    <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border-radius: 20px; padding: 3rem; color: white; margin-bottom: 2rem;">
+                        <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: white;">Join Our Medical Network</h2>
+                        <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">
+                            Provide quality healthcare services directly to patients' homes
+                        </p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                            <div style="text-align: center;">
+                                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 24px;">
+                                    💰
+                                </div>
+                                <h4 style="margin-bottom: 0.5rem; color: white;">Earn More</h4>
+                                <p style="font-size: 14px; opacity: 0.8; margin: 0;">85% of consultation fees</p>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 24px;">
+                                    🏠
+                                </div>
+                                <h4 style="margin-bottom: 0.5rem; color: white;">Flexible Work</h4>
+                                <p style="font-size: 14px; opacity: 0.8; margin: 0;">Set your own schedule</p>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 24px;">
+                                    📱
+                                </div>
+                                <h4 style="margin-bottom: 0.5rem; color: white;">Easy Management</h4>
+                                <p style="font-size: 14px; opacity: 0.8; margin: 0;">Digital tools & support</p>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 24px;">
+                                    🤝
+                                </div>
+                                <h4 style="margin-bottom: 0.5rem; color: white;">Full Support</h4>
+                                <p style="font-size: 14px; opacity: 0.8; margin: 0;">24/7 platform assistance</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border-radius: 12px; padding: 2rem;">
+                        <h3 style="color: #1f2937; margin-bottom: 1rem;">Requirements</h3>
+                        <ul style="text-align: left; color: #6b7280; line-height: 1.8;">
+                            <li>Valid medical license in Spain</li>
+                            <li>General medicine or family practice certification</li>
+                            <li>Professional liability insurance</li>
+                            <li>Clean medical practice record</li>
+                            <li>Willingness to provide home consultations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Dashboard Page -->
+    <div id="doctor-dashboard-page" class="page">
+        <div style="background: #f8fafc; min-height: 100vh;">
+            <!-- Dashboard Header -->
+            <div style="background: white; border-bottom: 1px solid #e5e7eb; padding: 1rem 0;">
+                <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="logo" onclick="showPage('home')" style="cursor: pointer;">
+                            <div class="logo-icon"></div>
+                            <div class="logo-text">OnCall Clinic</div>
+                        </div>
+                        <div style="height: 30px; width: 1px; background: #e5e7eb;"></div>
+                        <h2 style="color: #1f2937; margin: 0;">Doctor Dashboard</h2>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="text-align: right;">
+                            <div id="doctor-name" style="font-weight: 600; color: #1f2937;">Dr. Loading...</div>
+                            <div style="font-size: 14px; color: #6b7280;">Medical Professional</div>
+                        </div>
+                        <button onclick="doctorLogout()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container" style="padding: 2rem 0;">
+                <!-- Dashboard Stats -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <h3 style="color: #1f2937; margin: 0;">Today's Appointments</h3>
+                            <div style="background: #dbeafe; color: #1e40af; padding: 8px 12px; border-radius: 20px; font-size: 24px;">📅</div>
+                        </div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #2563eb;" id="today-appointments">0</div>
+                        <div style="font-size: 14px; color: #6b7280;">Scheduled for today</div>
+                    </div>
+
+                    <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <h3 style="color: #1f2937; margin: 0;">Total Earnings</h3>
+                            <div style="background: #d1fae5; color: #065f46; padding: 8px 12px; border-radius: 20px; font-size: 24px;">💰</div>
+                        </div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #10b981;" id="total-earnings">€0</div>
+                        <div style="font-size: 14px; color: #6b7280;">This month</div>
+                    </div>
+
+                    <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <h3 style="color: #1f2937; margin: 0;">Patient Rating</h3>
+                            <div style="background: #fef3c7; color: #92400e; padding: 8px 12px; border-radius: 20px; font-size: 24px;">⭐</div>
+                        </div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #f59e0b;" id="doctor-rating">4.8</div>
+                        <div style="font-size: 14px; color: #6b7280;">Average rating</div>
+                    </div>
+
+                    <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <h3 style="color: #1f2937; margin: 0;">Status</h3>
+                            <div style="background: #dcfdf7; color: #065f46; padding: 8px 12px; border-radius: 20px; font-size: 24px;">🟢</div>
+                        </div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #10b981;" id="doctor-status">Available</div>
+                        <button onclick="toggleAvailability()" style="background: #f3f4f6; color: #374151; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; margin-top: 0.5rem; cursor: pointer;">
+                            Toggle Status
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Dashboard Content -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                    <!-- Left Column - Appointments -->
+                    <div>
+                        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                                <h3 style="color: #1f2937; margin: 0;">Today's Schedule</h3>
+                                <button onclick="refreshAppointments()" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                    Refresh
+                                </button>
+                            </div>
+                            
+                            <div id="doctor-appointments">
+                                <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                                    <div style="font-size: 48px; margin-bottom: 1rem;">📅</div>
+                                    <p>No appointments scheduled for today</p>
+                                    <p style="font-size: 14px;">New appointments will appear here automatically</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Earnings Summary -->
+                        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                            <h3 style="color: #1f2937; margin-bottom: 1.5rem;">Earnings Summary</h3>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div style="background: #f8fafc; border-radius: 8px; padding: 1rem;">
+                                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 0.5rem;">Pending Payments</div>
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #f59e0b;" id="pending-earnings">€0</div>
+                                </div>
+                                
+                                <div style="background: #f8fafc; border-radius: 8px; padding: 1rem;">
+                                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 0.5rem;">Completed This Week</div>
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #10b981;" id="week-earnings">€0</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 1rem; padding: 1rem; background: #dbeafe; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #1e40af; margin-bottom: 0.5rem;">
+                                    <strong>Payment Processing:</strong>
+                                </div>
+                                <div style="font-size: 13px; color: #1e40af;">
+                                    Earnings are automatically transferred to your account within 24-48 hours after appointment completion via SEPA transfer.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Quick Actions & Profile -->
+                    <div>
+                        <!-- Quick Actions -->
+                        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
+                            <h3 style="color: #1f2937; margin-bottom: 1.5rem;">Quick Actions</h3>
+                            
+                            <div style="space-y: 1rem;">
+                                <button onclick="updateAvailability()" style="width: 100%; background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 1rem;">
+                                    📅 Update Availability
+                                </button>
+                                
+                                <button onclick="viewPatientHistory()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 1rem;">
+                                    👥 Patient History
+                                </button>
+                                
+                                <button onclick="downloadEarningsReport()" style="width: 100%; background: #6b7280; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 1rem;">
+                                    📊 Earnings Report
+                                </button>
+                                
+                                <button onclick="contactSupport()" style="width: 100%; background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    💬 Contact Support
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Profile Summary -->
+                        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                            <h3 style="color: #1f2937; margin-bottom: 1.5rem;">Profile Summary</h3>
+                            
+                            <div id="doctor-profile-summary">
+                                <div style="text-align: center; margin-bottom: 1.5rem;">
+                                    <div style="width: 80px; height: 80px; background: #e5e7eb; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                                        👨‍⚕️
+                                    </div>
+                                    <div style="font-weight: 600; color: #1f2937;" id="profile-name">Dr. Loading...</div>
+                                    <div style="font-size: 14px; color: #6b7280;">General Medicine</div>
+                                </div>
+                                
+                                <div style="space-y: 0.75rem;">
+                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6;">
+                                        <span style="color: #6b7280;">Experience:</span>
+                                        <span style="color: #1f2937; font-weight: 600;" id="profile-experience">0 years</span>
+                                    </div>
+                                    
+                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6;">
+                                        <span style="color: #6b7280;">Consultations:</span>
+                                        <span style="color: #1f2937; font-weight: 600;" id="profile-consultations">0</span>
+                                    </div>
+                                    
+                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6;">
+                                        <span style="color: #6b7280;">License:</span>
+                                        <span style="color: #1f2937; font-weight: 600;" id="profile-license">Verified ✓</span>
+                                    </div>
+                                    
+                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                        <span style="color: #6b7280;">Member since:</span>
+                                        <span style="color: #1f2937; font-weight: 600;" id="profile-member-since">2024</span>
+                                    </div>
+                                </div>
+
+                                <button onclick="editProfile()" style="width: 100%; background: #f3f4f6; color: #374151; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 1rem;">
+                                    ✏️ Edit Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1691,6 +2109,318 @@ Thank you for choosing OnCall Clinic!`);
                 alert('Error downloading invoice: ' + error.message);
             }
         }
+
+        // Doctor Authentication Functions
+        function showDoctorForm(formType) {
+            const loginTab = document.getElementById('doctor-login-tab');
+            const registerTab = document.getElementById('doctor-register-tab');
+            const loginForm = document.getElementById('doctor-login-form');
+            const registerForm = document.getElementById('doctor-register-form');
+
+            if (formType === 'login') {
+                loginTab.style.background = '#2563eb';
+                loginTab.style.color = 'white';
+                registerTab.style.background = 'transparent';
+                registerTab.style.color = '#6b7280';
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                registerTab.style.background = '#10b981';
+                registerTab.style.color = 'white';
+                loginTab.style.background = 'transparent';
+                loginTab.style.color = '#6b7280';
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            }
+        }
+
+        async function doctorLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('doctor-login-email').value;
+            const password = document.getElementById('doctor-login-password').value;
+
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/doctor/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // Store doctor session
+                sessionStorage.setItem('doctor_session', JSON.stringify(data.doctor));
+                
+                // Redirect to dashboard
+                showPage('doctor-dashboard');
+                loadDoctorDashboard();
+
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        }
+
+        async function doctorRegister(event) {
+            event.preventDefault();
+            
+            const firstName = document.getElementById('doctor-register-firstname').value;
+            const lastName = document.getElementById('doctor-register-lastname').value;
+            const email = document.getElementById('doctor-register-email').value;
+            const phone = document.getElementById('doctor-register-phone').value;
+            const license = document.getElementById('doctor-register-license').value;
+            const password = document.getElementById('doctor-register-password').value;
+
+            if (!firstName || !lastName || !email || !phone || !license || !password) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/doctor/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firstName,
+                        lastName,
+                        email,
+                        phoneNumber: phone,
+                        licenseNumber: license,
+                        password,
+                        education: 'Medical Degree',
+                        experience: 0,
+                        bio: `Dr. ${firstName} ${lastName} - General Medicine Practitioner`,
+                        basePrice: 80.00
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed');
+                }
+
+                alert('Registration submitted successfully! You will be contacted within 24-48 hours for license verification.');
+                showDoctorForm('login');
+                
+                // Clear form
+                document.getElementById('doctor-register-form').reset();
+
+            } catch (error) {
+                alert('Registration failed: ' + error.message);
+            }
+        }
+
+        // Dashboard Functions
+        async function loadDoctorDashboard() {
+            try {
+                const doctorSession = JSON.parse(sessionStorage.getItem('doctor_session') || '{}');
+                
+                if (!doctorSession.id) {
+                    showPage('doctor-auth');
+                    return;
+                }
+
+                // Update doctor name in header and profile
+                document.getElementById('doctor-name').textContent = `Dr. ${doctorSession.firstName} ${doctorSession.lastName}`;
+                document.getElementById('profile-name').textContent = `Dr. ${doctorSession.firstName} ${doctorSession.lastName}`;
+                
+                // Load dashboard data
+                await Promise.all([
+                    loadTodayAppointments(doctorSession.id),
+                    loadDoctorEarnings(doctorSession.id),
+                    loadDoctorProfile(doctorSession.id)
+                ]);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showPage('doctor-auth');
+            }
+        }
+
+        async function loadTodayAppointments(doctorId) {
+            try {
+                const response = await fetch(`/api/doctor/${doctorId}/appointments/today`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('today-appointments').textContent = data.appointments.length;
+                    displayAppointments(data.appointments);
+                } else {
+                    document.getElementById('today-appointments').textContent = '0';
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                document.getElementById('today-appointments').textContent = '0';
+            }
+        }
+
+        async function loadDoctorEarnings(doctorId) {
+            try {
+                const response = await fetch(`/api/doctor/${doctorId}/earnings`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('total-earnings').textContent = `€${data.monthlyEarnings || 0}`;
+                    document.getElementById('pending-earnings').textContent = `€${data.pendingEarnings || 0}`;
+                    document.getElementById('week-earnings').textContent = `€${data.weeklyEarnings || 0}`;
+                } else {
+                    document.getElementById('total-earnings').textContent = '€0';
+                    document.getElementById('pending-earnings').textContent = '€0';
+                    document.getElementById('week-earnings').textContent = '€0';
+                }
+            } catch (error) {
+                console.error('Error loading earnings:', error);
+            }
+        }
+
+        async function loadDoctorProfile(doctorId) {
+            try {
+                const response = await fetch(`/api/doctor/${doctorId}/profile`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const profile = data.profile;
+                    document.getElementById('doctor-rating').textContent = profile.averageRating || '4.8';
+                    document.getElementById('profile-experience').textContent = `${profile.experience || 0} years`;
+                    document.getElementById('profile-consultations').textContent = profile.totalConsultations || '0';
+                    document.getElementById('profile-license').textContent = profile.isVerified ? 'Verified ✓' : 'Pending';
+                    document.getElementById('profile-member-since').textContent = new Date(profile.createdAt).getFullYear();
+                    
+                    // Update status
+                    const statusElement = document.getElementById('doctor-status');
+                    if (profile.isAvailable) {
+                        statusElement.textContent = 'Available';
+                        statusElement.style.color = '#10b981';
+                    } else {
+                        statusElement.textContent = 'Unavailable';
+                        statusElement.style.color = '#ef4444';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        function displayAppointments(appointments) {
+            const container = document.getElementById('doctor-appointments');
+            
+            if (appointments.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                        <div style="font-size: 48px; margin-bottom: 1rem;">📅</div>
+                        <p>No appointments scheduled for today</p>
+                        <p style="font-size: 14px;">New appointments will appear here automatically</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const appointmentsHtml = appointments.map(appointment => `
+                <div style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; border-left: 4px solid #2563eb;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <h4 style="color: #1f2937; margin: 0 0 0.5rem 0;">${appointment.patientName || 'Patient'}</h4>
+                            <p style="color: #6b7280; margin: 0; font-size: 14px;">
+                                📍 ${appointment.location || 'Home visit'} • 
+                                ⏰ ${appointment.timeSlot || 'Time TBD'} • 
+                                💰 €${appointment.totalPrice || '80.00'}
+                            </p>
+                        </div>
+                        <span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            ${appointment.status || 'Confirmed'}
+                        </span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="startAppointment(${appointment.id})" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                            Start Visit
+                        </button>
+                        <button onclick="viewAppointmentDetails(${appointment.id})" style="background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                            Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = appointmentsHtml;
+        }
+
+        // Dashboard Actions
+        async function toggleAvailability() {
+            try {
+                const doctorSession = JSON.parse(sessionStorage.getItem('doctor_session') || '{}');
+                const response = await fetch(`/api/doctor/${doctorSession.id}/toggle-availability`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    await loadDoctorProfile(doctorSession.id);
+                } else {
+                    alert('Failed to update availability');
+                }
+            } catch (error) {
+                alert('Error updating availability: ' + error.message);
+            }
+        }
+
+        async function refreshAppointments() {
+            const doctorSession = JSON.parse(sessionStorage.getItem('doctor_session') || '{}');
+            await loadTodayAppointments(doctorSession.id);
+        }
+
+        function startAppointment(appointmentId) {
+            alert(`Starting appointment ${appointmentId}. This would typically open the appointment management interface.`);
+        }
+
+        function viewAppointmentDetails(appointmentId) {
+            alert(`Viewing details for appointment ${appointmentId}. This would show patient information and appointment history.`);
+        }
+
+        function updateAvailability() {
+            alert('Update Availability: This would open a calendar interface to set available time slots.');
+        }
+
+        function viewPatientHistory() {
+            alert('Patient History: This would show a list of previous patients and consultation history.');
+        }
+
+        function downloadEarningsReport() {
+            alert('Earnings Report: This would generate and download a PDF report of earnings and payments.');
+        }
+
+        function contactSupport() {
+            alert('Contact Support: This would open a chat interface or email form to contact platform support.');
+        }
+
+        function editProfile() {
+            alert('Edit Profile: This would open a form to update doctor profile information and settings.');
+        }
+
+        function doctorLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('doctor_session');
+                showPage('home');
+            }
+        }
+
+        // Initialize dashboard if doctor is logged in
+        window.addEventListener('load', function() {
+            const doctorSession = sessionStorage.getItem('doctor_session');
+            if (doctorSession && window.location.hash === '#doctor-dashboard') {
+                showPage('doctor-dashboard');
+                loadDoctorDashboard();
+            }
+        });
 
         // Initialize
         console.log('OnCall Clinic Alpha Version Loaded');

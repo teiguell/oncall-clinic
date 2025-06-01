@@ -3306,6 +3306,231 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Doctor Authentication Endpoints
+  
+  // Doctor login
+  app.post('/api/doctor/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
+      }
+
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user || user.userType !== 'doctor') {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+
+      // In a real app, you'd verify the password hash here
+      // For testing, we'll use the test account
+      if (email === 'doctortest@oncall.clinic' && password === 'pepe') {
+        // Get doctor profile
+        const doctorProfile = await storage.getDoctorProfileByUserId(user.id);
+        
+        if (!doctorProfile) {
+          return res.status(404).json({ message: 'Doctor profile not found' });
+        }
+
+        // Create session data
+        const doctorData = {
+          id: doctorProfile.id,
+          userId: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isVerified: doctorProfile.isVerified,
+          isAvailable: doctorProfile.isAvailable,
+          licenseNumber: doctorProfile.licenseNumber
+        };
+
+        res.json({
+          success: true,
+          message: 'Login successful',
+          doctor: doctorData
+        });
+      } else {
+        res.status(401).json({ message: 'Invalid credentials' });
+      }
+
+    } catch (error) {
+      console.error('Doctor login error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Get doctor's today appointments
+  app.get('/api/doctor/:doctorId/appointments/today', async (req, res) => {
+    try {
+      const doctorId = parseInt(req.params.doctorId);
+      
+      if (isNaN(doctorId)) {
+        return res.status(400).json({ message: 'Invalid doctor ID' });
+      }
+
+      // Get today's date range
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      // Get all appointments for this doctor
+      const appointments = await storage.getAppointmentsByDoctor(doctorId);
+      
+      // Filter for today's appointments
+      const todayAppointments = appointments.filter(appointment => {
+        const appointmentDate = new Date(appointment.appointmentDate);
+        return appointmentDate >= today && appointmentDate < tomorrow;
+      });
+
+      // Enhance with patient information
+      const enhancedAppointments = [];
+      for (const appointment of todayAppointments) {
+        const patientProfile = await storage.getPatientProfile(appointment.patientId);
+        const patientUser = patientProfile ? await storage.getUser(patientProfile.userId) : null;
+        
+        enhancedAppointments.push({
+          ...appointment,
+          patientName: patientUser ? `${patientUser.firstName} ${patientUser.lastName}` : 'Unknown Patient',
+          patientPhone: patientUser?.phoneNumber || 'N/A'
+        });
+      }
+
+      res.json({
+        success: true,
+        appointments: enhancedAppointments
+      });
+
+    } catch (error) {
+      console.error('Error fetching doctor appointments:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Get doctor's earnings
+  app.get('/api/doctor/:doctorId/earnings', async (req, res) => {
+    try {
+      const doctorId = parseInt(req.params.doctorId);
+      
+      if (isNaN(doctorId)) {
+        return res.status(400).json({ message: 'Invalid doctor ID' });
+      }
+
+      // Get doctor profile
+      const doctorProfile = await storage.getDoctorProfile(doctorId);
+      if (!doctorProfile) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+
+      // Calculate earnings from Revolut transactions
+      const revolutTransactions = Array.from((storage as any).revolutTransactions.values())
+        .filter((t: any) => t.doctorId === doctorId);
+
+      const now = new Date();
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const thisWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+      let monthlyEarnings = 0;
+      let weeklyEarnings = 0;
+      let pendingEarnings = 0;
+
+      revolutTransactions.forEach((transaction: any) => {
+        const transactionDate = new Date(transaction.createdAt);
+        
+        if (transaction.paymentStatus === 'completed') {
+          if (transactionDate >= thisMonth) {
+            monthlyEarnings += transaction.doctorEarning || 0;
+          }
+          if (transactionDate >= thisWeek) {
+            weeklyEarnings += transaction.doctorEarning || 0;
+          }
+        } else if (transaction.paymentStatus === 'pending') {
+          pendingEarnings += transaction.doctorEarning || 0;
+        }
+      });
+
+      res.json({
+        success: true,
+        monthlyEarnings: monthlyEarnings.toFixed(2),
+        weeklyEarnings: weeklyEarnings.toFixed(2),
+        pendingEarnings: pendingEarnings.toFixed(2),
+        totalEarnings: doctorProfile.totalEarnings || 0
+      });
+
+    } catch (error) {
+      console.error('Error fetching doctor earnings:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Get doctor profile
+  app.get('/api/doctor/:doctorId/profile', async (req, res) => {
+    try {
+      const doctorId = parseInt(req.params.doctorId);
+      
+      if (isNaN(doctorId)) {
+        return res.status(400).json({ message: 'Invalid doctor ID' });
+      }
+
+      const doctorProfile = await storage.getDoctorProfile(doctorId);
+      if (!doctorProfile) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+
+      // Get user info
+      const user = await storage.getUser(doctorProfile.userId);
+
+      // Count total consultations
+      const appointments = await storage.getAppointmentsByDoctor(doctorId);
+      const completedAppointments = appointments.filter(apt => apt.status === 'completed');
+
+      res.json({
+        success: true,
+        profile: {
+          ...doctorProfile,
+          createdAt: user?.createdAt || new Date(),
+          totalConsultations: completedAppointments.length
+        }
+      });
+
+    } catch (error) {
+      console.error('Error fetching doctor profile:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Toggle doctor availability
+  app.post('/api/doctor/:doctorId/toggle-availability', async (req, res) => {
+    try {
+      const doctorId = parseInt(req.params.doctorId);
+      
+      if (isNaN(doctorId)) {
+        return res.status(400).json({ message: 'Invalid doctor ID' });
+      }
+
+      const doctorProfile = await storage.getDoctorProfile(doctorId);
+      if (!doctorProfile) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+
+      // Toggle availability
+      const updatedProfile = await storage.updateDoctorProfile(doctorId, {
+        isAvailable: !doctorProfile.isAvailable
+      });
+
+      res.json({
+        success: true,
+        isAvailable: updatedProfile?.isAvailable,
+        message: `Status updated to ${updatedProfile?.isAvailable ? 'Available' : 'Unavailable'}`
+      });
+
+    } catch (error) {
+      console.error('Error toggling availability:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   // Add basic user authentication endpoint
   app.get('/api/user', (req, res) => {
     res.status(401).json({ message: "Not authenticated" });

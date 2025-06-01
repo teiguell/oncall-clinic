@@ -1013,6 +1013,32 @@ export class MemStorage implements IStorage {
     this.patientFeedback.set(id, updatedFeedback);
     return updatedFeedback;
   }
+
+  // Additional methods for doctor authentication
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email.toLowerCase() === email.toLowerCase());
+  }
+
+  async getDoctorProfileByUserId(userId: number): Promise<DoctorProfile | undefined> {
+    return Array.from(this.doctorProfiles.values()).find(profile => profile.userId === userId);
+  }
+
+  async getAppointmentsByDoctor(doctorId: number): Promise<Appointment[]> {
+    return Array.from(this.appointments.values()).filter(appointment => appointment.doctorId === doctorId);
+  }
+
+  async updateDoctorProfile(id: number, data: Partial<DoctorProfile>): Promise<DoctorProfile | undefined> {
+    const profile = this.doctorProfiles.get(id);
+    if (!profile) return undefined;
+
+    const updatedProfile = { ...profile, ...data };
+    this.doctorProfiles.set(id, updatedProfile);
+    return updatedProfile;
+  }
+
+  async getPaymentByAppointmentId(appointmentId: number): Promise<Payment | undefined> {
+    return Array.from(this.payments.values()).find(payment => payment.appointmentId === appointmentId);
+  }
 }
 
 export const storage = new MemStorage();
