@@ -12,7 +12,7 @@ export default function DoctorList() {
 
   // Fetch featured doctors (limited to 3 for homepage)
   const { data: doctors = [], isLoading } = useQuery<DoctorProfile[]>({
-    queryKey: ['/api/doctors', { available: true }],
+    queryKey: ['/api/doctors/available'],
   });
 
   // Calculate pagination values

@@ -97,6 +97,45 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Doctor profile endpoint for authenticated doctors
+  app.get('/api/doctor/profile', async (req: Request, res: Response) => {
+    try {
+      if (!req.user || req.user.userType !== 'doctor') {
+        return res.status(401).json({ message: 'Unauthorized - Doctor access required' });
+      }
+      
+      const doctor = await storage.getDoctorByUserId(req.user.id);
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor profile not found' });
+      }
+      
+      res.json(doctor);
+    } catch (error) {
+      console.error('Error fetching doctor profile:', error);
+      res.status(500).json({ message: 'Error fetching doctor profile' });
+    }
+  });
+
+  // Doctor appointments endpoint
+  app.get('/api/appointments/doctor', async (req: Request, res: Response) => {
+    try {
+      if (!req.user || req.user.userType !== 'doctor') {
+        return res.status(401).json({ message: 'Unauthorized - Doctor access required' });
+      }
+      
+      const doctor = await storage.getDoctorByUserId(req.user.id);
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor profile not found' });
+      }
+      
+      const appointments = await storage.getAppointmentsByDoctorId(doctor.id);
+      res.json(appointments);
+    } catch (error) {
+      console.error('Error fetching doctor appointments:', error);
+      res.status(500).json({ message: 'Error fetching appointments' });
+    }
+  });
+
   // Patient tracking endpoints (public - no authentication required)
   app.get('/api/tracking/:code', async (req: Request, res: Response) => {
     try {
