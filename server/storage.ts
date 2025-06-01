@@ -1015,6 +1015,46 @@ export class MemStorage implements IStorage {
     this.complaints.set(id, updatedComplaint);
     return updatedComplaint;
   }
+
+  // Admin Methods
+  async getAllDoctors(): Promise<Array<DoctorProfile & { user: User }>> {
+    const doctors = Array.from(this.doctorProfiles.values());
+    return doctors.map(doctor => {
+      const user = this.users.get(doctor.userId);
+      return { ...doctor, user: user! };
+    });
+  }
+
+  async getAllPatients(): Promise<Array<PatientProfile & { user: User }>> {
+    const patients = Array.from(this.patientProfiles.values());
+    return patients.map(patient => {
+      const user = this.users.get(patient.userId);
+      return { ...patient, user: user! };
+    });
+  }
+
+  async updateDoctorVerification(doctorId: number, verified: boolean): Promise<void> {
+    const doctor = this.doctorProfiles.get(doctorId);
+    if (doctor) {
+      doctor.isVerified = verified;
+      this.doctorProfiles.set(doctorId, doctor);
+    }
+  }
+
+  async updateUserStatus(userId: number, active: boolean): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.emailVerified = active;
+      this.users.set(userId, user);
+    }
+    
+    // Also update doctor availability if it's a doctor
+    const doctorProfile = Array.from(this.doctorProfiles.values()).find(d => d.userId === userId);
+    if (doctorProfile) {
+      doctorProfile.isAvailable = active;
+      this.doctorProfiles.set(doctorProfile.id, doctorProfile);
+    }
+  }
 }
 
 export const storage = new MemStorage();

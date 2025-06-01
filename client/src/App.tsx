@@ -25,6 +25,8 @@ import ForgotPassword from "@/pages/forgot-password";
 import Verify from "@/pages/verify";
 import AdminDoctorVerification from "@/pages/admin-doctor-verification";
 import AdminTraceability from "@/pages/admin-traceability";
+import AdminPanel from "@/pages/admin-panel";
+import AdminAccessButton from "@/components/admin/admin-access-button";
 import { ProtectedRoute } from "@/lib/protected-route";
 
 // Legal Pages
@@ -78,6 +80,7 @@ function AppContent() {
           <ProtectedRoute path="/profile" component={Profile} />
 
           {/* Admin Routes */}
+          <Route path="/admin" component={AdminPanel} />
           <ProtectedRoute 
             path="/admin/doctors/verify" 
             component={AdminDoctorVerification}
@@ -92,6 +95,7 @@ function AppContent() {
         </Switch>
       </main>
       <Footer />
+      <AdminAccessButton />
       <Toaster />
     </div>
   );
