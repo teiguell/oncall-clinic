@@ -60,35 +60,35 @@ export default function Home() {
         {/* How It Works Section */}
         <section className="py-12 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">Cómo funciona</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="text-center">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   1
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Find a Doctor</h3>
-                <p className="text-gray-600">Search for available doctors by specialty or location.</p>
+                <h3 className="text-lg font-semibold mb-2">Busca un Médico</h3>
+                <p className="text-gray-600">Encuentra médicos disponibles por especialidad o ubicación.</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   2
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Book an Appointment</h3>
-                <p className="text-gray-600">Select a convenient time and provide your address.</p>
+                <h3 className="text-lg font-semibold mb-2">Reserva una Cita</h3>
+                <p className="text-gray-600">Selecciona un horario conveniente y proporciona tu dirección.</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   3
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Doctor Visits You</h3>
-                <p className="text-gray-600">The doctor arrives at your location at the scheduled time.</p>
+                <h3 className="text-lg font-semibold mb-2">El Médico te Visita</h3>
+                <p className="text-gray-600">El médico llega a tu ubicación en el horario programado.</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   4
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Receive Treatment</h3>
-                <p className="text-gray-600">Get professional medical care in the comfort of your home.</p>
+                <h3 className="text-lg font-semibold mb-2">Recibe Tratamiento</h3>
+                <p className="text-gray-600">Obtén atención médica profesional en la comodidad de tu hogar.</p>
               </div>
             </div>
           </div>
@@ -99,21 +99,21 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="text-center lg:text-left">
-                <h3 className="text-2xl font-bold mb-4">Convenience</h3>
+                <h3 className="text-2xl font-bold mb-4">Comodidad</h3>
                 <p className="text-gray-600">
-                  Receive medical care without leaving your home. Our doctors come to you when you need them.
+                  Recibe atención médica sin salir de casa. Nuestros médicos vienen a ti cuando los necesitas.
                 </p>
               </div>
               <div className="text-center lg:text-left">
-                <h3 className="text-2xl font-bold mb-4">Quality Care</h3>
+                <h3 className="text-2xl font-bold mb-4">Atención de Calidad</h3>
                 <p className="text-gray-600">
-                  All our doctors are certified professionals with extensive experience in home medical visits.
+                  Todos nuestros médicos son profesionales certificados con amplia experiencia en visitas médicas domiciliarias.
                 </p>
               </div>
               <div className="text-center lg:text-left">
-                <h3 className="text-2xl font-bold mb-4">Safety First</h3>
+                <h3 className="text-2xl font-bold mb-4">Seguridad Primero</h3>
                 <p className="text-gray-600">
-                  Strict health protocols and verification processes to ensure your safety and peace of mind.
+                  Protocolos sanitarios estrictos y procesos de verificación para garantizar tu seguridad y tranquilidad.
                 </p>
               </div>
             </div>
@@ -129,19 +129,19 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-12 bg-blue-600 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
+            <h2 className="text-3xl font-bold mb-4">¿Listo para comenzar?</h2>
             <p className="text-xl mb-8 text-blue-100">
-              Find a qualified doctor near you and book your appointment today.
+              Encuentra un médico cualificado cerca de ti y reserva tu cita hoy.
             </p>
             <div className="space-x-4">
               <Link href="/doctors">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                  Find a Doctor
+                  Buscar Médico
                 </Button>
               </Link>
               <Link href="/register">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                  Sign Up
+                  Registrarse
                 </Button>
               </Link>
             </div>
