@@ -329,14 +329,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         success: true,
-        user: {
-          id: user.id,
-          email: user.email,
+        doctor: {
+          id: doctorProfile.id,
+          userId: user.id,
           firstName: user.firstName,
           lastName: user.lastName,
-          userType: user.userType
-        },
-        profile: doctorProfile
+          email: user.email,
+          isVerified: doctorProfile.isVerified,
+          isAvailable: doctorProfile.isAvailable,
+          licenseNumber: doctorProfile.licenseNumber
+        }
       });
 
     } catch (error) {
