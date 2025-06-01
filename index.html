@@ -3,116 +3,507 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnCall Clinic - Versión de Emergencia</title>
+    <title>OnCall Clinic - Médicos a Domicilio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f7fa;
-            color: #333;
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        h1 {
-            color: #0070f3;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
+        .card-hover {
+            transition: all 0.3s ease;
         }
-        .logo {
-            display: block;
-            width: 150px;
-            margin: 0 auto 1rem;
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        .card {
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .specialty-tag {
+            background: #f0f4ff;
+            color: #6366f1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .doctor-card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
             padding: 20px;
-            margin-bottom: 20px;
-        }
-        .status {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #10b981;
-            margin-right: 8px;
-        }
-        footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eaeaea;
-            font-size: 0.9rem;
-            color: #666;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
         }
     </style>
 </head>
-<body>
-    <main>
-        <h1>OnCall Clinic</h1>
-        <p style="text-align: center;">Cuidado médico a domicilio | In-home Medical Care</p>
-        
-        <div class="card">
-            <h2>Estado del Sistema</h2>
-            <div class="status">
-                <div class="status-dot"></div>
-                <div>API de servicios médicos activa</div>
-            </div>
-            <div class="status">
-                <div class="status-dot"></div>
-                <div>Versión de prueba SANDBOX activa</div>
-            </div>
-            <div class="status">
-                <div class="status-dot"></div>
-                <div>Sistema de citas funcionando correctamente</div>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-user-md text-2xl text-indigo-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">OnCall Clinic</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#como-funciona" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Cómo funciona</a>
+                    <a href="#servicios" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Servicios</a>
+                    <a href="#" onclick="showDoctorLogin()" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium">Portal Médico</a>
+                    <button class="btn-primary" onclick="emergencyCall()">Emergencia</button>
+                </div>
             </div>
         </div>
-        
-        <div class="card">
-            <h2>Versión Alpha</h2>
-            <p>Estás visualizando una versión mínima de emergencia de OnCall Clinic para problemas de diagnóstico.</p>
-            <p>La aplicación principal está siendo cargada en segundo plano.</p>
+    </nav>
+
+    <!-- Hero Section with Integrated Doctor Search -->
+    <section class="gradient-bg pt-20 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Médicos a tu Domicilio
+                <span class="block text-2xl md:text-3xl font-normal mt-2 opacity-90">
+                    Atención médica profesional en Islas Baleares
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-12 opacity-90 max-w-3xl mx-auto">
+                Conectamos pacientes con médicos verificados para consultas domiciliarias. 
+                Rápido, seguro y profesional.
+            </p>
+
+            <!-- Integrated Search Form -->
+            <div class="bg-white rounded-2xl p-6 shadow-2xl max-w-4xl mx-auto mb-8">
+                <div class="text-gray-900 mb-4">
+                    <h3 class="text-2xl font-bold mb-2">Encuentra tu médico ahora</h3>
+                    <p class="text-gray-600">Servicios disponibles en Palma de Mallorca y alrededores</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ubicación</label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="locationInput"
+                                value="Palma de Mallorca, Baleares"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                readonly
+                            >
+                            <i class="fas fa-map-marker-alt absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Especialidad</label>
+                        <select 
+                            id="specialtySelect"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        >
+                            <option value="">Todas las especialidades</option>
+                            <option value="general">Medicina General</option>
+                            <option value="pediatria">Pediatría</option>
+                            <option value="cardiologia">Cardiología</option>
+                            <option value="dermatologia">Dermatología</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Disponibilidad</label>
+                        <select 
+                            id="availabilitySelect"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        >
+                            <option value="now">Disponible ahora</option>
+                            <option value="today">Hoy</option>
+                            <option value="tomorrow">Mañana</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button 
+                    onclick="searchDoctors()"
+                    class="btn-primary w-full py-4 text-lg"
+                >
+                    <i class="fas fa-search mr-2"></i>
+                    Buscar Médicos Disponibles
+                </button>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <div class="text-center">
+                    <div class="text-3xl font-bold">24+</div>
+                    <div class="text-sm opacity-75">Médicos Verificados</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">24/7</div>
+                    <div class="text-sm opacity-75">Disponibilidad</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">30min</div>
+                    <div class="text-sm opacity-75">Tiempo Promedio</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">4.9★</div>
+                    <div class="text-sm opacity-75">Calificación</div>
+                </div>
+            </div>
         </div>
-        
-        <div class="card">
-            <h2>Prueba de Disponibilidad</h2>
-            <p>La versión de prueba (sandbox) está diseñada para funcionar sin conectividad externa.</p>
-            <p>Área geográfica de prueba: Ibiza, Islas Baleares</p>
+    </section>
+
+    <!-- Search Results -->
+    <section id="searchResults" class="py-12 hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Médicos Disponibles en tu Zona</h2>
+            <div id="doctorsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Doctors will be loaded here -->
+            </div>
         </div>
-    </main>
-    
-    <footer>
-        <p>© 2025 OnCall Clinic - Versión Alpha 0.9.5</p>
+    </section>
+
+    <!-- How it Works -->
+    <section id="como-funciona" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Cómo Funciona</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center card-hover">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">1. Busca</h3>
+                    <p class="text-gray-600">Selecciona la especialidad médica que necesitas y confirma tu ubicación</p>
+                </div>
+                <div class="text-center card-hover">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-calendar-check text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">2. Reserva</h3>
+                    <p class="text-gray-600">Elige tu médico preferido y agenda tu cita para hoy mismo</p>
+                </div>
+                <div class="text-center card-hover">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-md text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">3. Recibe Atención</h3>
+                    <p class="text-gray-600">El médico llega a tu domicilio con todo lo necesario para la consulta</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="servicios" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Nuestros Servicios</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-stethoscope text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Medicina General</h3>
+                    <p class="text-gray-600 text-sm">Consultas generales y diagnósticos desde 80€</p>
+                </div>
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-baby text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Pediatría</h3>
+                    <p class="text-gray-600 text-sm">Atención especializada para niños desde 90€</p>
+                </div>
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-heartbeat text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Cardiología</h3>
+                    <p class="text-gray-600 text-sm">Cuidado del corazón desde 120€</p>
+                </div>
+                <div class="doctor-card card-hover text-center">
+                    <i class="fas fa-allergies text-3xl text-indigo-600 mb-4"></i>
+                    <h3 class="font-semibold mb-2">Dermatología</h3>
+                    <p class="text-gray-600 text-sm">Tratamiento de la piel desde 100€</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doctor Login Modal -->
+    <div id="doctorLoginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Portal Médico</h2>
+                    <button onclick="closeDoctorLogin()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="doctorLoginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input 
+                            type="email" 
+                            id="doctorEmail" 
+                            value="doctortest@oncall.clinic"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                        <input 
+                            type="password" 
+                            id="doctorPassword" 
+                            value="pepe"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn-primary w-full">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Iniciar Sesión
+                    </button>
+                </form>
+                
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-700">
+                        <strong>Credenciales de prueba:</strong><br>
+                        Email: doctortest@oncall.clinic<br>
+                        Contraseña: pepe
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-user-md text-2xl mr-2"></i>
+                        <span class="text-xl font-bold">OnCall Clinic</span>
+                    </div>
+                    <p class="text-gray-400">Conectando pacientes con médicos profesionales para atención domiciliaria en Islas Baleares.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Servicios</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Medicina General - 80€</li>
+                        <li>Pediatría - 90€</li>
+                        <li>Cardiología - 120€</li>
+                        <li>Dermatología - 100€</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Zona de Cobertura</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Palma de Mallorca</li>
+                        <li>Calvià</li>
+                        <li>Llucmajor</li>
+                        <li>Marratxí</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Contacto</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-phone mr-2"></i>+34 900 123 456</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@oncallclinic.es</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>Palma, Baleares</li>
+                        <li><i class="fas fa-clock mr-2"></i>24/7 Disponible</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 OnCall Clinic. Todos los derechos reservados. Versión Alpha - Solo Baleares</p>
+            </div>
+        </div>
     </footer>
-    
+
     <script>
-        // Script básico para verificar funcionalidad
-        console.log("Página de diagnóstico cargada correctamente");
-        
-        // Intentar hacer un ping a la API
-        fetch('/api/health')
-            .then(response => response.json())
-            .then(data => {
-                console.log("API health check success:", data);
-                // Actualizar el UI con estado del servidor
-                document.querySelectorAll('.status-dot').forEach(dot => {
-                    dot.style.backgroundColor = '#10b981'; // verde
-                });
-            })
-            .catch(error => {
-                console.error("API health check failed:", error);
-                // Actualizar el UI con estado de error
-                document.querySelectorAll('.status-dot').forEach(dot => {
-                    dot.style.backgroundColor = '#ef4444'; // rojo
-                });
-            });
+        // Sample doctor data with realistic information for Baleares
+        const availableDoctors = [
+            {
+                id: 1,
+                name: "Dra. María González",
+                specialty: "Medicina General",
+                rating: 4.9,
+                reviews: 127,
+                price: "80€",
+                distance: "2.1 km",
+                image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
+                available: true,
+                experience: "10 años de experiencia",
+                location: "Palma Centro",
+                nextAvailable: "Disponible ahora"
+            },
+            {
+                id: 2,
+                name: "Dr. Carlos Ruiz",
+                specialty: "Pediatría", 
+                rating: 4.8,
+                reviews: 89,
+                price: "90€",
+                distance: "1.8 km",
+                image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&crop=face",
+                available: true,
+                experience: "8 años de experiencia",
+                location: "Son Armadams",
+                nextAvailable: "Disponible en 45 min"
+            },
+            {
+                id: 3,
+                name: "Dra. Ana López",
+                specialty: "Cardiología",
+                rating: 4.9,
+                reviews: 156,
+                price: "120€",
+                distance: "3.2 km",
+                image: "https://images.unsplash.com/photo-1594824720280-1fbe194fdd6b?w=150&h=150&fit=crop&crop=face",
+                available: true,
+                experience: "15 años de experiencia",
+                location: "Santa Catalina",
+                nextAvailable: "Disponible hoy 16:00"
+            },
+            {
+                id: 4,
+                name: "Dr. Miguel Torres",
+                specialty: "Dermatología",
+                rating: 4.7,
+                reviews: 94,
+                price: "100€",
+                distance: "2.9 km", 
+                image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=150&h=150&fit=crop&crop=face",
+                available: true,
+                experience: "12 años de experiencia",
+                location: "El Terreno",
+                nextAvailable: "Disponible mañana 09:00"
+            }
+        ];
+
+        // Search functionality
+        function searchDoctors() {
+            const specialty = document.getElementById('specialtySelect').value;
+            const availability = document.getElementById('availabilitySelect').value;
+            
+            // Filter doctors based on selection
+            let filteredDoctors = availableDoctors;
+            if (specialty) {
+                filteredDoctors = availableDoctors.filter(doctor => 
+                    doctor.specialty.toLowerCase().includes(specialty)
+                );
+            }
+
+            // Show results section
+            document.getElementById('searchResults').classList.remove('hidden');
+            
+            // Display doctors
+            displayDoctors(filteredDoctors);
+            
+            // Scroll to results smoothly
+            document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayDoctors(doctors) {
+            const container = document.getElementById('doctorsContainer');
+            
+            if (doctors.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">No se encontraron médicos disponibles para los criterios seleccionados</div>';
+                return;
+            }
+
+            container.innerHTML = doctors.map(doctor => `
+                <div class="doctor-card card-hover">
+                    <div class="flex items-start space-x-4">
+                        <img src="${doctor.image}" alt="${doctor.name}" class="w-16 h-16 rounded-full object-cover">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-lg">${doctor.name}</h3>
+                                <span class="specialty-tag">${doctor.specialty}</span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                                <span><i class="fas fa-star text-yellow-400"></i> ${doctor.rating} (${doctor.reviews})</span>
+                                <span><i class="fas fa-map-marker-alt"></i> ${doctor.distance}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">${doctor.experience}</p>
+                            <p class="text-sm text-green-600 mb-3"><i class="fas fa-clock"></i> ${doctor.nextAvailable}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-2xl font-bold text-indigo-600">${doctor.price}</span>
+                                <button 
+                                    class="btn-primary text-sm px-4 py-2"
+                                    onclick="bookAppointment(${doctor.id})"
+                                >
+                                    Reservar Cita
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function bookAppointment(doctorId) {
+            const doctor = availableDoctors.find(d => d.id === doctorId);
+            if (doctor) {
+                alert(`¡Excelente elección! ${doctor.name} - ${doctor.specialty}\n\nPara completar tu reserva:\n1. Confirma tu dirección en Palma\n2. Selecciona fecha y hora\n3. Pago seguro con Revolut\n\nPrecio: ${doctor.price}\n${doctor.nextAvailable}`);
+                // Here you would redirect to the booking page
+                // window.location.href = `appointment-booking.html?doctor=${doctorId}`;
+            }
+        }
+
+        // Doctor login functionality
+        function showDoctorLogin() {
+            document.getElementById('doctorLoginModal').classList.remove('hidden');
+        }
+
+        function closeDoctorLogin() {
+            document.getElementById('doctorLoginModal').classList.add('hidden');
+        }
+
+        // Handle doctor login
+        document.getElementById('doctorLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('doctorEmail').value;
+            const password = document.getElementById('doctorPassword').value;
+
+            // Check test credentials
+            if (email === 'doctortest@oncall.clinic' && password === 'pepe') {
+                alert('¡Login exitoso! Bienvenida Dra. María González\n\nRedirigiendo al dashboard médico...');
+                closeDoctorLogin();
+                window.location.href = 'doctor-dashboard.html?login=success';
+            } else {
+                alert('Credenciales incorrectas. Por favor verifica tu email y contraseña.');
+            }
+        });
+
+        function emergencyCall() {
+            alert('🚨 SERVICIO DE EMERGENCIA 🚨\n\nPara emergencias médicas reales:\n📞 Llama al 112\n\nPara urgencias médicas no críticas:\n📞 +34 900 123 456\n\nNuestro equipo médico de guardia te atenderá inmediatamente.');
+        }
+
+        // Auto-load doctors on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show available doctors by default
+            setTimeout(() => {
+                searchDoctors();
+            }, 1000);
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('doctorLoginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDoctorLogin();
+            }
+        });
+
+        // Console logging for debugging
+        console.log('OnCall Clinic - Versión Alpha Baleares');
+        console.log('Área de cobertura: Palma de Mallorca y alrededores');
+        console.log('Médicos disponibles:', availableDoctors.length);
     </script>
 </body>
 </html>

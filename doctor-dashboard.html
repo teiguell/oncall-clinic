@@ -3,534 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnCall Clinic - Doctor Portal</title>
+    <title>Dashboard Médico - OnCall Clinic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .login-card { max-width: 400px; margin: 4rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 2rem; }
-        .dashboard { display: none; }
-        .logo { text-align: center; margin-bottom: 2rem; }
-        .logo-text { font-size: 24px; font-weight: bold; color: #2563eb; }
-        .form-group { margin-bottom: 1rem; }
-        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151; }
-        .form-input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 16px; }
-        .form-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 500; cursor: pointer; }
-        .btn:hover { background: #1d4ed8; }
-        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
-        .error { color: #dc2626; margin-top: 0.5rem; font-size: 14px; }
-        .success { color: #059669; margin-top: 0.5rem; font-size: 14px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .stat-title { font-size: 14px; color: #6b7280; margin-bottom: 0.5rem; }
-        .stat-value { font-size: 32px; font-weight: bold; color: #111827; }
-        .appointments-section { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; }
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 1rem; color: #111827; }
-        .appointment-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #e5e7eb; }
-        .appointment-item:last-child { border-bottom: none; }
-        .patient-info { flex: 1; }
-        .patient-name { font-weight: 500; color: #111827; }
-        .appointment-time { font-size: 14px; color: #6b7280; }
-        .appointment-status { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 12px; font-weight: 500; }
-        .status-confirmed { background: #dcfce7; color: #166534; }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-completed { background: #dbeafe; color: #1e40af; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .doctor-name { font-size: 24px; font-weight: bold; color: #111827; }
-        .logout-btn { background: #6b7280; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; }
-        .logout-btn:hover { background: #4b5563; }
-        .nav-tabs { display: flex; border-bottom: 1px solid #e5e7eb; margin-bottom: 2rem; }
-        .nav-tab { padding: 1rem 2rem; background: none; border: none; color: #6b7280; cursor: pointer; font-weight: 500; }
-        .nav-tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
-        .availability-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; margin-bottom: 1rem; }
-        .day-card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; text-align: center; }
-        .day-card.available { border-color: #10b981; background: #f0fdf4; }
-        .chat-section { background: white; border-radius: 8px; padding: 1rem; height: 400px; display: flex; flex-direction: column; }
-        .chat-messages { flex: 1; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; }
-        .chat-input { display: flex; gap: 0.5rem; }
-        .file-upload { margin-bottom: 1rem; }
-        .file-upload input { display: none; }
-        .file-upload label { display: inline-block; padding: 8px 16px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; }
-        .booking-card { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
-        .booking-active { background: #dcfce7; border-color: #10b981; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .status-available {
+            background: #10b981;
+            color: white;
+        }
+        .status-unavailable {
+            background: #ef4444;
+            color: white;
+        }
     </style>
 </head>
-<body>
-    <!-- Login Form -->
-    <div id="login-section" class="login-card">
-        <div class="logo">
-            <div class="logo-text">OnCall Clinic - Doctor Portal</div>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-user-md text-2xl text-indigo-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">OnCall Clinic</span>
+                        <span class="ml-2 text-sm text-gray-500">Portal Médico</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center text-sm text-gray-700">
+                        <span>Dra. María González</span>
+                        <span id="statusBadge" class="ml-2 px-2 py-1 rounded-full text-xs status-available">Disponible</span>
+                    </div>
+                    <button onclick="toggleAvailability()" class="btn-primary text-sm">
+                        <i class="fas fa-toggle-on"></i>
+                    </button>
+                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </a>
+                </div>
+            </div>
         </div>
-        <form id="login-form">
-            <div class="form-group">
-                <label class="form-label" for="email">Email</label>
-                <input type="email" id="email" class="form-input" placeholder="doctortest@oncall.clinic" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <input type="password" id="password" class="form-input" placeholder="pepe" required>
-            </div>
-            <button type="submit" id="login-btn" class="btn">Sign In</button>
-            <div id="login-message"></div>
-            
-            <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
-                <p style="color: #6b7280; margin-bottom: 1rem;">New doctor?</p>
-                <a href="/doctor/register" style="color: #2563eb; text-decoration: none; font-weight: 600;">Register here</a>
-            </div>
-        </form>
-    </div>
+    </nav>
 
-    <!-- Dashboard -->
-    <div id="dashboard-section" class="dashboard container">
-        <div class="header">
-            <div class="doctor-name" id="doctor-name">Dr. Loading...</div>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
-            <button class="nav-tab" onclick="showTab('availability')">Availability</button>
-            <button class="nav-tab" onclick="showTab('bookings')">Current Bookings</button>
-            <button class="nav-tab" onclick="showTab('chat')">Patient Chat</button>
-            <button class="nav-tab" onclick="showTab('settings')">Settings</button>
+    <!-- Dashboard Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Panel de Control Médico</h1>
+            <p class="text-gray-600 mt-2">Gestiona tus consultas y pacientes en Islas Baleares</p>
         </div>
 
-        <!-- Overview Tab -->
-        <div id="overview-tab" class="tab-content active">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-title">Today's Appointments</div>
-                    <div class="stat-value" id="today-appointments">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">This Week</div>
-                    <div class="stat-value" id="week-appointments">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Total Appointments</div>
-                    <div class="stat-value" id="total-appointments">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Average Rating</div>
-                    <div class="stat-value" id="average-rating">0.0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Total Earnings</div>
-                    <div class="stat-value" id="total-earnings">€0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Pending Earnings</div>
-                    <div class="stat-value" id="pending-earnings">€0</div>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-day text-white"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Citas Hoy</p>
+                        <p class="text-2xl font-bold text-gray-900" id="todayAppointments">3</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="appointments-section">
-                <div class="section-title">Recent Appointments</div>
-                <div id="appointments-list">
-                    <div style="text-align: center; color: #6b7280; padding: 2rem;">
-                        No appointments yet
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-euro-sign text-white"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Ingresos Mes</p>
+                        <p class="text-2xl font-bold text-gray-900" id="monthlyEarnings">2,480€</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-white"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Calificación</p>
+                        <p class="text-2xl font-bold text-gray-900">4.9</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user-friends text-white"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Pacientes</p>
+                        <p class="text-2xl font-bold text-gray-900">127</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Availability Tab -->
-        <div id="availability-tab" class="tab-content">
-            <div class="section-title">Weekly Availability</div>
-            <div class="availability-grid" id="availability-grid">
-                <!-- Days will be populated by JavaScript -->
-            </div>
-            <button class="btn" onclick="saveAvailability()">Save Availability</button>
-        </div>
-
-        <!-- Current Bookings Tab -->
-        <div id="bookings-tab" class="tab-content">
-            <div class="section-title">Active Bookings</div>
-            <div id="active-bookings">
-                <div class="booking-card booking-active">
-                    <h3>No active bookings</h3>
-                    <p>When you have an active booking, it will appear here with patient details and location.</p>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Today's Appointments -->
+            <div class="lg:col-span-2">
+                <div class="card">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Citas de Hoy</h2>
+                    <div id="appointmentsList" class="space-y-4">
+                        <!-- Appointments will be loaded here -->
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Chat Tab -->
-        <div id="chat-tab" class="tab-content">
-            <div class="section-title">Patient Communication</div>
-            <div class="chat-section">
-                <div class="chat-messages" id="chat-messages">
-                    <div style="text-align: center; color: #6b7280; padding: 2rem;">
-                        No active conversations
+            <!-- Quick Actions -->
+            <div class="space-y-6">
+                <!-- Availability Toggle -->
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado de Disponibilidad</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">Disponible para nuevas citas</span>
+                        <button onclick="toggleAvailability()" id="availabilityToggle" class="status-available px-3 py-1 rounded-full text-sm">
+                            Disponible
+                        </button>
                     </div>
+                    <p class="text-sm text-gray-500 mt-2">Activa/desactiva tu disponibilidad para recibir nuevas solicitudes de citas</p>
                 </div>
-                <div class="chat-input">
-                    <input type="text" id="chat-input" class="form-input" placeholder="Type your message..." style="flex: 1;">
-                    <button class="btn" onclick="sendMessage()">Send</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Settings Tab -->
-        <div id="settings-tab" class="tab-content">
-            <div class="section-title">Doctor Settings</div>
-            <div class="form-grid">
-                <div class="stat-card">
-                    <div class="section-title">IBAN for Payments</div>
-                    <div class="form-group">
-                        <label class="form-label">Bank Account (IBAN)</label>
-                        <input type="text" id="iban-input" class="form-input" placeholder="ES12 3456 7890 1234 5678 9012">
+                <!-- Quick Stats -->
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen Semanal</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Consultas completadas</span>
+                            <span class="font-semibold">18</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tiempo promedio</span>
+                            <span class="font-semibold">45 min</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Ingresos brutos</span>
+                            <span class="font-semibold">1,440€</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Comisión OnCall (15%)</span>
+                            <span class="font-semibold text-red-600">-216€</span>
+                        </div>
+                        <hr>
+                        <div class="flex justify-between font-bold">
+                            <span class="text-gray-900">Ingresos netos</span>
+                            <span class="text-green-600">1,224€</span>
+                        </div>
                     </div>
-                    <button class="btn" onclick="saveIban()">Update IBAN</button>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="section-title">Service Area</div>
-                    <div class="form-group">
-                        <label class="form-label">Maximum Distance (km)</label>
-                        <input type="number" id="max-distance" class="form-input" value="30" min="5" max="50">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Base Price (EUR)</label>
-                        <input type="number" id="base-price" class="form-input" value="80" min="50" max="200">
-                    </div>
-                    <button class="btn" onclick="saveServiceArea()">Update Settings</button>
+
+                <!-- Emergency Contact -->
+                <div class="card bg-red-50 border-red-200">
+                    <h3 class="text-lg font-semibold text-red-900 mb-2">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Emergencias
+                    </h3>
+                    <p class="text-red-700 text-sm mb-3">Para emergencias médicas graves, deriva inmediatamente al 112</p>
+                    <button class="bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700">
+                        <i class="fas fa-phone mr-2"></i>
+                        Llamar 112
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let currentUser = null;
-
-        // Login form submission
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('login-btn');
-            const messageDiv = document.getElementById('login-message');
-            
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Signing in...';
-            messageDiv.innerHTML = '';
-            
-            try {
-                const response = await fetch('/api/doctor/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentUser = data.user;
-                    messageDiv.innerHTML = '<div class="success">Login successful!</div>';
-                    
-                    // Hide login, show dashboard
-                    document.getElementById('login-section').style.display = 'none';
-                    document.getElementById('dashboard-section').style.display = 'block';
-                    
-                    // Load dashboard data
-                    loadDashboard();
-                } else {
-                    messageDiv.innerHTML = '<div class="error">' + data.message + '</div>';
-                }
-            } catch (error) {
-                messageDiv.innerHTML = '<div class="error">Connection error. Please try again.</div>';
+        // Sample appointments data
+        const todayAppointments = [
+            {
+                id: 1,
+                time: "09:30",
+                patient: "Carlos Mendoza",
+                reason: "Consulta general",
+                address: "Calle Aragón 45, Palma",
+                phone: "+34 600 123 456",
+                status: "confirmed",
+                price: "80€"
+            },
+            {
+                id: 2,
+                time: "11:15",
+                patient: "María López",
+                reason: "Revisión pediatría",
+                address: "Avda. Jaime III 89, Palma",
+                phone: "+34 600 789 123",
+                status: "in-progress",
+                price: "90€"
+            },
+            {
+                id: 3,
+                time: "14:00",
+                patient: "Antonio García",
+                reason: "Control tensión arterial",
+                address: "Plaza España 12, Palma",
+                phone: "+34 600 456 789",
+                status: "pending",
+                price: "80€"
             }
-            
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Sign In';
+        ];
+
+        let isAvailable = true;
+
+        // Load appointments on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAppointments();
+            checkAuthentication();
         });
 
-        // Load dashboard data
-        async function loadDashboard() {
-            try {
-                const response = await fetch('/api/doctor/dashboard');
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Update doctor name
-                    document.getElementById('doctor-name').textContent = 
-                        currentUser.firstName + ' ' + currentUser.lastName;
-                    
-                    // Update stats
-                    document.getElementById('today-appointments').textContent = data.stats.todayAppointments;
-                    document.getElementById('week-appointments').textContent = data.stats.thisWeekAppointments;
-                    document.getElementById('total-appointments').textContent = data.stats.totalAppointments;
-                    document.getElementById('average-rating').textContent = data.stats.averageRating.toFixed(1);
-                    document.getElementById('total-earnings').textContent = '€' + (data.stats.totalEarnings / 100).toFixed(2);
-                    document.getElementById('pending-earnings').textContent = '€' + (data.stats.pendingEarnings / 100).toFixed(2);
-                    
-                    // Update appointments list
-                    const appointmentsList = document.getElementById('appointments-list');
-                    if (data.recentAppointments && data.recentAppointments.length > 0) {
-                        let appointmentsHtml = '';
-                        data.recentAppointments.forEach(apt => {
-                            appointmentsHtml += '<div class="appointment-item">';
-                            appointmentsHtml += '<div class="patient-info">';
-                            appointmentsHtml += '<div class="patient-name">Patient #' + apt.patientId + '</div>';
-                            appointmentsHtml += '<div class="appointment-time">' + new Date(apt.appointmentDate).toLocaleDateString() + ' ' + new Date(apt.appointmentDate).toLocaleTimeString() + '</div>';
-                            appointmentsHtml += '</div>';
-                            appointmentsHtml += '<span class="appointment-status status-' + apt.status.toLowerCase() + '">' + apt.status + '</span>';
-                            appointmentsHtml += '</div>';
-                        });
-                        appointmentsList.innerHTML = appointmentsHtml;
-                    } else {
-                        appointmentsList.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">No appointments yet</div>';
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
+        function checkAuthentication() {
+            // In a real app, you would check server-side authentication
+            // For demo purposes, we'll check if user came from login
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromLogin = urlParams.get('login');
+            
+            if (!fromLogin) {
+                // Redirect to home if not authenticated
+                // window.location.href = 'index.html';
             }
         }
 
-        // Logout function
-        function logout() {
-            currentUser = null;
-            document.getElementById('login-section').style.display = 'block';
-            document.getElementById('dashboard-section').style.display = 'none';
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('login-message').innerHTML = '';
-        }
-
-        // Tab management
-        function showTab(tabName) {
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
+        function loadAppointments() {
+            const container = document.getElementById('appointmentsList');
             
-            const navTabs = document.querySelectorAll('.nav-tab');
-            navTabs.forEach(tab => tab.classList.remove('active'));
-            
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.add('active');
-            event.target.classList.add('active');
-            
-            // Load specific tab data
-            if (tabName === 'availability') {
-                loadAvailability();
-            } else if (tabName === 'bookings') {
-                loadActiveBookings();
-            } else if (tabName === 'settings') {
-                loadSettings();
+            if (todayAppointments.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No tienes citas programadas para hoy</p>';
+                return;
             }
-        }
 
-        // Load weekly availability
-        function loadAvailability() {
-            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            
-            const grid = document.getElementById('availability-grid');
-            grid.innerHTML = '';
-            
-            days.forEach((day, index) => {
-                const dayCard = document.createElement('div');
-                dayCard.className = 'day-card';
-                dayCard.innerHTML = `
-                    <h4>${dayNames[index]}</h4>
-                    <label>
-                        <input type="checkbox" id="${day}-available" ${index < 5 ? 'checked' : ''}> Available
-                    </label>
-                    <div style="margin-top: 0.5rem;">
-                        <input type="time" id="${day}-start" value="09:00" class="form-input" style="margin-bottom: 0.25rem;">
-                        <input type="time" id="${day}-end" value="18:00" class="form-input">
-                    </div>
-                `;
-                
-                if (index < 5) {
-                    dayCard.classList.add('available');
-                }
-                
-                grid.appendChild(dayCard);
-            });
-        }
-
-        // Save availability
-        async function saveAvailability() {
-            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            const availability = {};
-            
-            days.forEach(day => {
-                availability[day] = {
-                    available: document.getElementById(day + '-available').checked,
-                    startTime: document.getElementById(day + '-start').value,
-                    endTime: document.getElementById(day + '-end').value
-                };
-            });
-            
-            try {
-                const response = await fetch('/api/doctor/availability', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ weeklyAvailability: availability })
-                });
-                
-                if (response.ok) {
-                    alert('Availability updated successfully!');
-                } else {
-                    alert('Failed to update availability');
-                }
-            } catch (error) {
-                alert('Error updating availability');
-            }
-        }
-
-        // Load active bookings
-        async function loadActiveBookings() {
-            try {
-                const response = await fetch('/api/doctor/active-bookings');
-                const data = await response.json();
-                
-                const container = document.getElementById('active-bookings');
-                if (data.success && data.bookings && data.bookings.length > 0) {
-                    container.innerHTML = data.bookings.map(booking => `
-                        <div class="booking-card booking-active">
-                            <h3>Patient: ${booking.patientName || 'Patient #' + booking.patientId}</h3>
-                            <p><strong>Date:</strong> ${new Date(booking.appointmentDate).toLocaleString()}</p>
-                            <p><strong>Location:</strong> ${booking.location}</p>
-                            <p><strong>Status:</strong> ${booking.status}</p>
-                            <p><strong>Amount:</strong> €${(booking.amount / 100).toFixed(2)}</p>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = `
-                        <div class="booking-card">
-                            <h3>No active bookings</h3>
-                            <p>When you have an active booking, it will appear here with patient details and location.</p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Error loading bookings:', error);
-            }
-        }
-
-        // Load settings
-        async function loadSettings() {
-            try {
-                const response = await fetch('/api/doctor/settings');
-                const data = await response.json();
-                
-                if (data.success) {
-                    document.getElementById('iban-input').value = data.settings.bankAccount || '';
-                    document.getElementById('max-distance').value = data.settings.maxDistance || 30;
-                    document.getElementById('base-price').value = (data.settings.basePrice / 100) || 80;
-                }
-            } catch (error) {
-                console.error('Error loading settings:', error);
-            }
-        }
-
-        // Save IBAN
-        async function saveIban() {
-            const iban = document.getElementById('iban-input').value;
-            
-            try {
-                const response = await fetch('/api/doctor/iban', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ bankAccount: iban })
-                });
-                
-                if (response.ok) {
-                    alert('IBAN updated successfully!');
-                } else {
-                    alert('Failed to update IBAN');
-                }
-            } catch (error) {
-                alert('Error updating IBAN');
-            }
-        }
-
-        // Save service area settings
-        async function saveServiceArea() {
-            const maxDistance = document.getElementById('max-distance').value;
-            const basePrice = document.getElementById('base-price').value * 100; // Convert to cents
-            
-            try {
-                const response = await fetch('/api/doctor/service-area', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ maxDistance: parseInt(maxDistance), basePrice: parseInt(basePrice) })
-                });
-                
-                if (response.ok) {
-                    alert('Service area settings updated successfully!');
-                } else {
-                    alert('Failed to update settings');
-                }
-            } catch (error) {
-                alert('Error updating settings');
-            }
-        }
-
-        // Send chat message
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            try {
-                const response = await fetch('/api/doctor/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
-                
-                if (response.ok) {
-                    input.value = '';
-                    loadChatMessages();
-                }
-            } catch (error) {
-                alert('Error sending message');
-            }
-        }
-
-        // Load chat messages
-        async function loadChatMessages() {
-            try {
-                const response = await fetch('/api/doctor/chat');
-                const data = await response.json();
-                
-                const container = document.getElementById('chat-messages');
-                if (data.success && data.messages && data.messages.length > 0) {
-                    container.innerHTML = data.messages.map(msg => `
-                        <div style="margin-bottom: 1rem; padding: 0.5rem; background: ${msg.fromDoctor ? '#e0f2fe' : '#f3f4f6'}; border-radius: 4px;">
-                            <strong>${msg.fromDoctor ? 'You' : 'Patient'}:</strong> ${msg.content}
-                            <div style="font-size: 12px; color: #6b7280; margin-top: 0.25rem;">
-                                ${new Date(msg.timestamp).toLocaleString()}
+            container.innerHTML = todayAppointments.map(appointment => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="text-lg font-semibold text-gray-900">${appointment.time}</span>
+                                <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(appointment.status)}">
+                                    ${getStatusText(appointment.status)}
+                                </span>
                             </div>
+                            <h4 class="font-semibold text-gray-900">${appointment.patient}</h4>
+                            <p class="text-gray-600 text-sm">${appointment.reason}</p>
+                            <p class="text-gray-500 text-sm mt-1">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                ${appointment.address}
+                            </p>
+                            <p class="text-gray-500 text-sm">
+                                <i class="fas fa-phone mr-1"></i>
+                                ${appointment.phone}
+                            </p>
                         </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">No active conversations</div>';
-                }
-            } catch (error) {
-                console.error('Error loading chat:', error);
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-green-600 mb-2">${appointment.price}</div>
+                            <button onclick="manageAppointment(${appointment.id})" class="btn-primary text-sm px-3 py-1">
+                                ${getActionText(appointment.status)}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'confirmed': return 'bg-blue-100 text-blue-800';
+                case 'in-progress': return 'bg-yellow-100 text-yellow-800';
+                case 'pending': return 'bg-gray-100 text-gray-800';
+                case 'completed': return 'bg-green-100 text-green-800';
+                default: return 'bg-gray-100 text-gray-800';
             }
         }
 
-        // Auto-refresh dashboard every 30 seconds
-        setInterval(() => {
-            if (currentUser) {
-                loadDashboard();
-                loadActiveBookings();
-                loadChatMessages();
+        function getStatusText(status) {
+            switch(status) {
+                case 'confirmed': return 'Confirmada';
+                case 'in-progress': return 'En curso';
+                case 'pending': return 'Pendiente';
+                case 'completed': return 'Completada';
+                default: return 'Desconocido';
             }
-        }, 30000);
+        }
+
+        function getActionText(status) {
+            switch(status) {
+                case 'confirmed': return 'Iniciar';
+                case 'in-progress': return 'Finalizar';
+                case 'pending': return 'Confirmar';
+                case 'completed': return 'Ver';
+                default: return 'Gestionar';
+            }
+        }
+
+        function manageAppointment(appointmentId) {
+            const appointment = todayAppointments.find(apt => apt.id === appointmentId);
+            if (appointment) {
+                switch(appointment.status) {
+                    case 'pending':
+                        appointment.status = 'confirmed';
+                        alert(`Cita con ${appointment.patient} confirmada para las ${appointment.time}`);
+                        break;
+                    case 'confirmed':
+                        appointment.status = 'in-progress';
+                        alert(`Iniciando consulta con ${appointment.patient}. ¡Buen trabajo!`);
+                        break;
+                    case 'in-progress':
+                        appointment.status = 'completed';
+                        alert(`Consulta con ${appointment.patient} completada. Pago procesado: ${appointment.price}`);
+                        break;
+                    default:
+                        alert(`Gestionando cita con ${appointment.patient}`);
+                }
+                loadAppointments();
+            }
+        }
+
+        function toggleAvailability() {
+            isAvailable = !isAvailable;
+            const badge = document.getElementById('statusBadge');
+            const toggle = document.getElementById('availabilityToggle');
+            
+            if (isAvailable) {
+                badge.className = 'ml-2 px-2 py-1 rounded-full text-xs status-available';
+                badge.textContent = 'Disponible';
+                toggle.className = 'status-available px-3 py-1 rounded-full text-sm';
+                toggle.textContent = 'Disponible';
+                alert('Estado actualizado: Disponible para nuevas citas');
+            } else {
+                badge.className = 'ml-2 px-2 py-1 rounded-full text-xs status-unavailable';
+                badge.textContent = 'No disponible';
+                toggle.className = 'status-unavailable px-3 py-1 rounded-full text-sm';
+                toggle.textContent = 'No disponible';
+                alert('Estado actualizado: No disponible para nuevas citas');
+            }
+        }
+
+        // Update time every minute
+        setInterval(function() {
+            const now = new Date();
+            console.log(`Dashboard actualizado: ${now.toLocaleTimeString()}`);
+        }, 60000);
+
+        console.log('Dashboard Médico OnCall Clinic cargado');
+        console.log('Médico: Dra. María González');
+        console.log('Especialidad: Medicina General');
+        console.log('Citas hoy:', todayAppointments.length);
     </script>
 </body>
 </html>
