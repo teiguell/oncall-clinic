@@ -2,6 +2,8 @@ import express from "express";
 import type { Request, Response } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 app.use(express.json());
@@ -19,8 +21,21 @@ async function main() {
   // Register API routes first
   const httpServer = registerRoutes(app);
 
+  // Serve functional HTML temporarily
+  const htmlPath = path.join(process.cwd(), 'static-oncall.html');
+  const functionalHtml = fs.readFileSync(htmlPath, 'utf8');
+  
+  app.get('/', (req: Request, res: Response) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(functionalHtml);
+  });
+
   // Setup Vite development server for React app
-  await setupVite(app, httpServer);
+  try {
+    await setupVite(app, httpServer);
+  } catch (error) {
+    log("Vite setup failed, continuing with static HTML");
+  }
 
   // Start server
   const PORT = Number(process.env.PORT) || 5000;
