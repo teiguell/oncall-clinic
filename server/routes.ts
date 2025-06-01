@@ -2,7 +2,8 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { invoicingService } from "./services/invoicing";
-import { logEvent, logError, getEventsByTrackingCode, getAllEvents, initializeEventLogTable } from "./supabase";
+import { logEvent, logError, getEventsByTrackingCode, getEventsByUser, getAllEvents, initializeEventLogTable } from "./supabase";
+import { requireAuth } from "./auth";
 import crypto from 'crypto';
 import { z } from 'zod';
 

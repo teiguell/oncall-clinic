@@ -108,6 +108,26 @@ export function requireRole(roles: string | string[]) {
     next();
   };
 }
+
+export function setupAuth(app: Express) {
+  const sessionSettings: session.SessionOptions = {
+    secret: process.env.SESSION_SECRET || "development-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+  };
+
+  app.set("trust proxy", 1);
+  app.use(session(sessionSettings));
+
+  // Register a new patient user
+  app.post("/api/register/patient", async (req, res) => {
+    try {
+      const { 
+        email, password, firstName, lastName, phoneNumber,
+        address, city, postalCode, dob 
+      } = req.body;
+
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ message: "Email already in use" });

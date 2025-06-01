@@ -1,6 +1,6 @@
 import express from "express";
 import type { Request, Response } from "express";
-import { registerRoutes } from "./routes-clean";
+import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import fs from "fs";
 import path from "path";
