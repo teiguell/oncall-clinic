@@ -245,16 +245,15 @@ export class MemStorage implements IStorage {
       email: "doctortest@oncall.clinic",
       password: "pepe",
       userType: "doctor",
-      firstName: "María",
-      lastName: "González",
-      phoneNumber: "+34600123456",
+      firstName: "Dr Test",
+      lastName: "Alpha",
+      phoneNumber: "+34600247365",
       emailVerified: true,
       twoFactorEnabled: false,
       profilePicture: null,
       authProvider: "local",
       authProviderId: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     };
     this.users.set(2, testDoctorUser);
 
@@ -263,23 +262,21 @@ export class MemStorage implements IStorage {
       id: 1,
       userId: 2,
       specialtyId: 1,
-      licenseNumber: "MD-12345",
-      education: "Universidad de Barcelona - Medicina",
-      experience: 10,
-      bio: "Dr Test - Médico disponible 24/7 en todas las áreas de España. Especialista en medicina general con amplia experiencia en atención domiciliaria.",
+      licenseNumber: "MD-ALPHA-TEST",
+      education: "Universidad Complutense de Madrid - Medicina",
+      experience: 15,
+      bio: "Dr Test Alpha - Médico especialista disponible 24/7 en toda España. Amplia experiencia en medicina general y atención domiciliaria. Verificado y activo para consultas de emergencia y rutinarias.",
       basePrice: 60,
       isAvailable: true,
       isVerified: true,
       identityDocFront: null,
       identityDocBack: null,
-      medicalLicense: "MD-TEST-24-7",
       professionalCertificate: null,
-      bankAccount: "ES12 3456 7890 1234 5678 9012",
+      bankAccount: "ES21 1234 5678 9012 3456 7890",
       locationLat: 40.4168,
       locationLng: -3.7038,
-      locationAddress: "Madrid, España - Cobertura Nacional 24/7",
-      createdAt: new Date(),
-      updatedAt: new Date()
+      locationAddress: "España - Disponible en todas las comunidades autónomas",
+      createdAt: new Date()
     };
     this.doctorProfiles.set(1, testDoctorProfile);
 
