@@ -1,0 +1,47 @@
+name: Claude Automation
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-commands:
+    if: contains(github.event.issue.title, '[CLAUDE]') || contains(github.event.comment.body, '[EXECUTE]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install
+          
+      - name: Process Claude Commands
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Claude Automation Active"
+          echo "Issue: ${{ github.event.issue.title }}"
+          echo "Ready to process commands..."
+          
+      - name: Commit changes
+        run: |
+          git config --local user.email "claude@automation.bot"
+          git config --local user.name "Claude Automation"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Claude Automation: ${{ github.event.issue.title }}"
+            git push
+          fi
