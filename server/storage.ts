@@ -730,7 +730,13 @@ export class MemStorage implements IStorage {
   async createNotification(notification: InsertNotification): Promise<Notification> {
     const id = this.currentNotificationId++;
     const createdAt = new Date();
-    const newNotification: Notification = { ...notification, id, createdAt, read: false };
+    const newNotification: Notification = { 
+      ...notification, 
+      id, 
+      createdAt, 
+      read: false,
+      data: notification.data || null
+    };
     this.notifications.set(id, newNotification);
     return newNotification;
   }
@@ -758,7 +764,14 @@ export class MemStorage implements IStorage {
   async createPayment(payment: InsertPayment): Promise<Payment> {
     const id = this.currentPaymentId++;
     const createdAt = new Date();
-    const newPayment: Payment = { ...payment, id, createdAt };
+    const newPayment: Payment = { 
+      ...payment, 
+      id, 
+      createdAt,
+      currency: payment.currency || null,
+      providerId: payment.providerId || null,
+      paidAt: payment.paidAt || null
+    };
     this.payments.set(id, newPayment);
     return newPayment;
   }
@@ -773,13 +786,22 @@ export class MemStorage implements IStorage {
   }
 
   // Guest Patients
-  async createGuestPatient(guestPatient: z.infer<typeof import('@shared/schema').guestPatientSchema>): Promise<GuestPatient> {
+  async createGuestPatient(guestPatient: z.infer<typeof import('@shared/schema').guestPatientSchema>, appointmentId?: number): Promise<GuestPatient> {
     const id = this.currentGuestPatientId++;
     const createdAt = new Date();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // Expires in 24 hours
+    const authToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    
     const newGuestPatient: GuestPatient = {
       id,
       ...guestPatient,
-      createdAt
+      createdAt,
+      appointmentId: appointmentId || null,
+      authToken,
+      expiresAt,
+      privacyAccepted: guestPatient.privacyAccepted || false,
+      termsAccepted: guestPatient.termsAccepted || false
     };
     this.guestPatients.set(id, newGuestPatient);
     return newGuestPatient;
@@ -792,7 +814,14 @@ export class MemStorage implements IStorage {
     const newTransaction: RevolutTransaction = {
       ...transaction,
       id,
-      createdAt
+      createdAt,
+      paymentStatus: transaction.paymentStatus || "pending",
+      transferStatus: transaction.transferStatus || "pending",
+      revolutOrderId: transaction.revolutOrderId || null,
+      revolutPaymentId: transaction.revolutPaymentId || null,
+      transferId: transaction.transferId || null,
+      paidAt: transaction.paidAt || null,
+      transferredAt: transaction.transferredAt || null
     };
     this.revolutTransactions.set(id, newTransaction);
     return newTransaction;
@@ -824,7 +853,11 @@ export class MemStorage implements IStorage {
     const newConfirmation: BookingConfirmation = {
       ...confirmation,
       id,
-      createdAt
+      createdAt,
+      patientConfirmed: confirmation.patientConfirmed ?? false,
+      doctorConfirmed: confirmation.doctorConfirmed ?? false,
+      patientConfirmedAt: confirmation.patientConfirmedAt || null,
+      doctorConfirmedAt: confirmation.doctorConfirmedAt || null
     };
     this.bookingConfirmations.set(id, newConfirmation);
     return newConfirmation;
@@ -846,12 +879,6 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async getBookingConfirmationByAppointment(appointmentId: number): Promise<BookingConfirmation | undefined> {
-    return Array.from(this.bookingConfirmations.values()).find(
-      (confirmation) => confirmation.appointmentId === appointmentId
-    );
-  }
-
   async updateBookingConfirmation(id: number, data: Partial<BookingConfirmation>): Promise<BookingConfirmation | undefined> {
     const confirmation = this.bookingConfirmations.get(id);
     if (!confirmation) return undefined;
@@ -864,11 +891,14 @@ export class MemStorage implements IStorage {
   // Transfer Logs
   async createTransferLog(log: InsertTransferLog): Promise<TransferLog> {
     const id = this.currentTransferLogId++;
-    const createdAt = new Date();
+    const processedAt = new Date();
     const newLog: TransferLog = {
       ...log,
       id,
-      createdAt
+      processedAt: processedAt,
+      makeWebhookResponse: log.makeWebhookResponse || null,
+      transferResult: log.transferResult || null,
+      errorMessage: log.errorMessage || null
     };
     this.transferLogs.set(id, newLog);
     return newLog;
@@ -883,11 +913,13 @@ export class MemStorage implements IStorage {
   // Doctor Location Tracking
   async createDoctorLocationTracking(location: InsertDoctorLocationTracking): Promise<DoctorLocationTracking> {
     const id = this.currentDoctorLocationTrackingId++;
-    const createdAt = new Date();
+    const timestamp = new Date();
     const newLocation: DoctorLocationTracking = {
       ...location,
       id,
-      createdAt
+      timestamp: timestamp,
+      appointmentId: location.appointmentId || null,
+      isActive: location.isActive ?? false
     };
     this.doctorLocationTracking.set(id, newLocation);
     return newLocation;
@@ -918,7 +950,10 @@ export class MemStorage implements IStorage {
     const newFeedback: PatientFeedback = {
       ...feedback,
       id,
-      createdAt
+      createdAt,
+      status: feedback.status || "pending",
+      adminResponse: feedback.adminResponse || null,
+      reviewedAt: feedback.reviewedAt || null
     };
     this.patientFeedback.set(id, newFeedback);
     return newFeedback;
@@ -947,6 +982,8 @@ export class MemStorage implements IStorage {
       sentAt: null,
       paidAt: null,
       ...invoice,
+      status: invoice.status || "draft",
+      appointmentId: invoice.appointmentId || null
     };
     this.invoices.set(newInvoice.id, newInvoice);
     return newInvoice;
@@ -977,6 +1014,10 @@ export class MemStorage implements IStorage {
       id: this.currentPatientTrackingSessionId++,
       createdAt: new Date(),
       ...session,
+      patientConfirmed: session.patientConfirmed ?? false,
+      doctorConfirmed: session.doctorConfirmed ?? false,
+      patientConfirmedAt: session.patientConfirmedAt || null,
+      doctorConfirmedAt: session.doctorConfirmedAt || null
     };
     this.patientTrackingSessions.set(newSession.id, newSession);
     return newSession;

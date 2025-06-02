@@ -70,6 +70,11 @@ export async function initializeEventLogTable() {
 
 // Log an event to Supabase
 export async function logEvent(entry: EventLogEntry): Promise<boolean> {
+  if (!supabase) {
+    console.log('Supabase not configured - event logging skipped');
+    return false;
+  }
+
   try {
     const { error } = await supabase
       .from('event_log')
@@ -96,6 +101,11 @@ export async function logEvent(entry: EventLogEntry): Promise<boolean> {
 
 // Get events for a tracking code
 export async function getEventsByTrackingCode(trackingCode: string) {
+  if (!supabase) {
+    console.log('Supabase not configured - returning empty events');
+    return [];
+  }
+
   try {
     const { data, error } = await supabase
       .from('event_log')
@@ -117,6 +127,11 @@ export async function getEventsByTrackingCode(trackingCode: string) {
 
 // Get events for a user
 export async function getEventsByUser(userId: string) {
+  if (!supabase) {
+    console.log('Supabase not configured - returning empty events');
+    return [];
+  }
+
   try {
     const { data, error } = await supabase
       .from('event_log')
@@ -138,6 +153,11 @@ export async function getEventsByUser(userId: string) {
 
 // Get all events (for admin panel)
 export async function getAllEvents(limit: number = 100, offset: number = 0) {
+  if (!supabase) {
+    console.log('Supabase not configured - returning empty events');
+    return [];
+  }
+
   try {
     const { data, error } = await supabase
       .from('event_log')

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -69,8 +70,9 @@ interface LocationItem {
 
 export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
   const { toast } = useToast();
-  const [location, setLocation] = useLocation();
-  const { user, isAuthenticated } = useAuth();
+  const [location, navigate] = useLocation();
+  const { user } = useAuth();
+  const { t, i18n } = useTranslation();
   const locale = i18n.language === 'es' ? es : enUS;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -199,14 +201,14 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
   };
 
   useEffect(() => {
-    if (!isAuthenticated && !isGuestBooking) {
+    if (!user && !isGuestBooking) {
       // Show guest booking option instead of redirecting
       setIsGuestBooking(true);
     } else if (user && user.userType !== "patient") {
       // Only patients can book appointments
       navigate("/dashboard/doctor");
     }
-  }, [isAuthenticated, user, navigate, location]);
+  }, [user, navigate, location, isGuestBooking]);
 
   const handleGuestSubmit = async (data: any) => {
     try {
@@ -215,9 +217,10 @@ export default function AppointmentForm({ doctorId }: AppointmentFormProps) {
       const selectedTime = form.getValues('timeSlot');
       const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
 
-      const appointmentData: AppointmentBookingData = {
+      const appointmentData = {
         ...form.getValues(),
         appointmentDate: appointmentDateTime,
+        patientId: 0 // Guest appointments don't have a patient ID
       };
       const response = await apiRequest('POST', '/api/appointments/guest', {
         ...appointmentData,

@@ -36,7 +36,17 @@ export default function AdminDoctorVerificationPage() {
   // Redirigir si no es administrador
   if (user && user.userType !== 'admin') {
     navigate('/');
-    return null;
+    return (
+      <div className="container py-8">
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Acceso no autorizado</AlertTitle>
+          <AlertDescription>
+            No tiene permisos para acceder a esta página. Redirigiendo...
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   // Formulario para la verificación
