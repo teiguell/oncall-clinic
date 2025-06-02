@@ -3,5 +3,16 @@
   "outputDirectory": "dist/public",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "vite"
+  "framework": "vite",
+  "functions": {
+    "server/index.ts": {
+      "runtime": "@vercel/node"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server/index.ts"
+    }
+  ]
 }
