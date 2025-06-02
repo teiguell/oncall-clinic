@@ -56,11 +56,15 @@ async function main() {
     }
   }
 
-  // Start server - use port 5000 for development, allow PORT override for deployment
+  // Start server - use environment PORT for deployment, fallback to 5000
   const PORT = Number(process.env.PORT) || 5000;
-  httpServer.listen(PORT, "0.0.0.0", () => {
-    log(`Server running at http://0.0.0.0:${PORT}`);
-    log(`Public URL: https://${process.env.REPLIT_DEV_DOMAIN}`);
+  const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '0.0.0.0';
+  
+  httpServer.listen(PORT, HOST, () => {
+    log(`Server running at http://${HOST}:${PORT}`);
+    if (process.env.REPLIT_DEV_DOMAIN) {
+      log(`Public URL: https://${process.env.REPLIT_DEV_DOMAIN}`);
+    }
   });
 }
 
