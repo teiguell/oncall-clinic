@@ -56,7 +56,7 @@ async function main() {
     }
   }
 
-  // Start server - use Replit's expected port
+  // Start server - use port 5000 for development, allow PORT override for deployment
   const PORT = Number(process.env.PORT) || 5000;
   httpServer.listen(PORT, "0.0.0.0", () => {
     log(`Server running at http://0.0.0.0:${PORT}`);
