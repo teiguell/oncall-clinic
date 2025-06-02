@@ -1,80 +1,19 @@
-modules = ["nodejs-20", "web", "postgresql-16"]
 run = "npm run dev"
-hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+entrypoint = "server/index.ts"
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-22_11"
+
+[env]
+NODE_ENV = "development"
 
 [deployment]
-deploymentTarget = "autoscale"
-build = ["sh", "-c", "NODE_ENV=production npm run build"]
-run = ["sh", "-c", "NODE_ENV=production node --experimental-modules dist/index.mjs"]
+run = ["sh", "-c", "npm run build && npm start"]
+deploymentTarget = "cloudrun"
+publicDir = "dist"
 
-[[ports]]
-localPort = 3000
-externalPort = 3000
-
-[[ports]]
+[ports]
+5000 = "server"
+[ports.5000]
 localPort = 5000
 externalPort = 80
-
-[workflows]
-runButton = "Development"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Start Application"
-author = 11738795
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm install"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run build"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run start"
-
-[[workflows.workflow]]
-name = "Development"
-author = 11738795
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm install"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run build"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
