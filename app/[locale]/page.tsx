@@ -1,12 +1,15 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
 import {
-  Stethoscope, MapPin, Clock, Shield, Star, ArrowRight,
-  Phone, Heart, Activity, Baby, Brain, CheckCircle2, Zap
+  Stethoscope, MapPin, Clock, Shield, ArrowRight,
+  Heart, Activity, Baby, Thermometer, Dumbbell, CheckCircle2, Zap, Menu, X
 } from 'lucide-react'
 
 export default function LandingPage() {
@@ -14,32 +17,13 @@ export default function LandingPage() {
   const tNav = useTranslations('nav')
   const tServices = useTranslations('services')
   const locale = useLocale()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const features = [
-    {
-      icon: Zap,
-      title: t('features.urgentTitle'),
-      description: t('features.urgentDesc'),
-      color: 'text-yellow-600 bg-yellow-50',
-    },
-    {
-      icon: Clock,
-      title: t('features.scheduledTitle'),
-      description: t('features.scheduledDesc'),
-      color: 'text-blue-600 bg-blue-50',
-    },
-    {
-      icon: MapPin,
-      title: t('features.trackingTitle'),
-      description: t('features.trackingDesc'),
-      color: 'text-green-600 bg-green-50',
-    },
-    {
-      icon: Shield,
-      title: t('features.verifiedTitle'),
-      description: t('features.verifiedDesc'),
-      color: 'text-purple-600 bg-purple-50',
-    },
+    { icon: Zap, title: t('features.urgentTitle'), description: t('features.urgentDesc'), color: 'text-yellow-600 bg-yellow-50' },
+    { icon: Clock, title: t('features.scheduledTitle'), description: t('features.scheduledDesc'), color: 'text-blue-600 bg-blue-50' },
+    { icon: MapPin, title: t('features.trackingTitle'), description: t('features.trackingDesc'), color: 'text-green-600 bg-green-50' },
+    { icon: Shield, title: t('features.verifiedTitle'), description: t('features.verifiedDesc'), color: 'text-purple-600 bg-purple-50' },
   ]
 
   const services = [
@@ -47,42 +31,24 @@ export default function LandingPage() {
     { icon: Baby, value: 'pediatrics', time: '30-45 min' },
     { icon: Heart, value: 'cardiology', time: '45-60 min' },
     { icon: Activity, value: 'emergency', time: '15-30 min' },
-    { icon: Brain, value: 'internal_medicine', time: '45-60 min' },
-    { icon: Phone, value: 'physio', time: '' },
+    { icon: Thermometer, value: 'internal_medicine', time: '45-60 min' },
+    { icon: Dumbbell, value: 'physio', time: '45-60 min' },
   ]
 
   const stats = [
-    { value: '+500', label: t('stats.verified') },
+    { value: '30', label: t('stats.arrival') },
     { value: '4.9★', label: t('stats.rating') },
-    { value: '35 min', label: t('stats.arrival') },
     { value: '24/7', label: t('stats.available') },
+    { value: '15%', label: t('stats.commission') },
   ]
 
   const heroTitleParts = t('hero.title').split('\n')
 
-  const testimonials = [
-    {
-      name: t('testimonials.t1author'),
-      rating: 5,
-      text: t('testimonials.t1'),
-    },
-    {
-      name: t('testimonials.t2author'),
-      rating: 5,
-      text: t('testimonials.t2'),
-    },
-    {
-      name: t('testimonials.t3author'),
-      rating: 5,
-      text: t('testimonials.t3'),
-    },
-  ]
-
   return (
     <div className="min-h-screen bg-white">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
+        <nav className="container mx-auto flex h-16 items-center justify-between px-4" aria-label="Main navigation">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary">
               <Stethoscope className="h-5 w-5 text-white" />
@@ -95,17 +61,47 @@ export default function LandingPage() {
             <Link href="#medicos" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">{t('forDoctors.title')}</Link>
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <Link href={`/${locale}/login`}>
-              <Button variant="outline" size="sm">{tNav('login')}</Button>
-            </Link>
-            <Link href={`/${locale}/register`}>
-              <Button size="sm">{tNav('register')}</Button>
-            </Link>
+            <div className="hidden md:flex items-center gap-3">
+              <LanguageSwitcher />
+              <Link href={`/${locale}/login`}>
+                <Button variant="outline" size="sm">{tNav('login')}</Button>
+              </Link>
+              <Link href={`/${locale}/register`}>
+                <Button size="sm">{tNav('register')}</Button>
+              </Link>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(v => !v)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
-        </div>
-      </nav>
+        </nav>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t bg-white">
+            <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
+              <Link href="#servicios" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-2">{tNav('services')}</Link>
+              <Link href="#como-funciona" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-2">{t('howItWorks.title')}</Link>
+              <Link href="#medicos" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-2">{t('forDoctors.title')}</Link>
+              <div className="pt-2 border-t flex items-center justify-between">
+                <LanguageSwitcher />
+              </div>
+              <Link href={`/${locale}/login`} onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full">{tNav('login')}</Button>
+              </Link>
+              <Link href={`/${locale}/register`} onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full">{tNav('register')}</Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
 
+      <main>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-white pt-20 pb-32">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
@@ -123,7 +119,7 @@ export default function LandingPage() {
             {t('hero.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href={`/${locale}/register`}>
+            <Link href={`/${locale}/patient/request`}>
               <Button size="xl" className="w-full sm:w-auto gap-2">
                 {t('hero.ctaPrimary')}
                 <ArrowRight className="h-5 w-5" />
@@ -255,37 +251,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('testimonials.title')}</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((testimonial) => (
-              <Card key={testimonial.name} className="border-0 shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex gap-1 mb-4">
-                    {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-4 italic">&ldquo;{testimonial.text}&rdquo;</p>
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center font-semibold text-blue-600 text-sm">
-                      {testimonial.name[0]}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-sm text-gray-900">{testimonial.name}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Final */}
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-4 text-center">
@@ -312,6 +277,7 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
@@ -323,11 +289,11 @@ export default function LandingPage() {
               </div>
               <span className="font-bold">OnCall Clinic</span>
             </div>
-            <div className="flex gap-6 text-sm text-gray-400">
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
               <Link href={`/${locale}/legal/privacy`} className="hover:text-white transition-colors">{t('footer.privacy')}</Link>
               <Link href={`/${locale}/legal/terms`} className="hover:text-white transition-colors">{t('footer.terms')}</Link>
               <Link href={`/${locale}/legal/cookies`} className="hover:text-white transition-colors">{t('footer.cookies')}</Link>
-              <Link href={`/${locale}/legal/terms`} className="hover:text-white transition-colors">{t('footer.legalNotice')}</Link>
+              <Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.legalNotice')}</Link>
             </div>
             <p className="text-sm text-gray-500">{t('footer.copyright')}</p>
           </div>

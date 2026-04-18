@@ -25,7 +25,20 @@ export async function middleware(request: NextRequest) {
   }
 
   // Apply Supabase session refresh + route protection
-  return updateSession(request)
+  const supabaseResponse = await updateSession(request)
+
+  // Preserve next-intl headers (e.g., x-next-intl-locale) so getMessages()
+  // resolves the correct locale. Without this merge, /en URLs fall back to
+  // defaultLocale because Supabase middleware returns a fresh NextResponse.
+  if (supabaseResponse) {
+    intlResponse.headers.forEach((value, key) => {
+      if (!supabaseResponse.headers.has(key)) {
+        supabaseResponse.headers.set(key, value)
+      }
+    })
+  }
+
+  return supabaseResponse
 }
 
 export const config = {

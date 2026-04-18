@@ -39,10 +39,10 @@
     "rolePatient": "Patient"
   },
   "landing": {
-    "badge": "🏝️ Available in Ibiza · English speaking doctors",
+    "badge": "Verified doctors at your door · Available 24/7",
     "hero": {
-      "title": "Your doctor,\nat your door in Ibiza.",
-      "subtitle": "Verified doctors at your hotel, villa or home in 30 minutes. English-speaking. Pay by card, no insurance needed.",
+      "title": "Your doctor,\nat your door.",
+      "subtitle": "Verified doctors at your hotel, villa or home in 30 minutes. Pay by card, no insurance needed.",
       "ctaPrimary": "Book a doctor now",
       "ctaSecondary": "I'm a doctor, join",
       "trust1": "No credit card to sign up",
@@ -51,9 +51,9 @@
       "trust4": "Available 24/7"
     },
     "stats": {
-      "arrival": "Avg. arrival time",
+      "arrival": "Min. arrival time",
       "rating": "Patient rating",
-      "verified": "Registered doctors",
+      "commission": "Platform fee",
       "available": "Always available"
     },
     "howItWorks": {
@@ -71,23 +71,14 @@
     },
     "forDoctors": {
       "title": "Are you a healthcare professional?",
-      "subtitle": "Join the OnCall Clinic network in Ibiza. Work when you want, get paid instantly.",
+      "subtitle": "Join the OnCall Clinic network. Work when you want, get paid instantly.",
       "benefit1Title": "Instant payment",
       "benefit1Desc": "Stripe transfers 85% of each consultation automatically.",
       "benefit2Title": "Work your schedule",
       "benefit2Desc": "No mandatory shifts. Toggle availability from the app.",
       "benefit3Title": "International network",
-      "benefit3Desc": "Treat patients from across Europe in Ibiza.",
+      "benefit3Desc": "Treat patients from across Europe.",
       "cta": "Join as a doctor"
-    },
-    "testimonials": {
-      "title": "What patients say",
-      "t1": "I had severe food poisoning at 2am. A doctor arrived at my villa in 25 minutes. Incredible service. Worth every penny.",
-      "t1author": "Sarah M., Brighton",
-      "t2": "My daughter had high fever on the first day of our holiday. Within half an hour there was a paediatrician at our villa. They saved our holiday.",
-      "t2author": "Javier R., Madrid",
-      "t3": "English-speaking doctor, real-time tracking, paid by card. Exactly what you need when you're sick abroad.",
-      "t3author": "Thomas K., Berlin"
     },
     "features": {
       "title": "Everything you need",
@@ -130,6 +121,7 @@
   "auth": {
     "login": {
       "title": "Welcome back",
+      "description": "Log in to your OnCall Clinic account",
       "subtitle": "Log in to your OnCall Clinic account",
       "email": "Email address",
       "password": "Password",
@@ -162,7 +154,18 @@
       "consentProfiling": "I accept profiling to personalise medical recommendations",
       "consentRequired": "Required consents must be accepted",
       "referralCode": "Referral code (optional)",
-      "referralCodePlaceholder": "ONCALL-XXXX"
+      "referralCodePlaceholder": "ONCALL-XXXX",
+      "description": "Sign up as a patient or medical professional",
+      "asPatientDesc": "Request doctors at your door",
+      "asDoctorDesc": "Manage visits and schedule",
+      "phone": "Phone number",
+      "passwordPlaceholder": "Minimum 8 characters",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "errorTitle": "Registration error",
+      "successTitle": "Account created",
+      "successDoctor": "Redirecting to doctor onboarding...",
+      "successPatient": "Redirecting to patient dashboard...",
+      "submitDoctor": "Sign up as a doctor"
     },
     "forgotPassword": {
       "title": "Reset your password",
@@ -177,8 +180,16 @@
       "invalidEmail": "Invalid email address",
       "invalidPhone": "Invalid phone (include country code)",
       "passwordMismatch": "Passwords don't match",
-      "passwordTooShort": "Password must be at least 8 characters",
-      "invalidCredentials": "Invalid email or password"
+      "passwordTooShort": "Password must be at least 12 characters",
+      "invalidCredentials": "Invalid email or password",
+      "nameRequired": "Name is required",
+      "minPassword": "Minimum 12 characters",
+      "passwordUppercase": "Must include an uppercase letter",
+      "passwordNumber": "Must include a number",
+      "passwordsMismatch": "Passwords don't match"
+    },
+    "common": {
+      "backToHome": "Back to home"
     }
   },
   "patient": {
@@ -375,6 +386,8 @@
     },
     "onboarding": {
       "title": "Join as a doctor",
+      "fullName": "Full name",
+      "email": "Email",
       "step1": "Professional info",
       "step2": "Documents",
       "step3": "Confirmation",
@@ -781,6 +794,24 @@
       "retention3": "Payment and billing data: 5 years (tax obligation)",
       "managePrefs": "Manage your privacy preferences from your panel:",
       "goToPanel": "Go to privacy panel"
+    },
+    "avisoLegal": {
+      "title": "Legal Notice",
+      "effectiveDate": "Effective from 17 April 2026",
+      "s1Title": "1. Service provider identification (Art. 10 LSSI-CE)",
+      "s1p1": "In compliance with the disclosure duty of article 10 of Law 34/2002 of 11 July on Information Society and Electronic Commerce Services (LSSI-CE), we provide the following information:",
+      "companyName": "Company name",
+      "taxId": "Tax ID",
+      "address": "Registered address",
+      "registry": "Registry",
+      "s2Title": "2. Purpose",
+      "s2p1": "OnCall Clinic is an intermediary platform between patients and licensed healthcare professionals. We do not provide medical services directly; we facilitate the contractual engagement between parties, manage payments and provide communication and tracking tools.",
+      "s3Title": "3. Terms of use",
+      "s3p1": "Access and use of the website implies acceptance of the general terms of use published in the Terms & Conditions section. Users commit to a diligent use of the platform and to refraining from any activity contrary to law, morals or public order.",
+      "s4Title": "4. Intellectual and industrial property",
+      "s4p1": "All content on the website (text, images, trademarks, logos, source code, databases and design) is the property of Ibiza Care SL or its licensors, protected under Spanish and international intellectual and industrial property law.",
+      "s5Title": "5. Applicable law and jurisdiction",
+      "s5p1": "These terms are governed by Spanish law. Any dispute arising from the use of the website shall be submitted to the Courts and Tribunals of Eivissa (Balearic Islands), with express waiver of any other forum that may correspond to the parties."
     }
   },
   "settings": {

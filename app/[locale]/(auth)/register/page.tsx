@@ -57,7 +57,10 @@ function RegisterPage() {
     fullName: z.string().min(2, t('errors.nameRequired')),
     email: z.string().email(t('errors.invalidEmail')),
     phone: z.string().min(9, t('errors.invalidPhone')).optional(),
-    password: z.string().min(8, t('errors.minPassword')),
+    password: z.string()
+      .min(12, t('errors.minPassword'))
+      .regex(/[A-Z]/, t('errors.passwordUppercase'))
+      .regex(/[0-9]/, t('errors.passwordNumber')),
     confirmPassword: z.string(),
   }).refine(d => d.password === d.confirmPassword, {
     message: t('errors.passwordsMismatch'),
@@ -215,9 +218,11 @@ function RegisterPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
                 label={t('register.name')}
-                placeholder="Dra. Ana García"
+                placeholder={selectedRole === 'doctor' ? 'Dra. Ana García' : 'María García'}
                 icon={<User className="h-4 w-4" />}
                 error={errors.fullName?.message}
+                required
+                aria-required="true"
                 {...register('fullName')}
               />
               <Input
@@ -226,12 +231,14 @@ function RegisterPage() {
                 placeholder="ana@ejemplo.com"
                 icon={<Mail className="h-4 w-4" />}
                 error={errors.email?.message}
+                required
+                aria-required="true"
                 {...register('email')}
               />
               <Input
                 label={t('register.phone')}
                 type="tel"
-                placeholder="+34 600 000 000"
+                placeholder="+XX XXX XXX XXX"
                 icon={<Phone className="h-4 w-4" />}
                 error={errors.phone?.message}
                 {...register('phone')}
@@ -242,6 +249,8 @@ function RegisterPage() {
                 placeholder={t('register.passwordPlaceholder')}
                 icon={<Lock className="h-4 w-4" />}
                 error={errors.password?.message}
+                required
+                aria-required="true"
                 {...register('password')}
               />
               <Input
@@ -250,6 +259,8 @@ function RegisterPage() {
                 placeholder={t('register.confirmPasswordPlaceholder')}
                 icon={<Lock className="h-4 w-4" />}
                 error={errors.confirmPassword?.message}
+                required
+                aria-required="true"
                 {...register('confirmPassword')}
               />
 
@@ -278,6 +289,8 @@ function RegisterPage() {
                       type="checkbox"
                       checked={consents.health_data_processing}
                       onChange={() => toggleConsent('health_data_processing')}
+                      required
+                      aria-required="true"
                       className="sr-only"
                     />
                     <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${
@@ -305,6 +318,8 @@ function RegisterPage() {
                       type="checkbox"
                       checked={consents.geolocation_tracking}
                       onChange={() => toggleConsent('geolocation_tracking')}
+                      required
+                      aria-required="true"
                       className="sr-only"
                     />
                     <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${

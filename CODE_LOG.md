@@ -535,3 +535,101 @@
 
 ---
 
+### [2026-04-18 22:45] — AUDITORÍA UX/UI — 7 críticos + 7 medios
+**Estado:** ✅ OK
+**Archivos creados:** `app/[locale]/legal/aviso-legal/page.tsx`
+**Archivos modificados:** `.env.production`, `middleware.ts`, `app/[locale]/layout.tsx`, `app/[locale]/page.tsx`, `app/[locale]/(auth)/register/page.tsx`, `app/[locale]/(auth)/login/page.tsx`, `app/[locale]/patient/booking-success/page.tsx`, `messages/es.json`, `messages/en.json`
+**Errores encontrados:** 2 durante build (corregidos)
+**Cómo los resolviste:** 1) `doctor.onboarding.fullName` + `email` preexistentes faltantes en ambos idiomas → añadidos. 2) `auth.login.description` falta en ambos idiomas → añadido. 3) booking-success con `useSearchParams` sin Suspense boundary → envuelto en Suspense con loading fallback.
+**Build status:** `npx tsc --noEmit` — 0 errores. `npm run build` — ✓ 68/68 páginas. i18n: 761 ES = 761 EN ✅ PERFECTA.
+**Notas:**
+
+### BLOQUE 1 — CRÍTICOS (7/7 ✅)
+
+**1.1 Quitar TEST MODE banner en producción**
+- `.env.production`: `NEXT_PUBLIC_TEST_MODE=true` → `false`
+- Componente `TestModeBanner` no se borra (sigue activo en dev con .env.local)
+
+**1.2 Fix i18n — /en sirve contenido en español** 🔴 **ROOT CAUSE**
+- Bug en middleware: `intlMiddleware(request)` generaba response con headers `x-next-intl-locale`, pero luego `updateSession(request)` creaba un NUEVO `NextResponse.next({ request })` que descartaba esos headers. Resultado: `getMessages()` no encontraba el locale y caía a `defaultLocale='es'`.
+- FIX: merge de headers del intlResponse al supabaseResponse después del session refresh.
+- Adicional: layout.tsx ahora pasa `locale={locale}` explícito a `NextIntlClientProvider`, usa `setRequestLocale(locale)` para SSG, y `getMessages({ locale })` con param.
+
+**1.3 Internacionalizar — eliminar Ibiza de UI**
+- `landing.badge`: "🏝️ Disponible en Ibiza..." → "Médicos verificados a domicilio · Disponible 24/7"
+- `landing.hero.title`: "Tu médico en casa.\nDonde estés en Ibiza." → "Tu médico en casa.\nCuando lo necesites."
+- `landing.hero.subtitle`: Quitado "En español o en inglés."
+- `forDoctors.subtitle`: "Únete a la red de OnCall Clinic en Ibiza." → "Únete a la red de OnCall Clinic."
+- `forDoctors.benefit3Desc`: Quitado "desde Ibiza"
+- EN equivalentes. No se tocó `footer.copyright` (Ibiza Care SL es la entidad legal).
+
+**1.4 Stats falsos → realistas**
+- Antes: `+500 Médicos colegiados, 4.9★, 35 min, 24/7`
+- Ahora: `30 Min. tiempo llegada, 4.9★, 24/7, 15% Comisión plataforma`
+- Key `stats.verified` eliminada, `stats.commission` añadida
+
+**1.5 CTA "Pedir médico" → /patient/request**
+- `hero.ctaPrimary` href: `/${locale}/register` → `/${locale}/patient/request`
+- Middleware redirige a login si no autenticado (correcto)
+
+**1.6 Menú hamburguesa mobile**
+- Añadido botón `md:hidden` con icons `Menu`/`X`
+- State `mobileMenuOpen`, drawer con links anchor + LanguageSwitcher + CTAs
+- Auto-close al hacer click en cualquier link
+- aria-expanded + aria-label para accesibilidad
+- Landing page convertida a `'use client'` para el estado
+
+**1.7 Landmarks HTML**
+- `<nav>` interior, envuelto en `<header>` semántico
+- Todo el contenido desde hero hasta CTA final envuelto en `<main>`
+- `<footer>` queda fuera del main (como debe ser)
+- `<nav>` con `aria-label="Main navigation"`
+
+### BLOQUE 2 — MEDIOS (7/7 ✅)
+
+**2.1 Iconos servicios corregidos**
+- `internal_medicine`: `Brain` 🧠 → `Thermometer` 🌡️
+- `physio`: `Phone` 📞 → `Dumbbell` 🏋️ (HandMetal no disponible en versión)
+- Añadido tiempo "45-60 min" a physio (antes vacío)
+
+**2.2 required + aria-required**
+- Register: inputs `fullName`, `email`, `password`, `confirmPassword` + checkboxes `health_data_processing`, `geolocation_tracking`
+- Login: inputs `email`, `password`
+- Phone queda opcional (sin required)
+
+**2.3 Testimonios eliminados**
+- Bloque `testimonials` del JSON borrado (ES+EN)
+- Sección completa eliminada de `page.tsx`
+- MVP sin usuarios reales → fake social proof es anti-ético
+
+**2.4 Placeholder nombre según rol**
+- `placeholder={selectedRole === 'doctor' ? 'Dra. Ana García' : 'María García'}`
+
+**2.5 Password policy reforzada**
+- Antes: `.min(8)`
+- Ahora: `.min(12).regex(/[A-Z]/).regex(/[0-9]/)`
+- Claves añadidas: `errors.passwordUppercase`, `errors.passwordNumber`
+- Claves actualizadas: `errors.minPassword` "Mínimo 12 caracteres" (antes 8)
+
+**2.6 Phone placeholder genérico**
+- Antes: `+34 600 000 000` (asume España)
+- Ahora: `+XX XXX XXX XXX`
+- Selector de país con librería dejado para sprint siguiente (fuera de scope)
+
+**2.7 Aviso Legal separado**
+- Creado: `app/[locale]/legal/aviso-legal/page.tsx`
+- Contenido Art. 10 LSSI-CE: denominación (Ibiza Care SL), CIF (placeholder B-XXXXXXXX), domicilio, inscripción Registro Mercantil Eivissa Tomo 2148 Folio 1 Hoja IB-21129, email, objeto, condiciones, propiedad intelectual, ley aplicable + jurisdicción Eivissa
+- Namespace `legal.avisoLegal` añadido a ambos JSON
+- Footer landing `legalNotice` ahora apunta a `/legal/aviso-legal` (antes terms)
+
+### BLOQUE 3 — Build + Resultados
+
+- `npx tsc --noEmit`: 0 errores
+- `npm run build`: ✓ 68/68 páginas (antes 66 — +2 por aviso-legal ES/EN)
+- i18n: 761/761 keys ✅ paridad
+- 0 `href="#"`
+- 0 `'approved'` en código
+- `NEXT_PUBLIC_TEST_MODE=false` en producción
+
+---
+

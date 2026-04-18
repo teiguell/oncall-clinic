@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,18 @@ import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 
 export default function BookingSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
+        <Loader2 className="h-16 w-16 text-blue-500 animate-spin" />
+      </div>
+    }>
+      <BookingSuccessContent />
+    </Suspense>
+  )
+}
+
+function BookingSuccessContent() {
   const t = useTranslations('patient.bookingSuccess')
   const locale = useLocale()
   const router = useRouter()

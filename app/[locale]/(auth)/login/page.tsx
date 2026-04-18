@@ -135,6 +135,8 @@ export default function LoginPage() {
                 placeholder="tu@email.com"
                 icon={<Mail className="h-4 w-4" />}
                 error={errors.email?.message}
+                required
+                aria-required="true"
                 {...register('email')}
               />
               <Input
@@ -143,6 +145,8 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 icon={<Lock className="h-4 w-4" />}
                 error={errors.password?.message}
+                required
+                aria-required="true"
                 {...register('password')}
               />
 
