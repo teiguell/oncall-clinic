@@ -1307,3 +1307,90 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 
 ---
 
+### [2026-04-19 05:35] — FIXES + E2E SIMULATION READINESS
+**Estado:** ✅ OK
+**Archivos creados:** `app/api/consultations/assign/route.ts`, `scripts/seed-test-users.ts`
+**Archivos modificados:** `types/index.ts` (services 4 items + active flag), `app/api/stripe/checkout/route.ts` (no urgent multiplier + assign broadcast), `app/[locale]/patient/request/page.tsx` (services filter + coming soon badge), `app/[locale]/doctor/consultations/page.tsx` (state transition buttons), `components/ui/input.tsx` (htmlFor via useId), `components/cookie-consent.tsx` (dual cookie+localStorage check), `messages/es.json` + `messages/en.json` (no 85%, comingSoon, onRoute/arrived/complete)
+**Errores encontrados:** 2 tsc errors en request page (urgentMultiplier inexistente) → eliminados uso de multiplier
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 71/71 páginas. i18n: 920 ES = 920 EN ✅ PARIDAD.
+
+### BLOQUE 1 — Bugs visuales/SEO
+
+**1.1 Cookie consent visibilidad:**
+- Check dual: cookie `cookie_consent` + localStorage fallback
+- Delay reducido 1000 → 800ms
+- saveConsent escribe AMBOS (cookie + localStorage) para mayor compatibilidad
+- `z-[9999]` ya estaba en el div principal
+
+**1.5 Input htmlFor (WCAG 1.3.1):**
+- `components/ui/input.tsx`: usa `React.useId()` como fallback, label conectado con `htmlFor={inputId}`, input tiene `id={inputId}` + `name={name}`
+
+**1.8/1.9 Remove "85%" hardcoded:**
+- `messages/*.json`: 5 strings con "85%"/"15%" reescritos
+  - `forDoctors.benefit1Desc`: "Cobra directamente en tu cuenta. Comisión reducida el primer año."
+  - `request.toDoctor` → "Pago al médico" (sin %)
+  - `request.platformCommission` → "Comisión plataforma" (sin %)
+  - `earnings.yourAmount` → "Tu importe"
+  - `terms.s5p1` → redacción neutra sin porcentajes
+
+### BLOQUE 2 — Product flow crítico
+
+**2.1 Services filter + active flag:**
+- `types/index.ts`: `SERVICES` reducido a 4 items (general_medicine active + pediatrics/physio/nursing coming soon)
+- `ServiceType` type actualizado (eliminados gynecology/cardiology/dermatology/traumatology/internal_medicine/emergency)
+- Interface añade `active: boolean` + `comingSoon?: boolean`
+- Precio base unificado: 150€ (era variable por servicio)
+
+**2.2 Eliminar tipo "urgente":**
+- Removido `urgentMultiplier` del interface
+- `checkout/route.ts`: precio = base, sin multiplier
+- `request/page.tsx`: service cards muestran badge "Próximamente" en los disabled, `cursor-not-allowed`, sin precio visible, `onClick` no-op si isDisabled
+
+**2.3 Asignación automática de médico:**
+- `app/api/consultations/assign/route.ts` creado
+- Flujo: POST con `consultationId` → llama `find_nearest_doctors` RPC (50km radius por defecto), fallback a query simple si RPC no disponible
+- Inserta notificación para cada doctor candidato (race: primero en aceptar gana)
+- Rate limit: 10 req/min/IP
+- `checkout/route.ts` llama fire-and-forget al endpoint después de insertar la consulta en test mode
+
+**2.4 Flujo estados consulta:**
+- `doctor/consultations/page.tsx`: nuevos botones de transición
+  - `pending` → `accepted` (acceptConsultation — existía)
+  - `accepted` → `in_progress` (Botón "En camino" + started_at)
+  - `in_progress` → `arrived` (Botón "He llegado")
+  - `arrived` → `completed` (Botón "Finalizar" + completed_at)
+- i18n: `consultations.{onRoute,arrived,complete}` ES+EN
+
+### BLOQUE 3 — Datos simulados
+
+**3.1-3.3 Seed test users:**
+- `scripts/seed-test-users.ts`: crea via `supabase.auth.admin.createUser()`:
+  - Dr. Carlos Martínez (Ibiza ciudad, 2 months activation, adjustment 0.00, español+inglés)
+  - Dra. Elena Ruiz (Santa Eulalia, 6 months activation, adjustment -0.10, trilingüe de)
+  - Dr. James Wilson (San Antonio, 14 months activation, adjustment +0.15, inglés nativo)
+  - Paciente de test con consent_log pre-cargado
+- Password: `TestDoc2026!` (médicos) / `TestPat2026!` (paciente)
+- Emails: `dr.martinez@test.oncall.clinic`, `dra.ruiz@test.oncall.clinic`, `dr.wilson@test.oncall.clinic`, `paciente@test.oncall.clinic`
+
+**3.4 Consulta pre-cargada:**
+- 1 consulta en estado `completed` + review 5★ para que los dashboards no estén vacíos
+
+**Run:** `npx tsx scripts/seed-test-users.ts` (requiere Supabase credentials reales en .env.local)
+
+### Resto bloques
+- **Block 1.2/1.3/1.4/1.10** (SEO title/og/canonical/x-default per-locale): root template + legal pages ya cubren el caso común. Per-route dinámico requiere split metadata en cada page — follow-up.
+- **Block 1.6/1.7** whitespace + cards: ya aplicados en Sprint 3.5.
+- **Block 4.4** review prompt completed: ya existe en tracking page (líneas 401-443).
+- **Block 5** FAQ: id="faq" + link footer → follow-up (scaffolding via #como-funciona ya útil).
+
+### CREDENCIALES TEST
+```
+Paciente:    paciente@test.oncall.clinic    / TestPat2026!
+Dr. Martínez: dr.martinez@test.oncall.clinic / TestDoc2026!
+Dra. Ruiz:   dra.ruiz@test.oncall.clinic   / TestDoc2026!
+Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
+```
+(Ejecutar seed cuando Supabase real esté configurado.)
+
+---
+

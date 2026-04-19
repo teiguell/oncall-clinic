@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-04-19 — Sprint 4: Fixes + E2E Simulation Readiness
+
+### Added
+- `/api/consultations/assign` endpoint: broadcasts pending consultations to nearby doctors via `find_nearest_doctors` RPC; first-accept-wins race semantics via notifications.
+- `scripts/seed-test-users.ts` for E2E manual testing: 3 doctors (Martínez Ibiza, Ruiz Santa Eulalia, Wilson San Antonio) + 1 patient + pre-seeded completed consultation with 5★ review.
+- Doctor dashboard action buttons: accept → on route → arrived → complete (updates `started_at`, `completed_at` + triggers consultation_status_history).
+- Migration 013: `doctor_profiles.activated_at` + `price_adjustment` (±30%) for dynamic commission and per-doctor price.
+- `lib/pricing.ts` + `lib/regional-pricing.ts`: Year 1 promo 10% commission, standard 15%, night/holiday 1.30x surcharge.
+- Payout route now recalculates commission dynamically using `doctor.activated_at`.
+- `@keyframes fadeSlideUp` + `.page-enter` + `.btn-hover` global utilities.
+- Input `htmlFor` auto-wiring via `React.useId()` fallback (WCAG 1.3.1).
+
+### Changed
+- **SERVICES reduced to 4 items** (active: general_medicine; coming soon: pediatrics, physio, nursing). Removed cardiology, emergency, gynecology, dermatology, traumatology, internal_medicine.
+- **Removed urgent multiplier** — all consultations are flat-price; adjustments applied at payout time via doctor's `price_adjustment` + night surcharge.
+- Booking service cards: disabled + "Coming soon" badge + `cursor-not-allowed` for inactive services.
+- All hardcoded "85%" / "15%" removed from user-facing i18n (patient-facing price breakdown shows no commission split).
+- `forDoctors.benefit1Desc`: "Get paid directly to your account. Reduced commission in your first year."
+- Cookie consent: dual check (cookie + localStorage) for better browser compatibility; banner shows after 800ms.
+
+### Fixed
+- Landing `COMIB` references removed from 9 user-facing i18n keys → "Médicos colegiados verificados" / "Verified licensed doctors".
+- DPO email `teiguell.med@gmail.com` → `dpo@oncall.clinic` globally.
+- Domain `oncallclinic.com` → `oncall.clinic` globally (sed across app, components, messages, lib, public).
+- Footer FAQ link `/register` → `#como-funciona`.
+- Privacy intro: added LOPDGDD (Ley Orgánica 3/2018) reference alongside GDPR.
+- Withdrawal rights in Terms: added period (14 days), Art. 103.a exception, practice, model form (RDL 1/2007 Annex B).
+- DPIA (Art. 35 GDPR) in Privacy: documented 8 technical measures (TLS 1.3, AES-256, RLS, pseudonymization, audits, training, doc verification, erasure).
+- CAIB health registry notice in landing footer.
+
+
+
 ## [0.3.0] — 2026-04-19 — Sprint 3: Legal compliance, UI premium, versioning
 
 ### Added

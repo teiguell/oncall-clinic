@@ -28,9 +28,11 @@ export async function POST(request: Request) {
 
   const service = SERVICES.find(s => s.value === serviceType as ServiceType)
   if (!service) return NextResponse.json({ error: 'Servicio no válido' }, { status: 400 })
+  if (!service.active) return NextResponse.json({ error: 'Servicio próximamente disponible' }, { status: 400 })
 
-  const multiplier = type === 'urgent' ? service.urgentMultiplier : 1
-  const priceEuros = service.basePrice * multiplier
+  // Price is the regional base; per-doctor adjustment and night surcharge
+  // are applied at doctor acceptance / payout time.
+  const priceEuros = service.basePrice
   const priceCents = Math.round(priceEuros * 100)
 
   const commissionRate = parseFloat(process.env.NEXT_PUBLIC_COMMISSION_RATE || '0.15')
@@ -65,6 +67,20 @@ export async function POST(request: Request) {
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+    // Broadcast to nearby doctors (fire-and-forget; don't block redirect)
+    try {
+      const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || ''
+      if (origin) {
+        fetch(`${origin}/api/consultations/assign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ consultationId: consultation.id }),
+        }).catch((e) => console.error('Assign broadcast failed:', e))
+      }
+    } catch {
+      // noop
+    }
 
     return NextResponse.json({
       testMode: true,

@@ -8,11 +8,16 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, error, icon, ...props }, ref) => {
+  ({ className, type, label, error, icon, id, name, ...props }, ref) => {
+    // Ensure label+input are wired (WCAG 1.3.1, 4.1.2)
+    const reactAutoId = React.useId()
+    const inputId = id || name || `input-${reactAutoId}`
     return (
       <div className="space-y-1.5">
         {label && (
-          <label className="text-sm font-medium text-foreground">{label}</label>
+          <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+            {label}
+          </label>
         )}
         <div className="relative">
           {icon && (
@@ -21,6 +26,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
           <input
+            id={inputId}
+            name={name}
             type={type}
             className={cn(
               // text-base (16px) on mobile avoids iOS auto-zoom; md:text-sm for desktop density.

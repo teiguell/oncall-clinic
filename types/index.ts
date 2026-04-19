@@ -103,13 +103,8 @@ export interface Consultation {
 export type ServiceType =
   | 'general_medicine'
   | 'pediatrics'
-  | 'gynecology'
-  | 'cardiology'
-  | 'dermatology'
-  | 'traumatology'
-  | 'internal_medicine'
+  | 'physio'
   | 'nursing'
-  | 'emergency'
 
 export interface ServiceOption {
   value: ServiceType
@@ -117,19 +112,15 @@ export interface ServiceOption {
   icon: string
   description: string
   basePrice: number  // en euros
-  urgentMultiplier: number
+  active: boolean
+  comingSoon?: boolean
 }
 
 export const SERVICES: ServiceOption[] = [
-  { value: 'general_medicine', label: 'Medicina General', icon: '🩺', description: 'Consulta médica general a domicilio', basePrice: 60, urgentMultiplier: 1.5 },
-  { value: 'pediatrics', label: 'Pediatría', icon: '👶', description: 'Atención médica para niños', basePrice: 70, urgentMultiplier: 1.5 },
-  { value: 'gynecology', label: 'Ginecología', icon: '👩‍⚕️', description: 'Consulta ginecológica', basePrice: 80, urgentMultiplier: 1.5 },
-  { value: 'cardiology', label: 'Cardiología', icon: '❤️', description: 'Evaluación cardiológica', basePrice: 90, urgentMultiplier: 1.5 },
-  { value: 'dermatology', label: 'Dermatología', icon: '🔬', description: 'Consulta dermatológica', basePrice: 75, urgentMultiplier: 1.5 },
-  { value: 'traumatology', label: 'Traumatología', icon: '🦴', description: 'Valoración traumatológica', basePrice: 80, urgentMultiplier: 1.5 },
-  { value: 'internal_medicine', label: 'Medicina Interna', icon: '🏥', description: 'Consulta de medicina interna', basePrice: 80, urgentMultiplier: 1.5 },
-  { value: 'nursing', label: 'Enfermería', icon: '💉', description: 'Servicios de enfermería', basePrice: 40, urgentMultiplier: 1.5 },
-  { value: 'emergency', label: 'Urgencias', icon: '🚑', description: 'Atención urgente', basePrice: 100, urgentMultiplier: 2.0 },
+  { value: 'general_medicine', label: 'Medicina General', icon: '🩺', description: 'Consulta médica general a domicilio', basePrice: 150, active: true },
+  { value: 'pediatrics',       label: 'Pediatría',        icon: '👶', description: 'Atención médica para niños',         basePrice: 150, active: false, comingSoon: true },
+  { value: 'physio',           label: 'Fisioterapia',     icon: '🦵', description: 'Fisioterapia a domicilio',           basePrice: 150, active: false, comingSoon: true },
+  { value: 'nursing',          label: 'Enfermería',       icon: '💉', description: 'Servicios de enfermería',            basePrice: 150, active: false, comingSoon: true },
 ]
 
 export interface StatusHistoryEntry {

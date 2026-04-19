@@ -20,11 +20,16 @@ export function CookieConsent() {
   const [showDetails, setShowDetails] = useState(false)
 
   useEffect(() => {
-    const consent = document.cookie
+    // Check both cookie and localStorage fallback (some privacy browsers
+    // block cookies but allow localStorage)
+    const hasCookie = document.cookie
       .split('; ')
-      .find(row => row.startsWith('cookie_consent='))
-    if (!consent) {
-      const timer = setTimeout(() => setShow(true), 1000)
+      .some(row => row.startsWith('cookie_consent='))
+    const hasLocalStorage = (() => {
+      try { return !!window.localStorage.getItem('cookie-consent') } catch { return false }
+    })()
+    if (!hasCookie && !hasLocalStorage) {
+      const timer = setTimeout(() => setShow(true), 800)
       return () => clearTimeout(timer)
     }
   }, [])
@@ -32,7 +37,14 @@ export function CookieConsent() {
   const saveConsent = (consent: CookieConsent) => {
     const expires = new Date()
     expires.setMonth(expires.getMonth() + 13)
-    document.cookie = `cookie_consent=${encodeURIComponent(JSON.stringify(consent))}; expires=${expires.toUTCString()}; path=/; SameSite=Lax; Secure`
+    const payload = encodeURIComponent(JSON.stringify(consent))
+    // Dual storage: cookie (AEPD preferred) + localStorage (fallback)
+    try {
+      document.cookie = `cookie_consent=${payload}; expires=${expires.toUTCString()}; path=/; SameSite=Lax; Secure`
+    } catch { /* cookie disabled */ }
+    try {
+      window.localStorage.setItem('cookie-consent', JSON.stringify(consent))
+    } catch { /* localStorage disabled */ }
     setShow(false)
 
     if (!consent.analytics) {

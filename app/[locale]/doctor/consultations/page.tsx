@@ -111,6 +111,14 @@ export default function DoctorConsultationsPage() {
       .eq('id', id)
   }
 
+  const transitionStatus = async (id: string, newStatus: 'in_progress' | 'arrived' | 'completed') => {
+    const patch: Record<string, unknown> = { status: newStatus }
+    const now = new Date().toISOString()
+    if (newStatus === 'in_progress') patch.started_at = now
+    if (newStatus === 'completed') patch.completed_at = now
+    await supabase.from('consultations').update(patch).eq('id', id)
+  }
+
   const filtered = filter === 'all'
     ? consultations
     : consultations.filter(c => c.status === filter || (filter === 'in_progress' && (c.status === 'in_progress' || c.status === 'arrived')))
@@ -199,11 +207,26 @@ export default function DoctorConsultationsPage() {
                       )}
                     </div>
 
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex flex-wrap gap-2 mt-3">
                       {isPending && (
                         <Button size="sm" onClick={() => acceptConsultation(c.id)} className="gap-2">
                           <CheckCircle className="h-3.5 w-3.5" />
                           {t('accept')}
+                        </Button>
+                      )}
+                      {c.status === 'accepted' && (
+                        <Button size="sm" variant="outline" onClick={() => transitionStatus(c.id, 'in_progress')}>
+                          {t('onRoute')}
+                        </Button>
+                      )}
+                      {c.status === 'in_progress' && (
+                        <Button size="sm" variant="outline" onClick={() => transitionStatus(c.id, 'arrived')}>
+                          {t('arrived')}
+                        </Button>
+                      )}
+                      {c.status === 'arrived' && (
+                        <Button size="sm" onClick={() => transitionStatus(c.id, 'completed')}>
+                          {t('complete')}
                         </Button>
                       )}
                       {isActive && (

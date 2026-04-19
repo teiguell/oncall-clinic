@@ -87,10 +87,10 @@ function RequestConsultationPage() {
   }, [setValue])
 
   const service = SERVICES.find(s => s.value === selectedService)!
-  const price = type === 'urgent'
-    ? service.basePrice * service.urgentMultiplier
-    : service.basePrice
-  const commission = price * 0.15
+  // Flat base price (adjustments apply at payout); commission shown only
+  // internally to the doctor, never to the patient.
+  const price = service.basePrice
+  const commission = price * 0.10
   const doctorAmount = price - commission
 
   const onSubmit = async (data: FormData) => {
@@ -225,25 +225,34 @@ function RequestConsultationPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {SERVICES.map((service) => {
-                const servicePrice = type === 'urgent'
-                  ? service.basePrice * service.urgentMultiplier
-                  : service.basePrice
+                const servicePrice = service.basePrice
+                const isDisabled = !service.active
                 return (
                   <button
                     key={service.value}
-                    onClick={() => { setSelectedService(service.value); nextStep() }}
-                    className={`p-4 rounded-2xl border-2 text-left transition-all hover:shadow-md ${
-                      selectedService === service.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 bg-white'
+                    disabled={isDisabled}
+                    onClick={() => { if (!isDisabled) { setSelectedService(service.value); nextStep() } }}
+                    className={`relative p-4 rounded-2xl border-2 text-left transition-all ${
+                      isDisabled
+                        ? 'border-border/60 bg-muted/40 opacity-60 cursor-not-allowed'
+                        : selectedService === service.value
+                          ? 'border-primary bg-primary/5 hover:shadow-md'
+                          : 'border-border bg-card hover:shadow-md'
                     }`}
                   >
+                    {service.comingSoon && (
+                      <span className="absolute top-2 right-2 pill-neutral">
+                        {t('request.comingSoon')}
+                      </span>
+                    )}
                     <span className="text-3xl">{service.icon}</span>
-                    <p className="font-semibold text-sm mt-2 text-gray-900">{service.label}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{service.description}</p>
-                    <p className="text-blue-600 font-bold text-sm mt-2">
-                      {formatCurrencyFromEuros(servicePrice)}
-                    </p>
+                    <p className="font-semibold text-sm mt-2 text-foreground">{service.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
+                    {service.active && (
+                      <p className="text-primary font-bold text-sm mt-2">
+                        {formatCurrencyFromEuros(servicePrice)}
+                      </p>
+                    )}
                   </button>
                 )
               })}
