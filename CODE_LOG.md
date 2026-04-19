@@ -779,3 +779,30 @@
 
 ---
 
+### [2026-04-19 02:35] — DEPLOY — vercel deploy --prod
+**Estado:** ✅ OK — READY
+**Archivos creados:** Ninguno
+**Archivos modificados:** Ninguno
+**Errores encontrados:** 1 bloqueo infra (resuelto): npm local corrupto (`lib/cli/` vacío en `/tmp/node-v22.14.0-darwin-arm64/lib/node_modules/npm/lib/`) → `npx vercel` fallaba con `Cannot find module '../lib/cli.js'`.
+**Cómo los resolviste:** Descargué Node 20.18.1 tarball fresco de nodejs.org a `/tmp/node-v20.18.1-darwin-arm64/`, instalé `vercel@51.7.0` globalmente con ese npm, y ejecuté `vercel deploy --prod --yes`.
+**Build status:**
+- Build remoto en Vercel: ✓ completado en ~1 minuto
+- Estado final: **READY**
+- URL deployment: `https://oncall-clinic-kk1ckbqqf-tei-guells-projects.vercel.app`
+- Alias producción: `https://oncall.clinic`
+- Deployment ID: `dpl_AwyXMRaZ3pLzDwCCg4HD7xarCZ7q`
+- Inspector: `https://vercel.com/tei-guells-projects/oncall-clinic/AwyXMRaZ3pLzDwCCg4HD7xarCZ7q`
+
+**Notas:** El fix de Node 20 (commit `7b24684`) funcionó — Vercel ya usa Node 20.x, build pasó pre-build stage y completó las 70 páginas. Autenticación Vercel usa sesión guardada (`teiguellmed-4738`). Desde el commit `e3d673d` (último READY) hasta este deploy, los cambios acumulados son:
+- 938a03b: audit UX/UI (banner test mode off, i18n middleware fix, Ibiza out of UI, mobile menu, landmarks, icons, required inputs, passwords 12+chars, aviso-legal)
+- 1f9718e: design polish + mobile UX + security headers + rate limit + sanitize
+- 778bc9a: CIF B19973569 + address (privacy page)
+- d7c44ba: trigger deploy (no-op commit)
+- 047f772: Sprint 3 — cookie consent + legal compliance + security QA (migration 012)
+- 7b24684: Node 20.x fix (engines + .node-version + .nvmrc)
+- 0ad4db9: CODE_LOG update
+
+Todos desplegados en producción en este deploy.
+
+---
+
