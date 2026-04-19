@@ -84,7 +84,12 @@ export default async function PatientDashboard() {
 
   const firstName = profile.full_name?.split(' ')[0] || 'Usuario'
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? t('dashboard.greeting') : hour < 20 ? t('dashboard.greeting') : t('dashboard.greetingEvening')
+  // 6-12 morning, 12-20 afternoon, else evening/night
+  const greeting = hour >= 6 && hour < 12
+    ? t('dashboard.greeting')
+    : hour >= 12 && hour < 20
+      ? t('dashboard.greetingAfternoon')
+      : t('dashboard.greetingEvening')
 
   return (
     <div className="min-h-screen bg-gray-50">

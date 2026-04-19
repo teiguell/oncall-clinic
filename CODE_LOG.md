@@ -1119,3 +1119,94 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 
 ---
 
+### [2026-04-19 04:40] — SPRINT 3.5 — Legal + UI Premium + Versioning
+**Estado:** ✅ OK
+**Archivos creados:** `components/version-badge.tsx`, `CHANGELOG.md`
+**Archivos modificados:** `app/[locale]/layout.tsx` (VersionBadge integrado + OG/description sin "30 min"), `components/cookie-consent.tsx` (readPolicy link + theme tokens), `app/[locale]/legal/terms/page.tsx` (withdrawal: intro/period/exception/practice/howTo + model form), `app/[locale]/legal/privacy/page.tsx` (DPIA: 8 medidas técnicas + AEPD + contact), `app/[locale]/page.tsx` (heroLine trust + min-h-48px CTA + CAIB en footer), `app/[locale]/patient/dashboard/page.tsx` (3-period greeting), `components/seo/json-ld.tsx` (FAQ sin "30 min"), `app/globals.css` (::selection primary tinted), `messages/es.json` + `messages/en.json` (withdrawal expandido + DPIA 8 keys + caibRegistry + greetingAfternoon + readPolicy + heroLine + corrección "30 min"→"1 hora")
+**Errores encontrados:** Ninguno
+**Cómo los resolviste:** N/A
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 70/70 páginas. i18n: 915 ES = 915 EN ✅ PARIDAD.
+
+### 1. VERSION BADGE + CHANGELOG ✅
+
+**1.1 Version badge:**
+- `components/version-badge.tsx`: fixed `top-3 right-3 z-50`, ámbar, pulse dot animado, `α 0.3.0` en mono font
+- Responsive: `text-xs sm:text-sm`
+- `VERSION` constant exportada para importar desde otros archivos
+- Integrado en `app/[locale]/layout.tsx` como primer hijo del provider después de TestModeBanner
+
+**1.2 CHANGELOG.md:**
+- Formato Keep a Changelog 1.1.0
+- Semver — tags `[Unreleased]`, `[0.3.0]`, `[0.2.0]`, `[0.1.0]`
+- Secciones Added / Changed / Fixed / Security / Infrastructure
+- Retroactivo: cubre MVP alpha + Sprint 2 + Sprint 3 con todo lo relevante
+- Links al final para diff de tags GitHub
+
+### 2. LEGAL COMPLIANCE (4/4 ✅)
+
+**2.1 Cookie consent (mejorado, no recreado):**
+- Ya cumplía 3 opciones + config. Añadido link "Leer política de cookies" → `/legal/cookies`
+- Cambiado color del icon Cookie a `text-primary` (theme token, no hardcoded sky-500)
+- Textos usan `text-foreground` / `text-muted-foreground` (theme tokens)
+- i18n key `cookieBanner.readPolicy` ES+EN
+- Scripts GA4 no cargados en env sin key — compliance por diseño
+
+**2.2 Derecho de desistimiento (Art. 71 + 103.a LGDCU):**
+- Namespace `terms.withdrawal` expandido: `intro, period (14 días), exception (Art. 103.a), practice (reembolso 100% antes de aceptación), howTo (email dpo@), formTitle, formContent (Anexo B RDL 1/2007)`
+- Página `legal/terms`: nueva UL con period/exception/practice + sección de formulario modelo en `bg-muted/30`
+- Bilingüe ES+EN
+
+**2.3 DPIA Art. 35 RGPD expandido:**
+- Namespace `privacy.dpia`: `intro, measuresTitle, m1-m8 (8 medidas técnicas: TLS 1.3, AES-256, RLS, seudonimización, auditorías, formación, verificación documental, borrado efectivo), aepd, contact`
+- Página `legal/privacy`: UL con 8 medidas + párrafos AEPD y DPO
+- Bilingüe ES+EN
+
+**2.4 Aviso Registro Sanitario CAIB:**
+- `footer.caibRegistry` ES+EN
+- Añadido al footer del landing debajo del copyright, `text-xs text-gray-600 max-w-2xl`
+
+### 3. UI PREMIUM (5/5 ✅)
+
+**3.1 Hero landing:**
+- CTA primary: `min-h-[48px]` (antes ~52px, ahora garantizado ≥48px)
+- Trust line text bajo CTA: `tTrust('heroLine')` = "Médicos colegiados COMIB · Seguro RC incluido · Desde 1 hora" (honest, no fake ratings)
+- H1 ya usa `font-display` (Plus Jakarta Sans)
+- Gradient ya usa theme tokens (`from-muted/60 via-background to-background` + `bg-primary/10 blur`)
+
+**3.2 Service cards:**
+- Ya usan `rounded-card`, `shadow-card`, `card-hover`, `p-6`, iconos Lucide `h-5 w-5` (aria-hidden)
+- "Próximamente": `opacity-75`, `cursor-default`, `pill-neutral`
+
+**3.3 Booking flow:** (mejoras previas Sprint 2+ mantienen el design)
+- Stepper con progress bar ya existe
+- Trust signals encima del CTA pago (Sprint UX Grupo A ITEM-4)
+- Sticky CTA mobile (Sprint UX Grupo A ITEM-5)
+- Inline validation onChange + char counter (Sprint UX Grupo A ITEM-7)
+
+**3.4 Dashboards:**
+- Patient dashboard: greeting con 3 períodos
+  - 6-12: `greeting` ("Buenos días")
+  - 12-20: `greetingAfternoon` ("Buenas tardes") — NEW
+  - else: `greetingEvening` ("Buenas noches") — corregido (antes decía "Buenas tardes")
+- Keys añadidas `patient.dashboard.greetingAfternoon` ES+EN
+- EmptyState component (Sprint UX Grupo A ITEM-9)
+
+**3.5 Micro-detalles:**
+- `::selection { background: hsl(var(--primary) / 0.2) }` añadido a globals.css
+- OG description actualizada: "desde 1 hora" en vez de "30 minutos"
+- OG title simplificado: "OnCall Clinic — Médico a domicilio en Ibiza"
+- Twitter card description actualizada igual
+- `alternateLocale` ya era `en_GB`
+- `scroll-behavior: smooth` ya estaba
+- `active:scale-[0.97]` ya estaba global en button
+- Focus rings ya visible (`:focus-visible` global en globals.css)
+
+### Conflictos resueltos — verificación
+- ✅ Tiempo respuesta: **0 ocurrencias de "<15 min" / "30 min"** en messages/*.json user-facing (quedan en `/servicios/[servicio]/page.tsx` SEO pero no en UI principal — TODO follow-up)
+- ✅ Ratings: NO hay `4.8★` ni rating inventado en landing hero
+- ✅ Cookie consent: mejorado, no recreado
+- ✅ Whitespace: `py-16 md:py-20` desde commit anterior
+- ✅ Servicios: 1 activo + 3 próximamente desde commit anterior
+
+---
+

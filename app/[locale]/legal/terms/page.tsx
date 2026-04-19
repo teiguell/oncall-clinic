@@ -88,10 +88,20 @@ export default async function TermsPage() {
         <p>{t('terms.s10p1')}</p>
       </section>
 
-      {/* 11. Right of withdrawal (Art. 103 LGDCU) */}
+      {/* 11. Right of withdrawal (Art. 71 + 103.a LGDCU) */}
       <section className="mb-8" id="withdrawal">
         <h2 className="text-xl font-semibold mb-3">{t('terms.withdrawal.title')}</h2>
-        <p>{t('terms.withdrawal.content')}</p>
+        <p>{t('terms.withdrawal.intro')}</p>
+        <ul className="list-disc pl-6 mt-3 space-y-2">
+          <li><strong>{t('terms.withdrawal.period').split(':')[0]}:</strong>{t('terms.withdrawal.period').split(':').slice(1).join(':')}</li>
+          <li>{t('terms.withdrawal.exception')}</li>
+          <li>{t('terms.withdrawal.practice')}</li>
+        </ul>
+        <p className="mt-4">{t('terms.withdrawal.howTo')}</p>
+        <div className="mt-4 border rounded-lg p-4 bg-muted/30 text-sm">
+          <p className="font-semibold mb-2">{t('terms.withdrawal.formTitle')}</p>
+          <pre className="whitespace-pre-wrap font-sans text-muted-foreground leading-relaxed">{t('terms.withdrawal.formContent')}</pre>
+        </div>
       </section>
 
       {/* 12. Online Dispute Resolution */}

@@ -121,6 +121,7 @@
     "footer": {
       "tagline": "Medical services intermediary platform. We are not a medical centre.",
       "copyright": "© 2026 OnCall Clinic · Ibiza Care SL · Ibiza, Spain",
+      "caibRegistry": "Ibiza Care SL — Registration with the Balearic Islands Health Services Registry in progress.",
       "product": "Product",
       "company": "Company",
       "services": "Services",
@@ -223,9 +224,10 @@
     "dashboard": {
       "greeting": "Good morning",
       "greetingEvening": "Good evening",
+      "greetingAfternoon": "Good afternoon",
       "subtitle": "How can we help you today?",
       "emergencyNow": "Emergency now",
-      "emergencyDesc": "Doctor in ~30 min",
+      "emergencyDesc": "Doctor from 1 hour",
       "scheduleVisit": "Schedule visit",
       "scheduleDesc": "Choose day and time",
       "ivDrips": "IV Drips & Wellness",
@@ -250,7 +252,7 @@
       "detailsStep": "Details",
       "confirmStep": "Confirm",
       "urgent": "Urgent",
-      "urgentDesc": "Doctor at your door in ~30 minutes",
+      "urgentDesc": "Doctor at your door from 1 hour",
       "scheduled": "Scheduled",
       "scheduledDesc": "Choose your preferred day and time",
       "symptoms": "Describe your symptoms",
@@ -273,7 +275,7 @@
       "myLocation": "Use my location",
       "notesPlaceholder": "Allergies, current medication, etc.",
       "stepOf": "Step {current} of {total}",
-      "urgentBadge": "Urgent · ~30 min",
+      "urgentBadge": "Urgent · from 1h",
       "scheduledBadge": "Scheduled",
       "toDoctor": "To the doctor (85%)",
       "platformCommission": "Platform commission (15%)",
@@ -649,7 +651,8 @@
     "comibShort": "COMIB-registered doctors",
     "insuranceShort": "Professional liability insurance included",
     "rgpdShort": "GDPR-protected data",
-    "stripeSecure": "Secure payment with Stripe"
+    "stripeSecure": "Secure payment with Stripe",
+    "heroLine": "COMIB-certified doctors · Malpractice insurance included · From 1 hour"
   },
   "booking2": {
     "loading_doctors": "Finding available doctors near you...",
@@ -718,7 +721,8 @@
     "rejectAll": "Reject non-essential",
     "acceptSelected": "Save selection",
     "showDetails": "Configure cookies",
-    "hideDetails": "Hide details"
+    "hideDetails": "Hide details",
+    "readPolicy": "Read cookie policy"
   },
   "referral": {
     "title": "Invite friends",
@@ -843,7 +847,13 @@
       "s10p1": "These Terms are governed by Spanish law. For any dispute arising from the use of the Platform, the parties submit to the Courts and Tribunals of Ibiza, waiving any other jurisdiction that may apply, except where consumer regulations establish a different jurisdiction.",
       "withdrawal": {
         "title": "11. Right of withdrawal",
-        "content": "Pursuant to Article 103(a) of Royal Legislative Decree 1/2007 (LGDCU), the right of withdrawal does not apply to healthcare services once execution has begun with the consumer's express consent. For cancellations before service commencement, the current cancellation policy applies (100% refund if cancelled more than 24h in advance; 50% between 2-24h; no refund if cancelled less than 2h before)."
+        "intro": "As a consumer, you have the right of withdrawal recognised in Articles 71 et seq. of Royal Legislative Decree 1/2007, of 16 November (LGDCU):",
+        "period": "Term: 14 calendar days from contracting the service, without need for justification.",
+        "exception": "Legal exception (Art. 103.a LGDCU): the right of withdrawal does NOT apply when the service has been fully performed or when its performance has begun with the consumer's express consent.",
+        "practice": "In practice: 100% refund if you cancel BEFORE a doctor accepts your request. Once accepted and with express consent to start, the service is considered in performance and the right of withdrawal no longer applies.",
+        "howTo": "To exercise the right of withdrawal within the applicable term and scenarios, send an email to dpo@oncall.clinic using the model form below.",
+        "formTitle": "Model withdrawal form (Annex B RDL 1/2007)",
+        "formContent": "To: Ibiza Care SLU — C/ Lugo 11, 3º2ª, 07830 Sant Josep de Sa Talaia, Illes Balears — dpo@oncall.clinic\\n\\nI/We hereby give notice that I/we withdraw from my/our contract for the provision of the following service: [service description]\\n\\nOrdered on: [date]\\nReceived on: [date]\\nConsumer's name: [full name]\\nConsumer's address: [address]\\nConsumer's signature (only if paper): [signature]\\nDate: [date]"
       },
       "odr": {
         "title": "12. Online Dispute Resolution (ODR) and complaint forms",
@@ -930,7 +940,18 @@
       "s6Content": "We use Stripe Inc. (USA) as our payment processor, protected under the European Commission's Standard Contractual Clauses (SCCs, Art. 46 GDPR) and the EU-US Data Privacy Framework. No other international transfers of personal data are made.",
       "dpia": {
         "title": "7. Data Protection Impact Assessment (DPIA)",
-        "content": "In accordance with Article 35 of the GDPR, OnCall Clinic has conducted a Data Protection Impact Assessment for the large-scale processing of health data. This assessment is kept updated and available to the Spanish Data Protection Authority (AEPD) upon reasoned request."
+        "intro": "In accordance with Article 35 GDPR, Ibiza Care SL has conducted a Data Protection Impact Assessment (DPIA) for the large-scale processing of health data, given the special sensitivity of these data (Art. 9 GDPR).",
+        "measuresTitle": "Technical and organisational measures implemented:",
+        "m1": "Encryption in transit: TLS 1.3 across all communications between client, server and database.",
+        "m2": "Encryption at rest: AES-256 in the database (Supabase/PostgreSQL) and document storage.",
+        "m3": "Role-based access control (Row Level Security in Supabase): patients access only their own data; doctors only assigned consultations; admin with differentiated privileges.",
+        "m4": "Pseudonymisation: internal identifiers (UUIDs) decoupled from directly identifiable data in analytical queries.",
+        "m5": "Periodic audits: immutable ledgers (consent_log, payout_audit_log) with timestamp, IP and user-agent.",
+        "m6": "Continuous staff training on data protection and medical confidentiality.",
+        "m7": "Prior documentary verification of licensing, liability insurance and self-employed (RETA) registration before activating any healthcare professional.",
+        "m8": "Effective erasure (Art. 17 GDPR) via FK-safe cascade when the right to erasure is exercised.",
+        "aepd": "The full DPIA report is available to the Spanish Data Protection Authority (AEPD) upon reasoned request.",
+        "contact": "For any matter relating to this assessment, contact our DPO at dpo@oncall.clinic."
       },
       "managePrefs": "Manage your privacy preferences from your panel:",
       "goToPanel": "Go to privacy panel"

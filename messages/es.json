@@ -121,6 +121,7 @@
     "footer": {
       "tagline": "Plataforma intermediaria de servicios médicos. No somos un centro médico.",
       "copyright": "© 2026 OnCall Clinic · Ibiza Care SL · Ibiza, España",
+      "caibRegistry": "Ibiza Care SL — Inscripción en el Registro de Centros, Servicios y Establecimientos Sanitarios de las Illes Balears en trámite.",
       "product": "Producto",
       "company": "Empresa",
       "services": "Servicios",
@@ -222,10 +223,11 @@
   "patient": {
     "dashboard": {
       "greeting": "Buenos días",
-      "greetingEvening": "Buenas tardes",
+      "greetingEvening": "Buenas noches",
+      "greetingAfternoon": "Buenas tardes",
       "subtitle": "¿Cómo podemos ayudarte hoy?",
       "emergencyNow": "Urgencia ahora",
-      "emergencyDesc": "Médico en ~30 min",
+      "emergencyDesc": "Médico desde 1 hora",
       "scheduleVisit": "Programar cita",
       "scheduleDesc": "Elige día y hora",
       "ivDrips": "IV Drips & Wellness",
@@ -250,7 +252,7 @@
       "detailsStep": "Detalles",
       "confirmStep": "Confirmar",
       "urgent": "Urgente",
-      "urgentDesc": "Médico a domicilio en ~30 minutos",
+      "urgentDesc": "Médico a domicilio desde 1 hora",
       "scheduled": "Programada",
       "scheduledDesc": "Elige tu día y hora preferidos",
       "symptoms": "Describe tus síntomas",
@@ -273,7 +275,7 @@
       "myLocation": "Usar mi ubicación",
       "notesPlaceholder": "Alergias, medicación actual, etc.",
       "stepOf": "Paso {current} de {total}",
-      "urgentBadge": "Urgente · ~30 min",
+      "urgentBadge": "Urgente · desde 1h",
       "scheduledBadge": "Programada",
       "toDoctor": "Para el médico (85%)",
       "platformCommission": "Comisión plataforma (15%)",
@@ -649,7 +651,8 @@
     "comibShort": "Médicos colegiados COMIB",
     "insuranceShort": "Seguro RC profesional incluido",
     "rgpdShort": "Datos protegidos RGPD",
-    "stripeSecure": "Pago seguro con Stripe"
+    "stripeSecure": "Pago seguro con Stripe",
+    "heroLine": "Médicos colegiados COMIB · Seguro RC incluido · Desde 1 hora"
   },
   "booking2": {
     "loading_doctors": "Buscando médicos disponibles cerca de ti...",
@@ -718,7 +721,8 @@
     "rejectAll": "Rechazar no esenciales",
     "acceptSelected": "Guardar selección",
     "showDetails": "Configurar cookies",
-    "hideDetails": "Ocultar detalles"
+    "hideDetails": "Ocultar detalles",
+    "readPolicy": "Leer política de cookies"
   },
   "referral": {
     "title": "Invita amigos",
@@ -843,7 +847,13 @@
       "s10p1": "Estos Términos se rigen por la legislación española. Para cualquier controversia derivada del uso de la Plataforma, las partes se someten a los Juzgados y Tribunales de Ibiza, con renuncia a cualquier otro fuero que pudiera corresponderles, salvo que la normativa de consumidores establezca un fuero distinto.",
       "withdrawal": {
         "title": "11. Derecho de desistimiento",
-        "content": "Conforme al artículo 103.a) del Real Decreto Legislativo 1/2007 (LGDCU), el derecho de desistimiento no es aplicable a la prestación de servicios sanitarios una vez iniciada la ejecución del servicio con el consentimiento expreso del consumidor. En caso de cancelación antes del inicio del servicio, se aplicará la política de cancelación vigente (100% reembolso si se cancela con más de 24h de antelación; 50% si se cancela entre 2-24h; sin reembolso si se cancela con menos de 2h)."
+        "intro": "Como consumidor, dispones del derecho de desistimiento reconocido en los artículos 71 y siguientes del Real Decreto Legislativo 1/2007, de 16 de noviembre (LGDCU):",
+        "period": "Plazo: 14 días naturales desde la contratación del servicio, sin necesidad de justificación.",
+        "exception": "Excepción legal (Art. 103.a LGDCU): el derecho de desistimiento NO aplica cuando la prestación del servicio ya ha sido ejecutada completamente o se ha iniciado su ejecución con el consentimiento expreso del consumidor.",
+        "practice": "En la práctica: reembolso del 100% si cancelas ANTES de que el médico acepte tu solicitud. Una vez aceptada y con consentimiento expreso para iniciar, el servicio se considera en ejecución y el desistimiento deja de aplicar.",
+        "howTo": "Para ejercer el derecho de desistimiento dentro del plazo y supuestos aplicables, envía un email a dpo@oncall.clinic con el formulario modelo que figura a continuación.",
+        "formTitle": "Formulario modelo de desistimiento (Anexo B RDL 1/2007)",
+        "formContent": "A la atención de Ibiza Care SLU — C/ Lugo 11, 3º2ª, 07830 Sant Josep de Sa Talaia, Illes Balears — dpo@oncall.clinic\\n\\nPor la presente le comunico/comunicamos que desisto de mi/desistimos de nuestro contrato de prestación del siguiente servicio: [descripción del servicio]\\n\\nSolicitado el: [fecha]\\nRecibido el: [fecha]\\nNombre del consumidor: [nombre y apellidos]\\nDomicilio del consumidor: [dirección]\\nFirma del consumidor (solo si se presenta en papel): [firma]\\nFecha: [fecha]"
       },
       "odr": {
         "title": "12. Resolución de litigios en línea (ODR) y hojas de reclamación",
@@ -929,8 +939,19 @@
       "s6Title": "6. Transferencias internacionales de datos",
       "s6Content": "Utilizamos Stripe Inc. (EE.UU.) como procesador de pagos, amparado por las Cláusulas Contractuales Tipo (SCCs) de la Comisión Europea (Art. 46 RGPD) y el EU-US Data Privacy Framework. No se realizan otras transferencias internacionales de datos personales.",
       "dpia": {
-        "title": "7. Evaluación de Impacto (DPIA)",
-        "content": "De conformidad con el artículo 35 del RGPD, OnCall Clinic ha realizado una Evaluación de Impacto en la Protección de Datos para el tratamiento de datos de salud a gran escala. Esta evaluación se mantiene actualizada y disponible para la Agencia Española de Protección de Datos (AEPD) bajo solicitud motivada."
+        "title": "7. Evaluación de Impacto en la Protección de Datos (EIPD/DPIA)",
+        "intro": "De conformidad con el artículo 35 del RGPD, Ibiza Care SL ha realizado una Evaluación de Impacto en la Protección de Datos (EIPD) para el tratamiento de datos de salud a gran escala, dada la especial sensibilidad de estos datos (Art. 9 RGPD).",
+        "measuresTitle": "Medidas técnicas y organizativas implementadas:",
+        "m1": "Cifrado en tránsito: TLS 1.3 en todas las comunicaciones entre cliente, servidor y base de datos.",
+        "m2": "Cifrado en reposo: AES-256 en la base de datos (Supabase/PostgreSQL) y almacenamiento de documentos.",
+        "m3": "Control de acceso basado en roles (Row Level Security en Supabase): paciente accede solo a sus datos; médico solo a consultas asignadas; admin con privilegios diferenciados.",
+        "m4": "Seudonimización: identificadores internos (UUID) desvinculados de datos directamente identificables en consultas analíticas.",
+        "m5": "Auditorías periódicas: registro inmutable (consent_log, payout_audit_log) con timestamp, IP y user-agent.",
+        "m6": "Formación continua del personal en protección de datos y secreto médico.",
+        "m7": "Verificación documental previa de colegiación, RC y RETA antes de activar a cada profesional sanitario.",
+        "m8": "Borrado efectivo (Art. 17 RGPD) mediante cascada FK-safe al ejercer el derecho de supresión.",
+        "aepd": "El informe completo de la EIPD está disponible para la Agencia Española de Protección de Datos (AEPD) bajo solicitud motivada.",
+        "contact": "Para cualquier cuestión relativa a esta evaluación, contacta con nuestro DPO en dpo@oncall.clinic."
       },
       "managePrefs": "Gestiona tus preferencias de privacidad desde tu panel:",
       "goToPanel": "Ir al panel de privacidad"

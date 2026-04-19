@@ -122,7 +122,20 @@ export default async function PrivacyPolicyPage() {
       {/* 7. DPIA — Art. 35 GDPR */}
       <section className="mb-8" id="dpia">
         <h2 className="text-xl font-semibold mb-3">{t('privacy.dpia.title')}</h2>
-        <p>{t('privacy.dpia.content')}</p>
+        <p>{t('privacy.dpia.intro')}</p>
+        <p className="font-semibold mt-4 mb-2">{t('privacy.dpia.measuresTitle')}</p>
+        <ul className="list-disc pl-6 space-y-1.5">
+          <li>{t('privacy.dpia.m1')}</li>
+          <li>{t('privacy.dpia.m2')}</li>
+          <li>{t('privacy.dpia.m3')}</li>
+          <li>{t('privacy.dpia.m4')}</li>
+          <li>{t('privacy.dpia.m5')}</li>
+          <li>{t('privacy.dpia.m6')}</li>
+          <li>{t('privacy.dpia.m7')}</li>
+          <li>{t('privacy.dpia.m8')}</li>
+        </ul>
+        <p className="mt-4">{t('privacy.dpia.aepd')}</p>
+        <p className="mt-2">{t('privacy.dpia.contact')}</p>
       </section>
 
       {/* Manage preferences link */}

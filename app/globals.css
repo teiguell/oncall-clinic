@@ -145,6 +145,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Custom text selection color (primary tinted) */
+::selection {
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--foreground));
+}
+
 /* Google Maps overrides */
 .gm-style .gm-style-iw-d {
   overflow: hidden !important;

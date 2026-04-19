@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Cookie } from 'lucide-react'
 
@@ -14,6 +15,7 @@ type CookieConsent = {
 
 export function CookieConsent() {
   const t = useTranslations('cookieBanner')
+  const locale = useLocale()
   const [show, setShow] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
 
@@ -62,10 +64,15 @@ export function CookieConsent() {
     <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white border-t shadow-2xl p-4 md:p-6 animate-slide-up" role="dialog" aria-label="Cookie consent">
       <div className="container mx-auto max-w-4xl">
         <div className="flex items-start gap-3 mb-4">
-          <Cookie className="h-6 w-6 text-sky-500 mt-0.5 flex-shrink-0" />
+          <Cookie className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
           <div>
-            <h3 className="font-semibold text-gray-900 text-lg">{t('title')}</h3>
-            <p className="text-sm text-gray-600 mt-1">{t('description')}</p>
+            <h3 className="font-semibold text-foreground text-lg">{t('title')}</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t('description')}{' '}
+              <Link href={`/${locale}/legal/cookies`} className="text-primary hover:underline font-medium">
+                {t('readPolicy')}
+              </Link>
+            </p>
           </div>
         </div>
 

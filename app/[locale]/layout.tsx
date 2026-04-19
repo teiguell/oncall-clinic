@@ -11,6 +11,7 @@ import { CrispChat } from '@/components/crisp-chat'
 import { MobileNav } from '@/components/mobile-nav'
 import { TestModeBanner } from '@/components/test-mode-banner'
 import { CookieConsent } from '@/components/cookie-consent'
+import { VersionBadge } from '@/components/version-badge'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     template: '%s | OnCall Clinic Ibiza',
   },
   description:
-    'Médico a domicilio en Ibiza en 30 minutos. English-speaking verified doctors at your hotel or villa. Book now, pay by card. Available 24/7.',
+    'Médico a domicilio en Ibiza desde 1 hora. Consultas de medicina general en tu hotel, villa o domicilio. Verified doctors · Available 24/7 · Pay by card.',
   keywords: [
     'médico a domicilio Ibiza', 'home doctor Ibiza', 'doctor on demand Ibiza',
     'médico urgencias Ibiza', 'pediatra domicilio Ibiza', 'English doctor Ibiza',
@@ -44,9 +45,9 @@ export const metadata: Metadata = {
     alternateLocale: 'en_GB',
     url: 'https://oncallclinic.com',
     siteName: 'OnCall Clinic',
-    title: 'OnCall Clinic — Médico a Domicilio en Ibiza en 30 minutos',
+    title: 'OnCall Clinic — Médico a domicilio en Ibiza',
     description:
-      'Verified doctors at your door in Ibiza. English-speaking. Book by app, track in real-time, pay by card.',
+      'Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora. / General medicine house calls at your hotel, villa or home. From 1 hour.',
     images: [
       {
         url: '/og-image.svg',
@@ -58,8 +59,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OnCall Clinic — Médico a Domicilio Ibiza',
-    description: 'Doctor at your door in Ibiza in 30 minutes. Book now.',
+    title: 'OnCall Clinic — Médico a domicilio Ibiza',
+    description: 'General medicine house calls in Ibiza from 1 hour.',
     images: ['/og-image.svg'],
   },
   robots: {
@@ -114,6 +115,7 @@ export default async function LocaleLayout({
         <FAQPageJsonLd />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <TestModeBanner />
+          <VersionBadge />
           {children}
           <Toaster />
           <MobileNav />

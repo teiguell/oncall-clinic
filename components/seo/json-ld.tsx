@@ -51,7 +51,7 @@ export function FAQPageJsonLd() {
         name: '¿Cuánto tarda el médico en llegar?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'El tiempo medio de llegada es de 30 minutos en Ibiza ciudad y hasta 45 minutos en zonas más remotas.',
+          text: 'El tiempo estimado de llegada es desde 1 hora, dependiendo de la ubicación y disponibilidad del médico.',
         },
       },
       {

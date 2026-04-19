@@ -40,6 +40,7 @@ export default function LandingPage() {
   const t = useTranslations('landing')
   const tNav = useTranslations('nav')
   const tServices = useTranslations('services')
+  const tTrust = useTranslations('trust')
   const locale = useLocale()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const mainRef = useScrollReveal()
@@ -171,15 +172,19 @@ export default function LandingPage() {
               {t('hero.subtitle')}
             </p>
 
-            {/* Single primary CTA (Hick's Law) + secondary ghost link */}
+            {/* Single primary CTA (Hick's Law) */}
             <div className="flex flex-col items-center gap-3 mb-5">
               <Link href={`/${locale}/patient/request`} className="w-full sm:w-auto">
-                <Button size="xl" className="btn-lift shadow-cta w-full sm:w-auto gap-2 rounded-button">
+                <Button size="xl" className="btn-lift shadow-cta w-full sm:w-auto min-h-[48px] gap-2 rounded-button">
                   {t('hero.ctaPrimary')}
                   <ArrowRight className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </Link>
               <p className="text-xs text-muted-foreground">{t('hero.priceHint')}</p>
+              {/* Trust line — specific, honest (no fake ratings) */}
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                {tTrust('heroLine')}
+              </p>
             </div>
 
             {/* 112 emergency disclaimer — always visible, non-dismissable */}
@@ -423,8 +428,9 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-6 text-center">
+          <div className="border-t border-gray-800 pt-6 text-center space-y-2">
             <p className="text-sm text-gray-500">{t('footer.copyright')}</p>
+            <p className="text-xs text-gray-600 max-w-2xl mx-auto">{t('footer.caibRegistry')}</p>
           </div>
         </div>
       </footer>
