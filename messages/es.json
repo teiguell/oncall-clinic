@@ -307,7 +307,9 @@
       "testMode": "Pago simulado exitoso — modo prueba",
       "redirecting": "Redirigiendo al seguimiento...",
       "error": "Error al verificar el pago",
-      "retry": "Volver a intentar"
+      "retry": "Volver a intentar",
+      "stillSearching": "Seguimos buscando. Los médicos suelen responder en menos de 15 minutos.",
+      "preferCall": "¿Prefieres que te llamemos?"
     },
     "tracking": {
       "title": "Seguimiento de tu médico",
@@ -1145,6 +1147,8 @@
     "onRoute": "En camino",
     "arrived": "He llegado",
     "complete": "Finalizar consulta",
+    "errorAccept": "No se pudo aceptar. Inténtalo de nuevo.",
+    "errorTransition": "No se pudo actualizar el estado. Inténtalo de nuevo.",
     "noConsultations": "No tienes consultas",
     "noConsultationsDesc": "Las solicitudes aparecerán aquí cuando los pacientes reserven."
   },

@@ -1578,3 +1578,63 @@ Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
 
 ---
 
+### [2026-04-19 07:20] — Optimistic UI — 3 fixes
+**Estado:** ✅ Completado
+**Archivos modificados:** `app/[locale]/doctor/consultations/page.tsx`, `app/[locale]/patient/request/page.tsx`, `app/[locale]/patient/booking-success/page.tsx`, `stores/booking-store.ts`, `messages/es.json` + `messages/en.json`
+**Errores encontrados:** Ninguno
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 71/71 páginas. i18n: 986 ES = 986 EN ✅ PARIDAD.
+
+### FIX 1 — Optimistic doctor-accept con revert ✅
+
+`acceptConsultation` y `transitionStatus` en `app/[locale]/doctor/consultations/page.tsx`:
+1. **Snapshot** del state previo `const prev = consultations`
+2. **Optimistic update**: `setConsultations(p => p.map(c => c.id === id ? { ...c, status: newStatus } : c))` — UI cambia instantáneamente (<16ms)
+3. **Server call** Supabase update (ya existía)
+4. **Revert on error**: si `error`, restaura `prev` y muestra `toast.destructive` con `t('errorAccept')` / `t('errorTransition')`
+
+Keys i18n añadidas: `consultations.errorAccept` + `consultations.errorTransition` (ES+EN).
+
+### FIX 2 — Booking submit instant display ✅
+
+**Zustand store extendido** (`stores/booking-store.ts`):
+- Nuevo field `lastSubmission: { serviceType, type, address, symptoms, submittedAt } | null`
+- Nuevo setter `setLastSubmission()`
+- Incluido en `reset()`
+
+**Request page** (`app/[locale]/patient/request/page.tsx`):
+- Antes del `fetch('/api/stripe/checkout')`, llama `useBookingStore.getState().setLastSubmission({...})` con el summary local
+- Esto ocurre 100% client-side, no bloquea nada
+
+**Booking-success page**:
+- Nuevo hook `useBookingStore(s => s.lastSubmission)`
+- Durante `status === 'loading'`, si `lastSubmission` existe:
+  - Muestra checkmark verde animado + título "¡Reserva confirmada!"
+  - Card blanca con `address` + `symptoms` (preview line-clamp-2)
+  - "Redirigiendo..." text debajo
+- Si no hay `lastSubmission` (caso edge), cae al shimmer skeleton original
+- Resultado: el usuario ve confirmación visual con sus datos inmediatamente al llegar a la página, antes del round-trip Stripe verify
+
+### FIX 3 — Timeout 5 min con teléfono fallback ✅
+
+**Booking-success**:
+- `const [waitingTooLong, setWaitingTooLong] = useState(false)`
+- `useEffect` con `setTimeout(() => setWaitingTooLong(true), 5 * 60 * 1000)` + cleanup
+- Dentro del bloque `status === 'success'`, si `waitingTooLong === true`:
+  - Card ámbar `rounded-card bg-amber-50 border-amber-200`
+  - Texto 1: `t('stillSearching')` — "Seguimos buscando. Los médicos suelen responder en menos de 15 minutos."
+  - Texto 2: `t('preferCall')` — "¿Prefieres que te llamemos?"
+  - `<a href="tel:+34871183415">` con icono Phone + número `+34 871 18 34 15`, clase `btn-hover`
+
+Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingSuccess.preferCall` (ES+EN).
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| Ops/Integraciones | Doctor-accept hace optimistic update: UI flip antes que Supabase confirme. Si webhook lag → el doctor ya ve "Aceptada" antes del round-trip. Realtime channel sigue funcionando (otros doctores ven el update cuando llegue el evento). | Verificar webhooks post-update siguen disparándose correctamente en test mode | Media |
+| Ops/Integraciones | Booking-success lee de Zustand store (client-side state, NO persistido). Si el usuario refresca la página perderá `lastSubmission` y caerá al skeleton — comportamiento aceptable (verify sigue llegando). | Solo informativo | Baja |
+| Growth/Soporte | Teléfono `+34 871 18 34 15` ahora visible en timeout de booking-success tras 5 min. Si el número cambia, actualizar en: `app/[locale]/patient/booking-success/page.tsx:~135` + `components/shared/error-state.tsx:32` | Confirmar que el teléfono es correcto y está operativo | **Media** |
+| Legal/Compliance | Sin impacto | Ninguna | — |
+
+---
+

@@ -15,6 +15,7 @@ import { SERVICES, type ServiceType, type ConsultationType } from '@/types'
 import { formatCurrencyFromEuros } from '@/lib/utils'
 import { MapPin, Zap, Calendar, ArrowLeft, AlertCircle, ChevronRight, ShieldCheck, Award, Lock, CheckCircle } from 'lucide-react'
 import { BookingFaq } from '@/components/shared/booking-faq'
+import { useBookingStore } from '@/stores/booking-store'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -103,6 +104,16 @@ function RequestConsultationPage() {
     const scheduledAt = data.scheduledDate && data.scheduledTime
       ? new Date(`${data.scheduledDate}T${data.scheduledTime}`).toISOString()
       : null
+
+    // Optimistic UI: stash submission summary so booking-success renders
+    // immediately with local data while the server round-trip completes.
+    useBookingStore.getState().setLastSubmission({
+      serviceType: selectedService,
+      type,
+      address: data.address,
+      symptoms: data.symptoms,
+      submittedAt: new Date().toISOString(),
+    })
 
     try {
       const res = await fetch('/api/stripe/checkout', {

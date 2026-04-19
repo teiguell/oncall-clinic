@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
+import { useToast } from '@/components/ui/use-toast'
 import { MessageCircle, MapPin, Calendar, CheckCircle, Clock, Stethoscope } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -44,6 +45,7 @@ export default function DoctorConsultationsPage() {
   const locale = useLocale()
   const router = useRouter()
   const supabase = createClient()
+  const { toast } = useToast()
 
   const [profile, setProfile] = useState<{ id: string; full_name: string; role: string } | null>(null)
   const [doctorProfileId, setDoctorProfileId] = useState<string | null>(null)
@@ -105,18 +107,36 @@ export default function DoctorConsultationsPage() {
 
   const acceptConsultation = async (id: string) => {
     if (!doctorProfileId) return
-    await supabase
+    // 1. Optimistic update — flip card to "accepted" immediately (Doherty <400ms)
+    const prev = consultations
+    setConsultations(p => p.map(c => c.id === id ? { ...c, status: 'accepted' } : c))
+    // 2. Server call
+    const { error } = await supabase
       .from('consultations')
       .update({ doctor_id: doctorProfileId, status: 'accepted', accepted_at: new Date().toISOString() })
       .eq('id', id)
+    // 3. Revert on failure
+    if (error) {
+      setConsultations(prev)
+      toast({ title: t('errorAccept'), description: error.message, variant: 'destructive' })
+    }
   }
 
   const transitionStatus = async (id: string, newStatus: 'in_progress' | 'arrived' | 'completed') => {
+    // 1. Optimistic update
+    const prev = consultations
+    setConsultations(p => p.map(c => c.id === id ? { ...c, status: newStatus } : c))
+    // 2. Server call
     const patch: Record<string, unknown> = { status: newStatus }
     const now = new Date().toISOString()
     if (newStatus === 'in_progress') patch.started_at = now
     if (newStatus === 'completed') patch.completed_at = now
-    await supabase.from('consultations').update(patch).eq('id', id)
+    const { error } = await supabase.from('consultations').update(patch).eq('id', id)
+    // 3. Revert on failure
+    if (error) {
+      setConsultations(prev)
+      toast({ title: t('errorTransition'), description: error.message, variant: 'destructive' })
+    }
   }
 
   const filtered = filter === 'all'

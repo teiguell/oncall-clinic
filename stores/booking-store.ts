@@ -17,11 +17,24 @@ interface BookingState {
   phone: string
   consultationType: 'immediate' | 'scheduled' | null
   scheduledDate: string | null
+  /**
+   * Last-submitted booking summary — populated right before the checkout
+   * request is sent, so booking-success can render instantly with local
+   * data while the server round-trip completes (optimistic UI).
+   */
+  lastSubmission: {
+    serviceType: string
+    type: string
+    address: string
+    symptoms: string
+    submittedAt: string
+  } | null
   setLocation: (location: string, coords?: { lat: number; lng: number }) => void
   setSymptoms: (symptoms: string) => void
   setPhone: (phone: string) => void
   setConsultationType: (type: 'immediate' | 'scheduled') => void
   setScheduledDate: (date: string) => void
+  setLastSubmission: (data: BookingState['lastSubmission']) => void
   reset: () => void
 }
 
@@ -32,11 +45,13 @@ export const useBookingStore = create<BookingState>((set) => ({
   phone: '',
   consultationType: null,
   scheduledDate: null,
+  lastSubmission: null,
   setLocation: (location, coords) => set({ location, coordinates: coords || null }),
   setSymptoms: (symptoms) => set({ symptoms }),
   setPhone: (phone) => set({ phone }),
   setConsultationType: (consultationType) => set({ consultationType }),
   setScheduledDate: (scheduledDate) => set({ scheduledDate }),
+  setLastSubmission: (lastSubmission) => set({ lastSubmission }),
   reset: () =>
     set({
       location: '',
@@ -45,5 +60,6 @@ export const useBookingStore = create<BookingState>((set) => ({
       phone: '',
       consultationType: null,
       scheduledDate: null,
+      lastSubmission: null,
     }),
 }))

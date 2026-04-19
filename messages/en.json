@@ -307,7 +307,9 @@
       "testMode": "Simulated payment successful — test mode",
       "redirecting": "Redirecting to tracking...",
       "error": "Error verifying payment",
-      "retry": "Try again"
+      "retry": "Try again",
+      "stillSearching": "Still searching. Doctors usually respond within 15 minutes.",
+      "preferCall": "Would you prefer us to call you?"
     },
     "tracking": {
       "title": "Tracking your doctor",
@@ -1145,6 +1147,8 @@
     "onRoute": "On the way",
     "arrived": "I've arrived",
     "complete": "Complete consultation",
+    "errorAccept": "Couldn't accept. Please try again.",
+    "errorTransition": "Couldn't update status. Please try again.",
     "noConsultations": "No consultations",
     "noConsultationsDesc": "Requests will appear here when patients book."
   },

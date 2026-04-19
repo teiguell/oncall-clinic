@@ -4,8 +4,9 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Phone } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
+import { useBookingStore } from '@/stores/booking-store'
 
 export default function BookingSuccessPage() {
   return (
@@ -32,6 +33,14 @@ function BookingSuccessContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [consultationId, setConsultationId] = useState<string | null>(null)
   const [isTestMode, setIsTestMode] = useState(false)
+  const [waitingTooLong, setWaitingTooLong] = useState(false)
+  const lastSubmission = useBookingStore(s => s.lastSubmission)
+
+  // After 5 minutes of waiting, surface a reassuring message + phone fallback
+  useEffect(() => {
+    const timer = setTimeout(() => setWaitingTooLong(true), 5 * 60 * 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const testParam = searchParams.get('test')
@@ -82,10 +91,27 @@ function BookingSuccessContent() {
       <div className="max-w-md w-full text-center">
         {status === 'loading' && (
           <div className="fade-in space-y-4" aria-busy="true" aria-label="Verificando">
-            <div className="h-24 w-24 mx-auto rounded-full skeleton-shimmer" />
-            <div className="h-6 w-3/4 mx-auto skeleton-shimmer rounded-md" />
-            <div className="h-4 w-1/2 mx-auto skeleton-shimmer rounded-md" />
-            <p className="text-muted-foreground text-sm">{t('redirecting')}</p>
+            {/* Optimistic: show submission summary from store while verifying */}
+            {lastSubmission ? (
+              <>
+                <div className="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-2 animate-pulse">
+                  <CheckCircle2 className="h-14 w-14 text-green-600" />
+                </div>
+                <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+                <div className="rounded-card bg-white border border-border/60 p-4 text-left space-y-1 shadow-card">
+                  <p className="text-xs text-muted-foreground">{lastSubmission.address}</p>
+                  <p className="text-sm line-clamp-2 text-foreground">{lastSubmission.symptoms}</p>
+                </div>
+                <p className="text-muted-foreground text-sm">{t('redirecting')}</p>
+              </>
+            ) : (
+              <>
+                <div className="h-24 w-24 mx-auto rounded-full skeleton-shimmer" />
+                <div className="h-6 w-3/4 mx-auto skeleton-shimmer rounded-md" />
+                <div className="h-4 w-1/2 mx-auto skeleton-shimmer rounded-md" />
+                <p className="text-muted-foreground text-sm">{t('redirecting')}</p>
+              </>
+            )}
           </div>
         )}
 
@@ -102,6 +128,21 @@ function BookingSuccessContent() {
               <Link href={`/${locale}/patient/tracking/${consultationId}`}>
                 <Button>{t('redirecting')}</Button>
               </Link>
+            )}
+
+            {/* Timeout fallback: after 5 minutes without a doctor accepting */}
+            {waitingTooLong && (
+              <div className="mt-6 p-4 rounded-card bg-amber-50 border border-amber-200 text-center space-y-2">
+                <p className="text-sm text-amber-900 font-medium">{t('stillSearching')}</p>
+                <p className="text-sm text-amber-800">{t('preferCall')}</p>
+                <a
+                  href="tel:+34871183415"
+                  className="inline-flex items-center gap-2 text-primary font-semibold btn-hover mt-1"
+                >
+                  <Phone className="h-4 w-4" aria-hidden="true" />
+                  +34 871 18 34 15
+                </a>
+              </div>
             )}
           </div>
         )}
