@@ -1574,5 +1574,7 @@ Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
 - Polling >5min en booking-success con fallback a teléfono soporte
 - Wire `BottomTabBar` como reemplazo de `MobileNav` existente
 
+**Deploy:** `dpl_GoK9yy9aJcvvcyXZM4NBZHeCM48T` → https://oncall.clinic (READY). Commit `22e0732`.
+
 ---
 
