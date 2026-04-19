@@ -72,6 +72,15 @@ export async function POST(request: Request) {
       stripe_transfer_id: transfer.id,
     })
 
+    // Audit log (B6)
+    await supabase.from('payout_audit_log').insert({
+      consultation_id: consultationId,
+      doctor_id: consultation.doctor_id,
+      action: 'completed',
+      amount: consultation.doctor_amount,
+      stripe_transfer_id: transfer.id,
+    })
+
     return NextResponse.json({
       success: true,
       transferId: transfer.id,
@@ -85,6 +94,14 @@ export async function POST(request: Request) {
       .from('consultations')
       .update({ payout_status: 'failed' })
       .eq('id', consultationId)
+
+    // Audit log (B6)
+    await supabase.from('payout_audit_log').insert({
+      consultation_id: consultationId,
+      doctor_id: consultation.doctor_id,
+      action: 'failed',
+      error_message: error instanceof Error ? error.message : 'Unknown error',
+    })
 
     return NextResponse.json({ error: 'Error al procesar pago' }, { status: 500 })
   }

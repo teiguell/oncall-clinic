@@ -60,10 +60,10 @@ export default function LandingPage() {
   ]
 
   const stats = [
-    { value: '30', label: t('stats.arrival') },
-    { value: '4.9★', label: t('stats.rating') },
+    { value: '<30', label: t('stats.arrival') },
     { value: '24/7', label: t('stats.available') },
-    { value: '15%', label: t('stats.commission') },
+    { value: '€150', label: t('stats.startingPrice') },
+    { value: '100%', label: t('stats.verified') },
   ]
 
   const heroTitleParts = t('hero.title').split('\n')

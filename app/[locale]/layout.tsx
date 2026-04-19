@@ -10,6 +10,7 @@ import { MedicalOrganizationJsonLd, FAQPageJsonLd } from '@/components/seo/json-
 import { CrispChat } from '@/components/crisp-chat'
 import { MobileNav } from '@/components/mobile-nav'
 import { TestModeBanner } from '@/components/test-mode-banner'
+import { CookieConsent } from '@/components/cookie-consent'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -103,6 +104,7 @@ export default async function LocaleLayout({
           <Toaster />
           <MobileNav />
           <CrispChat />
+          <CookieConsent />
         </NextIntlClientProvider>
       </body>
     </html>

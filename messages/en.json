@@ -58,7 +58,9 @@
       "arrival": "Min. arrival time",
       "rating": "Patient rating",
       "commission": "Platform fee",
-      "available": "Always available"
+      "available": "Always available",
+      "startingPrice": "Starting from",
+      "verified": "Verified doctors"
     },
     "howItWorks": {
       "title": "How it works",
@@ -621,6 +623,44 @@
     "reject": "Essential only",
     "learnMore": "Learn more"
   },
+  "cookieBanner": {
+    "title": "Cookie Usage",
+    "description": "We use our own and third-party cookies to improve our services. You can accept all, reject non-essential, or configure your preferences. More info in our Cookie Policy.",
+    "necessary": {
+      "title": "Necessary (always active)",
+      "desc": "Essential for the site to function. Cannot be disabled."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "desc": "Help us understand how you use the site to improve it."
+    },
+    "marketing": {
+      "title": "Marketing",
+      "desc": "Allow personalized content and campaign measurement."
+    },
+    "acceptAll": "Accept all",
+    "rejectAll": "Reject non-essential",
+    "acceptSelected": "Save selection",
+    "showDetails": "Configure cookies",
+    "hideDetails": "Hide details"
+  },
+  "referral": {
+    "title": "Invite friends",
+    "incentive": "Share your code and you both get €10 off your next consultation",
+    "shareTitle": "Thanks for your review!",
+    "shareDesc": "Share OnCall Clinic with friends and you both get €10",
+    "shareWhatsApp": "Share via WhatsApp",
+    "copyLink": "Copy link",
+    "copy": "Copy",
+    "copied": "Copied!"
+  },
+  "booking": {
+    "stripeTrust": "Secure with Stripe Connect",
+    "verifiedDoctor": "COMIB Verified Doctor",
+    "consultation": "Consultation",
+    "platformFee": "Platform fee",
+    "total": "Total"
+  },
   "gdpr": {
     "consent": "By signing up you agree to our terms and privacy policy."
   },
@@ -724,7 +764,15 @@
       "s9Title": "9. Intellectual property",
       "s9p1": "All Platform content (code, design, text, logos, trademarks) is the property of Ibiza Care SL or its licensors and is protected by applicable intellectual and industrial property legislation. Reproduction without express authorisation is prohibited.",
       "s10Title": "10. Jurisdiction and applicable law",
-      "s10p1": "These Terms are governed by Spanish law. For any dispute arising from the use of the Platform, the parties submit to the Courts and Tribunals of Ibiza, waiving any other jurisdiction that may apply, except where consumer regulations establish a different jurisdiction."
+      "s10p1": "These Terms are governed by Spanish law. For any dispute arising from the use of the Platform, the parties submit to the Courts and Tribunals of Ibiza, waiving any other jurisdiction that may apply, except where consumer regulations establish a different jurisdiction.",
+      "withdrawal": {
+        "title": "11. Right of withdrawal",
+        "content": "Pursuant to Article 103(a) of Royal Legislative Decree 1/2007 (LGDCU), the right of withdrawal does not apply to healthcare services once execution has begun with the consumer's express consent. For cancellations before service commencement, the current cancellation policy applies (100% refund if cancelled more than 24h in advance; 50% between 2-24h; no refund if cancelled less than 2h before)."
+      },
+      "odr": {
+        "title": "12. Online Dispute Resolution (ODR) and complaint forms",
+        "content": "Pursuant to EU Regulation 524/2013, you may submit complaints through the European Commission's ODR platform at"
+      }
     },
     "cookies": {
       "title": "Cookie Policy",
@@ -802,6 +850,12 @@
       "retention1": "Clinical data: 5 years from the last consultation (Law 41/2002 on Patient Autonomy)",
       "retention2": "Account data: 3 years after account closure",
       "retention3": "Payment and billing data: 5 years (tax obligation)",
+      "s6Title": "6. International data transfers",
+      "s6Content": "We use Stripe Inc. (USA) as our payment processor, protected under the European Commission's Standard Contractual Clauses (SCCs, Art. 46 GDPR) and the EU-US Data Privacy Framework. No other international transfers of personal data are made.",
+      "dpia": {
+        "title": "7. Data Protection Impact Assessment (DPIA)",
+        "content": "In accordance with Article 35 of the GDPR, OnCall Clinic has conducted a Data Protection Impact Assessment for the large-scale processing of health data. This assessment is kept updated and available to the Spanish Data Protection Authority (AEPD) upon reasoned request."
+      },
       "managePrefs": "Manage your privacy preferences from your panel:",
       "goToPanel": "Go to privacy panel"
     },

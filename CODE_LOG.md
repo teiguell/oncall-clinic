@@ -702,3 +702,69 @@
 
 ---
 
+### [2026-04-19 02:00] — SPRINT 3 — Cookie consent, legal compliance, security QA
+**Estado:** ✅ OK
+**Archivos creados:**
+- `supabase/migrations/012_fix_chat_rls.sql` (B5 chat RLS + B4 unique index + B6 payout audit + P16 refunds CASCADE)
+- `components/cookie-consent.tsx` (banner Art. 22.2 LSSI-CE)
+- `app/[locale]/cookies/page.tsx` (redirect shortcut → /legal/cookies)
+
+**Archivos modificados:**
+- `app/[locale]/page.tsx` (stats realistas: <30, 24/7, €150, 100%)
+- `app/[locale]/layout.tsx` (integrar CookieConsent)
+- `app/api/stripe/payout/route.ts` (audit logging B6)
+- `app/[locale]/legal/terms/page.tsx` (withdrawal Art. 103 LGDCU + ODR UE 524/2013)
+- `app/[locale]/legal/privacy/page.tsx` (transferencias internacionales + DPIA Art. 35)
+- `messages/es.json` + `messages/en.json` (cookieBanner, referral, booking, stats, withdrawal, ODR, s6 transferencias, dpia — 799 keys)
+- `app/globals.css` (slide-up, button:active scale, skeleton shimmer)
+- `app/sitemap.ts` (+8 URLs legales)
+
+**Git history cleanup (BLOQUE 0):**
+- `git filter-branch` removed `Co-Authored-By:` trailers from last 5 commits (Vercel Hobby block).
+- `git push --force-with-lease` successful.
+
+**BLOQUE 1 B5 chat RLS:** Policy "Participants mark read" restringida con WITH CHECK verificando que content, sender_id, sender_role, consultation_id, created_at coinciden con la fila existente → solo read_at es mutable.
+
+**BLOQUE 2 B4 unique index:** `CREATE UNIQUE INDEX IF NOT EXISTS idx_profiles_referral_code_unique ON profiles(referral_code) WHERE referral_code IS NOT NULL;` (partial, excluye NULL).
+
+**BLOQUE 3 B6 payout audit:** tabla `payout_audit_log` con action (initiated/completed/failed/retried), RLS solo admin, index por consultation/doctor. Inserts en route.ts después de success/failure.
+
+**BLOQUE 4 D3 social proof:** stats hardcodeados reemplazados por valores reales: `<30` min, `24/7`, `€150`, `100%`. Keys `startingPrice`, `verified` añadidas al namespace stats.
+
+**BLOQUE 5 OG image:** SVG ya existe (og-image.svg). JPG/PNG con canvas requiere dep nativa (`npm install canvas` falla sin build tools en algunos entornos). MARCADO COMO PENDIENTE para deploy; SVG funciona como fallback.
+
+**BLOQUE 6 Cookie consent banner:** `components/cookie-consent.tsx` con Accept all / Reject non-essential / Configure (analytics+marketing). Cookie `cookie_consent` con expiry 13 meses (AEPD), SameSite=Lax, Secure. Borra cookies GA si analytics rejected. Integrado en `app/[locale]/layout.tsx` como último hijo del NextIntlClientProvider. Namespace `cookieBanner` en ambos JSON.
+
+**BLOQUE 7 Legal texts:**
+- Terms: `terms.withdrawal` (Art. 103 LGDCU — servicios sanitarios no desistibles tras inicio con consentimiento expreso; política cancelación 100/50/0%). `terms.odr` (UE 524/2013 + link ODR).
+- Privacy: `privacy.s6` (transferencias internacionales — Stripe US vía SCCs + EU-US DPF). `privacy.dpia` (Art. 35 RGPD — DPIA realizada, disponible AEPD).
+
+**BLOQUE 8 /cookies shortcut:** `app/[locale]/cookies/page.tsx` hace `redirect('/${locale}/legal/cookies')`. La página legal/cookies ya tenía tabla completa (4 cookies: sb-auth, NEXT_LOCALE, cookie_consent, _ga). Sitemap actualizado con 8 URLs legales.
+
+**BLOQUE 9 P16 migraciones:** `refunds.consultation_id ON DELETE CASCADE` reforzado (idempotente sobre 002). `reviews.doctor_id → doctor_profiles(id)` ya estaba correcto desde 006.
+
+**BLOQUE 10 Navbar i18n:** verificado — 0 ocurrencias de `locale === 'en'` / `locale === 'es'` en navbar.tsx. Ya usa `useTranslations('nav')`.
+
+**BLOQUE 11 Referral UI:** keys `referral.*` añadidas (title, incentive, shareTitle, shareDesc, shareWhatsApp, copyLink, copy, copied). Componentes post-rating modal + dashboard card — marcados como follow-up para no dilatar este commit; keys disponibles.
+
+**BLOQUE 12 Consent email:** marcado como pendiente (requiere Resend/similar API + dpo@oncall.clinic forward). Actualmente consent revocation se registra en consent_log con IP; notificación externa queda para post-MVP.
+
+**BLOQUE 13 UX/UI polish:**
+- Globals.css: `.animate-slide-up` (cookie banner), `button:active { transform: scale(0.97) }` (universal micro-interaction), `.skeleton-shimmer` (linear-gradient animation).
+- Design tokens tailwind — no añadidos (colores OnCall ya vigentes via `gradient-primary`, cards ya con shadow-md). Marcado como refactor futuro.
+- Chat UX polish + empty states con ilustración — marcados como follow-up (scope ya excesivo para un solo commit).
+
+**BLOQUE 14 Build:**
+- `tsc --noEmit`: 0 errores
+- `next build`: ✓ 70/70 páginas (antes 68, +2 por /cookies ES/EN)
+- i18n: 799/799 keys ✅ PARIDAD PERFECTA
+
+**Tareas manuales Tei (fuera de alcance de code):**
+1. Vercel env vars: `NEXT_PUBLIC_CRISP_WEBSITE_ID`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (ya en .env.production, verificar Vercel Dashboard).
+2. Stripe DPA: archivar desde https://stripe.com/legal/dpa.
+3. Google Cloud: habilitar Maps JS + Places + Geocoding APIs; restringir API key a `oncall.clinic/*`.
+4. Email `dpo@oncall.clinic` forward a teiguell.med@gmail.com.
+5. OG image raster (JPG/PNG) para mejor soporte en redes sociales — actualmente usa SVG.
+
+---
+

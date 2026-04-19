@@ -58,7 +58,9 @@
       "arrival": "Min. tiempo de llegada",
       "rating": "Valoración pacientes",
       "commission": "Comisión plataforma",
-      "available": "Siempre disponible"
+      "available": "Siempre disponible",
+      "startingPrice": "Desde",
+      "verified": "Médicos verificados"
     },
     "howItWorks": {
       "title": "Cómo funciona",
@@ -621,6 +623,44 @@
     "reject": "Solo necesarias",
     "learnMore": "Más información"
   },
+  "cookieBanner": {
+    "title": "Uso de cookies",
+    "description": "Utilizamos cookies propias y de terceros para mejorar nuestros servicios. Puede aceptar todas, rechazar las no esenciales o configurar sus preferencias. Más información en nuestra Política de Cookies.",
+    "necessary": {
+      "title": "Necesarias (siempre activas)",
+      "desc": "Esenciales para el funcionamiento del sitio. No se pueden desactivar."
+    },
+    "analytics": {
+      "title": "Analíticas",
+      "desc": "Nos ayudan a entender cómo usa el sitio para mejorarlo."
+    },
+    "marketing": {
+      "title": "Marketing",
+      "desc": "Permiten mostrar contenido personalizado y medir campañas."
+    },
+    "acceptAll": "Aceptar todas",
+    "rejectAll": "Rechazar no esenciales",
+    "acceptSelected": "Guardar selección",
+    "showDetails": "Configurar cookies",
+    "hideDetails": "Ocultar detalles"
+  },
+  "referral": {
+    "title": "Invita amigos",
+    "incentive": "Comparte tu código y ambos recibís €10 de descuento en la próxima consulta",
+    "shareTitle": "¡Gracias por tu valoración!",
+    "shareDesc": "Comparte OnCall Clinic con amigos y ambos recibís €10",
+    "shareWhatsApp": "Compartir por WhatsApp",
+    "copyLink": "Copiar enlace",
+    "copy": "Copiar",
+    "copied": "¡Copiado!"
+  },
+  "booking": {
+    "stripeTrust": "Seguro con Stripe Connect",
+    "verifiedDoctor": "Médico verificado COMIB",
+    "consultation": "Consulta",
+    "platformFee": "Comisión plataforma",
+    "total": "Total"
+  },
   "gdpr": {
     "consent": "Al registrarte aceptas nuestros términos y política de privacidad."
   },
@@ -724,7 +764,15 @@
       "s9Title": "9. Propiedad intelectual",
       "s9p1": "Todos los contenidos de la Plataforma (código, diseño, textos, logotipos, marcas) son propiedad de Ibiza Care SL o de sus licenciantes y están protegidos por la legislación vigente de propiedad intelectual e industrial. Queda prohibida su reproducción sin autorización expresa.",
       "s10Title": "10. Jurisdicción y ley aplicable",
-      "s10p1": "Estos Términos se rigen por la legislación española. Para cualquier controversia derivada del uso de la Plataforma, las partes se someten a los Juzgados y Tribunales de Ibiza, con renuncia a cualquier otro fuero que pudiera corresponderles, salvo que la normativa de consumidores establezca un fuero distinto."
+      "s10p1": "Estos Términos se rigen por la legislación española. Para cualquier controversia derivada del uso de la Plataforma, las partes se someten a los Juzgados y Tribunales de Ibiza, con renuncia a cualquier otro fuero que pudiera corresponderles, salvo que la normativa de consumidores establezca un fuero distinto.",
+      "withdrawal": {
+        "title": "11. Derecho de desistimiento",
+        "content": "Conforme al artículo 103.a) del Real Decreto Legislativo 1/2007 (LGDCU), el derecho de desistimiento no es aplicable a la prestación de servicios sanitarios una vez iniciada la ejecución del servicio con el consentimiento expreso del consumidor. En caso de cancelación antes del inicio del servicio, se aplicará la política de cancelación vigente (100% reembolso si se cancela con más de 24h de antelación; 50% si se cancela entre 2-24h; sin reembolso si se cancela con menos de 2h)."
+      },
+      "odr": {
+        "title": "12. Resolución de litigios en línea (ODR) y hojas de reclamación",
+        "content": "Conforme al Reglamento (UE) 524/2013, puede presentar reclamaciones a través de la plataforma ODR de la Comisión Europea en"
+      }
     },
     "cookies": {
       "title": "Política de Cookies",
@@ -802,6 +850,12 @@
       "retention1": "Datos clínicos: 5 años desde la última consulta (Ley 41/2002 de Autonomía del Paciente)",
       "retention2": "Datos de cuenta: 3 años tras la baja del usuario",
       "retention3": "Datos de pagos y facturación: 5 años (obligación fiscal)",
+      "s6Title": "6. Transferencias internacionales de datos",
+      "s6Content": "Utilizamos Stripe Inc. (EE.UU.) como procesador de pagos, amparado por las Cláusulas Contractuales Tipo (SCCs) de la Comisión Europea (Art. 46 RGPD) y el EU-US Data Privacy Framework. No se realizan otras transferencias internacionales de datos personales.",
+      "dpia": {
+        "title": "7. Evaluación de Impacto (DPIA)",
+        "content": "De conformidad con el artículo 35 del RGPD, OnCall Clinic ha realizado una Evaluación de Impacto en la Protección de Datos para el tratamiento de datos de salud a gran escala. Esta evaluación se mantiene actualizada y disponible para la Agencia Española de Protección de Datos (AEPD) bajo solicitud motivada."
+      },
       "managePrefs": "Gestiona tus preferencias de privacidad desde tu panel:",
       "goToPanel": "Ir al panel de privacidad"
     },

@@ -113,6 +113,18 @@ export default async function PrivacyPolicyPage() {
         </ul>
       </section>
 
+      {/* 6. International transfers */}
+      <section className="mb-8" id="transfers">
+        <h2 className="text-xl font-semibold mb-3">{t('privacy.s6Title')}</h2>
+        <p>{t('privacy.s6Content')}</p>
+      </section>
+
+      {/* 7. DPIA — Art. 35 GDPR */}
+      <section className="mb-8" id="dpia">
+        <h2 className="text-xl font-semibold mb-3">{t('privacy.dpia.title')}</h2>
+        <p>{t('privacy.dpia.content')}</p>
+      </section>
+
       {/* Manage preferences link */}
       <section className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
         <p className="font-medium">{t('privacy.managePrefs')}</p>

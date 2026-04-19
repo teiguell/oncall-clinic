@@ -87,6 +87,23 @@ export default async function TermsPage() {
         <h2 className="text-xl font-semibold mb-3">{t('terms.s10Title')}</h2>
         <p>{t('terms.s10p1')}</p>
       </section>
+
+      {/* 11. Right of withdrawal (Art. 103 LGDCU) */}
+      <section className="mb-8" id="withdrawal">
+        <h2 className="text-xl font-semibold mb-3">{t('terms.withdrawal.title')}</h2>
+        <p>{t('terms.withdrawal.content')}</p>
+      </section>
+
+      {/* 12. Online Dispute Resolution */}
+      <section className="mb-8" id="odr">
+        <h2 className="text-xl font-semibold mb-3">{t('terms.odr.title')}</h2>
+        <p>
+          {t('terms.odr.content')}{' '}
+          <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+            https://ec.europa.eu/consumers/odr
+          </a>
+        </p>
+      </section>
     </div>
   )
 }
