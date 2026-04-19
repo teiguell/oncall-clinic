@@ -1303,5 +1303,7 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 **10.7 ENV fallback:**
 - `NEXT_PUBLIC_COMMISSION_RATE=0.10` mantenido como fallback en checkout route (se usa al crear la consulta antes de que haya doctor asignado; el payout recalcula con doctor real)
 
+**Deploy:** `dpl_AYmXBevwcArcmpVmdTBh4dsnYkxZ` → https://oncall.clinic (READY). Commit `5c181b5`.
+
 ---
 
