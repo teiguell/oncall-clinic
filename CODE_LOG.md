@@ -1636,5 +1636,7 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 | Growth/Soporte | Teléfono `+34 871 18 34 15` ahora visible en timeout de booking-success tras 5 min. Si el número cambia, actualizar en: `app/[locale]/patient/booking-success/page.tsx:~135` + `components/shared/error-state.tsx:32` | Confirmar que el teléfono es correcto y está operativo | **Media** |
 | Legal/Compliance | Sin impacto | Ninguna | — |
 
+**Deploy:** `dpl_2uTwaSJqTEYf7iiWsqiYj7tsaaS8` → https://oncall.clinic (READY). Commit `bca6a6b`.
+
 ---
 
