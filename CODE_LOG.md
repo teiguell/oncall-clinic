@@ -1507,5 +1507,7 @@ Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
 - `privacy.automatedDecisions.{title, content}` (Sprint 5 ya lo había añadido)
 - Total: 982 ES = 982 EN ✅
 
+**Deploy:** `dpl_AssgueZ2zYvXv5XQWMF2iXvAqwkk` → https://oncall.clinic (READY). Commit `6a0dd37`.
+
 ---
 
