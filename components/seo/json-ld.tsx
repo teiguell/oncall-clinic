@@ -4,8 +4,8 @@ export function MedicalOrganizationJsonLd() {
     '@type': 'MedicalOrganization',
     name: 'OnCall Clinic',
     description: 'Plataforma de médicos a domicilio en Ibiza. Home doctor service in Ibiza.',
-    url: 'https://oncallclinic.com',
-    logo: 'https://oncallclinic.com/logo.png',
+    url: 'https://oncall.clinic',
+    logo: 'https://oncall.clinic/logo.png',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Ibiza',

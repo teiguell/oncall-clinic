@@ -16,7 +16,7 @@ export function ReferralCard({ referralCode }: ReferralCardProps) {
   const locale = useLocale()
 
   const shareMessage = `${t('shareMessage')} ${referralCode}`
-  const shareUrl = `https://oncallclinic.com/${locale}/register?ref=${referralCode}`
+  const shareUrl = `https://oncall.clinic/${locale}/register?ref=${referralCode}`
 
   const copyCode = async () => {
     try {

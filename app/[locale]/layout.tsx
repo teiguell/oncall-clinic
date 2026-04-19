@@ -26,7 +26,7 @@ const jakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://oncallclinic.com'),
+  metadataBase: new URL('https://oncall.clinic'),
   title: {
     default: 'OnCall Clinic — Médico a Domicilio en Ibiza | Home Doctor Ibiza',
     template: '%s | OnCall Clinic Ibiza',
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'es_ES',
     alternateLocale: 'en_GB',
-    url: 'https://oncallclinic.com',
+    url: 'https://oncall.clinic',
     siteName: 'OnCall Clinic',
     title: 'OnCall Clinic — Médico a domicilio en Ibiza',
     description:
@@ -73,10 +73,10 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://oncallclinic.com',
+    canonical: 'https://oncall.clinic',
     languages: {
-      es: 'https://oncallclinic.com/es',
-      en: 'https://oncallclinic.com/en',
+      es: 'https://oncall.clinic/es',
+      en: 'https://oncall.clinic/en',
     },
   },
 }

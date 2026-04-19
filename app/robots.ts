@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/api/', '/patient/tracking/'],
     },
-    sitemap: 'https://oncallclinic.com/sitemap.xml',
+    sitemap: 'https://oncall.clinic/sitemap.xml',
   }
 }

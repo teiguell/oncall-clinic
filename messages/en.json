@@ -467,7 +467,7 @@
       "phonePlaceholder": "+34 600 000 000",
       "languages": "Languages",
       "yearsExperience": "Years of experience",
-      "comibLicense": "COMIB licence no.",
+      "comibLicense": "Medical licence no.",
       "comibPlaceholder": "XX/XXXXX",
       "comibFormat": "Format: XX/XXXXX",
       "rcCompany": "RC insurance company",
@@ -520,7 +520,7 @@
       "title": "My Professional Profile",
       "professionalInfo": "Professional information",
       "specialty": "Specialty",
-      "comibNumber": "COMIB Number",
+      "comibNumber": "Medical licence no.",
       "rating": "Rating",
       "languages": "Languages",
       "experience": "Experience",
@@ -644,15 +644,15 @@
     "skipToContent": "Skip to content"
   },
   "trust": {
-    "comib": "COMIB-registered doctors",
+    "comib": "Verified licensed doctors",
     "insurance": "Liability insurance included",
     "gdpr": "GDPR-protected data",
     "english": "Service in ES + EN",
-    "comibShort": "COMIB-registered doctors",
+    "comibShort": "Verified licensed doctors",
     "insuranceShort": "Professional liability insurance included",
     "rgpdShort": "GDPR-protected data",
     "stripeSecure": "Secure payment with Stripe",
-    "heroLine": "COMIB-certified doctors · Malpractice insurance included · From 1 hour"
+    "heroLine": "Verified licensed doctors · Malpractice insurance · From 1 hour"
   },
   "booking2": {
     "loading_doctors": "Finding available doctors near you...",
@@ -667,7 +667,7 @@
     "phoneFormatHelp": "International format, e.g. +34 600 000 000"
   },
   "doctorCard": {
-    "verified_comib": "COMIB verified",
+    "verified_comib": "Licence verified",
     "request_doctor": "Request",
     "eta_minutes": "~{mins} min",
     "rating": "Rating",
@@ -685,7 +685,7 @@
     "errorRetry": "Retry",
     "partialTitle": "Verification pending",
     "partialDesc": "Complete the following steps to start receiving requests:",
-    "partialComib": "COMIB registration number",
+    "partialComib": "Medical licence number",
     "partialRc": "Valid professional liability policy",
     "partialReta": "Self-employed RETA registration",
     "partialStripe": "Connected Stripe account",
@@ -736,7 +736,7 @@
   },
   "booking": {
     "stripeTrust": "Secure with Stripe Connect",
-    "verifiedDoctor": "COMIB Verified Doctor",
+    "verifiedDoctor": "Verified Licensed Doctor",
     "consultation": "Consultation",
     "platformFee": "Platform fee",
     "total": "Total"
@@ -767,7 +767,7 @@
     "deleteAccountWarning": "Type DELETE to confirm",
     "deleteAccountRequested": "Deletion request recorded. Your account will be deleted in 30 days.",
     "dpoContact": "Data Protection Officer contact",
-    "dpoEmail": "teiguell.med@gmail.com",
+    "dpoEmail": "dpo@oncall.clinic",
     "saved": "Saved",
     "consentUpdated": "Your consent has been updated",
     "dataRights": "Your data rights",
@@ -819,7 +819,7 @@
       "s1p2": "Access to and use of the Platform implies full acceptance of these Terms and Conditions in accordance with Spanish Law 34/2002 on Information Society Services and Electronic Commerce (LSSI-CE).",
       "s2Title": "2. Nature of intermediation",
       "s2p1": "Ibiza Care SL acts exclusively as a technology intermediary pursuant to Article 1544 of the Spanish Civil Code. It does NOT provide medical or healthcare services of any kind. The care relationship is established directly between the patient and the healthcare professional.",
-      "s2p2": "Doctors operating through the Platform are self-employed professionals, registered with the Official College of Physicians of the Balearic Islands (COMIB), holding valid professional liability insurance and registered with RETA (Spanish self-employment regime).",
+      "s2p2": "Doctors operating through the Platform are self-employed professionals, duly registered with the corresponding Spanish Medical Association, holding valid professional liability insurance and registered with RETA (Spanish self-employment regime).",
       "s3Title": "3. User requirements",
       "s3p1": "To use the Platform, users must:",
       "s3li1": "Be at least 18 years of age or have legal guardian authorisation",
@@ -889,6 +889,7 @@
     "privacy": {
       "title": "Privacy Policy",
       "effectiveDate": "Effective from April 17, 2026",
+      "lopdgddIntro": "In accordance with Regulation (EU) 2016/679 (GDPR) and Spanish Organic Law 3/2018 of 5 December on Personal Data Protection and Digital Rights Guarantee (LOPDGDD), we inform you about the processing of your personal data through the OnCall Clinic platform.",
       "s1Title": "1. Data controller",
       "company": "Company",
       "address": "Address",
@@ -930,7 +931,7 @@
       "rightRestriction": "Restriction of processing",
       "rightPortability": "Data portability",
       "rightObjection": "Objection",
-      "s4Contact": "To exercise your rights, contact our DPO: teiguell.med@gmail.com",
+      "s4Contact": "To exercise your rights, contact our DPO: dpo@oncall.clinic",
       "s4Aepd": "You also have the right to file a complaint with the Spanish Data Protection Agency (AEPD): www.aepd.es",
       "s5Title": "5. Data retention periods",
       "retention1": "Clinical data: 5 years from the last consultation (Law 41/2002 on Patient Autonomy)",

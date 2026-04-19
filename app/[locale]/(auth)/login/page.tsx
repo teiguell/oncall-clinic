@@ -130,6 +130,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
+                id="email"
                 label={t('login.email')}
                 type="email"
                 placeholder="tu@email.com"
@@ -137,9 +138,11 @@ export default function LoginPage() {
                 error={errors.email?.message}
                 required
                 aria-required="true"
+                autoComplete="email"
                 {...register('email')}
               />
               <Input
+                id="password"
                 label={t('login.password')}
                 type="password"
                 placeholder="••••••••"
@@ -147,6 +150,7 @@ export default function LoginPage() {
                 error={errors.password?.message}
                 required
                 aria-required="true"
+                autoComplete="current-password"
                 {...register('password')}
               />
 

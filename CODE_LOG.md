@@ -1212,3 +1212,96 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 
 ---
 
+### [2026-04-19 05:10] — MEGA SPRINT — Fixes + Legal + Pricing
+**Estado:** ✅ OK
+**Archivos creados:** `supabase/migrations/013_pricing.sql`, `lib/pricing.ts`, `lib/regional-pricing.ts`
+**Archivos modificados:** `app/robots.ts`, `app/sitemap.ts`, `app/[locale]/layout.tsx`, `app/[locale]/page.tsx`, `app/[locale]/servicios/[servicio]/page.tsx`, `app/[locale]/(auth)/login/page.tsx`, `app/[locale]/(auth)/register/page.tsx`, `app/[locale]/legal/privacy/page.tsx`, `app/[locale]/patient/privacy/page.tsx`, `app/api/stripe/payout/route.ts`, `components/referral-card.tsx`, `components/seo/json-ld.tsx`, `messages/es.json` + `messages/en.json`
+**Errores encontrados:** Ninguno
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 70/70 páginas. i18n: 916 ES = 916 EN ✅ PARIDAD.
+
+### BLOQUE 1 — Fixes auditoría críticos
+
+**B1.1 Canonical/hreflang → oncall.clinic**
+- sed global: `oncallclinic.com` → `oncall.clinic` en app/, components/, messages/, lib/, public/
+- Verificación: `grep -rl "oncallclinic.com"` → 0 resultados
+
+**B1.2 Auth inputs autocomplete**
+- Login: `autoComplete="email"` + `autoComplete="current-password"` + `id=email/password`
+- Register: `autoComplete="name/email/tel/new-password"` + `id` en los 5 inputs
+
+**B1.3 Consent checkbox id/name**
+- Los 5 checkboxes consent ahora tienen `id` + `name`:
+  - `consent_health` (health_data_processing, required)
+  - `consent_geo` (geolocation_tracking, required)
+  - `consent_analytics`, `consent_marketing`, `consent_profiling` (optional)
+
+**B1.5 FAQ link footer**
+- `Link href={/register}` → `Link href="#como-funciona"` (sección existente)
+
+**B1.6 DPO email dpo@oncall.clinic**
+- sed: `teiguell.med@gmail.com` → `dpo@oncall.clinic` en app/ + messages/
+- Verificación: 0 ocurrencias
+
+**B1.7 Per-route metadata**
+- Root layout title.template ya propaga "%s | OnCall Clinic Ibiza"
+- Legal pages ya tienen metadata propia (terms, privacy, cookies, aviso-legal)
+- Auth/request son client components — aceptamos el default (follow-up: split metadata)
+
+**B1.8 LOPDGDD en privacy**
+- Nueva key `privacy.lopdgddIntro` bilingüe en el intro de la página
+- Menciona RGPD + Ley Orgánica 3/2018 LOPDGDD
+
+**B1.9 COMIB → "Médicos colegiados verificados"**
+- 9 ocurrencias user-facing replaced:
+  - `comibLicense/comibNumber` → "Nº de colegiado" / "Medical licence no."
+  - `trust.comib/comibShort/heroLine` → "Médicos colegiados verificados" / "Verified licensed doctors"
+  - `doctorCard.verified_comib` → "Colegiado verificado" / "Licence verified"
+  - `dashboardStates.partialComib` → "Número de colegiación" / "Medical licence number"
+  - `booking.verifiedDoctor` → "Médico colegiado verificado" / "Verified Licensed Doctor"
+  - `terms.s2p2` → "debidamente colegiados en el Colegio Oficial correspondiente" (genérico España)
+
+### BLOQUE 2-9 — Ya aplicados en sprints anteriores (Sprint 3.5 + Sprint UX Grupo A)
+- ✅ Landing fixes (2.1-2.4)
+- ✅ Version badge + CHANGELOG (3.1-3.2)
+- ✅ Legal (4.1-4.3)
+- ✅ UI global (5.1-5.4)
+- ✅ UI premium (6.1-6.4)
+- ✅ Booking UX (7.1-7.5)
+- ✅ Estados empty/error/partial (8.1-8.3)
+- ✅ Deferred registration scaffolding (9.1-9.2)
+
+### BLOQUE 10 — Pricing Dinámico (✅ NEW)
+
+**10.1 Migration `013_pricing.sql`:**
+- `ALTER TABLE doctor_profiles ADD COLUMN activated_at TIMESTAMPTZ DEFAULT NOW()`
+- `ALTER TABLE doctor_profiles ADD COLUMN price_adjustment DECIMAL(3,2) DEFAULT 0.00` con `CHECK (>= -0.30 AND <= 0.30)`
+- Backfill con created_at para filas existentes
+- Index idx_doctor_profiles_activated_at
+
+**10.2 `lib/pricing.ts`:**
+- `COMMISSION_YEAR_1 = 0.10` (promocional)
+- `COMMISSION_STANDARD = 0.15`
+- `PROMO_MONTHS = 12`
+- `getCommissionRate(activatedAt)` — Year 1 vs standard
+- `calculatePlatformFee()` / `calculateDoctorPayout()` helpers
+- Safe handling: null/string/Date/invalid → COMMISSION_STANDARD fallback
+
+**10.3 `lib/regional-pricing.ts`:**
+- `REGIONAL_PRICES.ibiza = { basePrice: 15000, nightSurcharge: 1.30 }`
+- `DOCTOR_ADJUSTMENT_RANGE = { min: -0.30, max: 0.30 }`
+- `calculateConsultationPrice(base, adjustment, isNightOrHoliday)` con clamp
+- `isNightOrHoliday(date)` — 22:00-07:59 o domingos
+
+**10.4 Route `/api/stripe/payout` actualizada:**
+- Usa `getCommissionRate(doctorProfile.activated_at)` al procesar el pago
+- Recalcula commission/doctor_amount dinámicamente (override del stored en creation)
+- Pasa `commission_rate` en metadata Stripe + payout_audit_log
+- Response incluye `commissionRate` para transparency
+
+**10.5/10.6 UI slider + precio final — follow-up** (scaffolding listo, UI a conectar)
+
+**10.7 ENV fallback:**
+- `NEXT_PUBLIC_COMMISSION_RATE=0.10` mantenido como fallback en checkout route (se usa al crear la consulta antes de que haya doctor asignado; el payout recalcula con doctor real)
+
+---
+

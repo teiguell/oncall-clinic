@@ -217,15 +217,18 @@ function RegisterPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
+                id="fullName"
                 label={t('register.name')}
                 placeholder={selectedRole === 'doctor' ? 'Dra. Ana García' : 'María García'}
                 icon={<User className="h-4 w-4" />}
                 error={errors.fullName?.message}
                 required
                 aria-required="true"
+                autoComplete="name"
                 {...register('fullName')}
               />
               <Input
+                id="email"
                 label={t('register.email')}
                 type="email"
                 placeholder="ana@ejemplo.com"
@@ -233,17 +236,21 @@ function RegisterPage() {
                 error={errors.email?.message}
                 required
                 aria-required="true"
+                autoComplete="email"
                 {...register('email')}
               />
               <Input
+                id="phone"
                 label={t('register.phone')}
                 type="tel"
                 placeholder="+XX XXX XXX XXX"
                 icon={<Phone className="h-4 w-4" />}
                 error={errors.phone?.message}
+                autoComplete="tel"
                 {...register('phone')}
               />
               <Input
+                id="password"
                 label={t('register.password')}
                 type="password"
                 placeholder={t('register.passwordPlaceholder')}
@@ -251,9 +258,11 @@ function RegisterPage() {
                 error={errors.password?.message}
                 required
                 aria-required="true"
+                autoComplete="new-password"
                 {...register('password')}
               />
               <Input
+                id="confirmPassword"
                 label={t('register.confirmPassword')}
                 type="password"
                 placeholder={t('register.confirmPasswordPlaceholder')}
@@ -261,6 +270,7 @@ function RegisterPage() {
                 error={errors.confirmPassword?.message}
                 required
                 aria-required="true"
+                autoComplete="new-password"
                 {...register('confirmPassword')}
               />
 
@@ -286,6 +296,8 @@ function RegisterPage() {
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className="relative mt-0.5">
                     <input
+                      id="consent_health"
+                      name="consent_health"
                       type="checkbox"
                       checked={consents.health_data_processing}
                       onChange={() => toggleConsent('health_data_processing')}
@@ -315,6 +327,8 @@ function RegisterPage() {
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className="relative mt-0.5">
                     <input
+                      id="consent_geo"
+                      name="consent_geo"
                       type="checkbox"
                       checked={consents.geolocation_tracking}
                       onChange={() => toggleConsent('geolocation_tracking')}
@@ -339,6 +353,8 @@ function RegisterPage() {
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className="relative mt-0.5">
                     <input
+                      id="consent_analytics"
+                      name="consent_analytics"
                       type="checkbox"
                       checked={consents.analytics}
                       onChange={() => toggleConsent('analytics')}
@@ -361,6 +377,8 @@ function RegisterPage() {
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className="relative mt-0.5">
                     <input
+                      id="consent_marketing"
+                      name="consent_marketing"
                       type="checkbox"
                       checked={consents.marketing_communications}
                       onChange={() => toggleConsent('marketing_communications')}
@@ -383,6 +401,8 @@ function RegisterPage() {
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className="relative mt-0.5">
                     <input
+                      id="consent_profiling"
+                      name="consent_profiling"
                       type="checkbox"
                       checked={consents.profiling}
                       onChange={() => toggleConsent('profiling')}

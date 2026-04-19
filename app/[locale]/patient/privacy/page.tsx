@@ -335,7 +335,7 @@ export default function PrivacyPage() {
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">{t('dpoContact')}</h3>
             <a
-              href="mailto:teiguell.med@gmail.com"
+              href="mailto:dpo@oncall.clinic"
               className="text-sm text-blue-600 hover:underline mt-1 block"
             >
               {t('dpoEmail')}

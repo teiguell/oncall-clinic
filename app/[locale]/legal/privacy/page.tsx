@@ -14,7 +14,8 @@ export default async function PrivacyPolicyPage() {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-2">{t('privacy.title')}</h1>
-      <p className="text-sm text-gray-500 mb-8">{t('privacy.effectiveDate')}</p>
+      <p className="text-sm text-gray-500 mb-4">{t('privacy.effectiveDate')}</p>
+      <p className="mb-8 leading-relaxed">{t('privacy.lopdgddIntro')}</p>
 
       {/* 1. Data Controller */}
       <section className="mb-8" id="controller">
@@ -23,7 +24,7 @@ export default async function PrivacyPolicyPage() {
           <li><strong>{t('privacy.company')}:</strong> Ibiza Care SL</li>
           <li><strong>CIF:</strong> B19973569</li>
           <li><strong>{t('privacy.address')}:</strong> C/ Lugo 11, 3º2ª, Sant Josep de Sa Talaia, Illes Balears, España</li>
-          <li><strong>DPO:</strong> Tei &mdash; <a href="mailto:teiguell.med@gmail.com" className="text-blue-600 hover:underline">teiguell.med@gmail.com</a></li>
+          <li><strong>DPO:</strong> Tei &mdash; <a href="mailto:dpo@oncall.clinic" className="text-blue-600 hover:underline">dpo@oncall.clinic</a></li>
         </ul>
       </section>
 

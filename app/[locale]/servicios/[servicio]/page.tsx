@@ -170,8 +170,8 @@ export async function generateMetadata({
     },
     alternates: {
       languages: {
-        es: `https://oncallclinic.com/es/servicios/${servicio}`,
-        en: `https://oncallclinic.com/en/servicios/${servicio}`,
+        es: `https://oncall.clinic/es/servicios/${servicio}`,
+        en: `https://oncall.clinic/en/servicios/${servicio}`,
       },
     },
   }

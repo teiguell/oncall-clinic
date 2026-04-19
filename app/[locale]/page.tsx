@@ -395,7 +395,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><Link href="#como-funciona" className="hover:text-white transition-colors">{t('footer.howItWorks')}</Link></li>
                 <li><Link href="#servicios" className="hover:text-white transition-colors">{t('footer.services')}</Link></li>
-                <li><Link href={`/${locale}/register`} className="hover:text-white transition-colors">{t('footer.faq')}</Link></li>
+                <li><Link href="#como-funciona" className="hover:text-white transition-colors">{t('footer.faq')}</Link></li>
               </ul>
             </div>
             <div>
