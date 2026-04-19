@@ -941,5 +941,7 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 - Textos más específicos y legalmente robustos
 - El namespace `avisoLegal` antiguo se mantiene por compatibilidad (no referenciado ya)
 
+**Deploy:** `dpl_Duv6DFxffrQTyVPNW5cLL2FdH5KV` → https://oncall.clinic (READY). Commit `b7a85cb`.
+
 ---
 
