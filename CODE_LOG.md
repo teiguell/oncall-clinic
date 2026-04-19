@@ -909,3 +909,37 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 
 ---
 
+### [2026-04-19 03:20] — LEGAL — Aviso Legal LSSI-CE Art. 10 completo
+**Estado:** ✅ OK
+**Archivos creados:** Ninguno
+**Archivos modificados:** `app/[locale]/legal/aviso-legal/page.tsx` (reescrito con 7 secciones), `messages/es.json` + `messages/en.json` (namespace `legal.legalNotice` completo, 35 nuevas keys)
+**Errores encontrados:** Ninguno
+**Cómo los resolviste:** N/A
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 70/70 páginas. i18n: 839 ES = 839 EN ✅ PARIDAD.
+
+**Contenido LSSI-CE Art. 10 (Ley 34/2002):**
+- **Denominación:** Ibiza Care, Sociedad Limitada (SLU)
+- **CIF:** B19973569
+- **Domicilio:** C/ Lugo 11, 3º2ª, 07830 Sant Josep de Sa Talaia, Illes Balears
+- **Registro Mercantil:** Eivissa, Hoja IB-21129, Inscripción 1ª
+- **CNAE:** 8690 — Actividades sanitarias: intermediación tecnológica
+- **Email:** info@oncall.clinic
+- **DPO:** dpo@oncall.clinic
+
+**7 secciones implementadas:**
+1. Identificación del titular (Art. 10 LSSI-CE) — card destacada con todos los datos + CNAE + DPO
+2. Objeto y naturaleza del servicio — warning box ámbar: "NO es centro sanitario, es intermediario tecnológico". Responsabilidad clínica recae en profesional
+3. Condiciones generales de uso — aceptación implícita + 3 obligaciones del usuario
+4. Propiedad intelectual e industrial — RDL 1/1996 + prohibición reproducción
+5. Limitación de responsabilidad — **red-box destacado**: Ibiza Care NO responde de actos clínicos (Art. 16 LSSI-CE — mere intermediary). Sí garantiza verificación documental (colegiación + RC + RETA)
+6. Protección de datos — link a política de privacidad
+7. Ley aplicable y jurisdicción — tribunales Eivissa + plataforma ODR UE 524/2013
+
+**Diferencias vs versión anterior (`avisoLegal` namespace):**
+- Nueva namespace `legalNotice` con estructura granular (`identification.title`, `purpose.warning`, etc.) en lugar de `s1Title`, `s1p1` flat
+- Añadidos: sección de responsabilidad clínica (crítica para modelo marketplace), DPO email, CNAE code, warnings visualmente destacados (ámbar + rojo)
+- Textos más específicos y legalmente robustos
+- El namespace `avisoLegal` antiguo se mantiene por compatibilidad (no referenciado ya)
+
+---
+

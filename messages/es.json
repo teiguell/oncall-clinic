@@ -885,6 +885,57 @@
       "s4p1": "Todos los contenidos del sitio web (textos, imágenes, marcas, logotipos, código fuente, bases de datos y diseño) son propiedad de Ibiza Care SL o de sus licenciantes, estando protegidos por la legislación española e internacional sobre propiedad intelectual e industrial.",
       "s5Title": "5. Legislación aplicable y jurisdicción",
       "s5p1": "Las presentes condiciones se rigen por la legislación española. Para cualquier controversia derivada del uso del sitio web, las partes se someten a los Juzgados y Tribunales de Eivissa (Illes Balears), renunciando expresamente a cualquier otro fuero que pudiera corresponderles."
+    },
+    "legalNotice": {
+      "title": "Aviso Legal",
+      "effectiveDate": "En vigor desde el 19 de abril de 2026",
+      "identification": {
+        "title": "1. Identificación del titular (Art. 10 LSSI-CE)",
+        "intro": "En cumplimiento del deber de información recogido en el artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa de los siguientes datos identificativos del titular del sitio web oncall.clinic:",
+        "companyName": "Denominación social",
+        "taxId": "CIF",
+        "address": "Domicilio social",
+        "registry": "Registro Mercantil",
+        "cnae": "Actividad (CNAE)",
+        "cnaeDesc": "Actividades sanitarias: intermediación tecnológica en servicios sanitarios a domicilio",
+        "dpo": "Delegado de Protección de Datos (DPO)"
+      },
+      "purpose": {
+        "title": "2. Objeto y naturaleza del servicio",
+        "warning": "OnCall Clinic NO es un centro sanitario ni prestador de servicios de salud. Actúa exclusivamente como intermediario tecnológico que conecta pacientes con profesionales sanitarios autónomos colegiados.",
+        "p1": "Ibiza Care SLU opera la plataforma tecnológica OnCall Clinic, cuyo objeto es facilitar la contratación directa entre pacientes y profesionales sanitarios independientes, debidamente colegiados y con seguro de responsabilidad civil vigente.",
+        "p2": "La relación contractual de prestación del servicio sanitario se establece DIRECTAMENTE entre el paciente y el profesional sanitario. Ibiza Care SLU no es parte de dicho contrato, sino proveedor de una herramienta tecnológica neutral de intermediación (solicitud, geolocalización, comunicación, pago seguro y seguimiento).",
+        "p3": "La responsabilidad clínica, diagnóstica, terapéutica y de confidencialidad médica recae exclusivamente en cada profesional sanitario, quien actúa bajo su propia colegiación, RETA y póliza de responsabilidad civil."
+      },
+      "conditions": {
+        "title": "3. Condiciones generales de uso",
+        "p1": "El acceso, navegación y uso de la Plataforma implica la aceptación expresa y plena de estas condiciones, así como de los Términos y Condiciones y la Política de Privacidad publicadas en el sitio web.",
+        "p2": "El usuario se compromete a:",
+        "l1": "Proporcionar información veraz, actualizada y completa en el proceso de registro y solicitud de servicios.",
+        "l2": "Hacer un uso diligente de la Plataforma conforme a la ley, las buenas costumbres y el orden público, absteniéndose de cualquier actividad ilegal, fraudulenta o lesiva de derechos de terceros.",
+        "l3": "No introducir, almacenar ni difundir a través de la Plataforma virus, código malicioso o contenidos contrarios a la legislación vigente (propiedad intelectual, honor, intimidad, protección de datos, publicidad, consumo, etc.)."
+      },
+      "intellectualProperty": {
+        "title": "4. Propiedad intelectual e industrial",
+        "p1": "Todos los contenidos del sitio web (código fuente, diseño, textos, imágenes, marcas, logotipos, bases de datos, interfaces, estructura, navegación y audiovisuales) son titularidad de Ibiza Care SLU o de sus licenciantes, estando protegidos por el Real Decreto Legislativo 1/1996, de 12 de abril (Ley de Propiedad Intelectual) y la normativa nacional e internacional aplicable.",
+        "p2": "Queda expresamente prohibida su reproducción, distribución, comunicación pública, transformación o cualquier otra forma de explotación, total o parcial, sin autorización previa y por escrito de Ibiza Care SLU o de sus respectivos titulares."
+      },
+      "liability": {
+        "title": "5. Limitación de responsabilidad",
+        "clinicalWarning": "Ibiza Care SLU NO responde de los actos clínicos, diagnósticos, prescripciones, tratamientos ni cualesquiera decisiones médicas tomadas por los profesionales sanitarios. Dicha responsabilidad recae íntegra y exclusivamente en cada profesional, amparada por su seguro de responsabilidad civil profesional.",
+        "p1": "Ibiza Care SLU actúa como mero intermediario tecnológico y prestador de servicios de la sociedad de la información al amparo del artículo 16 LSSI-CE. No edita, selecciona, modera ni controla previamente los contenidos clínicos generados por los profesionales.",
+        "p2": "Sin perjuicio de lo anterior, Ibiza Care SLU garantiza la verificación documental de colegiación, póliza de RC y alta RETA de los profesionales que operan en la Plataforma, con carácter previo a su activación."
+      },
+      "dataProtection": {
+        "title": "6. Protección de datos personales",
+        "p1": "El tratamiento de los datos personales recabados a través del sitio web se rige por lo dispuesto en la Política de Privacidad disponible en",
+        "privacyLink": "la sección de Privacidad"
+      },
+      "jurisdiction": {
+        "title": "7. Ley aplicable y jurisdicción",
+        "p1": "Las presentes condiciones se rigen por la legislación española. Para la resolución de cualquier controversia derivada del acceso o uso del sitio web, las partes se someten a los Juzgados y Tribunales de Eivissa (Illes Balears), con renuncia expresa a cualquier otro fuero que pudiera corresponderles, salvo que la normativa de consumidores establezca un fuero distinto obligatorio para el consumidor.",
+        "odrIntro": "Asimismo, de conformidad con el Reglamento (UE) 524/2013, se informa de la disponibilidad de la plataforma de resolución de litigios en línea de la Unión Europea:"
+      }
     }
   },
   "settings": {
