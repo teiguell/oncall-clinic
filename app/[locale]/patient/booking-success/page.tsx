@@ -11,7 +11,11 @@ export default function BookingSuccessPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
-        <Loader2 className="h-16 w-16 text-blue-500 animate-spin" />
+        <div className="max-w-md w-full text-center space-y-4" aria-busy="true">
+          <div className="h-24 w-24 mx-auto rounded-full skeleton-shimmer" />
+          <div className="h-6 w-3/4 mx-auto skeleton-shimmer rounded-md" />
+          <div className="h-4 w-1/2 mx-auto skeleton-shimmer rounded-md" />
+        </div>
       </div>
     }>
       <BookingSuccessContent />
@@ -77,9 +81,11 @@ function BookingSuccessContent() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         {status === 'loading' && (
-          <div className="fade-in">
-            <Loader2 className="h-16 w-16 text-blue-500 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">{t('redirecting')}</p>
+          <div className="fade-in space-y-4" aria-busy="true" aria-label="Verificando">
+            <div className="h-24 w-24 mx-auto rounded-full skeleton-shimmer" />
+            <div className="h-6 w-3/4 mx-auto skeleton-shimmer rounded-md" />
+            <div className="h-4 w-1/2 mx-auto skeleton-shimmer rounded-md" />
+            <p className="text-muted-foreground text-sm">{t('redirecting')}</p>
           </div>
         )}
 

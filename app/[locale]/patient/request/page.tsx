@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { SERVICES, type ServiceType, type ConsultationType } from '@/types'
 import { formatCurrencyFromEuros } from '@/lib/utils'
 import { MapPin, Zap, Calendar, ArrowLeft, AlertCircle, ChevronRight, ShieldCheck, Award, Lock, CheckCircle } from 'lucide-react'
+import { BookingFaq } from '@/components/shared/booking-faq'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -385,6 +386,11 @@ function RequestConsultationPage() {
               </CardContent>
             </Card>
 
+            {/* FAQ compact — surfaces common questions at the decision point */}
+            <div className="mb-4">
+              <BookingFaq />
+            </div>
+
             {/* ITEM-4: Trust signals above pay CTA */}
             <div className="flex flex-col gap-2 mb-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
@@ -431,7 +437,7 @@ function RequestConsultationPage() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center px-4"><div className="w-full max-w-md space-y-3" aria-busy="true" aria-label="Loading"><div className="h-8 w-2/3 skeleton-shimmer rounded-md" /><div className="h-32 skeleton-shimmer rounded-card" /></div></div>}>
       <RequestConsultationPage />
     </Suspense>
   )

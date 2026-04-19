@@ -303,7 +303,7 @@ export default function ChatPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="h-8 w-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin mx-auto mb-3" />
+          <div className="w-full max-w-md mx-auto space-y-2 mb-3" aria-busy="true" aria-label="Loading"><div className="h-12 skeleton-shimmer rounded-card" /><div className="h-12 skeleton-shimmer rounded-card w-3/4" /></div>
           <p className="text-sm text-gray-500">{t('loadingMessages')}</p>
         </div>
       </div>

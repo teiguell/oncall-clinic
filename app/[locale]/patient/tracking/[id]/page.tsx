@@ -246,7 +246,7 @@ export default function TrackingPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="h-12 w-12 rounded-full gradient-primary animate-spin mx-auto mb-4" style={{ background: 'conic-gradient(from 0deg, #3b82f6, transparent)' }} />
+          <div className="w-full max-w-md mx-auto space-y-3 mb-4" aria-busy="true" aria-label="Loading"><div className="h-8 w-2/3 skeleton-shimmer rounded-md mx-auto" /><div className="h-48 skeleton-shimmer rounded-card" /></div>
           <p className="text-gray-500">{tCommon('loading')}</p>
         </div>
       </div>

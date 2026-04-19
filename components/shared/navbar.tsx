@@ -56,6 +56,16 @@ export function Navbar({ user }: NavbarProps) {
         </Link>
 
         <div className="flex items-center gap-3">
+          {/* Solicitar médico — visible only for patients (Serial Position Effect) */}
+          {user.role === 'patient' && (
+            <Link href={`/${locale}/patient/request`} className="hidden sm:inline-flex">
+              <Button size="sm" className="gap-1.5 btn-hover">
+                <Stethoscope className="h-3.5 w-3.5" />
+                {t('requestDoctor')}
+              </Button>
+            </Link>
+          )}
+
           {/* Language switcher */}
           <LanguageSwitcher />
 

@@ -51,6 +51,8 @@ export function DoctorCard({
               alt={name}
               width={56}
               height={56}
+              quality={75}
+              loading="lazy"
               className="rounded-full object-cover"
             />
           ) : (
