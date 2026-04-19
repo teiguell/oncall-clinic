@@ -644,6 +644,25 @@
   "a11y": {
     "skipToContent": "Saltar al contenido"
   },
+  "intermediary": {
+    "disclaimer": "OnCall Clinic es un intermediario tecnológico. No somos un centro sanitario ni prestamos servicios médicos. Los profesionales son autónomos independientes responsables de su propia práctica profesional."
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "subtitle": "Respuestas a lo que los pacientes preguntan más",
+    "q1": "¿Cuánto tarda en llegar el médico?",
+    "a1": "Desde 1 hora tras la confirmación, dependiendo de la disponibilidad y la ubicación. El tiempo exacto se muestra cuando un médico acepta tu solicitud.",
+    "q2": "¿Qué servicios ofrecéis?",
+    "a2": "Actualmente consultas de medicina general a domicilio. Próximamente: pediatría, fisioterapia y enfermería.",
+    "q3": "¿Cómo pago la consulta?",
+    "a3": "Con tarjeta a través de nuestra plataforma segura (Stripe). El pago se procesa al confirmar la solicitud.",
+    "q4": "¿Puedo cancelar?",
+    "a4": "Sí. Cancelación gratuita (100% reembolso) si cancelas antes de que un médico acepte. Después: 50% si cancelas entre 2-24h antes; 0% con menos de 2h.",
+    "q5": "¿Los médicos están verificados?",
+    "a5": "Sí, todos los médicos están colegiados en España, cuentan con seguro de responsabilidad civil vigente y están dados de alta en el RETA.",
+    "q6": "¿Atendéis emergencias vitales?",
+    "a6": "No. Para emergencias que pongan en riesgo la vida, llama al 112. OnCall Clinic es para consultas médicas no urgentes."
+  },
   "trust": {
     "comib": "Médicos colegiados verificados",
     "insurance": "Seguro RC incluido",
@@ -940,6 +959,10 @@
       "retention3": "Datos de pagos y facturación: 5 años (obligación fiscal)",
       "s6Title": "6. Transferencias internacionales de datos",
       "s6Content": "Utilizamos Stripe Inc. (EE.UU.) como procesador de pagos, amparado por las Cláusulas Contractuales Tipo (SCCs) de la Comisión Europea (Art. 46 RGPD) y el EU-US Data Privacy Framework. No se realizan otras transferencias internacionales de datos personales.",
+      "automatedDecisions": {
+        "title": "6bis. Decisiones automatizadas (Art. 22 RGPD)",
+        "content": "No realizamos decisiones basadas únicamente en tratamiento automatizado que produzcan efectos jurídicos o afecten significativamente al interesado. La asignación de profesionales sanitarios a una solicitud se basa en criterios técnicos objetivos (proximidad geográfica, disponibilidad declarada, idioma solicitado) y admite intervención humana del equipo de soporte en cualquier momento."
+      },
       "dpia": {
         "title": "7. Evaluación de Impacto en la Protección de Datos (EIPD/DPIA)",
         "intro": "De conformidad con el artículo 35 del RGPD, Ibiza Care SL ha realizado una Evaluación de Impacto en la Protección de Datos (EIPD) para el tratamiento de datos de salud a gran escala, dada la especial sensibilidad de estos datos (Art. 9 RGPD).",

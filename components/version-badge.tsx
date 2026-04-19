@@ -6,7 +6,7 @@
  * Update the VERSION constant with every release; also update CHANGELOG.md.
  */
 
-export const VERSION = '0.4.0'
+export const VERSION = '0.5.0'
 
 export function VersionBadge() {
   return (

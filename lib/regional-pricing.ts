@@ -1,39 +1,50 @@
 /**
- * Regional pricing + night/holiday surcharge helpers.
+ * Regional pricing — ORIENTATIVE recommendation only.
  *
- * Prices are stored in the SMALLEST currency unit (cents for EUR) to avoid
- * float rounding issues with Stripe.
+ * Legal framework: Ley 15/2007 (Defensa Competencia) + STS 805/2020 prevents
+ * a technology intermediary from fixing prices for independent professionals.
+ * Doctors SET THEIR OWN `consultation_price` freely. We only publish a
+ * recommended range to help patients and doctors calibrate expectations.
+ *
+ * Amounts are in SMALLEST currency unit (cents EUR) for Stripe compatibility.
  */
 
-export interface RegionalPrice {
+export interface RegionalPricing {
   region: string
-  basePrice: number  // in cents
   currency: 'eur'
-  nightSurcharge: number  // multiplier (1.30 = +30%)
+  recommendedRange: { min: number; max: number }  // cents
+  nightSurchargeRecommended: number  // multiplier (1.30 = +30%), non-binding
 }
 
-export const REGIONAL_PRICES: Record<string, RegionalPrice> = {
-  ibiza: { region: 'Ibiza', basePrice: 15000, currency: 'eur', nightSurcharge: 1.30 },
+export const REGIONAL_PRICING: Record<string, RegionalPricing> = {
+  ibiza: {
+    region: 'Ibiza',
+    currency: 'eur',
+    recommendedRange: { min: 10000, max: 25000 }, // €100 – €250
+    nightSurchargeRecommended: 1.30,
+  },
 }
-
-export const DOCTOR_ADJUSTMENT_RANGE = { min: -0.30, max: 0.30 }
 
 /**
- * Compute the final patient-facing price given the regional base, a doctor's
- * personal adjustment (±30%), and whether the time window triggers a
- * night/holiday surcharge.
+ * Technical guard-rails on the `consultation_price` column (migration 014).
+ * NOT a commercial constraint — only to prevent clearly-broken values.
  */
-export function calculateConsultationPrice(
-  basePrice: number,
-  doctorAdjustment: number,
-  isNightOrHoliday: boolean,
-): number {
-  const clampedAdjustment = Math.max(
-    DOCTOR_ADJUSTMENT_RANGE.min,
-    Math.min(DOCTOR_ADJUSTMENT_RANGE.max, doctorAdjustment || 0),
-  )
-  const adjusted = Math.round(basePrice * (1 + clampedAdjustment))
-  return isNightOrHoliday ? Math.round(adjusted * REGIONAL_PRICES.ibiza.nightSurcharge) : adjusted
+export const DOCTOR_PRICE_LIMITS = { min: 5000, max: 50000 } // cents
+
+/**
+ * Suggested midpoint of the recommended range — used as the default price
+ * when a doctor hasn't explicitly set their own.
+ */
+export function getDefaultPrice(region: string): number {
+  const r = REGIONAL_PRICING[region] ?? REGIONAL_PRICING.ibiza
+  return Math.round((r.recommendedRange.min + r.recommendedRange.max) / 2)
+}
+
+/**
+ * Clamp a doctor-entered price to the technical guard-rails.
+ */
+export function clampDoctorPrice(priceCents: number): number {
+  return Math.max(DOCTOR_PRICE_LIMITS.min, Math.min(DOCTOR_PRICE_LIMITS.max, priceCents))
 }
 
 /**

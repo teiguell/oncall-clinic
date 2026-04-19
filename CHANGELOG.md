@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-04-19 — Sprint 5: Pricing legal refactor + intermediary disclaimer + FAQ
+
+### Added
+- Migration 014: `doctor_profiles.consultation_price` INTEGER with technical guard-rails (€50-€500) for **doctor-set free pricing** (LSSI-CE + Ley 15/2007 Defensa Competencia compliance). Platform publishes a recommended range only; doctors set their own price.
+- `lib/regional-pricing.ts` refactor: `REGIONAL_PRICING` with `recommendedRange` + `nightSurchargeRecommended` (non-binding). Removed `DOCTOR_ADJUSTMENT_RANGE` and `calculateConsultationPrice`.
+- `components/intermediary-disclaimer.tsx`: reusable component with 3 variants (`footer`, `inline`, `card`). LEGALLY REQUIRED per LSSI-CE intermediation status.
+- FAQ section on landing (6 Q&A, accordion with `<details>`): arrival time, services, payment, cancellation, verification, emergencies. Bilingual ES/EN.
+- Privacy policy §6bis: automated decisions (Art. 22 GDPR) — "no decisions based solely on automated processing".
+
+### Changed
+- Intermediary disclaimer added to: landing footer + "For doctors" section.
+- Doctor's consultation price is now set freely in `doctor_profiles.consultation_price` (replaces the ±30% adjustment model from migration 013).
+
+### Fixed
+- Previous `calculateConsultationPrice` inline callers removed (only `isNightOrHoliday` helper retained for future surcharge logic).
+
+### Legal compliance
+- STS 805/2020 (Glovo) + Ley 15/2007 (Defensa Competencia): doctors set their own price; platform cannot fix prices.
+- Art. 22 RGPD: explicit declaration of no fully-automated legal-effect decisions.
+- LSSI-CE intermediation: disclaimer visible in 2 landing locations (footer + forDoctors section); extendable to booking confirm, register, legal pages via `IntermediaryDisclaimer` component.
+
 ## [0.4.0] — 2026-04-19 — Sprint 4: Fixes + E2E Simulation Readiness
 
 ### Added

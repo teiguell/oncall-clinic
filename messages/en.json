@@ -644,6 +644,25 @@
   "a11y": {
     "skipToContent": "Skip to content"
   },
+  "intermediary": {
+    "disclaimer": "OnCall Clinic is a technology intermediary. We are not a healthcare centre and do not provide medical services. Professionals are independent practitioners responsible for their own professional practice."
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "Answers to what patients ask most",
+    "q1": "How long does it take for the doctor to arrive?",
+    "a1": "From 1 hour after confirmation, depending on availability and location. The exact time is shown when a doctor accepts your request.",
+    "q2": "What services do you offer?",
+    "a2": "Currently home-visit general medicine consultations. Coming soon: paediatrics, physiotherapy and nursing.",
+    "q3": "How do I pay?",
+    "a3": "By card through our secure platform (Stripe). Payment is processed when the booking is confirmed.",
+    "q4": "Can I cancel?",
+    "a4": "Yes. Free cancellation (100% refund) if you cancel before a doctor accepts. After: 50% if cancelled 2-24h in advance; 0% with less than 2h.",
+    "q5": "Are the doctors verified?",
+    "a5": "Yes, all doctors are licensed in Spain, hold valid professional liability insurance and are registered as self-employed (RETA).",
+    "q6": "Do you handle life-threatening emergencies?",
+    "a6": "No. For life-threatening emergencies, call 112. OnCall Clinic is for non-urgent medical consultations."
+  },
   "trust": {
     "comib": "Verified licensed doctors",
     "insurance": "Liability insurance included",
@@ -940,6 +959,10 @@
       "retention3": "Payment and billing data: 5 years (tax obligation)",
       "s6Title": "6. International data transfers",
       "s6Content": "We use Stripe Inc. (USA) as our payment processor, protected under the European Commission's Standard Contractual Clauses (SCCs, Art. 46 GDPR) and the EU-US Data Privacy Framework. No other international transfers of personal data are made.",
+      "automatedDecisions": {
+        "title": "6bis. Automated decisions (Art. 22 GDPR)",
+        "content": "We do not take decisions based solely on automated processing that produce legal effects or significantly affect the data subject. The assignment of healthcare professionals to a request is based on objective technical criteria (geographic proximity, declared availability, requested language) and admits human intervention by the support team at any time."
+      },
       "dpia": {
         "title": "7. Data Protection Impact Assessment (DPIA)",
         "intro": "In accordance with Article 35 GDPR, Ibiza Care SL has conducted a Data Protection Impact Assessment (DPIA) for the large-scale processing of health data, given the special sensitivity of these data (Art. 9 GDPR).",

@@ -120,6 +120,12 @@ export default async function PrivacyPolicyPage() {
         <p>{t('privacy.s6Content')}</p>
       </section>
 
+      {/* 6bis. Automated decisions — Art. 22 GDPR */}
+      <section className="mb-8" id="automated-decisions">
+        <h2 className="text-xl font-semibold mb-3">{t('privacy.automatedDecisions.title')}</h2>
+        <p>{t('privacy.automatedDecisions.content')}</p>
+      </section>
+
       {/* 7. DPIA — Art. 35 GDPR */}
       <section className="mb-8" id="dpia">
         <h2 className="text-xl font-semibold mb-3">{t('privacy.dpia.title')}</h2>

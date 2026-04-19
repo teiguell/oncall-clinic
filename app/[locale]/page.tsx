@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
 import { TrustBadges } from '@/components/trust-badges'
+import { IntermediaryDisclaimer } from '@/components/intermediary-disclaimer'
 import {
   Stethoscope, MapPin, Clock, Shield, ArrowRight,
   Baby, Dumbbell, Syringe, CheckCircle2, Menu, X,
@@ -41,6 +42,8 @@ export default function LandingPage() {
   const tNav = useTranslations('nav')
   const tServices = useTranslations('services')
   const tTrust = useTranslations('trust')
+  const tInterm = useTranslations('intermediary')
+  const tFaq = useTranslations('faq')
   const locale = useLocale()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const mainRef = useScrollReveal()
@@ -352,6 +355,37 @@ export default function LandingPage() {
                   <ArrowRight className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </Link>
+              <p className="mt-6 text-xs text-white/70 max-w-xl mx-auto">
+                {tInterm('disclaimer')}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════
+             FAQ — accordion, 6 common questions
+           ═══════════════════════════════════════════════════════ */}
+        <section id="faq" className="py-16 md:py-20 bg-muted/40">
+          <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-10 scroll-reveal">
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">{tFaq('title')}</h2>
+              <p className="text-base md:text-lg text-muted-foreground">{tFaq('subtitle')}</p>
+            </div>
+            <div className="space-y-3 scroll-reveal">
+              {([1, 2, 3, 4, 5, 6] as const).map((n) => (
+                <details
+                  key={n}
+                  className="rounded-card border border-border/60 bg-card shadow-card overflow-hidden group"
+                >
+                  <summary className="cursor-pointer list-none flex items-center justify-between gap-4 p-5 font-display font-semibold text-left hover:bg-muted/40">
+                    <span>{tFaq(`q${n}`)}</span>
+                    <span className="text-primary text-xl group-open:rotate-45 transition-transform" aria-hidden="true">+</span>
+                  </summary>
+                  <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                    {tFaq(`a${n}`)}
+                  </div>
+                </details>
+              ))}
             </div>
           </div>
         </section>
@@ -395,7 +429,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><Link href="#como-funciona" className="hover:text-white transition-colors">{t('footer.howItWorks')}</Link></li>
                 <li><Link href="#servicios" className="hover:text-white transition-colors">{t('footer.services')}</Link></li>
-                <li><Link href="#como-funciona" className="hover:text-white transition-colors">{t('footer.faq')}</Link></li>
+                <li><Link href="#faq" className="hover:text-white transition-colors">{t('footer.faq')}</Link></li>
               </ul>
             </div>
             <div>
@@ -431,6 +465,7 @@ export default function LandingPage() {
           <div className="border-t border-gray-800 pt-6 text-center space-y-2">
             <p className="text-sm text-gray-500">{t('footer.copyright')}</p>
             <p className="text-xs text-gray-600 max-w-2xl mx-auto">{t('footer.caibRegistry')}</p>
+            <IntermediaryDisclaimer variant="footer" />
           </div>
         </div>
       </footer>

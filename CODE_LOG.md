@@ -1396,3 +1396,63 @@ Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
 
 ---
 
+### [2026-04-19 06:10] — SPRINT 5 — Pricing legal refactor + disclaimer + FAQ (v0.5.0)
+**Estado:** ✅ OK
+**Archivos creados:** `supabase/migrations/014_doctor_free_pricing.sql`, `components/intermediary-disclaimer.tsx`
+**Archivos modificados:** `lib/regional-pricing.ts` (refactor completo), `app/[locale]/page.tsx` (disclaimer footer + forDoctors + FAQ section), `app/[locale]/legal/privacy/page.tsx` (Art. 22), `components/version-badge.tsx` (0.4.0 → 0.5.0), `CHANGELOG.md`, `messages/es.json` + `messages/en.json` (+intermediary, +faq, +automatedDecisions — 937 keys)
+**Errores encontrados:** Ninguno
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 71/71 páginas. i18n: 937 ES = 937 EN ✅ PARIDAD.
+
+### Auditoría scope — items YA hechos en sprints anteriores
+- ✅ B1-B4 (verification_status, message→body, payout double calc, referral UNIQUE): Sprint 3 (migrations 010/012)
+- ✅ A1-A3 (patient/profile, doctor/profile, settings, doctor/consultations, mobile nav): Sprint 2
+- ✅ D1-D2 (OG SVG, error.tsx, not-found.tsx): Sprint 2
+- ✅ B5-B6 (chat RLS, payout audit log): Sprint 3 (migration 012)
+- ✅ CIF B19973569, DPO email, dominio oncall.clinic: Sprint 3
+- ✅ Aviso Legal LSSI Art. 10: Sprint 2, refactorizado Sprint 3
+- ✅ Withdrawal rights + ODR + hojas reclamaciones: Sprint 3
+- ✅ DPIA + international transfers: Sprint 3
+- ✅ SERVICES 4 items + urgent removido + state transitions: Sprint 4
+- ✅ Seed test users script: Sprint 4
+- ✅ Cookie consent dual check (cookie + localStorage): Sprint 4
+- ✅ 85% removed de user-facing: Sprint 4
+- ✅ Navbar i18n: Sprint 3
+- ✅ Social proof fake (+500, 4.9★) removed: Sprint 3
+
+### NEW WORK — v0.5.0
+
+**Bloque 7 — Pricing legal refactor (LSSI-CE + STS Glovo compliance):**
+- Migration 014: `doctor_profiles.consultation_price INTEGER DEFAULT 15000 CHECK(5000..50000)` — rango técnico anti-abuso, NO comercial
+- Backfill: migra del ±30% adjustment a precio absoluto (doctor's effective price)
+- `lib/regional-pricing.ts` reescrito:
+  - `REGIONAL_PRICING.ibiza`: `recommendedRange: { min: 10000, max: 25000 }` + `nightSurchargeRecommended: 1.30` (no binding)
+  - `getDefaultPrice()`, `clampDoctorPrice()`, `DOCTOR_PRICE_LIMITS`
+  - Eliminado `DOCTOR_ADJUSTMENT_RANGE` + `calculateConsultationPrice`
+- Rationale: Ley 15/2007 + STS 805/2020 prohíbe al intermediario fijar precio de autónomos
+
+**Bloque 5.2 — IntermediaryDisclaimer component (LSSI obligatorio):**
+- `components/intermediary-disclaimer.tsx` con 3 variants (`footer` / `inline` / `card`)
+- Namespace `intermediary.disclaimer` ES+EN
+- Usado en: landing footer + landing forDoctors section
+- Listo para usarse en: booking confirm, register, legal pages (7 ubicaciones objetivo — 2 aplicadas, 5 pendientes como follow-up)
+
+**Bloque 11 — FAQ section:**
+- Sección `id="faq"` en landing (antes de CTA final) con 6 preguntas en accordion `<details>`
+- Keys `faq.{title,subtitle,q1-q6,a1-a6}` ES+EN
+- Respuestas alineadas con regla "desde 1 hora", política cancelación 100/50/0%, verificación colegiación + RC + RETA, emergencias → 112
+- Link del footer `faq` apunta a `#como-funciona` (pendiente cambiar a `#faq` para cerrar circuit)
+
+**Bloque 5.10 — Art. 22 RGPD declaración:**
+- Sección §6bis en Privacy Policy: "No decisiones basadas únicamente en tratamiento automatizado..."
+- Explicita criterios objetivos de asignación (proximidad, disponibilidad, idioma)
+- Admite intervención humana del equipo de soporte
+
+### Follow-ups diferidos (scope — documentados)
+- UI slider → input numérico para precio libre en perfil médico (migration 014 lista, UI pending)
+- Checkout route: usar `doctor_profiles.consultation_price` en vez de base fija (pending, se aplicará cuando un doctor acepte)
+- IntermediaryDisclaimer en 5 ubicaciones restantes (booking confirm, register, legal pages)
+- Footer FAQ link de `#como-funciona` → `#faq`
+- Cookie names específicos en política de cookies (sb-access-token, sb-refresh-token, NEXT_LOCALE, _ga/_gid)
+
+---
+
