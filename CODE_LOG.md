@@ -945,3 +945,87 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 
 ---
 
+### [2026-04-19 03:45] — LANDING REDESIGN — Design System + Content fix
+**Estado:** ✅ OK
+**Archivos creados:** Ninguno
+**Archivos modificados:** `app/[locale]/page.tsx` (reescritura completa), `messages/es.json` + `messages/en.json` (hero + emergency112 + features + servicesAvail namespaces)
+**Errores encontrados:** Ninguno
+**Cómo los resolviste:** N/A
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 70/70 páginas. i18n: 850 ES = 850 EN ✅ PARIDAD.
+
+### Contenido — cambios obligatorios (A-D)
+
+**A. Tiempo de respuesta corregido**
+- ❌ Antes: "Urgencias en minutos" / "30-60 min" / "30 minutos"
+- ✅ Ahora: "Desde 1 hora" / "From 1 hour" / "Atención rápida"
+- `features.urgentTitle` cambiado de "Urgencias en minutos" → "Atención rápida" / "Fast response"
+- `features.urgentDesc` cambiado a "médico llegará a tu alojamiento desde 1 hora"
+- Hero subtitle: "Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora."
+
+**B. Disclaimer 112 VISIBLE en hero**
+- Posición: directamente debajo del CTA (no en footer)
+- Estilo: card con `border-destructive/30 bg-destructive/5` + icon AlertTriangle + texto `text-destructive font-medium`
+- Botón embebido `tel:112` pill rojo ("Llamar al 112" / "Call 112")
+- No dismissable, visible en mobile y desktop
+- Key i18n: `landing.emergency112.{notice,callButton}`
+
+**C. Servicios corregidos (1 activo + 3 próximamente)**
+- ✅ Activo: `general_medicine` (Medicina General) con `pill-success` "Disponible"
+- 🔜 Próximamente: `pediatrics`, `physio`, `nursing` con `pill-neutral` "Próximamente", `opacity-75`, `cursor-default`
+- ❌ ELIMINADOS: cardiology, emergency, internal_medicine
+- Namespace nuevo: `landing.servicesAvail.{title,subtitle,availableBadge,comingSoonBadge,general_medicine_desc,pediatrics_desc,physio_desc,nursing_desc}`
+
+**D. H1 y propuesta de valor**
+- ES: "Médico a domicilio en Ibiza." + "Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora."
+- EN: "Doctor to your door in Ibiza." + "General medicine house calls at your hotel, villa or home. From 1 hour."
+- CTA: "Pedir médico" / "Request a doctor" (antes "Pedir médico ahora")
+
+### UX — jerarquía + single CTA (E-G)
+
+**E/F/G. Flujo ultra-simple**
+- 1 único CTA primario grande: "Pedir médico" → `/${locale}/patient/request`
+- CTA secundario reducido a link dentro de sección "For doctors"
+- Precio visible bajo CTA: `hero.priceHint` "Desde €150 · Paga con tarjeta"
+- Hero usa `text-3xl sm:text-4xl md:text-5xl lg:text-6xl` (mobile-first)
+- 3 steps en How it works (antes 3, mantenido)
+- Mobile: CTA visible sin scroll gracias a `pt-12 md:pt-20` (antes `pt-20`)
+
+### Visual — Design System (1-5)
+
+**1. Tokens del tema usados consistentemente**
+- `bg-background` / `bg-muted/40` para alternar (antes `bg-gray-50` / `bg-white`)
+- `text-foreground` / `text-muted-foreground` (antes `text-gray-900` / `text-gray-600`)
+- `border-border/60` / `border-border/70` (antes `border-gray-200`)
+- `font-display` en todos los headings (Plus Jakarta Sans)
+- `font-sans` implícito en body (Inter)
+
+**2. Hero mejorado**
+- Gradient sutil: `bg-gradient-to-b from-muted/60 via-background to-background` + decorative radial `bg-primary/10 blur-3xl`
+- H1 responsive con `font-display tracking-tight leading-[1.1]`
+- Subtitle en `text-muted-foreground`
+- CTA primario: `btn-lift shadow-cta rounded-button`
+
+**3. Componentes existentes integrados**
+- `TrustBadges compact` sustituye los badges inline anteriores
+- `pill-success` / `pill-info` / `pill-neutral` usados en badges
+- `animate-fade-in-up` en hero sections
+- `card-hover` / `rounded-card` / `shadow-card` en cards
+
+**4. Iconos Lucide reemplazan emojis**
+- How it works: ❌ 📍🩺🚗 → ✅ MapPin / Stethoscope / CheckCircle2
+- For doctors: ❌ 💶🗓️📱 → ✅ sin icons (texto-only por brevedad)
+- Services: ❌ emoji → ✅ Stethoscope / Baby / Dumbbell / Syringe
+
+**5. Responsive mobile-first**
+- Hero padding reducido en mobile (`pt-12 md:pt-20`)
+- Grid services: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` (antes `grid-cols-2 md:grid-cols-3`)
+- Stats row ELIMINADA (era overwhelming); trust badges compactos la reemplazan
+
+### i18n — actualizado
+- ES: 850 keys
+- EN: 850 keys
+- Paridad: ✅ PERFECTA
+- Namespaces nuevos: `landing.emergency112`, `landing.servicesAvail`, `landing.hero.priceHint`
+
+---
+

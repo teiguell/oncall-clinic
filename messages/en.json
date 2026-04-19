@@ -39,23 +39,28 @@
     "rolePatient": "Patient"
   },
   "landing": {
-    "badge": "Verified doctors at your door · Available 24/7",
-    "liveBadge": "Live — doctors available now",
+    "badge": "Licensed doctors at your door · Available 24/7",
+    "liveBadge": "Live — doctors available today",
     "hero": {
-      "title": "Your doctor,\nat your door.",
-      "subtitle": "Verified doctors at your hotel, villa or home in 30 minutes. Pay by card, no insurance needed.",
-      "ctaPrimary": "Book a doctor now",
+      "title": "Doctor to your door\nin Ibiza.",
+      "subtitle": "General medicine house calls at your hotel, villa or home. From 1 hour.",
+      "ctaPrimary": "Request a doctor",
       "ctaSecondary": "I'm a doctor, join",
+      "priceHint": "From €150 · Pay by card",
       "trust1": "No credit card to sign up",
-      "trust2": "GMC/CME verified doctors",
+      "trust2": "Licensed, verified doctors",
       "trust3": "Real-time GPS tracking",
       "trust4": "Available 24/7",
-      "trustBadge1": "Verified, licensed doctors",
+      "trustBadge1": "Licensed, verified doctors",
       "trustBadge2": "Transparent pricing",
       "trustBadge3": "Available 24/7"
     },
+    "emergency112": {
+      "notice": "For life-threatening emergencies, call 112 immediately",
+      "callButton": "Call 112"
+    },
     "stats": {
-      "arrival": "Min. arrival time",
+      "arrival": "Arrival time (from)",
       "rating": "Patient rating",
       "commission": "Platform fee",
       "available": "Always available",
@@ -88,14 +93,24 @@
     },
     "features": {
       "title": "Everything you need",
-      "urgentTitle": "Emergencies in minutes",
-      "urgentDesc": "Request an urgent medical visit and a doctor will arrive at your door in 30-60 min",
+      "urgentTitle": "Fast response",
+      "urgentDesc": "Request a consultation and a doctor arrives at your accommodation from 1 hour",
       "scheduledTitle": "Scheduled appointments",
-      "scheduledDesc": "Book your visit in advance. Choose the doctor, day and time that suits you best",
+      "scheduledDesc": "Book in advance. Choose the day and time that suits you best",
       "trackingTitle": "Real-time tracking",
       "trackingDesc": "Follow your doctor on the map and see when they arrive, just like a taxi",
       "verifiedTitle": "Verified doctors",
-      "verifiedDesc": "All our doctors are licensed, verified and insured. Your health, our priority"
+      "verifiedDesc": "All our doctors are licensed, insured and verified by our team"
+    },
+    "servicesAvail": {
+      "title": "Available services",
+      "subtitle": "We start with general medicine. More specialties coming soon.",
+      "availableBadge": "Available",
+      "comingSoonBadge": "Coming soon",
+      "general_medicine_desc": "General medical consultation at your accommodation",
+      "pediatrics_desc": "Paediatric care for children and families",
+      "physio_desc": "Physiotherapy and rehabilitation at home",
+      "nursing_desc": "Home nursing services"
     },
     "cta": {
       "title": "Ready to take care of your health\nfrom where you are?",

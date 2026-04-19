@@ -39,13 +39,14 @@
     "rolePatient": "Paciente"
   },
   "landing": {
-    "badge": "Médicos verificados a domicilio · Disponible 24/7",
-    "liveBadge": "En directo — médicos disponibles ahora",
+    "badge": "Médicos colegiados a domicilio · Disponible 24/7",
+    "liveBadge": "En directo — médicos disponibles hoy",
     "hero": {
-      "title": "Tu médico en casa.\nCuando lo necesites.",
-      "subtitle": "Médicos verificados a domicilio en 30 minutos. Paga con tarjeta, sin burocracia.",
-      "ctaPrimary": "Pedir médico ahora",
+      "title": "Médico a domicilio\nen Ibiza.",
+      "subtitle": "Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora.",
+      "ctaPrimary": "Pedir médico",
       "ctaSecondary": "Soy médico, unirme",
+      "priceHint": "Desde €150 · Paga con tarjeta",
       "trust1": "Sin tarjeta requerida para registrarse",
       "trust2": "Médicos colegiados y verificados",
       "trust3": "Seguimiento GPS en tiempo real",
@@ -54,8 +55,12 @@
       "trustBadge2": "Precios transparentes",
       "trustBadge3": "Disponible 24/7"
     },
+    "emergency112": {
+      "notice": "Si se trata de una emergencia vital, llame directamente al 112",
+      "callButton": "Llamar al 112"
+    },
     "stats": {
-      "arrival": "Min. tiempo de llegada",
+      "arrival": "Tiempo de llegada (desde)",
       "rating": "Valoración pacientes",
       "commission": "Comisión plataforma",
       "available": "Siempre disponible",
@@ -88,14 +93,24 @@
     },
     "features": {
       "title": "Todo lo que necesitas",
-      "urgentTitle": "Urgencias en minutos",
-      "urgentDesc": "Solicita una consulta médica urgente y un médico llegará a tu domicilio en 30-60 min",
+      "urgentTitle": "Atención rápida",
+      "urgentDesc": "Solicita una consulta y un médico llegará a tu alojamiento desde 1 hora",
       "scheduledTitle": "Citas programadas",
-      "scheduledDesc": "Agenda tu consulta con antelación. Elige el médico, el día y la hora que mejor te venga",
+      "scheduledDesc": "Agenda tu consulta con antelación. Elige el día y la hora que mejor te venga",
       "trackingTitle": "Seguimiento en tiempo real",
       "trackingDesc": "Sigue en el mapa dónde está tu médico y cuándo llegará, igual que con un taxi",
       "verifiedTitle": "Médicos verificados",
-      "verifiedDesc": "Todos nuestros médicos están colegiados, verificados y asegurados. Tu salud, nuestra prioridad"
+      "verifiedDesc": "Todos nuestros médicos están colegiados, asegurados y verificados por nuestro equipo"
+    },
+    "servicesAvail": {
+      "title": "Servicios disponibles",
+      "subtitle": "Empezamos con medicina general. Pronto añadiremos más especialidades.",
+      "availableBadge": "Disponible",
+      "comingSoonBadge": "Próximamente",
+      "general_medicine_desc": "Consulta médica general en tu alojamiento",
+      "pediatrics_desc": "Atención pediátrica para niños y familias",
+      "physio_desc": "Fisioterapia y rehabilitación a domicilio",
+      "nursing_desc": "Servicios de enfermería a domicilio"
     },
     "cta": {
       "title": "¿Listo para cuidar tu salud\ndesde donde estés?",
