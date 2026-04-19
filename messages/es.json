@@ -72,7 +72,7 @@
       "step1Title": "Cuéntanos dónde estás",
       "step1Desc": "Tu hotel, villa o domicilio. Detectamos tu ubicación o escríbela a mano.",
       "step2Title": "Elige el tipo de consulta",
-      "step2Desc": "Urgencia inmediata (30 min) o cita programada. Selecciona el motivo.",
+      "step2Desc": "Consulta inmediata o programada. Selecciona el motivo.",
       "step3Title": "El médico llega a ti",
       "step3Desc": "Sigue en el mapa cómo se acerca. Paga con tarjeta al finalizar."
     },
@@ -114,7 +114,7 @@
     },
     "cta": {
       "title": "¿Listo para cuidar tu salud\ndesde donde estés?",
-      "subtitle": "Regístrate gratis y ten acceso a cientos de médicos verificados",
+      "subtitle": "Regístrate gratis y accede a nuestros médicos verificados",
       "button": "Empezar ahora, es gratis",
       "trust": "Sin tarjeta de crédito requerida"
     },
@@ -645,7 +645,59 @@
     "comib": "Médicos colegiados COMIB",
     "insurance": "Seguro RC incluido",
     "gdpr": "Datos protegidos RGPD",
-    "english": "Atención en ES + EN"
+    "english": "Atención en ES + EN",
+    "comibShort": "Médicos colegiados COMIB",
+    "insuranceShort": "Seguro RC profesional incluido",
+    "rgpdShort": "Datos protegidos RGPD",
+    "stripeSecure": "Pago seguro con Stripe"
+  },
+  "booking2": {
+    "loading_doctors": "Buscando médicos disponibles cerca de ti...",
+    "cancel_free": "Cancelación gratuita hasta que el médico acepte",
+    "doctor_accepted": "¡Un médico ha aceptado tu solicitud!",
+    "error_symptoms_short": "Describe tus síntomas con más detalle (mínimo 20 caracteres)",
+    "error_phone": "Introduce un número de teléfono válido",
+    "no_doctors": "No hay médicos disponibles en este momento. Inténtalo de nuevo en unos minutos.",
+    "request_now": "Solicitar médico ahora",
+    "confirm_pay": "Confirmar y pagar",
+    "characters": "caracteres",
+    "phoneFormatHelp": "Formato internacional, p.ej. +34 600 000 000"
+  },
+  "doctorCard": {
+    "verified_comib": "COMIB verificado",
+    "request_doctor": "Solicitar",
+    "eta_minutes": "~{mins} min",
+    "rating": "Valoración",
+    "price_from": "desde",
+    "reviews": "reseñas"
+  },
+  "dashboardStates": {
+    "emptyPatientTitle": "Aún no tienes consultas",
+    "emptyPatientDesc": "¿Necesitas un médico? Pide una consulta en menos de 2 minutos.",
+    "emptyPatientCta": "Pedir médico",
+    "emptyDoctorTitle": "No tienes consultas pendientes",
+    "emptyDoctorDesc": "Tu próxima solicitud aparecerá aquí cuando un paciente la envíe.",
+    "errorTitle": "Algo salió mal",
+    "errorDesc": "No pudimos cargar tus datos. Inténtalo de nuevo.",
+    "errorRetry": "Reintentar",
+    "partialTitle": "Verificación pendiente",
+    "partialDesc": "Completa los siguientes pasos para empezar a recibir solicitudes:",
+    "partialComib": "Número de colegiación COMIB",
+    "partialRc": "Póliza de responsabilidad civil vigente",
+    "partialReta": "Alta en RETA (autónomos)",
+    "partialStripe": "Cuenta de Stripe conectada",
+    "partialDocuments": "Documentación identitaria"
+  },
+  "authModal": {
+    "title": "Inicia sesión para continuar",
+    "subtitle": "Guardaremos tu solicitud y continuaremos con el pago",
+    "google": "Continuar con Google",
+    "emailLabel": "O recibe un enlace por email",
+    "emailPlaceholder": "tu@email.com",
+    "sendLink": "Enviar enlace mágico",
+    "linkSent": "Revisa tu bandeja de entrada",
+    "linkSentDesc": "Te hemos enviado un enlace para iniciar sesión en {email}.",
+    "or": "o"
   },
   "cookieBanner": {
     "title": "Uso de cookies",

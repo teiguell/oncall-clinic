@@ -134,7 +134,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              HERO — clarity-first, single CTA, 112 disclaimer
            ═══════════════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden pt-12 md:pt-20 pb-20 md:pb-28">
+        <section className="relative overflow-hidden pt-10 md:pt-16 pb-16 md:pb-20">
           {/* Subtle gradient using theme tokens, not raw blue-50 */}
           <div
             aria-hidden="true"
@@ -211,7 +211,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              HOW IT WORKS — 3 steps (Hick's + Miller's law)
            ═══════════════════════════════════════════════════════ */}
-        <section id="como-funciona" className="py-20 md:py-24 bg-muted/40">
+        <section id="como-funciona" className="py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-14 scroll-reveal">
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">{t('howItWorks.title')}</h2>
@@ -246,7 +246,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              FEATURES — 3 cards (reduced from 4, was overwhelming)
            ═══════════════════════════════════════════════════════ */}
-        <section className="py-20 md:py-24 bg-background">
+        <section className="py-16 md:py-20 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-14 scroll-reveal">
               <h2 className="font-display text-3xl md:text-4xl font-bold">{t('features.title')}</h2>
@@ -273,7 +273,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              SERVICES — 1 active + 3 coming soon
            ═══════════════════════════════════════════════════════ */}
-        <section id="servicios" className="py-20 md:py-24 bg-muted/40">
+        <section id="servicios" className="py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-14 scroll-reveal">
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">{t('servicesAvail.title')}</h2>
@@ -322,7 +322,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              FOR DOCTORS
            ═══════════════════════════════════════════════════════ */}
-        <section id="medicos" className="py-20 md:py-24 bg-gradient-to-br from-primary to-indigo-700 text-white">
+        <section id="medicos" className="py-16 md:py-20 bg-gradient-to-br from-primary to-indigo-700 text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center scroll-reveal">
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-5">{t('forDoctors.title')}</h2>
@@ -354,7 +354,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              CTA FINAL
            ═══════════════════════════════════════════════════════ */}
-        <section className="py-20 md:py-24 bg-background">
+        <section className="py-16 md:py-20 bg-background">
           <div className="container mx-auto px-4 text-center scroll-reveal">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-5">
               {t('cta.title').split('\n').map((line, i, arr) => (

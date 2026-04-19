@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/use-toast'
 import { SERVICES, type ServiceType, type ConsultationType } from '@/types'
 import { formatCurrencyFromEuros } from '@/lib/utils'
-import { MapPin, Zap, Calendar, ArrowLeft, AlertCircle, ChevronRight } from 'lucide-react'
+import { MapPin, Zap, Calendar, ArrowLeft, AlertCircle, ChevronRight, ShieldCheck, Award, Lock, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -31,6 +31,8 @@ function RequestConsultationPage() {
   const { toast } = useToast()
   const t = useTranslations('patient')
   const tCommon = useTranslations('common')
+  const tTrust = useTranslations('trust')
+  const tBooking = useTranslations('booking2')
   const tErrors = useTranslations('auth')
   const locale = useLocale()
 
@@ -56,6 +58,7 @@ function RequestConsultationPage() {
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: 'onChange',
   })
 
   const detectLocation = useCallback(() => {
@@ -293,13 +296,25 @@ function RequestConsultationPage() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t('request.symptoms')} *</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">{t('request.symptoms')} *</label>
+                {(() => {
+                  const symptomsValue = watch('symptoms') || ''
+                  const valid = symptomsValue.length >= 20
+                  return (
+                    <span className={`text-xs ${valid ? 'text-emerald-600' : 'text-muted-foreground'} inline-flex items-center gap-1`}>
+                      {valid && <CheckCircle className="h-3 w-3" aria-hidden="true" />}
+                      {symptomsValue.length} / 20+ {tBooking('characters')}
+                    </span>
+                  )
+                })()}
+              </div>
               <textarea
-                className="flex min-h-[120px] w-full rounded-xl border border-input bg-background px-3 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                className="flex min-h-[120px] w-full rounded-xl border border-input bg-background px-3 py-3 text-base md:text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
                 placeholder={t('request.symptomsPlaceholder')}
                 {...register('symptoms')}
               />
-              {errors.symptoms && <p className="text-xs text-red-500">{errors.symptoms.message}</p>}
+              {errors.symptoms && <p className="text-xs text-destructive" role="alert">{errors.symptoms.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -354,17 +369,36 @@ function RequestConsultationPage() {
 
                 <div className="flex items-start gap-2 pt-3 border-t">
                   <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-muted-foreground">
                     {t('request.paymentNote')}
                   </p>
                 </div>
               </CardContent>
             </Card>
 
+            {/* ITEM-4: Trust signals above pay CTA */}
+            <div className="flex flex-col gap-2 mb-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                {tTrust('comibShort')}
+              </div>
+              <div className="flex items-center gap-2">
+                <Award className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                {tTrust('insuranceShort')}
+              </div>
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                {tTrust('rgpdShort')}
+              </div>
+            </div>
+
+            {/* ITEM-5: Sticky CTA on mobile, inline on desktop */}
             <form onSubmit={handleSubmit(onSubmit)}>
-              <Button type="submit" className="w-full" size="xl" loading={loading}>
-                {type === 'urgent' ? t('request.submitUrgent') : t('request.submitScheduled')}
-              </Button>
+              <div className="sticky bottom-0 -mx-4 md:mx-0 px-4 md:px-0 py-3 md:py-0 bg-background/95 backdrop-blur-sm border-t md:static md:bg-transparent md:border-0 z-10">
+                <Button type="submit" className="w-full" size="xl" loading={loading}>
+                  {type === 'urgent' ? t('request.submitUrgent') : t('request.submitScheduled')}
+                </Button>
+              </div>
             </form>
           </div>
         )}

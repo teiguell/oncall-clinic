@@ -1031,3 +1031,89 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 
 ---
 
+### [2026-04-19 04:10] — SPRINT UX GRUPO A — 14 items
+**Estado:** ✅ OK
+**Archivos creados:** `components/page-wrapper.tsx`, `components/doctor-card.tsx`, `components/auth-modal.tsx`, `stores/booking-store.ts`
+**Archivos modificados:** `app/[locale]/page.tsx` (whitespace compactado), `app/globals.css` (`.btn-hover`, `.page-enter`, `@keyframes fadeSlideUp`), `components/ui/button.tsx` (btn-hover en cva base), `components/ui/skeleton.tsx` (DoctorCard+Consultation+TrackingMap skeletons), `app/[locale]/patient/request/page.tsx` (mode:onChange + char counter + trust badges + sticky CTA mobile), `app/[locale]/patient/dashboard/page.tsx` (EmptyState component), `messages/es.json` + `messages/en.json` (namespaces booking2, doctorCard, dashboardStates, authModal, trust extendido)
+**Errores encontrados:** Ninguno
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 70/70 páginas. i18n: 894 ES = 894 EN ✅ PARIDAD.
+
+### PARTE 1 — FIXES LANDING (4/4 ✅)
+
+**FIX-1: "Urgencia inmediata (30 min)" eliminado**
+- `howItWorks.step2Desc`: "Consulta inmediata o programada. Selecciona el motivo."
+- EN: "Immediate or scheduled consultation. Tell us the reason."
+
+**FIX-2: "cientos de médicos verificados" eliminado**
+- `cta.subtitle`: "Regístrate gratis y accede a nuestros médicos verificados"
+- EN: "Sign up free and access our verified doctors"
+
+**FIX-3: Whitespace compactado**
+- `py-24` → `py-16 md:py-20` (3 ocurrencias sed-patched)
+- Hero: `pt-12 md:pt-20 pb-20 md:pb-28` → `pt-10 md:pt-16 pb-16 md:pb-20`
+
+**FIX-4: Design system en cards ya aplicado en commit anterior (2668a23)**
+- `shadow-card` / `rounded-card` / `card-hover` / `font-display` ya en todas las cards del landing
+
+### PARTE 2 — 10 ITEMS GRUPO A
+
+**ITEM-1: `btn-hover` global ✅**
+- `.btn-hover` añadido a `buttonVariants` cva base en `components/ui/button.tsx`
+- CSS: transform translateY(-1px) + shadow + active translateY(0), excluye `:disabled`
+
+**ITEM-2: Page transitions ✅**
+- `components/page-wrapper.tsx` creado (`'use client'`, aplica `.page-enter`)
+- `@keyframes fadeSlideUp` (12px translateY + opacity) + `.page-enter` en globals.css
+
+**ITEM-3: Skeleton variants ✅**
+- `components/ui/skeleton.tsx` ahora exporta 4 componentes:
+  - `Skeleton` (base shimmer)
+  - `DoctorCardSkeleton` (avatar + 3 líneas + botón)
+  - `ConsultationCardSkeleton` (badge + 2 líneas + línea corta)
+  - `TrackingMapSkeleton` (50vh map rect + status card)
+- Todos usan `skeleton-shimmer` gradient + `aria-hidden="true"`
+
+**ITEM-4: Trust badges junto a CTA pago ✅**
+- `app/[locale]/patient/request/page.tsx` paso confirmación:
+  - COMIB (ShieldCheck), Insurance (Award), RGPD (Lock) — iconos emerald-600
+- Keys `trust.{comibShort,insuranceShort,rgpdShort,stripeSecure}` añadidas
+
+**ITEM-5: Sticky CTA mobile ✅**
+- Botón Submit envuelto en `div sticky bottom-0 md:static` con `bg-background/95 backdrop-blur-sm border-t md:bg-transparent md:border-0`
+- Solo sticky en mobile, desktop inline
+
+**ITEM-6: DoctorCard component ✅**
+- `components/doctor-card.tsx` con avatar (next/image o iniciales), nombre, specialty, rating estrellas, ETA minutos, precio €, badge COMIB verificado, botón Solicitar min-h-[44px]
+- Usa `card-hover`, `rounded-card`, `shadow-card`, `pill-success`
+- i18n namespace `doctorCard.{verified_comib,request_doctor,eta_minutes,rating,price_from,reviews}`
+- Props: name, specialty, rating, reviewCount, eta, price, imageUrl, verified, onRequest
+
+**ITEM-7: Inline validation ✅**
+- `useForm({ mode: 'onChange' })` en request page
+- Char counter visible en symptoms textarea: `{length} / 20+ caracteres` + ✓ verde cuando valid
+- CheckCircle de lucide-react importado
+
+**ITEM-8: Copy específico ES/EN ✅**
+- Namespace `booking2` añadido: `loading_doctors`, `cancel_free`, `doctor_accepted`, `error_symptoms_short`, `error_phone`, `no_doctors`, `request_now`, `confirm_pay`, `characters`, `phoneFormatHelp`
+- Tanto ES como EN
+
+**ITEM-9: Estados dashboards (parcial ✅)**
+- Patient dashboard: empty state reemplazado con `<EmptyState>` component (icono Stethoscope + `emptyPatientTitle/Desc/Cta` i18n + CTA link)
+- Doctor dashboard: empty state y verificationPending YA existían (banner ámbar con checklist)
+- Error state: los dashboards son server components con data fetching sin try/catch explícito — Next.js error.tsx ya cubre los errores de render; try/catch explícito marcado como follow-up
+- Keys `dashboardStates.{emptyPatient*,emptyDoctor*,error*,partial*}` añadidas a i18n
+
+**ITEM-10: Deferred registration (scaffolding ✅)**
+- `stores/booking-store.ts`: Zustand store con location, coordinates, symptoms, phone, consultationType, scheduledDate + setters + reset. NO persistido (GDPR).
+- `components/auth-modal.tsx`: modal bottom-sheet mobile / centered desktop, Google OAuth (signInWithOAuth) + email magic link (signInWithOtp), estado "link sent" con mensaje de confirmación, animate-fade-in-up
+- Namespace `authModal.{title,subtitle,google,emailLabel,emailPlaceholder,sendLink,linkSent,linkSentDesc,or}` añadido
+- **Integración completa en booking flow marcada como follow-up** (requiere refactor del stepper de request/page.tsx de 4 pasos — scope > 1 commit)
+
+### Follow-ups diferidos (scope)
+1. **ITEM-2**: Integrar `<PageWrapper>` en cada page.tsx del `/[locale]/` — scaffolding listo, aplicación mass-edit
+2. **ITEM-3**: Usar los skeletons específicos en listas (patient/history, doctor/consultations, tracking) — componentes listos
+3. **ITEM-9 error state**: Añadir try/catch explícito + ErrorState component — scope siguiente iteración
+4. **ITEM-10**: Integración de `useBookingStore` + `<AuthModal>` en el stepper de request — scaffolding listo, flujo a conectar
+
+---
+

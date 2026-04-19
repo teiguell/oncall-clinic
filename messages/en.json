@@ -72,7 +72,7 @@
       "step1Title": "Tell us where you are",
       "step1Desc": "Your hotel, villa or address. We detect your location or you type it.",
       "step2Title": "Choose your consultation",
-      "step2Desc": "Immediate (30 min) or scheduled. Tell us why you need a doctor.",
+      "step2Desc": "Immediate or scheduled consultation. Tell us the reason.",
       "step3Title": "Doctor comes to you",
       "step3Desc": "Track on the map as they approach. Pay by card when done."
     },
@@ -114,7 +114,7 @@
     },
     "cta": {
       "title": "Ready to take care of your health\nfrom where you are?",
-      "subtitle": "Sign up free and get access to hundreds of verified doctors",
+      "subtitle": "Sign up free and access our verified doctors",
       "button": "Start now, it's free",
       "trust": "No credit card required"
     },
@@ -645,7 +645,59 @@
     "comib": "COMIB-registered doctors",
     "insurance": "Liability insurance included",
     "gdpr": "GDPR-protected data",
-    "english": "Service in ES + EN"
+    "english": "Service in ES + EN",
+    "comibShort": "COMIB-registered doctors",
+    "insuranceShort": "Professional liability insurance included",
+    "rgpdShort": "GDPR-protected data",
+    "stripeSecure": "Secure payment with Stripe"
+  },
+  "booking2": {
+    "loading_doctors": "Finding available doctors near you...",
+    "cancel_free": "Free cancellation until a doctor accepts",
+    "doctor_accepted": "A doctor has accepted your request!",
+    "error_symptoms_short": "Please describe your symptoms in more detail (minimum 20 characters)",
+    "error_phone": "Please enter a valid phone number",
+    "no_doctors": "No doctors available right now. Please try again in a few minutes.",
+    "request_now": "Request a doctor now",
+    "confirm_pay": "Confirm and pay",
+    "characters": "characters",
+    "phoneFormatHelp": "International format, e.g. +34 600 000 000"
+  },
+  "doctorCard": {
+    "verified_comib": "COMIB verified",
+    "request_doctor": "Request",
+    "eta_minutes": "~{mins} min",
+    "rating": "Rating",
+    "price_from": "from",
+    "reviews": "reviews"
+  },
+  "dashboardStates": {
+    "emptyPatientTitle": "No consultations yet",
+    "emptyPatientDesc": "Need a doctor? Book a consultation in under 2 minutes.",
+    "emptyPatientCta": "Request a doctor",
+    "emptyDoctorTitle": "No pending consultations",
+    "emptyDoctorDesc": "Your next request will appear here when a patient sends one.",
+    "errorTitle": "Something went wrong",
+    "errorDesc": "We couldn't load your data. Please try again.",
+    "errorRetry": "Retry",
+    "partialTitle": "Verification pending",
+    "partialDesc": "Complete the following steps to start receiving requests:",
+    "partialComib": "COMIB registration number",
+    "partialRc": "Valid professional liability policy",
+    "partialReta": "Self-employed RETA registration",
+    "partialStripe": "Connected Stripe account",
+    "partialDocuments": "Identity documentation"
+  },
+  "authModal": {
+    "title": "Sign in to continue",
+    "subtitle": "We'll save your request and continue to payment",
+    "google": "Continue with Google",
+    "emailLabel": "Or get a link by email",
+    "emailPlaceholder": "you@email.com",
+    "sendLink": "Send magic link",
+    "linkSent": "Check your inbox",
+    "linkSentDesc": "We've sent a sign-in link to {email}.",
+    "or": "or"
   },
   "cookieBanner": {
     "title": "Cookie Usage",

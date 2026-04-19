@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { getStatusLabel, getStatusColor, formatRelativeDate, getService } from '@/lib/utils'
-import { Zap, Calendar, Clock, ArrowRight, ChevronRight, Activity, MessageCircle } from 'lucide-react'
+import { Zap, Calendar, Clock, ArrowRight, ChevronRight, Activity, MessageCircle, Stethoscope } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ReferralCard } from '@/components/referral-card'
+import { EmptyState } from '@/components/ui/empty-state'
 import type { Consultation } from '@/types'
 
 export const dynamic = 'force-dynamic'
@@ -30,6 +31,7 @@ export default async function PatientDashboard() {
 
   const t = await getTranslations('patient')
   const tServices = await getTranslations('services')
+  const tStates = await getTranslations('dashboardStates')
 
   // Get active consultation
   const { data: activeConsultation } = await supabase
@@ -249,14 +251,13 @@ export default async function PatientDashboard() {
         )}
 
         {!recentConsultations?.length && !activeConsultation && (
-          <div className="text-center py-12 text-gray-400">
-            <div className="text-5xl mb-4">🩺</div>
-            <p className="font-medium text-gray-600">{t('dashboard.noConsultationsDesc')}</p>
-            <p className="text-sm mt-1">{t('dashboard.noConsultationsSubtext')}</p>
-            <Link href={`/${locale}/patient/request?type=urgent`} className="mt-4 inline-block">
-              <Button size="lg" className="mt-4">{t('dashboard.bookNow')}</Button>
-            </Link>
-          </div>
+          <EmptyState
+            icon={Stethoscope}
+            title={tStates('emptyPatientTitle')}
+            description={tStates('emptyPatientDesc')}
+            actionLabel={tStates('emptyPatientCta')}
+            actionHref={`/${locale}/patient/request?type=urgent`}
+          />
         )}
 
         {/* Referral card */}
