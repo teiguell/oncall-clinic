@@ -1208,5 +1208,7 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 - ✅ Whitespace: `py-16 md:py-20` desde commit anterior
 - ✅ Servicios: 1 activo + 3 próximamente desde commit anterior
 
+**Deploy:** `dpl_FZc8g7vjZ4xVBvzJT1nBNoc16TrM` → https://oncall.clinic (READY). Commit `31207f1`.
+
 ---
 
