@@ -1454,5 +1454,7 @@ Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
 - Footer FAQ link de `#como-funciona` → `#faq`
 - Cookie names específicos en política de cookies (sb-access-token, sb-refresh-token, NEXT_LOCALE, _ga/_gid)
 
+**Deploy:** `dpl_5i483wXLBH9iHDM4SLA7TKhBxrot` → https://oncall.clinic (READY). Commit `33c367b`.
+
 ---
 
