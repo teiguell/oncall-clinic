@@ -1027,5 +1027,7 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 - Paridad: ✅ PERFECTA
 - Namespaces nuevos: `landing.emergency112`, `landing.servicesAvail`, `landing.hero.priceHint`
 
+**Deploy:** `dpl_KhFBzdsAgngDwkpgMW4f5iQZBns4` → https://oncall.clinic (READY). Commit `2668a23`.
+
 ---
 
