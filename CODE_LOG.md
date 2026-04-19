@@ -1392,5 +1392,7 @@ Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
 ```
 (Ejecutar seed cuando Supabase real esté configurado.)
 
+**Deploy:** `dpl_2LwmtHm5iTKM1DiiXBgkFoNwuFD3` → https://oncall.clinic (READY). Commit `8d6f57c`.
+
 ---
 
