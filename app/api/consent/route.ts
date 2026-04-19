@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 // Service role client to bypass RLS
 function getSupabase() {
@@ -19,13 +20,15 @@ interface ConsentRecord {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 10 consent requests per minute per IP
+    const ip = getClientIp(request)
+    const { allowed } = checkRateLimit(ip, 10, 60_000)
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
     const body = await request.json()
     const records: ConsentRecord | ConsentRecord[] = body
-
-    // Extract real IP from headers
-    const forwarded = request.headers.get('x-forwarded-for')
-    const realIp = request.headers.get('x-real-ip')
-    const ip = forwarded?.split(',')[0]?.trim() || realIp || 'unknown'
 
     const supabase = getSupabase()
 

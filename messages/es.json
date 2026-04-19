@@ -40,6 +40,7 @@
   },
   "landing": {
     "badge": "Médicos verificados a domicilio · Disponible 24/7",
+    "liveBadge": "En directo — médicos disponibles ahora",
     "hero": {
       "title": "Tu médico en casa.\nCuando lo necesites.",
       "subtitle": "Médicos verificados a domicilio en 30 minutos. Paga con tarjeta, sin burocracia.",
@@ -48,7 +49,10 @@
       "trust1": "Sin tarjeta requerida para registrarse",
       "trust2": "Médicos colegiados y verificados",
       "trust3": "Seguimiento GPS en tiempo real",
-      "trust4": "Disponible 24/7"
+      "trust4": "Disponible 24/7",
+      "trustBadge1": "Médicos colegiados y verificados",
+      "trustBadge2": "Precios transparentes",
+      "trustBadge3": "Disponible 24/7"
     },
     "stats": {
       "arrival": "Min. tiempo de llegada",
@@ -98,11 +102,14 @@
       "trust": "Sin tarjeta de crédito requerida"
     },
     "footer": {
-      "tagline": "🏥 Plataforma intermediaria de servicios médicos. No somos un centro médico.",
+      "tagline": "Plataforma intermediaria de servicios médicos. No somos un centro médico.",
       "copyright": "© 2026 OnCall Clinic · Ibiza Care SL · Ibiza, España",
+      "product": "Producto",
+      "company": "Empresa",
       "services": "Servicios",
       "forDoctors": "Para médicos",
       "legal": "Legal",
+      "social": "Síguenos",
       "generalMedicine": "Medicina general",
       "paediatrics": "Pediatría",
       "emergencies": "Urgencias",
@@ -112,6 +119,9 @@
       "howItWorks": "Cómo funciona",
       "earnings": "Ganancias",
       "faq": "FAQ",
+      "about": "Sobre nosotros",
+      "contact": "Contacto",
+      "blog": "Blog",
       "legalNotice": "Aviso legal",
       "privacy": "Privacidad",
       "cookies": "Cookies",
@@ -685,7 +695,7 @@
       "title": "Términos y Condiciones de Uso",
       "effectiveDate": "En vigor desde el 17 de abril de 2026",
       "s1Title": "1. Objeto del servicio",
-      "s1p1": "OnCall Clinic (en adelante, la \"Plataforma\") es operada por Ibiza Care SL (CIF: B-XXXXXXXX, domicilio social en Ibiza, Illes Balears) y constituye un marketplace digital que conecta a pacientes con profesionales sanitarios colegiados para la prestación de servicios médicos a domicilio en la isla de Ibiza.",
+      "s1p1": "OnCall Clinic (en adelante, la \"Plataforma\") es operada por Ibiza Care SL (CIF: B19973569, domicilio social en Ibiza, Illes Balears) y constituye un marketplace digital que conecta a pacientes con profesionales sanitarios colegiados para la prestación de servicios médicos a domicilio en la isla de Ibiza.",
       "s1p2": "El acceso y uso de la Plataforma implica la aceptación íntegra de estos Términos y Condiciones conforme a la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE).",
       "s2Title": "2. Naturaleza de la intermediación",
       "s2p1": "Ibiza Care SL actúa exclusivamente como intermediaria tecnológica conforme al artículo 1544 del Código Civil. NO presta servicios médicos ni sanitarios de ningún tipo. La relación asistencial se establece directamente entre el paciente y el profesional sanitario.",

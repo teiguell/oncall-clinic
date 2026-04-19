@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 /**
  * RGPD Art. 17 — Right to Erasure (Hard Delete)
@@ -8,6 +9,13 @@ import { createAdminClient } from '@/lib/supabase/server'
  * Captures IP for audit trail before deletion.
  */
 export async function POST(request: Request) {
+  // Rate limit: 2 delete attempts per minute per IP (prevent abuse)
+  const ip = getClientIp(request)
+  const { allowed } = checkRateLimit(ip, 2, 60_000)
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -16,11 +24,6 @@ export async function POST(request: Request) {
   }
 
   const userId = user.id
-
-  // Capture IP for consent revocation audit
-  const forwarded = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-  const ip = forwarded?.split(',')[0]?.trim() || realIp || 'unknown'
   const userAgent = request.headers.get('user-agent') || 'unknown'
 
   // Use admin client to bypass RLS for deletions

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,12 +12,36 @@ import {
   Heart, Activity, Baby, Thermometer, Dumbbell, CheckCircle2, Zap, Menu, X
 } from 'lucide-react'
 
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15 }
+    )
+    const targets = el.querySelectorAll('.scroll-reveal')
+    targets.forEach((t) => observer.observe(t))
+    return () => observer.disconnect()
+  }, [])
+  return ref
+}
+
 export default function LandingPage() {
   const t = useTranslations('landing')
   const tNav = useTranslations('nav')
   const tServices = useTranslations('services')
   const locale = useLocale()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const mainRef = useScrollReveal()
 
   const features = [
     { icon: Zap, title: t('features.urgentTitle'), description: t('features.urgentDesc'), color: 'text-yellow-600 bg-yellow-50' },
@@ -73,7 +97,7 @@ export default function LandingPage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(v => !v)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="md:hidden flex items-center justify-center min-h-[44px] min-w-[44px] p-2 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -84,9 +108,9 @@ export default function LandingPage() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t bg-white">
             <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
-              <Link href="#servicios" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-2">{tNav('services')}</Link>
-              <Link href="#como-funciona" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-2">{t('howItWorks.title')}</Link>
-              <Link href="#medicos" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-2">{t('forDoctors.title')}</Link>
+              <Link href="#servicios" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-3 min-h-[44px] flex items-center">{tNav('services')}</Link>
+              <Link href="#como-funciona" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-3 min-h-[44px] flex items-center">{t('howItWorks.title')}</Link>
+              <Link href="#medicos" onClick={() => setMobileMenuOpen(false)} className="text-sm text-gray-700 py-3 min-h-[44px] flex items-center">{t('forDoctors.title')}</Link>
               <div className="pt-2 border-t flex items-center justify-between">
                 <LanguageSwitcher />
               </div>
@@ -101,14 +125,20 @@ export default function LandingPage() {
         )}
       </header>
 
-      <main>
+      <main ref={mainRef}>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-white pt-20 pb-32">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
         <div className="container mx-auto px-4 text-center">
-          <Badge variant="info" className="mb-6 px-4 py-1.5 text-sm">
-            {t('badge')}
-          </Badge>
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            <Badge variant="info" className="px-4 py-1.5 text-sm">
+              {t('badge')}
+            </Badge>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 border border-green-200 px-3 py-1.5 text-sm font-medium text-green-700">
+              <span className="h-2 w-2 rounded-full bg-green-500 live-dot" />
+              {t('liveBadge')}
+            </span>
+          </div>
           <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
             {heroTitleParts[0]}<br />
             <span className="text-transparent bg-clip-text gradient-primary">
@@ -132,7 +162,16 @@ export default function LandingPage() {
               </Button>
             </Link>
           </div>
-          <div className="mt-12 flex flex-wrap justify-center gap-6">
+          {/* Trust badges */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
+            {[t('hero.trustBadge1'), t('hero.trustBadge2'), t('hero.trustBadge3')].map((badge) => (
+              <span key={badge} className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                {badge}
+              </span>
+            ))}
+          </div>
+          <div className="mt-10 flex flex-wrap justify-center gap-6">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl font-bold text-blue-600">{stat.value}</div>
@@ -146,11 +185,11 @@ export default function LandingPage() {
       {/* How it works */}
       <section id="como-funciona" className="py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 scroll-reveal">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('howItWorks.title')}</h2>
             <p className="text-xl text-gray-600">{t('howItWorks.step1Desc')}</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto scroll-reveal">
             {[
               { step: '1', icon: '📍', title: t('howItWorks.step1Title'), desc: t('howItWorks.step1Desc') },
               { step: '2', icon: '🩺', title: t('howItWorks.step2Title'), desc: t('howItWorks.step2Desc') },
@@ -176,10 +215,10 @@ export default function LandingPage() {
       {/* Features */}
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 scroll-reveal">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('features.title')}</h2>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 scroll-reveal">
             {features.map((feature) => (
               <Card key={feature.title} className="border-0 shadow-md hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
@@ -198,11 +237,11 @@ export default function LandingPage() {
       {/* Services */}
       <section id="servicios" className="py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 scroll-reveal">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('services.title')}</h2>
             <p className="text-xl text-gray-600">{t('services.subtitle')}</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto scroll-reveal">
             {services.map((service) => (
               <Card key={service.value} className="border hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group">
                 <CardContent className="p-6 text-center">
@@ -223,7 +262,7 @@ export default function LandingPage() {
       {/* For doctors */}
       <section id="medicos" className="py-24 bg-gradient-to-br from-indigo-600 to-blue-700 text-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center scroll-reveal">
             <h2 className="text-4xl font-bold mb-6">{t('forDoctors.title')}</h2>
             <p className="text-xl opacity-90 mb-10">
               {t('forDoctors.subtitle')}
@@ -280,21 +319,54 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 text-white py-16">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center">
-                <Stethoscope className="h-4 w-4 text-white" />
+          {/* 4-column grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            {/* Product */}
+            <div>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-4">{t('footer.product')}</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href="#como-funciona" className="hover:text-white transition-colors">{t('footer.howItWorks')}</Link></li>
+                <li><Link href="#servicios" className="hover:text-white transition-colors">{t('footer.services')}</Link></li>
+                <li><Link href={`/${locale}/register`} className="hover:text-white transition-colors">{t('footer.faq')}</Link></li>
+              </ul>
+            </div>
+            {/* Company */}
+            <div>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-4">{t('footer.company')}</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href="#medicos" className="hover:text-white transition-colors">{t('footer.forDoctors')}</Link></li>
+                <li><Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.about')}</Link></li>
+                <li><Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.contact')}</Link></li>
+              </ul>
+            </div>
+            {/* Legal */}
+            <div>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-4">{t('footer.legal')}</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href={`/${locale}/legal/privacy`} className="hover:text-white transition-colors">{t('footer.privacy')}</Link></li>
+                <li><Link href={`/${locale}/legal/terms`} className="hover:text-white transition-colors">{t('footer.terms')}</Link></li>
+                <li><Link href={`/${locale}/legal/cookies`} className="hover:text-white transition-colors">{t('footer.cookies')}</Link></li>
+                <li><Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.legalNotice')}</Link></li>
+              </ul>
+            </div>
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center">
+                  <Stethoscope className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-bold">OnCall Clinic</span>
               </div>
-              <span className="font-bold">OnCall Clinic</span>
+              <p className="text-sm text-gray-500 mb-4">{t('footer.tagline')}</p>
+              <div className="[&_button]:text-gray-300 [&_button]:hover:text-white [&_button]:hover:bg-gray-800">
+                <LanguageSwitcher />
+              </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
-              <Link href={`/${locale}/legal/privacy`} className="hover:text-white transition-colors">{t('footer.privacy')}</Link>
-              <Link href={`/${locale}/legal/terms`} className="hover:text-white transition-colors">{t('footer.terms')}</Link>
-              <Link href={`/${locale}/legal/cookies`} className="hover:text-white transition-colors">{t('footer.cookies')}</Link>
-              <Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.legalNotice')}</Link>
-            </div>
+          </div>
+          {/* Bottom bar */}
+          <div className="border-t border-gray-800 pt-6 text-center">
             <p className="text-sm text-gray-500">{t('footer.copyright')}</p>
           </div>
         </div>

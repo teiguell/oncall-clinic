@@ -1,14 +1,30 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { SERVICES, type ServiceType } from '@/types'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+
+function sanitizeText(value: unknown, maxLength = 500): string {
+  if (typeof value !== 'string') return ''
+  return value.trim().slice(0, maxLength)
+}
 
 export async function POST(request: Request) {
+  // Rate limit: 5 checkout attempts per minute per IP
+  const ip = getClientIp(request)
+  const { allowed } = checkRateLimit(ip, 5, 60_000)
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
   const body = await request.json()
-  const { serviceType, type, address, symptoms, notes, scheduledAt, lat, lng, locale } = body
+  const { serviceType, type, scheduledAt, lat, lng, locale } = body
+  const address = sanitizeText(body.address, 500)
+  const symptoms = sanitizeText(body.symptoms, 2000)
+  const notes = sanitizeText(body.notes, 1000)
 
   const service = SERVICES.find(s => s.value === serviceType as ServiceType)
   if (!service) return NextResponse.json({ error: 'Servicio no válido' }, { status: 400 })

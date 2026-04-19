@@ -18,8 +18,8 @@ export default async function AvisoLegalPage() {
         <p>{t('s1p1')}</p>
         <ul className="mt-3 space-y-1">
           <li><strong>{t('companyName')}:</strong> Ibiza Care SL</li>
-          <li><strong>{t('taxId')}:</strong> B-XXXXXXXX</li>
-          <li><strong>{t('address')}:</strong> Ibiza, Illes Balears, España</li>
+          <li><strong>{t('taxId')}:</strong> B19973569</li>
+          <li><strong>{t('address')}:</strong> C/ Lugo 11, 3º2ª, Sant Josep de Sa Talaia, Illes Balears, España</li>
           <li><strong>{t('registry')}:</strong> Registro Mercantil de Eivissa, Tomo 2148, Folio 1, Hoja IB-21129</li>
           <li><strong>Email:</strong> <a href="mailto:info@oncall.clinic" className="text-blue-600 hover:underline">info@oncall.clinic</a></li>
         </ul>

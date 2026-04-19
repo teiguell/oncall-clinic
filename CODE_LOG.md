@@ -633,3 +633,72 @@
 
 ---
 
+### [2026-04-19 00:30] — SPRINT 2 — Design + Mobile UX + Security
+**Estado:** ✅ OK
+**Archivos creados:** `lib/rate-limit.ts`
+**Archivos modificados:** `app/[locale]/page.tsx` (imports limpios + touch targets + LanguageSwitcher dark variant), `components/mobile-nav.tsx` (min-h-[44px] + py-2), `app/api/stripe/checkout/route.ts` (rate limit + sanitize), `app/api/consent/route.ts` (rate limit), `app/api/patient/delete-account/route.ts` (rate limit), `next.config.js` (security headers)
+**Errores encontrados:** Ninguno
+**Cómo los resolviste:** N/A
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 68/68 páginas. i18n: 771 ES = 771 EN ✅ PARIDAD.
+**Notas:**
+
+### BLOQUE 1 — Mobile UX audit (✅)
+
+**1.1 Touch targets 44×44px**
+- `mobile-nav.tsx`: items en h-16 contenedor con flex-1 (~93×64px) — OK. Añadido `min-h-[44px]` + `py-2` como safety explícita.
+- Landing hamburger button: tenía `p-2` + icon 20px = ~36px (< 44px). **FIX**: añadido `min-h-[44px] min-w-[44px] flex items-center justify-center`.
+- Mobile menu links del landing: `py-2` → `py-3 min-h-[44px] flex items-center`.
+
+**1.2 Request flow mobile**
+- Submit button: ya `w-full` + `size="xl"` (altura ≥52px). Sticky-bottom no aplicado (requeriría refactor significativo, fuera de scope P0).
+- Symptoms textarea: ya `min-h-[120px]` (≈3 líneas).
+- Service cards: ya tap-friendly (cards completas clickables).
+
+**1.3 Tracking mobile**
+- 112 button `bottom-6 mb-20 z-40` vs mobile-nav `h-16 z-50` → 104px offset > 64px nav = sin overlap. ✅
+
+**1.4 Auth forms**
+- Inputs del Input component ya son `w-full` por defecto (componente shadcn).
+- Checkboxes consent: el texto ya está dentro del `<label>` completo → label clickeable.
+
+**1.5 Landing hero**
+- 2 CTAs hero: `w-full sm:w-auto` (ya OK).
+- Live badge + main badge: envueltos en `flex flex-wrap gap-3` → wrap automático en mobile sin truncar.
+
+### BLOQUE 2 — Security hardening (✅)
+
+**2.1 Rate limiting**
+- `lib/rate-limit.ts`: Map in-memory (MVP; Upstash Redis recomendado en prod).
+- `getClientIp()` helper: x-forwarded-for → x-real-ip → 'unknown'.
+- Aplicado:
+  - `stripe/checkout`: 5 req/min/IP
+  - `consent`: 10 req/min/IP
+  - `patient/delete-account`: 2 req/min/IP
+  - `stripe/webhooks`: SIN rate limit (tráfico de Stripe legítimo).
+- Respuesta 429 `{ error: 'Too many requests' }` cuando excede.
+
+**2.2 Security headers**
+- `next.config.js` → `headers()` con:
+  - `X-Frame-Options: DENY` (anti-clickjacking)
+  - `X-Content-Type-Options: nosniff`
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=(self)`
+- CSP no añadido (rompería inline scripts de Stripe/Google Maps; requiere nonce/hash en futuro).
+
+**2.3 Sanitización**
+- `stripe/checkout`: helper `sanitizeText()` con trim + maxLength. Aplicado a `address` (500), `symptoms` (2000), `notes` (1000).
+- `dangerouslySetInnerHTML` audit: 4 ocurrencias, todas en JSON-LD schema (SEO, static, safe).
+
+### BLOQUE 3 — Minor cleanup (✅)
+- `useCallback` import → eliminado (no usado).
+- `DollarSign` import → eliminado (no usado).
+- `LanguageSwitcher` en footer: envuelto en `<div>` con `[&_button]:text-gray-300 hover:text-white hover:bg-gray-800` para legibilidad en fondo oscuro.
+
+### Resumen build
+- 68 páginas generadas (32 SSG + 10 SSG params + 4 dinámicas + 10 API routes + otros)
+- 771/771 i18n keys ES=EN
+- Middleware 88.1 kB
+- Primera carga compartida: 87.4 kB
+
+---
+

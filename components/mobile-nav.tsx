@@ -88,7 +88,7 @@ export function MobileNav() {
               key={item.href + item.label}
               href={item.href}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-colors',
+                'flex flex-col items-center justify-center gap-1 flex-1 py-2 min-h-[44px] transition-colors',
                 isActive ? 'text-blue-600' : 'text-gray-500'
               )}
             >
