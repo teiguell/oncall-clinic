@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
   const body = await request.json()
-  const { serviceType, type, scheduledAt, lat, lng, locale } = body
+  const { serviceType, type, scheduledAt, lat, lng, locale, preferredDoctorId } = body
   const address = sanitizeText(body.address, 500)
   const symptoms = sanitizeText(body.symptoms, 2000)
   const notes = sanitizeText(body.notes, 1000)
@@ -47,6 +47,9 @@ export async function POST(request: Request) {
       .from('consultations')
       .insert({
         patient_id: user.id,
+        // Preferred-doctor preassignment: if the patient picked one in step 3,
+        // skip the broadcast and go straight to the doctor's inbox.
+        doctor_id: preferredDoctorId || null,
         type,
         status: 'pending',
         service_type: serviceType,

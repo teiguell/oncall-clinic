@@ -260,6 +260,7 @@
       "serviceStep": "Select service",
       "detailsStep": "Details",
       "comingSoon": "Coming soon",
+      "chooseDoctor": "Choose your doctor",
       "confirmStep": "Confirm",
       "urgent": "Urgent",
       "urgentDesc": "Doctor at your door from 1 hour",
@@ -1149,6 +1150,7 @@
     "complete": "Complete consultation",
     "errorAccept": "Couldn't accept. Please try again.",
     "errorTransition": "Couldn't update status. Please try again.",
+    "simulateMovement": "Simulate movement",
     "noConsultations": "No consultations",
     "noConsultationsDesc": "Requests will appear here when patients book."
   },
@@ -1164,5 +1166,30 @@
       "retry": "Retry",
       "home": "Home"
     }
+  },
+  "doctorSelector": {
+    "searching": "Finding available doctors near you...",
+    "found": "{count, plural, =1 {1 doctor available} other {# doctors available}}",
+    "noDoctors": "No doctors available right now. Try again later?",
+    "callUs": "Call us: +34 871 18 34 15",
+    "error": "Couldn't find doctors.",
+    "retry": "Retry",
+    "verified": "Verified"
+  },
+  "demo": {
+    "banner": "SIMULATION MODE",
+    "title": "OnCall Clinic — Demo",
+    "subtitle": "Pick a role to simulate the full flow",
+    "patient_label": "🏖️ Tourist Patient",
+    "patient_description": "Simulate the full booking flow",
+    "doctor_label": "👨‍⚕️ Doctor García",
+    "doctor_description": "See requests, accept, tracking",
+    "entering": "Signing in",
+    "instructions_title": "Simulation instructions",
+    "instr1": "Open this page in two tabs of your phone.",
+    "instr2": "Tab 1: sign in as Patient → complete a booking.",
+    "instr3": "Tab 2: sign in as Doctor → accept the request.",
+    "instr4": "Back to Patient tab → you'll see tracking in real time.",
+    "test_card": "Stripe test card"
   }
 }

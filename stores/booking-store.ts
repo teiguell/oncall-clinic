@@ -17,6 +17,9 @@ interface BookingState {
   phone: string
   consultationType: 'immediate' | 'scheduled' | null
   scheduledDate: string | null
+  /** Doctor explicitly selected by the patient in step 3. */
+  selectedDoctorId: string | null
+  selectedDoctorName: string | null
   /**
    * Last-submitted booking summary — populated right before the checkout
    * request is sent, so booking-success can render instantly with local
@@ -34,6 +37,7 @@ interface BookingState {
   setPhone: (phone: string) => void
   setConsultationType: (type: 'immediate' | 'scheduled') => void
   setScheduledDate: (date: string) => void
+  setSelectedDoctor: (id: string | null, name: string | null) => void
   setLastSubmission: (data: BookingState['lastSubmission']) => void
   reset: () => void
 }
@@ -45,12 +49,16 @@ export const useBookingStore = create<BookingState>((set) => ({
   phone: '',
   consultationType: null,
   scheduledDate: null,
+  selectedDoctorId: null,
+  selectedDoctorName: null,
   lastSubmission: null,
   setLocation: (location, coords) => set({ location, coordinates: coords || null }),
   setSymptoms: (symptoms) => set({ symptoms }),
   setPhone: (phone) => set({ phone }),
   setConsultationType: (consultationType) => set({ consultationType }),
   setScheduledDate: (scheduledDate) => set({ scheduledDate }),
+  setSelectedDoctor: (selectedDoctorId, selectedDoctorName) =>
+    set({ selectedDoctorId, selectedDoctorName }),
   setLastSubmission: (lastSubmission) => set({ lastSubmission }),
   reset: () =>
     set({
@@ -60,6 +68,8 @@ export const useBookingStore = create<BookingState>((set) => ({
       phone: '',
       consultationType: null,
       scheduledDate: null,
+      selectedDoctorId: null,
+      selectedDoctorName: null,
       lastSubmission: null,
     }),
 }))

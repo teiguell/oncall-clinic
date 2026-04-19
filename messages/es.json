@@ -260,6 +260,7 @@
       "serviceStep": "Seleccionar servicio",
       "detailsStep": "Detalles",
       "comingSoon": "Próximamente",
+      "chooseDoctor": "Elige tu médico",
       "confirmStep": "Confirmar",
       "urgent": "Urgente",
       "urgentDesc": "Médico a domicilio desde 1 hora",
@@ -1149,6 +1150,7 @@
     "complete": "Finalizar consulta",
     "errorAccept": "No se pudo aceptar. Inténtalo de nuevo.",
     "errorTransition": "No se pudo actualizar el estado. Inténtalo de nuevo.",
+    "simulateMovement": "Simular movimiento",
     "noConsultations": "No tienes consultas",
     "noConsultationsDesc": "Las solicitudes aparecerán aquí cuando los pacientes reserven."
   },
@@ -1164,5 +1166,30 @@
       "retry": "Reintentar",
       "home": "Inicio"
     }
+  },
+  "doctorSelector": {
+    "searching": "Buscando médicos disponibles cerca de ti...",
+    "found": "{count, plural, =1 {1 médico disponible} other {# médicos disponibles}}",
+    "noDoctors": "No hay médicos disponibles ahora. ¿Intentar más tarde?",
+    "callUs": "Llámanos: +34 871 18 34 15",
+    "error": "No pudimos buscar médicos.",
+    "retry": "Reintentar",
+    "verified": "Verificado"
+  },
+  "demo": {
+    "banner": "MODO SIMULACIÓN",
+    "title": "OnCall Clinic — Demo",
+    "subtitle": "Selecciona un rol para simular el flujo completo",
+    "patient_label": "🏖️ Paciente Turista",
+    "patient_description": "Simular flujo de booking completo",
+    "doctor_label": "👨‍⚕️ Doctor García",
+    "doctor_description": "Ver solicitudes, aceptar, tracking",
+    "entering": "Entrando",
+    "instructions_title": "Instrucciones de simulación",
+    "instr1": "Abre esta página en dos pestañas del móvil.",
+    "instr2": "Pestaña 1: entra como Paciente → haz un booking completo.",
+    "instr3": "Pestaña 2: entra como Doctor → acepta la solicitud.",
+    "instr4": "Vuelve a la pestaña de Paciente → verás el tracking en tiempo real.",
+    "test_card": "Tarjeta de prueba Stripe"
   }
 }

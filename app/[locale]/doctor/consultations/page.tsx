@@ -139,6 +139,37 @@ export default function DoctorConsultationsPage() {
     }
   }
 
+  /**
+   * TEST MODE ONLY — Move the doctor 25% closer to the patient's location.
+   * The tracking page subscribes to `doctor_profiles.current_lat/lng` via
+   * Supabase realtime, so the dot on the patient's map advances each click.
+   */
+  const simulateMovement = async (consultationId: string) => {
+    if (!doctorProfileId) return
+    const consult = consultations.find(c => c.id === consultationId)
+    if (!consult) return
+    // patient coords come from consultations.lat/lng; doctor from doctor_profiles.current_*
+    const { data: dp } = await supabase
+      .from('doctor_profiles')
+      .select('current_lat, current_lng')
+      .eq('id', doctorProfileId)
+      .single()
+    if (!dp) return
+    // fetch consultation lat/lng (not in our local Consultation type but present in DB)
+    const { data: consRow } = await supabase
+      .from('consultations')
+      .select('lat, lng')
+      .eq('id', consultationId)
+      .single()
+    if (!consRow) return
+    const newLat = dp.current_lat + (consRow.lat - dp.current_lat) * 0.25
+    const newLng = dp.current_lng + (consRow.lng - dp.current_lng) * 0.25
+    await supabase
+      .from('doctor_profiles')
+      .update({ current_lat: newLat, current_lng: newLng })
+      .eq('id', doctorProfileId)
+  }
+
   const filtered = filter === 'all'
     ? consultations
     : consultations.filter(c => c.status === filter || (filter === 'in_progress' && (c.status === 'in_progress' || c.status === 'arrived')))
@@ -240,9 +271,16 @@ export default function DoctorConsultationsPage() {
                         </Button>
                       )}
                       {c.status === 'in_progress' && (
-                        <Button size="sm" variant="outline" onClick={() => transitionStatus(c.id, 'arrived')}>
-                          {t('arrived')}
-                        </Button>
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => transitionStatus(c.id, 'arrived')}>
+                            {t('arrived')}
+                          </Button>
+                          {process.env.NEXT_PUBLIC_TEST_MODE === 'true' && (
+                            <Button size="sm" variant="ghost" className="text-xs" onClick={() => simulateMovement(c.id)}>
+                              📍 {t('simulateMovement')}
+                            </Button>
+                          )}
+                        </>
                       )}
                       {c.status === 'arrived' && (
                         <Button size="sm" onClick={() => transitionStatus(c.id, 'completed')}>

@@ -15,6 +15,7 @@ import { SERVICES, type ServiceType, type ConsultationType } from '@/types'
 import { formatCurrencyFromEuros } from '@/lib/utils'
 import { MapPin, Zap, Calendar, ArrowLeft, AlertCircle, ChevronRight, ShieldCheck, Award, Lock, CheckCircle } from 'lucide-react'
 import { BookingFaq } from '@/components/shared/booking-faq'
+import { DoctorSelector } from '@/components/doctor-selector'
 import { useBookingStore } from '@/stores/booking-store'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
@@ -115,6 +116,8 @@ function RequestConsultationPage() {
       submittedAt: new Date().toISOString(),
     })
 
+    const selectedDoctorId = useBookingStore.getState().selectedDoctorId
+
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -129,6 +132,7 @@ function RequestConsultationPage() {
           lat: userLocation?.lat || 38.9067,
           lng: userLocation?.lng || 1.4206,
           locale,
+          preferredDoctorId: selectedDoctorId,
         }),
       })
       const result = await res.json()
@@ -359,6 +363,15 @@ function RequestConsultationPage() {
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">{t('request.confirm')}</h2>
               <p className="text-gray-500 mt-2">{t('request.confirmDesc')}</p>
+            </div>
+
+            {/* Doctor selector — patient picks preferred doctor before paying */}
+            <div className="rounded-card border border-border/60 bg-card p-4">
+              <h3 className="font-display font-semibold mb-3">{t('request.chooseDoctor')}</h3>
+              <DoctorSelector
+                patientLat={userLocation?.lat || 38.9067}
+                patientLng={userLocation?.lng || 1.4206}
+              />
             </div>
 
             <Card className="border-0 shadow-md">

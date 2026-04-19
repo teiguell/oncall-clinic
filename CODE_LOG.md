@@ -1640,3 +1640,55 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 
 ---
 
+### [2026-04-19 07:45] — E2E Simulation Setup + Doctor Selection Flow
+**Estado:** ✅ Completado
+**Archivos creados:** `supabase/seed-simulation.sql`, `supabase/seed-simulation-cleanup.sql`, `components/doctor-selector.tsx`, `app/[locale]/demo/page.tsx`, `SIMULATION_GUIDE.md`, `ENV_SIMULATION_NOTES.md`
+**Archivos modificados:** `stores/booking-store.ts` (selectedDoctorId/Name + setSelectedDoctor), `app/[locale]/patient/request/page.tsx` (DoctorSelector en step 3 + preferredDoctorId en onSubmit), `app/api/stripe/checkout/route.ts` (preferredDoctorId → consultations.doctor_id), `app/[locale]/doctor/consultations/page.tsx` (simulateMovement helper + botón test mode only), `messages/es.json` + `messages/en.json` (+doctorSelector, +demo, +chooseDoctor, +simulateMovement)
+**Errores encontrados:** 1 tsc error (Supabase foreign table type) — corregido con unión type `| Array<...>`
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 73/73 páginas (+2 demo page). i18n: 1009 ES = 1009 EN ✅ PARIDAD.
+
+### BLOQUE 1 — Test mode en producción
+- `NEXT_PUBLIC_TEST_MODE=true` ya desbloquea checkout bypass (Sprint 4). Documentado en `ENV_SIMULATION_NOTES.md` las variables a verificar/restaurar
+- TestModeBanner sticky top amber ya existe (Sprint 4)
+
+### BLOQUE 2 — Seed data
+- `supabase/seed-simulation.sql`: 3 doctores (Dra. García, Dr. Martínez, Dr. Smith) con coordenadas GPS reales Ibiza/Santa Eulalia/San Antonio, rating+reviews, stripe_onboarded=true, verification_status='verified', consultation_price 15000/14000/18000c, license prefix `COMIB-2800`
+- `supabase/seed-simulation-cleanup.sql`: borra en orden FK-safe (chat_messages, reviews, refunds, consultations, doctor_profiles, profiles)
+
+### BLOQUE 3 — Doctor selector en booking
+- **booking-store**: `selectedDoctorId` + `selectedDoctorName` + `setSelectedDoctor()` + reset
+- **DoctorSelector component**: RPC `find_nearest_doctors` primero, fallback a query con JOIN profiles!inner. 3 skeletons durante loading. ErrorState con retry + phone si falla. Empty state si no hay doctores. Selected state con borde primary + check verde
+- **Request page step 3**: DoctorSelector embebido en card al inicio del paso de confirmación. UX: se mantiene en 4 pasos (no se fragmenta a 5) para minimizar regresión. El doctor se elige antes del botón de pago
+- **Checkout route**: acepta `preferredDoctorId` en body y lo asigna directamente a `consultations.doctor_id` → skip broadcast a múltiples doctores
+
+### BLOQUE 4 — Flujo doctor
+- **Optimistic accept + transitions**: ya implementado en commit anterior (bca6a6b Sprint optimistic UI)
+- **`simulateMovement()`** helper en doctor/consultations page:
+  - Fetch `doctor_profiles.current_lat/lng` + `consultations.lat/lng`
+  - Calcula punto 25% más cerca: `newLat = doc + (patient - doc) * 0.25`
+  - UPDATE `doctor_profiles` — tracking del paciente se actualiza via Supabase realtime subscription
+- Botón "📍 Simular movimiento" visible solo si `NEXT_PUBLIC_TEST_MODE === 'true'` + consulta en `in_progress`
+
+### BLOQUE 5 — i18n (27 keys nuevas)
+- `doctorSelector.{searching,found,noDoctors,callUs,error,retry,verified}` con ICU plural
+- `demo.{banner,title,subtitle,patient_label,patient_description,doctor_label,doctor_description,entering,instructions_title,instr1-4,test_card}`
+- `request.chooseDoctor`
+- `consultations.simulateMovement`
+
+### BLOQUE 6 — Documentación
+- `SIMULATION_GUIDE.md`: paso-a-paso completo para el Director (preparación, simulación desde móvil en 2 pestañas, limpieza)
+- `ENV_SIMULATION_NOTES.md`: tabla de env vars pre/post simulación, dónde obtener keys test, setup webhook test, seguridad
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| Ops/Integraciones | `NEXT_PUBLIC_TEST_MODE=true` en Vercel para simulación. Stripe en modo test (sk_test/pk_test). Seed SQL debe ejecutarse en Supabase antes de la sesión del Director | Activar test mode, ejecutar seed, redeploy | **Alta — antes de simular** |
+| Ops/Integraciones | `/demo` crea cuentas via `supabase.auth.signUp` si no existen. Solo accesible cuando TEST_MODE=true (protegido a nivel de render) | Verificar que `/demo` NO es accesible cuando test mode está OFF | **Alta** |
+| Ops/Integraciones | "Simular movimiento" actualiza `doctor_profiles.current_lat/lng` directamente vía Supabase client — solo test mode | Solo informativo | Baja |
+| Ops/Integraciones | `find_nearest_doctors` RPC debe existir en Supabase; si no existe, DoctorSelector cae al fallback query plano con `is_available=true AND verification_status='verified'` | Verificar RPC; si falla, la fallback funciona igualmente | Baja |
+| Legal/Compliance | Datos de simulación son ficticios (doctores `COMIB-2800X`, paciente `demo-patient@oncall.clinic`). No hay datos reales de pacientes. | Confirmar que seed-cleanup se ejecuta post-simulación antes de lanzar en real | Media |
+| Growth/Soporte | Nuevo paso de booking: el paciente elige doctor con foto + rating + ETA antes del pago. Esto puede mejorar conversión y confianza | Monitorizar conversión del paso "elegir doctor" cuando se active en real | Media |
+
+---
+
