@@ -1115,5 +1115,7 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 3. **ITEM-9 error state**: Añadir try/catch explícito + ErrorState component — scope siguiente iteración
 4. **ITEM-10**: Integración de `useBookingStore` + `<AuthModal>` en el stepper de request — scaffolding listo, flujo a conectar
 
+**Deploy:** `dpl_ALuT735yWAG7oAC7z4HFpeUBaPv3` → https://oncall.clinic (READY). Commit `6ee20fd`.
+
 ---
 
