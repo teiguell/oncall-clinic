@@ -1690,5 +1690,7 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 | Legal/Compliance | Datos de simulación son ficticios (doctores `COMIB-2800X`, paciente `demo-patient@oncall.clinic`). No hay datos reales de pacientes. | Confirmar que seed-cleanup se ejecuta post-simulación antes de lanzar en real | Media |
 | Growth/Soporte | Nuevo paso de booking: el paciente elige doctor con foto + rating + ETA antes del pago. Esto puede mejorar conversión y confianza | Monitorizar conversión del paso "elegir doctor" cuando se active en real | Media |
 
+**Deploy:** `dpl_HDm6GmZprzfqCVDyHAwWTz5cVwFS` → https://oncall.clinic (READY). Commit `f42e33d`.
+
 ---
 
