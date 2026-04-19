@@ -125,7 +125,7 @@ export default function LandingPage() {
         )}
       </header>
 
-      <main ref={mainRef}>
+      <main id="main-content" ref={mainRef}>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-white pt-20 pb-32">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />

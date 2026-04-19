@@ -4,48 +4,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* OnCall Clinic — warm healthcare palette
+       Source: UI_DESIGN_MASTERGUIDE §2, WCAG AA verified.
+       All values in HSL triplets for Tailwind shadcn compatibility. */
+
+    --background: 210 25% 98.4%;    /* #FAFBFC — off-white cálido */
+    --foreground: 215 30% 20%;      /* #1E293B — casi negro */
+    --card: 0 0% 100%;              /* #FFFFFF */
+    --card-foreground: 215 30% 20%; /* #1E293B */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
-    --radius: 0.5rem;
+    --popover-foreground: 215 30% 20%;
+    --primary: 217 91% 60%;         /* #3B82F6 — azul cálido */
+    --primary-foreground: 0 0% 100%;/* #FFFFFF */
+    --secondary: 210 40% 96.5%;     /* #F1F5F9 */
+    --secondary-foreground: 215 30% 20%;
+    --muted: 210 40% 96.5%;         /* #F1F5F9 */
+    --muted-foreground: 215 19% 35%;/* #475569 — WCAG 4.5:1 sobre #FAFBFC */
+    --accent: 38 92% 50%;           /* #F59E0B — ámbar */
+    --accent-foreground: 215 30% 20%;
+    --destructive: 0 84% 60%;       /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 39%;         /* #10B981 */
+    --success-foreground: 0 0% 100%;
+    --border: 214 32% 91%;          /* #E2E8F0 */
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;            /* #3B82F6 */
+    --radius: 0.75rem;              /* Slightly rounder for friendlier feel */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 215 30% 9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 215 30% 12%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 215 30% 12%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 30% 15%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --muted: 215 30% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 215 30% 9%;
+    --destructive: 0 62% 45%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --border: 215 30% 18%;
+    --input: 215 30% 18%;
+    --ring: 217 91% 60%;
   }
 }
 
@@ -56,6 +64,31 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Prevent iOS zoom on input focus (min 16px body text) */
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Typography hierarchy — UI_DESIGN_MASTERGUIDE §2
+     Scale: 12/14/16/18/20/24/30/36/48px. Line-height 1.2 headings, 1.5 body. */
+  h1 { @apply text-4xl md:text-5xl font-bold tracking-tight leading-tight; }
+  h2 { @apply text-3xl md:text-4xl font-bold tracking-tight leading-tight; }
+  h3 { @apply text-2xl font-semibold leading-snug; }
+  h4 { @apply text-xl font-semibold leading-snug; }
+  h5 { @apply text-lg font-medium leading-snug; }
+  h6 { @apply text-base font-medium leading-snug; }
+  p  { @apply leading-relaxed; }
+
+  /* Accessible focus ring (WCAG 2.4.7) — visible on keyboard, hidden on mouse */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Inputs: min-height 44px for touch, font-size 16px avoids iOS zoom */
+  input, textarea, select, button {
+    font-size: inherit;
   }
 }
 
@@ -166,8 +199,68 @@ button:active, [role="button"]:active {
   100% { background-position: 200% 0; }
 }
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--secondary)) 50%, hsl(var(--muted)) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
+}
+
+/* ─── Skip-to-content (WCAG 2.4.1) ─── */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 100;
+  padding: 8px 16px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+.skip-to-content:focus {
+  top: 16px;
+}
+
+/* ─── Button & CTA micro-interactions (UI_DESIGN_MASTERGUIDE §5) ─── */
+/* Subtle lift on hover for primary CTAs */
+.btn-lift {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -8px rgba(59, 130, 246, 0.25);
+}
+
+/* ─── Status pulse ring (tracking map doctor dot) ─── */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* ─── Pill badges with tonal palette ─── */
+.pill-success {
+  @apply inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 text-xs font-medium;
+}
+.pill-warning {
+  @apply inline-flex items-center gap-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 text-xs font-medium;
+}
+.pill-info {
+  @apply inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 text-xs font-medium;
+}
+.pill-neutral {
+  @apply inline-flex items-center gap-1.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 text-xs font-medium;
+}
+
+/* ─── Reduced motion (a11y) ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

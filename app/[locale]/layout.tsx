@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import '../globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
+import { getMessages, setRequestLocale, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { MedicalOrganizationJsonLd, FAQPageJsonLd } from '@/components/seo/json-ld'
@@ -12,7 +12,17 @@ import { MobileNav } from '@/components/mobile-nav'
 import { TestModeBanner } from '@/components/test-mode-banner'
 import { CookieConsent } from '@/components/cookie-consent'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-jakarta',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://oncallclinic.com'),
@@ -92,10 +102,14 @@ export default async function LocaleLayout({
   setRequestLocale(locale)
 
   const messages = await getMessages({ locale })
+  const tA11y = await getTranslations({ locale, namespace: 'a11y' })
 
   return (
-    <html lang={locale}>
-      <body className={inter.className}>
+    <html lang={locale} className={`${inter.variable} ${jakarta.variable}`}>
+      <body className="font-sans antialiased">
+        <a href="#main-content" className="skip-to-content">
+          {tA11y('skipToContent')}
+        </a>
         <MedicalOrganizationJsonLd />
         <FAQPageJsonLd />
         <NextIntlClientProvider locale={locale} messages={messages}>

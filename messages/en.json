@@ -623,6 +623,15 @@
     "reject": "Essential only",
     "learnMore": "Learn more"
   },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
+  "trust": {
+    "comib": "COMIB-registered doctors",
+    "insurance": "Liability insurance included",
+    "gdpr": "GDPR-protected data",
+    "english": "Service in ES + EN"
+  },
   "cookieBanner": {
     "title": "Cookie Usage",
     "description": "We use our own and third-party cookies to improve our services. You can accept all, reject non-essential, or configure your preferences. More info in our Cookie Policy.",

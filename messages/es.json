@@ -623,6 +623,15 @@
     "reject": "Solo necesarias",
     "learnMore": "Más información"
   },
+  "a11y": {
+    "skipToContent": "Saltar al contenido"
+  },
+  "trust": {
+    "comib": "Médicos colegiados COMIB",
+    "insurance": "Seguro RC incluido",
+    "gdpr": "Datos protegidos RGPD",
+    "english": "Atención en ES + EN"
+  },
   "cookieBanner": {
     "title": "Uso de cookies",
     "description": "Utilizamos cookies propias y de terceros para mejorar nuestros servicios. Puede aceptar todas, rechazar las no esenciales o configurar sus preferencias. Más información en nuestra Política de Cookies.",
