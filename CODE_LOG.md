@@ -905,5 +905,7 @@ Reemplazado palette shadcn HSL (frío #FFFFFF, gray-600 fail) por:
 ✅ Button hover lift + active scale
 ✅ Error messages aria-live
 
+**Deploy:** `dpl_nMpnRHxNcNxffSuyGozkT6XhKsuJ` → https://oncall.clinic (READY, 47s build). Commit `22b688c`.
+
 ---
 
