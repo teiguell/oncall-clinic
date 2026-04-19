@@ -768,3 +768,14 @@
 
 ---
 
+### [2026-04-19 02:15] — FIX — Node 20.x para compatibilidad Vercel
+**Estado:** ✅ OK
+**Archivos creados:** `.node-version`, `.nvmrc`
+**Archivos modificados:** `package.json`
+**Errores encontrados:** Vercel usando Node 24.x (incompatible con Next.js 14.2.35). Deploys fallaban pre-build con 0 logs.
+**Cómo los resolviste:** Triple safety net: 1) Campo `engines.node: "20.x"` en package.json (estándar npm + respetado por Vercel). 2) `.node-version` con `20` (respetado por fnm, Vercel, Netlify). 3) `.nvmrc` con `20` (respetado por nvm, nodenv).
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 70/70 páginas. Build local en Node local funciona; Vercel ahora debería detectar la versión 20 y completar el build.
+**Notas:** Último deploy READY fue `e3d673d`. Commits posteriores (`938a03b`, `1f9718e`, `778bc9a`, `d7c44ba`, `047f772`) no deployaron porque Vercel detectó Node 24 (probablemente por un cambio reciente en su default runtime) y el build falló antes de empezar. Commit `7b24684` pushed a origin/main — Vercel debería desencadenar redeploy con Node 20.
+
+---
+
