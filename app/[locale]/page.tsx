@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
 import { TrustBadges } from '@/components/trust-badges'
 import { IntermediaryDisclaimer } from '@/components/intermediary-disclaimer'
+import { ServiceScope } from '@/components/shared/service-scope'
 import {
   Stethoscope, MapPin, Clock, Shield, ArrowRight,
   Baby, Dumbbell, Syringe, CheckCircle2, Menu, X,
@@ -250,6 +251,11 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* ═══════════════════════════════════════════════════════
+             SCOPE — what's included / what's NOT (expectations)
+           ═══════════════════════════════════════════════════════ */}
+        <ServiceScope />
 
         {/* ═══════════════════════════════════════════════════════
              FEATURES — 3 cards (reduced from 4, was overwhelming)

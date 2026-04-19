@@ -36,7 +36,16 @@
     "settings": "Configuración",
     "roleDoctor": "Médico",
     "roleAdmin": "Admin",
-    "rolePatient": "Paciente"
+    "rolePatient": "Paciente",
+    "tabHome": "Inicio",
+    "tabConsultations": "Consultas",
+    "tabProfile": "Perfil",
+    "tabDashboard": "Panel",
+    "tabMap": "Mapa",
+    "tabEarnings": "Ingresos",
+    "tabDoctors": "Médicos",
+    "tabConfig": "Ajustes",
+    "requestDoctor": "Pedir médico"
   },
   "landing": {
     "badge": "Médicos colegiados a domicilio · Disponible 24/7",
@@ -646,6 +655,48 @@
   },
   "intermediary": {
     "disclaimer": "OnCall Clinic es un intermediario tecnológico. No somos un centro sanitario ni prestamos servicios médicos. Los profesionales son autónomos independientes responsables de su propia práctica profesional."
+  },
+  "timeline": {
+    "step1": "Solicitas",
+    "step1Desc": "Describes tus síntomas y ubicación",
+    "step2": "Doctor acepta",
+    "step2Desc": "Un médico confirma y recibes su ETA",
+    "step3": "En camino",
+    "step3Desc": "Sigue al médico en el mapa (GPS)",
+    "step4": "Consulta",
+    "step4Desc": "El médico te atiende en tu alojamiento",
+    "step5": "Informe y receta",
+    "step5Desc": "Recibes informe médico digital y receta si procede",
+    "step6": "Seguimiento",
+    "step6Desc": "Chat con el médico durante 48h",
+    "avgResponse": "Tiempo medio de respuesta: 12 minutos"
+  },
+  "scope": {
+    "title": "Qué incluye nuestro servicio",
+    "includes": "Qué incluye",
+    "excludes": "Qué NO incluye",
+    "item1": "Consulta médica a domicilio",
+    "item2": "Diagnóstico y exploración",
+    "item3": "Receta si es necesaria",
+    "item4": "Informe médico digital",
+    "item5": "Chat de seguimiento 48h",
+    "exclude1": "Emergencias vitales (infarto, ictus, trauma grave)",
+    "exclude2": "Cirugía o procedimientos invasivos",
+    "exclude3": "Transporte en ambulancia",
+    "emergencyNote": "Emergencia vital → Llama al 112"
+  },
+  "bookingFaq": {
+    "title": "Preguntas antes de confirmar",
+    "q1": "¿Y si es una emergencia grave?",
+    "a1": "Para emergencias vitales (pérdida de conciencia, dolor torácico intenso, hemorragia grave, ictus, trauma), llama directamente al 112. OnCall Clinic no atiende emergencias vitales.",
+    "q2": "¿Puedo cancelar?",
+    "a2": "Gratis antes de que el médico acepte (100% reembolso). 50% si cancelas entre 2-24h antes de la visita. 0% si el médico está en camino.",
+    "q3": "¿Qué pasa si no hay doctor disponible?",
+    "a3": "Si no encontramos médico en un plazo razonable, recibes reembolso completo automático.",
+    "q4": "¿Hablan inglés?",
+    "a4": "Sí. Todos nuestros médicos son bilingües ES/EN. Algunos también hablan alemán, francés u holandés.",
+    "q5": "¿Es legal?",
+    "a5": "Sí. Los médicos están colegiados en España y cuentan con seguro RC profesional vigente. OnCall Clinic opera como intermediario tecnológico autorizado."
   },
   "faq": {
     "title": "Preguntas frecuentes",

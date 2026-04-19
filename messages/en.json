@@ -36,7 +36,16 @@
     "settings": "Settings",
     "roleDoctor": "Doctor",
     "roleAdmin": "Admin",
-    "rolePatient": "Patient"
+    "rolePatient": "Patient",
+    "tabHome": "Home",
+    "tabConsultations": "Visits",
+    "tabProfile": "Profile",
+    "tabDashboard": "Dashboard",
+    "tabMap": "Map",
+    "tabEarnings": "Earnings",
+    "tabDoctors": "Doctors",
+    "tabConfig": "Settings",
+    "requestDoctor": "Request doctor"
   },
   "landing": {
     "badge": "Licensed doctors at your door · Available 24/7",
@@ -646,6 +655,48 @@
   },
   "intermediary": {
     "disclaimer": "OnCall Clinic is a technology intermediary. We are not a healthcare centre and do not provide medical services. Professionals are independent practitioners responsible for their own professional practice."
+  },
+  "timeline": {
+    "step1": "You request",
+    "step1Desc": "Describe your symptoms and location",
+    "step2": "Doctor accepts",
+    "step2Desc": "A doctor confirms and you get their ETA",
+    "step3": "On the way",
+    "step3Desc": "Track the doctor on the map (GPS)",
+    "step4": "Consultation",
+    "step4Desc": "The doctor sees you at your accommodation",
+    "step5": "Report and prescription",
+    "step5Desc": "You receive a digital medical report and prescription if needed",
+    "step6": "Follow-up",
+    "step6Desc": "Chat with the doctor for 48h",
+    "avgResponse": "Average response time: 12 minutes"
+  },
+  "scope": {
+    "title": "What our service covers",
+    "includes": "What's included",
+    "excludes": "What's NOT included",
+    "item1": "Home medical consultation",
+    "item2": "Diagnosis and examination",
+    "item3": "Prescription if needed",
+    "item4": "Digital medical report",
+    "item5": "48-hour follow-up chat",
+    "exclude1": "Life-threatening emergencies (heart attack, stroke, severe trauma)",
+    "exclude2": "Surgery or invasive procedures",
+    "exclude3": "Ambulance transport",
+    "emergencyNote": "Life-threatening emergency → Call 112"
+  },
+  "bookingFaq": {
+    "title": "Questions before you confirm",
+    "q1": "What if it's a serious emergency?",
+    "a1": "For life-threatening emergencies (loss of consciousness, severe chest pain, major bleeding, stroke, trauma), call 112 directly. OnCall Clinic does not handle life-threatening emergencies.",
+    "q2": "Can I cancel?",
+    "a2": "Free before the doctor accepts (100% refund). 50% if you cancel 2-24h before the visit. 0% if the doctor is on the way.",
+    "q3": "What if no doctor is available?",
+    "a3": "If we can't find a doctor within a reasonable time, you get an automatic full refund.",
+    "q4": "Do they speak English?",
+    "a4": "Yes. All our doctors are bilingual ES/EN. Some also speak German, French or Dutch.",
+    "q5": "Is it legal?",
+    "a5": "Yes. Doctors are licensed in Spain and hold valid professional liability insurance. OnCall Clinic operates as an authorised technology intermediary."
   },
   "faq": {
     "title": "Frequently asked questions",

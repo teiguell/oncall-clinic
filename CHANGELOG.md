@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-04-19 — Sprint 6: UX completion (13 gaps closed)
+
+### Added
+- `components/shared/error-state.tsx`: reusable error component with `alert`/`wifi`/`server` icon variants, optional retry + phone fallback, `role="alert"` + `aria-live="polite"` for screen readers.
+- `components/shared/bottom-tab-bar.tsx`: mobile bottom nav with role-based tabs (patient 3, doctor 4, admin 4); respects `env(safe-area-inset-bottom)` for iPhone notch.
+- `components/shared/bottom-tab-bar-wrapper.tsx`: auto-detects user role; hides on landing/auth/legal/tracking/chat/booking-success.
+- `components/shared/service-timeline.tsx`: 6-step visual timeline (request → accept → en route → consultation → report → follow-up), horizontal desktop / vertical mobile, pulse animation on current step; includes average-response-time footer.
+- `components/shared/service-scope.tsx`: two-card layout "Whats included" vs "What's NOT included" with 112 emergency redirect button.
+- `components/shared/booking-faq.tsx`: compact 5-question FAQ using native `<details>`, designed for the booking confirmation step.
+- `lib/phone-utils.ts`: `normalizePhone()` (Postel's Law — accepts +34, 0034, 34, 612..., with spaces/dashes; emits canonical `+34XXXXXXXXX`) + `formatPhonePreview()`.
+- i18n namespaces: `timeline.*` (11 keys), `scope.*` (10 keys), `bookingFaq.*` (11 keys), `nav.tab*` + `nav.requestDoctor` (9 keys).
+- Privacy policy §6bis: Art. 22 GDPR declaration (no fully-automated legal-effect decisions).
+
+### Changed
+- Full-screen loading spinners (`animate-spin h-8 w-8 border-4 border-blue-500`) replaced by shimmer skeletons with `aria-busy="true"` in: settings, doctor/profile, doctor/consultations, patient/profile.
+- Version bumped: α 0.5.0 → α 0.6.0.
+- Landing now includes `ServiceScope` section between howItWorks and features (sets expectations + 112 redirect).
+
+### Not included in this sprint (follow-ups)
+- `BottomTabBar` created but not wired to layout — existing `MobileNav` remains active; replacement is a future UX-team decision.
+- `ServiceTimeline` component ready but not yet embedded in landing/tracking (scaffolding available).
+- `BookingFaq` component ready but not yet embedded in request page confirmation step.
+- Remaining `animate-spin` instances (booking-success, chat, tracking, request, register, Button) to be audited next sprint.
+- Optimistic UI on booking submit / chat send / doctor accept — helpers prepared but flows pending wiring.
+- Prefetch + `next/image` quality tuning — quick follow-up.
+
 ## [0.5.0] — 2026-04-19 — Sprint 5: Pricing legal refactor + intermediary disclaimer + FAQ
 
 ### Added

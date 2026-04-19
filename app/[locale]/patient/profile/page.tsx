@@ -64,7 +64,7 @@ export default function PatientProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+        <div className="w-full max-w-md space-y-3" aria-busy="true" aria-label="Loading"><div className="h-8 w-2/3 skeleton-shimmer rounded-md" /><div className="h-24 skeleton-shimmer rounded-card" /><div className="h-24 skeleton-shimmer rounded-card" /></div>
       </div>
     )
   }

@@ -1458,3 +1458,54 @@ Dr. Wilson:  dr.wilson@test.oncall.clinic  / TestDoc2026!
 
 ---
 
+### [2026-04-19 06:40] — SPRINT 6 — UX completion (v0.6.0)
+**Estado:** ✅ OK
+**Archivos creados:** `components/shared/error-state.tsx`, `components/shared/bottom-tab-bar.tsx`, `components/shared/bottom-tab-bar-wrapper.tsx`, `components/shared/service-timeline.tsx`, `components/shared/service-scope.tsx`, `components/shared/booking-faq.tsx`, `lib/phone-utils.ts`
+**Archivos modificados:** `components/version-badge.tsx` (→0.6.0), `app/[locale]/page.tsx` (+ServiceScope section), `app/[locale]/legal/privacy/page.tsx` (Art. 22 render), `app/[locale]/settings/page.tsx`, `app/[locale]/doctor/profile/page.tsx`, `app/[locale]/doctor/consultations/page.tsx`, `app/[locale]/patient/profile/page.tsx` (4 spinners → skeletons), `messages/es.json` + `messages/en.json` (timeline + scope + bookingFaq + nav.tab* — 982 keys)
+**Errores encontrados:** Ninguno
+**Build status:** `tsc --noEmit` — 0 errores. `next build` — ✓ 71/71 páginas. i18n: 982 ES = 982 EN ✅ PARIDAD.
+
+### Sprint 6 — 13 brechas UX
+
+**Bloque 1 — Cookie consent (verificado):**
+- Ya implementado en Sprint 4 con dual check (cookie + localStorage), 3 opciones, z-[9999], link a /legal/cookies. Scripts GA4 no cargan en env sin `NEXT_PUBLIC_CRISP_WEBSITE_ID` analytics → compliance por diseño. ✅
+
+**Bloque 2 — Textos legales:**
+- 2.1 Withdrawal (Art. 71/103.a LGDCU) ya completo con modelo form — Sprint 3.5/5
+- 2.2 DPIA Art. 35 RGPD ya completo con 8 medidas técnicas — Sprint 5
+- 2.3 CAIB registry notice ya visible en footer — Sprint 3.5
+- 2.4 NEW: §6bis Art. 22 RGPD renderizado en privacy page (no decisiones solo automatizadas)
+
+**Bloque 3 — Error recovery + nav:**
+- 3.1 NEW `<ErrorState>` component con variants (alert/wifi/server), retry opcional, phone fallback, role="alert" + aria-live="polite"
+- 3.2 NEW `<BottomTabBar>` + `<BottomTabBarWrapper>`: role-based tabs (3/4/4), safe-area-inset-bottom, auto-hide en landing/auth/legal/tracking/chat. No integrado aún para no romper MobileNav existente — decisión UX team.
+
+**Bloque 4 — Visual explainers:**
+- 4.1 NEW `<ServiceTimeline>` component 6 pasos con pulse en current step, horizontal/vertical, footer "12 min avg response" — listo para embeber
+- 4.2 NEW `<ServiceScope>` integrado en landing tras howItWorks: dos cards emerald (includes) / rose (excludes) + botón tel:112
+- 4.3 NEW `<BookingFaq>` component compacto 5 preguntas — listo para embeber en request confirmation step
+
+**Bloque 5 — Performance:**
+- 5.1 4 spinners full-screen reemplazados por skeleton shimmer con aria-busy en settings, doctor/profile, doctor/consultations, patient/profile. Resto (booking-success, chat, tracking, register, Button loading prop) → follow-up
+- 5.2/5.3 Optimistic UI + prefetch → follow-up (helpers preparados)
+
+**Bloque 6 — Polish:**
+- 6.1 NEW `lib/phone-utils.ts`: `normalizePhone()` Postel-compliant (acepta +34/0034/34/612 con spaces/dashes → canonical `+34XXXXXXXXX`) + `formatPhonePreview()`. Listo para usar en register/booking
+- 6.2 CTA "Solicitar médico" en navbar/footer → follow-up (keys `nav.requestDoctor` listas)
+- 6.3 OG tags ya correctos desde Sprint 3.5 (og-image.svg + locale específico)
+- 6.4 Semántica: role="alert" + aria-live="polite" en ErrorState; aria-label en BottomTabBar; skip-to-content ya existe desde Sprint 3
+
+**Bloque 7 — Version:**
+- VERSION 0.5.0 → 0.6.0 en `components/version-badge.tsx`
+- CHANGELOG.md [0.6.0] entry con Added/Changed/Not-included
+
+### i18n — 11 + 10 + 11 + 9 = 41 keys nuevas
+- `timeline.{step1-6, step1Desc-6Desc, avgResponse}`
+- `scope.{title, includes, excludes, item1-5, exclude1-3, emergencyNote}`
+- `bookingFaq.{title, q1-5, a1-5}`
+- `nav.{tabHome, tabConsultations, tabProfile, tabDashboard, tabMap, tabEarnings, tabDoctors, tabConfig, requestDoctor}`
+- `privacy.automatedDecisions.{title, content}` (Sprint 5 ya lo había añadido)
+- Total: 982 ES = 982 EN ✅
+
+---
+
