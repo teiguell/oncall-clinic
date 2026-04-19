@@ -21,8 +21,8 @@ export default async function PrivacyPolicyPage() {
         <h2 className="text-xl font-semibold mb-3">{t('privacy.s1Title')}</h2>
         <ul className="space-y-1">
           <li><strong>{t('privacy.company')}:</strong> Ibiza Care SL</li>
-          <li><strong>CIF:</strong> B-XXXXXXXX</li>
-          <li><strong>{t('privacy.address')}:</strong> Ibiza, Illes Balears, Espa&ntilde;a</li>
+          <li><strong>CIF:</strong> B19973569</li>
+          <li><strong>{t('privacy.address')}:</strong> C/ Lugo 11, 3º2ª, Sant Josep de Sa Talaia, Illes Balears, España</li>
           <li><strong>DPO:</strong> Tei &mdash; <a href="mailto:teiguell.med@gmail.com" className="text-blue-600 hover:underline">teiguell.med@gmail.com</a></li>
         </ul>
       </section>
