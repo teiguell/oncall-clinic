@@ -1694,3 +1694,51 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 
 ---
 
+## QA Fixes #2-7 + Bonus — 2026-04-20
+**Estado:** ✅ Completado
+**Archivos creados:**
+- `app/[locale]/legal/privacidad/page.tsx` — redirect 301 → `/[locale]/legal/privacy`
+- `app/[locale]/legal/terminos/page.tsx` — redirect 301 → `/[locale]/legal/terms`
+- `app/[locale]/contact/page.tsx` — página de contacto real (server component, 5 ContactRow cards: Mail, Shield DPO, Phone, MapPin, MessageCircle WhatsApp)
+- `app/api/demo/confirm/route.ts` — POST protegido por `NEXT_PUBLIC_TEST_MODE=true` que ejecuta `supabase.auth.admin.updateUserById(userId, { email_confirm: true })` con service role key
+
+**Archivos modificados:**
+- `app/[locale]/layout.tsx` — `export const metadata` → `export async function generateMetadata({ params })` con locale dinámico (title, description, OG, twitter, canonical, og:locale por idioma)
+- `app/[locale]/(auth)/login/page.tsx` — mapper case-insensitive sobre `error.message` (invalid login, email not confirmed, already registered, rate limit) con keys i18n
+- `app/[locale]/demo/page.tsx` — mismo mapper en catch + fetch `/api/demo/confirm` tras signUp para auto-confirmar email (unblock login inmediato en test mode)
+- `app/[locale]/page.tsx` — footer link `Contacto` ahora apunta a `/[locale]/contact` en vez de aviso-legal; `useScrollReveal()` refactor: respeta `prefers-reduced-motion`, chequea `getBoundingClientRect()` on mount, threshold 0.15→0.05
+- `app/globals.css` — añadida regla `@media (prefers-reduced-motion: reduce)` para `.scroll-reveal` que fuerza opacity 1 + transform none + transition none
+- `messages/es.json` + `messages/en.json`:
+  - `auth.errors.{emailNotConfirmed, userAlreadyRegistered, tooManyRequests, unknownError}`
+  - `auth.login.{errorTitle, invalidCredentials}`
+  - `contact.{title, subtitle, email, dpo, phone, address, addressValue, whatsapp}` (top-level namespace)
+  - CTA copy corregido: `hero.trust1`, `cta.subtitle`, `cta.button`, `cta.trust` → "Sin cargo hasta que un médico acepte"
+
+**Errores encontrados:**
+- Antes del fix: `/demo` creaba cuentas pero al intentar login fallaba silenciosamente porque `email_confirmed_at` era `null` (Supabase devuelve "Email not confirmed"). Solucionado con route `/api/demo/confirm`.
+- Antes del fix: Supabase auth errors se mostraban en inglés raw al usuario (UX pobre y no i18n). Solucionado con mapper.
+- Antes del fix: Scroll-reveal animations quedaban stuck en opacity:0 cuando IntersectionObserver no disparaba en viewports altos. Solucionado con check inicial + reduced-motion fallback.
+
+**Build status:**
+- `./node_modules/.bin/tsc --noEmit` — **0 errores**
+- `./node_modules/.bin/next build` — **✓ 80/80 páginas generadas** (+7 rutas nuevas vs. previo)
+- i18n parity: `messages/es.json` = `messages/en.json` — **1023 = 1023 ✅**
+
+**Notas:**
+- CTA copy ahora consistente con FAQ ("Sin cargo hasta que un médico acepte" en Hero + CTA final); elimina contradicción "Sin tarjeta de crédito requerida" vs "pay when accepted".
+- Canonical URL ahora dinámico: `https://oncall.clinic/es` vs `https://oncall.clinic/en` (antes siempre `https://oncall.clinic`).
+- Spanish slugs `/legal/privacidad` y `/legal/terminos` ahora 301 redirect a slugs canónicos ingleses (single source of truth).
+- `app/[locale]/contact/page.tsx` exhibe teléfono `+34 871 18 34 15` — ahora visible en 3 lugares (booking-success, error-state, contact).
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| Ops/Integraciones | Nueva API route `/api/demo/confirm` usa `SUPABASE_SERVICE_ROLE_KEY`. Protegida por check `NEXT_PUBLIC_TEST_MODE==='true'` (devuelve 403 en real). Verificar que en prod real la env var esté a `false` o ausente. | Confirmar env var en Vercel prod | **Alta** |
+| Legal/Compliance | `/contact` expone DPO email, dirección física y WhatsApp. Se cumple Art. 13 GDPR (canal de contacto con DPO). El teléfono publicado es el oficial del servicio. | Verificar que email DPO y teléfono sean los oficiales antes de ir a producción real | Media |
+| Growth/Soporte | Landing footer ahora separa "Sobre nosotros" (aviso-legal) de "Contacto" (/contact). CTAs corregidos para no contradecir el modelo de cobro (pay-on-accept). | Monitorizar bounce rate y CTR post-deploy | Media |
+| SEO | Canonical ahora por-locale; og:locale correcto (`es_ES` / `en_GB`). Previene duplicate content Google. | Enviar sitemap.xml tras deploy para re-indexación | Media |
+| Accesibilidad | scroll-reveal ahora respeta `prefers-reduced-motion` (WCAG 2.3.3). Usuarios con vestibular disorders ya no ven animaciones. | Solo informativo | Baja |
+
+---
+

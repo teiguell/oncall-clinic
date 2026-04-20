@@ -56,7 +56,7 @@
       "ctaPrimary": "Pedir médico",
       "ctaSecondary": "Soy médico, unirme",
       "priceHint": "Desde €150 · Paga con tarjeta",
-      "trust1": "Sin tarjeta requerida para registrarse",
+      "trust1": "Sin cargo hasta que un médico acepte",
       "trust2": "Médicos colegiados y verificados",
       "trust3": "Seguimiento GPS en tiempo real",
       "trust4": "Disponible 24/7",
@@ -123,9 +123,9 @@
     },
     "cta": {
       "title": "¿Listo para cuidar tu salud\ndesde donde estés?",
-      "subtitle": "Regístrate gratis y accede a nuestros médicos verificados",
-      "button": "Empezar ahora, es gratis",
-      "trust": "Sin tarjeta de crédito requerida"
+      "subtitle": "Solicita un médico y paga solo cuando sea aceptado",
+      "button": "Pedir médico ahora",
+      "trust": "Sin cargo hasta que un médico acepte"
     },
     "footer": {
       "tagline": "Plataforma intermediaria de servicios médicos. No somos un centro médico.",
@@ -167,7 +167,9 @@
       "noAccount": "¿No tienes cuenta?",
       "signUp": "Regístrate",
       "orContinueWith": "O continúa con",
-      "googleLogin": "Continuar con Google"
+      "googleLogin": "Continuar con Google",
+      "errorTitle": "Error al iniciar sesión",
+      "invalidCredentials": "Email o contraseña incorrectos"
     },
     "register": {
       "title": "Crea tu cuenta gratis",
@@ -223,7 +225,11 @@
       "minPassword": "Mínimo 12 caracteres",
       "passwordUppercase": "Debe incluir una mayúscula",
       "passwordNumber": "Debe incluir un número",
-      "passwordsMismatch": "Las contraseñas no coinciden"
+      "passwordsMismatch": "Las contraseñas no coinciden",
+      "emailNotConfirmed": "Tu email no está confirmado. Revisa tu bandeja de entrada.",
+      "userAlreadyRegistered": "Este email ya tiene una cuenta. Inicia sesión.",
+      "tooManyRequests": "Demasiados intentos. Espera unos minutos.",
+      "unknownError": "Error inesperado. Inténtalo de nuevo."
     },
     "common": {
       "backToHome": "Volver al inicio"
@@ -658,6 +664,16 @@
   },
   "intermediary": {
     "disclaimer": "OnCall Clinic es un intermediario tecnológico. No somos un centro sanitario ni prestamos servicios médicos. Los profesionales son autónomos independientes responsables de su propia práctica profesional."
+  },
+  "contact": {
+    "title": "Contacto",
+    "subtitle": "¿Tienes alguna pregunta? Estamos aquí para ayudarte.",
+    "email": "Email general",
+    "dpo": "Delegado de Protección de Datos (DPO)",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "addressValue": "Ibiza Care SL · C/ Lugo 11, 3º2ª, 07830 Sant Josep de Sa Talaia, Illes Balears",
+    "whatsapp": "WhatsApp"
   },
   "timeline": {
     "step1": "Solicitas",

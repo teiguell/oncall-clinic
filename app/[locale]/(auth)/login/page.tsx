@@ -45,13 +45,14 @@ export default function LoginPage() {
     })
 
     if (error) {
-      toast({
-        title: t('login.errorTitle'),
-        description: error.message === 'Invalid login credentials'
-          ? t('login.invalidCredentials')
-          : error.message,
-        variant: 'destructive',
-      })
+      const errorKey = error.message.toLowerCase()
+      let description = t('errors.unknownError')
+      if (errorKey.includes('invalid login')) description = t('errors.invalidCredentials')
+      else if (errorKey.includes('email not confirmed')) description = t('errors.emailNotConfirmed')
+      else if (errorKey.includes('already registered') || errorKey.includes('already been registered')) description = t('errors.userAlreadyRegistered')
+      else if (errorKey.includes('rate limit') || errorKey.includes('too many')) description = t('errors.tooManyRequests')
+
+      toast({ title: t('login.errorTitle'), description, variant: 'destructive' })
       setLoading(false)
       return
     }

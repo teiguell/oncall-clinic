@@ -20,6 +20,14 @@ function useScrollReveal() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
+
+    // Respect OS-level "Reduce Motion" preference
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) {
+      el.querySelectorAll('.scroll-reveal').forEach(t => t.classList.add('revealed'))
+      return
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -29,10 +37,21 @@ function useScrollReveal() {
           }
         })
       },
-      { threshold: 0.15 }
+      { threshold: 0.05 }
     )
+
     const targets = el.querySelectorAll('.scroll-reveal')
-    targets.forEach((t) => observer.observe(t))
+    targets.forEach((t) => {
+      // If already in viewport on mount (e.g. anchor nav / SSR first paint),
+      // reveal immediately — otherwise the observer won't fire until scroll.
+      const rect = t.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        t.classList.add('revealed')
+      } else {
+        observer.observe(t)
+      }
+    })
+
     return () => observer.disconnect()
   }, [])
   return ref
@@ -443,7 +462,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><Link href="#medicos" className="hover:text-white transition-colors">{t('footer.forDoctors')}</Link></li>
                 <li><Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.about')}</Link></li>
-                <li><Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.contact')}</Link></li>
+                <li><Link href={`/${locale}/contact`} className="hover:text-white transition-colors">{t('footer.contact')}</Link></li>
               </ul>
             </div>
             <div>

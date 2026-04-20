@@ -25,60 +25,76 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://oncall.clinic'),
-  title: {
-    default: 'OnCall Clinic — Médico a Domicilio en Ibiza | Home Doctor Ibiza',
-    template: '%s | OnCall Clinic Ibiza',
-  },
-  description:
-    'Médico a domicilio en Ibiza desde 1 hora. Consultas de medicina general en tu hotel, villa o domicilio. Verified doctors · Available 24/7 · Pay by card.',
-  keywords: [
-    'médico a domicilio Ibiza', 'home doctor Ibiza', 'doctor on demand Ibiza',
-    'médico urgencias Ibiza', 'pediatra domicilio Ibiza', 'English doctor Ibiza',
-    'IV drip Ibiza', 'doctor at hotel Ibiza', 'médico hotel Ibiza',
-    'teleconsulta Ibiza', 'médico villa Ibiza', 'visita médica domicilio Baleares',
-  ],
-  openGraph: {
-    type: 'website',
-    locale: 'es_ES',
-    alternateLocale: 'en_GB',
-    url: 'https://oncall.clinic',
-    siteName: 'OnCall Clinic',
-    title: 'OnCall Clinic — Médico a domicilio en Ibiza',
-    description:
-      'Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora. / General medicine house calls at your hotel, villa or home. From 1 hour.',
-    images: [
-      {
-        url: '/og-image.svg',
-        width: 1200,
-        height: 630,
-        alt: 'OnCall Clinic — Home Doctor Ibiza',
-      },
+export async function generateMetadata(
+  { params }: { params: Promise<{ locale: string }> },
+): Promise<Metadata> {
+  const { locale } = await params
+  const isEn = locale === 'en'
+  return {
+    metadataBase: new URL('https://oncall.clinic'),
+    title: {
+      default: isEn
+        ? 'OnCall Clinic — Home Doctor in Ibiza'
+        : 'OnCall Clinic — Médico a Domicilio en Ibiza',
+      template: '%s | OnCall Clinic',
+    },
+    description: isEn
+      ? 'Home doctor in Ibiza from 1 hour. General medicine house calls at your hotel, villa or home. Pay by card.'
+      : 'Médico a domicilio en Ibiza desde 1 hora. Consultas de medicina general en tu hotel, villa o domicilio. Paga con tarjeta.',
+    keywords: [
+      'médico a domicilio Ibiza', 'home doctor Ibiza', 'doctor on demand Ibiza',
+      'médico urgencias Ibiza', 'pediatra domicilio Ibiza', 'English doctor Ibiza',
+      'IV drip Ibiza', 'doctor at hotel Ibiza', 'médico hotel Ibiza',
+      'teleconsulta Ibiza', 'médico villa Ibiza', 'visita médica domicilio Baleares',
     ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'OnCall Clinic — Médico a domicilio Ibiza',
-    description: 'General medicine house calls in Ibiza from 1 hour.',
-    images: ['/og-image.svg'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+    openGraph: {
+      type: 'website',
+      locale: isEn ? 'en_GB' : 'es_ES',
+      alternateLocale: isEn ? 'es_ES' : 'en_GB',
+      url: `https://oncall.clinic/${locale}`,
+      siteName: 'OnCall Clinic',
+      title: isEn
+        ? 'OnCall Clinic — Home Doctor in Ibiza'
+        : 'OnCall Clinic — Médico a domicilio en Ibiza',
+      description: isEn
+        ? 'General medicine house calls at your hotel, villa or home. From 1 hour.'
+        : 'Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora.',
+      images: [
+        {
+          url: '/og-image.svg',
+          width: 1200,
+          height: 630,
+          alt: 'OnCall Clinic — Home Doctor Ibiza',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isEn
+        ? 'OnCall Clinic — Home Doctor Ibiza'
+        : 'OnCall Clinic — Médico a domicilio Ibiza',
+      description: isEn
+        ? 'General medicine house calls in Ibiza from 1 hour.'
+        : 'Consultas de medicina general en Ibiza desde 1 hora.',
+      images: ['/og-image.svg'],
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-image-preview': 'large' as const,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large' as const,
+      },
     },
-  },
-  alternates: {
-    canonical: 'https://oncall.clinic',
-    languages: {
-      es: 'https://oncall.clinic/es',
-      en: 'https://oncall.clinic/en',
+    alternates: {
+      canonical: `https://oncall.clinic/${locale}`,
+      languages: {
+        es: 'https://oncall.clinic/es',
+        en: 'https://oncall.clinic/en',
+      },
     },
-  },
+  }
 }
 
 export function generateStaticParams() {

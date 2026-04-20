@@ -56,7 +56,7 @@
       "ctaPrimary": "Request a doctor",
       "ctaSecondary": "I'm a doctor, join",
       "priceHint": "From €150 · Pay by card",
-      "trust1": "No credit card to sign up",
+      "trust1": "No charge until a doctor accepts",
       "trust2": "Licensed, verified doctors",
       "trust3": "Real-time GPS tracking",
       "trust4": "Available 24/7",
@@ -123,9 +123,9 @@
     },
     "cta": {
       "title": "Ready to take care of your health\nfrom where you are?",
-      "subtitle": "Sign up free and access our verified doctors",
-      "button": "Start now, it's free",
-      "trust": "No credit card required"
+      "subtitle": "Request a doctor and pay only when accepted",
+      "button": "Request a doctor now",
+      "trust": "No charge until a doctor accepts"
     },
     "footer": {
       "tagline": "Medical services intermediary platform. We are not a medical centre.",
@@ -167,7 +167,9 @@
       "noAccount": "Don't have an account?",
       "signUp": "Sign up",
       "orContinueWith": "Or continue with",
-      "googleLogin": "Continue with Google"
+      "googleLogin": "Continue with Google",
+      "errorTitle": "Sign-in error",
+      "invalidCredentials": "Invalid email or password"
     },
     "register": {
       "title": "Create your free account",
@@ -223,7 +225,11 @@
       "minPassword": "Minimum 12 characters",
       "passwordUppercase": "Must include an uppercase letter",
       "passwordNumber": "Must include a number",
-      "passwordsMismatch": "Passwords don't match"
+      "passwordsMismatch": "Passwords don't match",
+      "emailNotConfirmed": "Your email is not confirmed. Check your inbox.",
+      "userAlreadyRegistered": "This email already has an account. Please log in.",
+      "tooManyRequests": "Too many attempts. Please wait a few minutes.",
+      "unknownError": "Unexpected error. Please try again."
     },
     "common": {
       "backToHome": "Back to home"
@@ -658,6 +664,16 @@
   },
   "intermediary": {
     "disclaimer": "OnCall Clinic is a technology intermediary. We are not a healthcare centre and do not provide medical services. Professionals are independent practitioners responsible for their own professional practice."
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Got a question? We're here to help.",
+    "email": "General email",
+    "dpo": "Data Protection Officer (DPO)",
+    "phone": "Phone",
+    "address": "Address",
+    "addressValue": "Ibiza Care SL · C/ Lugo 11, 3º2ª, 07830 Sant Josep de Sa Talaia, Illes Balears",
+    "whatsapp": "WhatsApp"
   },
   "timeline": {
     "step1": "You request",

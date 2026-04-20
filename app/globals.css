@@ -176,6 +176,15 @@ html {
 .scroll-reveal-delay-2 { transition-delay: 0.2s; }
 .scroll-reveal-delay-3 { transition-delay: 0.3s; }
 
+/* Accessibility: reveal everything immediately if user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
 /* Live pulse dot */
 @keyframes livePulse {
   0%, 100% { opacity: 1; }

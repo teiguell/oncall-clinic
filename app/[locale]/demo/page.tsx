@@ -17,6 +17,7 @@ export default function DemoPage() {
   const supabase = createClient()
   const locale = useLocale()
   const t = useTranslations('demo')
+  const tAuth = useTranslations('auth')
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -76,6 +77,13 @@ export default function DemoPage() {
             full_name: role === 'patient' ? 'Demo Patient' : 'Dra. María García (Demo)',
             role,
           }, { onConflict: 'id' })
+
+          // 3b. Auto-confirm email so login works immediately in test mode
+          await fetch('/api/demo/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: signUpData.user.id }),
+          }).catch(() => { /* non-blocking */ })
         }
 
         // 4. Re-login (in case signUp didn't auto-sign-in)
@@ -87,7 +95,13 @@ export default function DemoPage() {
       // 5. Redirect
       router.push(role === 'doctor' ? `/${locale}/doctor/dashboard` : `/${locale}/patient/request`)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error'
+      const raw = err instanceof Error ? err.message : ''
+      const key = raw.toLowerCase()
+      let msg = tAuth('errors.unknownError')
+      if (key.includes('email not confirmed')) msg = tAuth('errors.emailNotConfirmed')
+      else if (key.includes('already registered') || key.includes('already been registered')) msg = tAuth('errors.userAlreadyRegistered')
+      else if (key.includes('rate limit') || key.includes('too many')) msg = tAuth('errors.tooManyRequests')
+      else if (key.includes('invalid login')) msg = tAuth('errors.invalidCredentials')
       setError(msg)
       setLoading(null)
     }
