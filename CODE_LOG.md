@@ -1740,5 +1740,7 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 | SEO | Canonical ahora por-locale; og:locale correcto (`es_ES` / `en_GB`). Previene duplicate content Google. | Enviar sitemap.xml tras deploy para re-indexación | Media |
 | Accesibilidad | scroll-reveal ahora respeta `prefers-reduced-motion` (WCAG 2.3.3). Usuarios con vestibular disorders ya no ven animaciones. | Solo informativo | Baja |
 
+**Deploy:** `dpl_B5wGWjKysDN2qGbj4EbcrUJ6qXkt` → https://oncall.clinic (READY). Commit `297262f`.
+
 ---
 
