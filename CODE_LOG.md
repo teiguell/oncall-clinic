@@ -1762,3 +1762,40 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 
 ---
 
+## Fix modelo de precios booking — 2026-04-20
+**Estado:** ✅ Completado
+**Directriz:** El precio lo decide el médico, NO la plataforma. OnCall cobra comisión. No existe "suplemento de urgencia". Solo existe `consultation_price` (diurno) y futuro `night_price` (nocturno) per-doctor.
+
+### Archivos modificados
+- `app/[locale]/patient/request/page.tsx`:
+  - Paso 1 (type): eliminados los dos `<Badge>` que mostraban "Suplemento urgencia" y "Precio estándar" (líneas 209 y 228). Las cards ahora solo tienen título + descripción + chevron.
+  - Paso 2 (service): eliminado `const servicePrice = service.basePrice` y el `<p className="text-primary font-bold text-sm mt-2">{formatCurrencyFromEuros(servicePrice)}</p>`. La card de "Medicina General" ya NO muestra "150,00 €" — solo icono, label y descripción.
+- `messages/es.json` + `messages/en.json`: eliminadas 2 keys huérfanas en `patient.request`:
+  - `urgentSurcharge` ("Suplemento urgencia" / "Urgent surcharge")
+  - `standardPrice` ("Precio estándar" / "Standard price")
+
+### Lo que NO se tocó (fuera de scope del prompt)
+- `types/index.ts` → `SERVICES[*].basePrice: 150` **sigue existiendo** porque `app/api/stripe/checkout/route.ts:35` y el paso confirm (step === 3) de `patient/request/page.tsx` todavía lo consumen para el desglose (`basePrice`/`toDoctor`/`platformCommission`). Cuando el modelo se migre a precio-por-médico real, habrá que retirar `basePrice` del SERVICES y sustituirlo por el `consultation_price` del doctor seleccionado. Ese refactor es mayor y excede este prompt.
+- El desglose de precio del paso confirm (líneas 389-401) se mantiene intacto — el prompt solo pidió Fix 1 (badges paso 1) y Fix 3 (card paso 2).
+
+### Fix 4 — doctor_profiles.night_price
+**Estado del esquema actual:** `doctor_profiles` tiene `consultation_price INTEGER DEFAULT 15000` (migración 014, en céntimos, rango 5000–50000). **NO existe campo `night_price`**. Búsqueda en `supabase/migrations/*.sql` y `supabase/seed-simulation.sql` por `night|nocturn` → 0 matches.
+
+**No se creó migración** (el prompt lo prohíbe). **No se tocó `seed-simulation.sql`** porque el campo no existe y ON CONFLICT UPDATE fallaría. **Se deja documentado para Ops abajo.**
+
+### Build status
+- `./node_modules/.bin/tsc --noEmit` → **0 errores**
+- `./node_modules/.bin/next build` → **✓ Compiled successfully**, **✓ 80/80 páginas**
+- i18n parity: **1107 ES = 1107 EN ✅** (de 1109 → 1107 por eliminar 2 keys × 2 bundles)
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| **Ops/Backend** | `doctor_profiles` necesita un nuevo campo `night_price INTEGER` (céntimos, mismo rango 5000–50000 que `consultation_price`). El frontend aún no lo consume, pero es el siguiente paso para que el doctor publique un precio nocturno distinto al diurno. Sugerencia de migración 015: `ALTER TABLE doctor_profiles ADD COLUMN IF NOT EXISTS night_price INTEGER CHECK (night_price IS NULL OR (night_price >= 5000 AND night_price <= 50000));` — nullable para que solo los doctores que quieran fijar nocturno lo hagan. Si NULL, se usa `consultation_price` por defecto. | Crear migración 015 + actualizar `seed-simulation.sql` con night_price = consultation_price × 1.25 (125% sugerido) para los 3 doctores seed | **Alta — antes del próximo sprint de UI de médico** |
+| **Frontend/Paciente** | El booking flow ya NO muestra precios en los pasos 1 y 2. El paciente ve precio solo cuando elige doctor en el DoctorSelector (paso 3 actualmente via DoctorSelector) y en el paso confirm (donde aún está cableado al `service.basePrice`). El desglose del paso confirm seguirá mostrando `€150` hasta que el refactor `basePrice → doctor.consultation_price` se ejecute. | Próximo sprint: reemplazar `service.basePrice` por el `consultation_price` del doctor seleccionado en el paso confirm + `stripe/checkout/route.ts` | Media |
+| **Legal/Compliance** | Alineado con STS 805/2020 Glovo + Ley 15/2007 Defensa Competencia: la plataforma publica rango recomendado (ya en `lib/regional-pricing.ts`) pero no impone precios a los médicos autónomos. El refactor pendiente cierra el círculo: el paciente solo verá el precio que el médico libremente fijó. | Solo informativo | Baja |
+| **Stripe/Pagos** | `app/api/stripe/checkout/route.ts:35` todavía lee `service.basePrice` (el 150 hardcodeado). Cuando Ops migre a `doctor.consultation_price`, la checkout route debe aceptar `doctorId` como input y leer el precio desde `doctor_profiles`. | Refactor checkout en el sprint de precio-por-médico real | Media |
+
+---
+

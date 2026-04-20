@@ -279,7 +279,6 @@
       "notes": "Additional notes (optional)",
       "priceBreakdown": "Price breakdown",
       "basePrice": "Base price",
-      "urgentSurcharge": "Urgent surcharge",
       "total": "Total",
       "confirm": "Confirm request",
       "cancelWarning": "Once the doctor accepts, cancellation may incur a fee.",
@@ -307,8 +306,7 @@
       "paymentCancelled": "Payment cancelled. You can try again.",
       "confirmDesc": "Review the details before confirming",
       "date": "Date",
-      "time": "Time",
-      "standardPrice": "Standard price"
+      "time": "Time"
     },
     "bookingSuccess": {
       "title": "Booking Confirmed!",

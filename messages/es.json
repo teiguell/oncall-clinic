@@ -279,7 +279,6 @@
       "notes": "Notas adicionales (opcional)",
       "priceBreakdown": "Desglose de precio",
       "basePrice": "Precio base",
-      "urgentSurcharge": "Suplemento urgencia",
       "total": "Total",
       "confirm": "Confirmar solicitud",
       "cancelWarning": "Una vez aceptado por el médico, la cancelación puede tener cargo.",
@@ -307,8 +306,7 @@
       "paymentCancelled": "Pago cancelado. Puedes intentarlo de nuevo.",
       "confirmDesc": "Revisa los detalles antes de confirmar",
       "date": "Fecha",
-      "time": "Hora",
-      "standardPrice": "Precio estándar"
+      "time": "Hora"
     },
     "bookingSuccess": {
       "title": "¡Reserva confirmada!",

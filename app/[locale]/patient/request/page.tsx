@@ -206,7 +206,6 @@ function RequestConsultationPage() {
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900 text-lg">{t('request.urgent')}</h3>
                   <p className="text-gray-500 text-sm">{t('request.urgentDesc')}</p>
-                  <Badge variant="warning" className="mt-2">{t('request.urgentSurcharge')}</Badge>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
@@ -225,7 +224,6 @@ function RequestConsultationPage() {
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900 text-lg">{t('request.scheduled')}</h3>
                   <p className="text-gray-500 text-sm">{t('request.scheduledDesc')}</p>
-                  <Badge variant="success" className="mt-2">{t('request.standardPrice')}</Badge>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
@@ -241,7 +239,6 @@ function RequestConsultationPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {SERVICES.map((service) => {
-                const servicePrice = service.basePrice
                 const isDisabled = !service.active
                 return (
                   <button
@@ -264,11 +261,6 @@ function RequestConsultationPage() {
                     <span className="text-3xl">{service.icon}</span>
                     <p className="font-semibold text-sm mt-2 text-foreground">{service.label}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
-                    {service.active && (
-                      <p className="text-primary font-bold text-sm mt-2">
-                        {formatCurrencyFromEuros(servicePrice)}
-                      </p>
-                    )}
                   </button>
                 )
               })}
