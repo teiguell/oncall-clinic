@@ -1744,3 +1744,19 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 
 ---
 
+## QA Fix N1 — i18n key cruda `standardPrice` — 2026-04-20
+**Estado:** ✅ Completado
+**Archivos modificados:** `messages/es.json`, `messages/en.json`
+**Errores encontrados:** La card "Programada" de `/[locale]/patient/request` llamaba `t('request.standardPrice')` (namespace `patient`) pero la key no existía en ninguno de los bundles → next-intl mostraba el string crudo `patient.request.standardPrice`.
+**Cómo lo resolví:** Añadida la key dentro de `patient.request`:
+- ES: `"standardPrice": "Precio estándar"`
+- EN: `"standardPrice": "Standard price"`
+**Build status:**
+- `./node_modules/.bin/tsc --noEmit` — 0 errores
+- `./node_modules/.bin/next build` — ✓ Compiled successfully, ✓ 80/80 páginas
+- i18n parity: **1109 ES = 1109 EN ✅**
+
+**Notas:** Fix aislado, 2 líneas totales. Reportado por QA externa (Cowork) como bug N1 Alta tras puntuar 7.5/10 post-deploy `297262f`. El bug era solo visual (key cruda), no bloqueaba funcionalidad del booking flow.
+
+---
+

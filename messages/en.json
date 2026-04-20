@@ -307,7 +307,8 @@
       "paymentCancelled": "Payment cancelled. You can try again.",
       "confirmDesc": "Review the details before confirming",
       "date": "Date",
-      "time": "Time"
+      "time": "Time",
+      "standardPrice": "Standard price"
     },
     "bookingSuccess": {
       "title": "Booking Confirmed!",

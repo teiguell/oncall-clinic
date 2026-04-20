@@ -307,7 +307,8 @@
       "paymentCancelled": "Pago cancelado. Puedes intentarlo de nuevo.",
       "confirmDesc": "Revisa los detalles antes de confirmar",
       "date": "Fecha",
-      "time": "Hora"
+      "time": "Hora",
+      "standardPrice": "Precio estándar"
     },
     "bookingSuccess": {
       "title": "¡Reserva confirmada!",
