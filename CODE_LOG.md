@@ -1951,5 +1951,7 @@ Nueva sección `#doctores` entre Services y ForDoctors:
 | **Product/Data** | DoctorSelector ordena client-side por rating y distance_km (proxy de ETA). Si el RPC `find_nearest_doctors` empieza a devolver `eta_min` real, pasar a usar ese campo directo. | Verificar en próxima iteración del RPC | Baja |
 | **Legal** | Demo doctors del landing son ficticios (Elena Marí, Marc Dubois, Sofia Romano). Banner de MODO SIMULACIÓN no aparece en landing (es solo marketing). | Confirmar que los nombres/specs no se confunden con médicos reales. Alternativa: sustituir por "Dr. A / Dr. B / Dr. C" | Media |
 
+**Deploy:** `dpl_Hc71xDjeL7SuHSCZM8TruKN3k5Jf` → https://oncall.clinic (READY). Commit `18987b3`.
+
 ---
 
