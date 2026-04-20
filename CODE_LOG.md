@@ -1797,5 +1797,7 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 | **Legal/Compliance** | Alineado con STS 805/2020 Glovo + Ley 15/2007 Defensa Competencia: la plataforma publica rango recomendado (ya en `lib/regional-pricing.ts`) pero no impone precios a los médicos autónomos. El refactor pendiente cierra el círculo: el paciente solo verá el precio que el médico libremente fijó. | Solo informativo | Baja |
 | **Stripe/Pagos** | `app/api/stripe/checkout/route.ts:35` todavía lee `service.basePrice` (el 150 hardcodeado). Cuando Ops migre a `doctor.consultation_price`, la checkout route debe aceptar `doctorId` como input y leer el precio desde `doctor_profiles`. | Refactor checkout en el sprint de precio-por-médico real | Media |
 
+**Deploy:** `dpl_HZ6shoQpaCFSh2Uc2ofLmtPyb2PP` → https://oncall.clinic (READY). Commit `9d2716e`.
+
 ---
 
