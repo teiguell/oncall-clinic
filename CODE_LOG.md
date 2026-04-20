@@ -1758,5 +1758,7 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 
 **Notas:** Fix aislado, 2 líneas totales. Reportado por QA externa (Cowork) como bug N1 Alta tras puntuar 7.5/10 post-deploy `297262f`. El bug era solo visual (key cruda), no bloqueaba funcionalidad del booking flow.
 
+**Deploy:** `dpl_4Av6L2MZ77apqzS3gytXoQS3ZQLk` → https://oncall.clinic (READY). Commit `5f49e0e`.
+
 ---
 
