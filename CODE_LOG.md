@@ -1857,5 +1857,7 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 | **Legal/Compliance** | Hero ya no dice "Desde €150"; ahora "Desde 1 hora". Alineado con STS 805/2020 (plataforma NO fija precios). El número de contacto `+34 871 18 34 15` aparece ahora en Final CTA del landing. | Confirmar que el teléfono es el oficial y está registrado a nombre de Ibiza Care SL | Media |
 | **i18n** | +11 keys en ambos bundles (ES=EN=1118). Traducciones coherentes y paralelas. | Revisar tono de "IBIZA · BALEARIC ISLANDS" en copy EN (ok) | Baja |
 
+**Deploy:** `dpl_5MWzzrMCTD5ucYno934QsDfF9Wjp` → https://oncall.clinic (READY). Commit `6ddd9a9`.
+
 ---
 
