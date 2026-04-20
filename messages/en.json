@@ -117,6 +117,21 @@
       "verifiedTitle": "Verified doctors",
       "verifiedDesc": "All our doctors are licensed, insured and verified by our team"
     },
+    "doctors": {
+      "kicker": "Medical team",
+      "title": "Licensed doctors, close to you.",
+      "subtitle": "Verified physicians with liability insurance. Full list on request.",
+      "seeAll": "See all doctors",
+      "name1": "Dr. Elena Marí",
+      "spec1": "General Medicine · 14 yrs",
+      "eta1": "~8 min",
+      "name2": "Dr. Marc Dubois",
+      "spec2": "Internal Medicine · 11 yrs",
+      "eta2": "~14 min",
+      "name3": "Dr. Sofia Romano",
+      "spec3": "Family Medicine · 9 yrs",
+      "eta3": "~18 min"
+    },
     "servicesAvail": {
       "kicker": "Services",
       "title": "Available services",
@@ -296,6 +311,15 @@
       "whatType": "What type of consultation do you need?",
       "whatTypeDesc": "Choose between immediate emergency or scheduled appointment",
       "availabilityEyebrow": "Licensed doctors available today",
+      "chipsHint": "Common symptoms",
+      "chipFever": "Fever",
+      "chipPain": "Pain",
+      "chipDizzy": "Dizzy",
+      "chipNausea": "Nausea",
+      "chipCough": "Cough",
+      "chipWound": "Wound",
+      "chipAllergy": "Allergy",
+      "chipOther": "Other",
       "whatSpecialty": "What specialty do you need?",
       "whereAndWhat": "Where are you and what's wrong?",
       "myLocation": "Use my location",
@@ -1200,7 +1224,14 @@
     "callUs": "Call us: +34 871 18 34 15",
     "error": "Couldn't find doctors.",
     "retry": "Retry",
-    "verified": "Verified"
+    "verified": "Verified",
+    "selected": "Doctor selected",
+    "filter": {
+      "all": "All",
+      "available": "Available",
+      "top": "Top rated",
+      "nearest": "Nearest"
+    }
   },
   "demo": {
     "banner": "SIMULATION MODE",

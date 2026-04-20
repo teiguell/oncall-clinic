@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,50 +12,17 @@ import { ServiceScope } from '@/components/shared/service-scope'
 import {
   Stethoscope, MapPin, Clock, Shield, ArrowRight,
   Baby, Dumbbell, Syringe, CheckCircle2, Menu, X,
-  AlertTriangle, PhoneCall,
+  AlertTriangle, PhoneCall, Star, Check,
 } from 'lucide-react'
 
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-
-    // Respect OS-level "Reduce Motion" preference
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReduced) {
-      el.querySelectorAll('.scroll-reveal').forEach(t => t.classList.add('revealed'))
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed')
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.05 }
-    )
-
-    const targets = el.querySelectorAll('.scroll-reveal')
-    targets.forEach((t) => {
-      // If already in viewport on mount (e.g. anchor nav / SSR first paint),
-      // reveal immediately — otherwise the observer won't fire until scroll.
-      const rect = t.getBoundingClientRect()
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        t.classList.add('revealed')
-      } else {
-        observer.observe(t)
-      }
-    })
-
-    return () => observer.disconnect()
-  }, [])
-  return ref
-}
+// Static demo doctors for the landing preview. The real /patient/request flow
+// queries Supabase via DoctorSelector; this preview is marketing-only so the
+// data is static and rendered server-friendly.
+const DEMO_DOCTORS = [
+  { initials: 'EM', bg: 'from-amber-200 to-amber-500',  rating: 4.98, reviews: 312, etaKey: 'eta1' as const, langs: ['ES','EN','CA'], specKey: 'spec1' as const, nameKey: 'name1' as const },
+  { initials: 'MD', bg: 'from-blue-200 to-blue-500',    rating: 4.96, reviews: 208, etaKey: 'eta2' as const, langs: ['FR','EN','ES'], specKey: 'spec2' as const, nameKey: 'name2' as const },
+  { initials: 'SR', bg: 'from-pink-200 to-pink-500',    rating: 4.95, reviews: 187, etaKey: 'eta3' as const, langs: ['IT','EN','ES'], specKey: 'spec3' as const, nameKey: 'name3' as const },
+]
 
 export default function LandingPage() {
   const t = useTranslations('landing')
@@ -64,9 +31,9 @@ export default function LandingPage() {
   const tTrust = useTranslations('trust')
   const tInterm = useTranslations('intermediary')
   const tFaq = useTranslations('faq')
+  const tDoctors = useTranslations('landing.doctors')
   const locale = useLocale()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const mainRef = useScrollReveal()
 
   // Design-system features (3 max — Hick's Law)
   const features = [
@@ -154,19 +121,31 @@ export default function LandingPage() {
         )}
       </header>
 
-      <main id="main-content" ref={mainRef}>
+      <main id="main-content">
         {/* ═══════════════════════════════════════════════════════
              HERO — clarity-first, single CTA, 112 disclaimer
            ═══════════════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden pt-10 md:pt-16 pb-16 md:pb-20">
-          {/* Subtle gradient using theme tokens, not raw blue-50 */}
+        <section className="section-animate relative overflow-hidden pt-10 md:pt-16 pb-16 md:pb-20">
+          {/* Premium warm multi-layer gradient from prototype */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-b from-muted/60 via-background to-background"
+            className="absolute inset-0 -z-10"
+            style={{
+              background: `
+                radial-gradient(120% 60% at 100% 0%, rgba(245,158,11,0.10), transparent 60%),
+                radial-gradient(90% 70% at 0% 15%, rgba(59,130,246,0.13), transparent 55%),
+                linear-gradient(180deg, #FAFBFC 0%, #F1F6FE 100%)
+              `,
+            }}
+          />
+          {/* Decorative orb — amber blur top-right */}
+          <div
+            aria-hidden="true"
+            className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-amber-200/30 blur-3xl pointer-events-none"
           />
           <div
             aria-hidden="true"
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl -z-10"
+            className="absolute top-40 left-0 w-80 h-80 rounded-full bg-blue-200/20 blur-3xl pointer-events-none"
           />
 
           <div className="relative container mx-auto px-4 text-center">
@@ -250,9 +229,9 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              HOW IT WORKS — 3 steps (Hick's + Miller's law)
            ═══════════════════════════════════════════════════════ */}
-        <section id="como-funciona" className="py-16 md:py-20 bg-muted/40">
+        <section id="como-funciona" className="section-animate py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-14 scroll-reveal">
+            <div className="text-center mb-14">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-primary" />
                 {t('howItWorks.kicker')}
@@ -262,7 +241,7 @@ export default function LandingPage() {
                 {t('howItWorks.subtitle')}
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto scroll-reveal">
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
               {[
                 { n: '01', icon: MapPin,      title: t('howItWorks.step1Title'), desc: t('howItWorks.step1Desc') },
                 { n: '02', icon: Stethoscope, title: t('howItWorks.step2Title'), desc: t('howItWorks.step2Desc') },
@@ -294,16 +273,16 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              FEATURES — 3 cards (reduced from 4, was overwhelming)
            ═══════════════════════════════════════════════════════ */}
-        <section className="py-16 md:py-20 bg-background">
+        <section className="section-animate py-16 md:py-20 bg-background">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-14 scroll-reveal">
+            <div className="text-center mb-14">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700 mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
                 {t('features.kicker')}
               </span>
               <h2 className="font-display text-3xl md:text-4xl font-bold text-balance">{t('features.title')}</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto scroll-reveal">
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {features.map((feature) => {
                 const Icon = feature.icon
                 return (
@@ -325,9 +304,9 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              SERVICES — 1 active + 3 coming soon
            ═══════════════════════════════════════════════════════ */}
-        <section id="servicios" className="py-16 md:py-20 bg-muted/40">
+        <section id="servicios" className="section-animate py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-14 scroll-reveal">
+            <div className="text-center mb-14">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700 mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
                 {t('servicesAvail.kicker')}
@@ -337,7 +316,7 @@ export default function LandingPage() {
                 {t('servicesAvail.subtitle')}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto scroll-reveal">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
               {services.map((service) => {
                 const Icon = service.icon
                 const descKey = `${service.value}_desc` as const
@@ -376,11 +355,85 @@ export default function LandingPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════
+             DOCTORS PREVIEW — static marketing preview (real list
+             lives in /patient/request via <DoctorSelector/>)
+           ═══════════════════════════════════════════════════════ */}
+        <section id="doctores" className="section-animate py-16 md:py-20 bg-background">
+          <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-10">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-700 mb-3">
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-emerald-600" />
+                {tDoctors('kicker')}
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{tDoctors('title')}</h2>
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
+                {tDoctors('subtitle')}
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {DEMO_DOCTORS.map((d, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 p-4 bg-card rounded-card border border-border/60 shadow-card"
+                >
+                  {/* Avatar with verified check */}
+                  <div className="relative flex-shrink-0">
+                    <div
+                      className={`h-14 w-14 rounded-full bg-gradient-to-br ${d.bg} text-white font-display font-semibold text-lg flex items-center justify-center`}
+                      style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.08)' }}
+                    >
+                      {d.initials}
+                    </div>
+                    <div
+                      className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-emerald-500 border-[2.5px] border-background flex items-center justify-center text-white"
+                      aria-label="Verified"
+                    >
+                      <Check className="h-3 w-3" aria-hidden="true" strokeWidth={3} />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display font-semibold text-[15px] tracking-tight truncate">
+                      {tDoctors(d.nameKey)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                      {tDoctors(d.specKey)}
+                    </p>
+                    <div className="mt-2 flex items-center gap-2.5 text-xs">
+                      <span className="inline-flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
+                        <span className="font-semibold text-foreground">{d.rating.toFixed(2)}</span>
+                        <span className="text-muted-foreground/70">({d.reviews})</span>
+                      </span>
+                      <span className="text-muted-foreground/50" aria-hidden="true">·</span>
+                      <span className="text-emerald-600 font-medium">{tDoctors(d.etaKey)}</span>
+                    </div>
+                    <div className="mt-1.5 text-[10.5px] text-muted-foreground/80 tracking-wide">
+                      {d.langs.join(' · ')}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link href={`/${locale}/patient/request`}>
+                <Button variant="outline" size="lg" className="gap-2 rounded-button">
+                  {tDoctors('seeAll')}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════
              FOR DOCTORS
            ═══════════════════════════════════════════════════════ */}
-        <section id="medicos" className="py-16 md:py-20 bg-gradient-to-br from-primary to-indigo-700 text-white">
+        <section id="medicos" className="section-animate py-16 md:py-20 bg-gradient-to-br from-primary to-indigo-700 text-white">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center scroll-reveal">
+            <div className="max-w-4xl mx-auto text-center">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-emerald-300" />
                 {t('forDoctors.kicker')}
@@ -417,9 +470,9 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              FAQ — accordion, 6 common questions
            ═══════════════════════════════════════════════════════ */}
-        <section id="faq" className="py-16 md:py-20 bg-muted/40">
+        <section id="faq" className="section-animate py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4 max-w-3xl">
-            <div className="text-center mb-10 scroll-reveal">
+            <div className="text-center mb-10">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-primary" />
                 {tFaq('kicker')}
@@ -427,7 +480,7 @@ export default function LandingPage() {
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{tFaq('title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground">{tFaq('subtitle')}</p>
             </div>
-            <div className="space-y-3 scroll-reveal">
+            <div className="space-y-3">
               {([1, 2, 3, 4, 5, 6] as const).map((n) => (
                 <details
                   key={n}
@@ -449,7 +502,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              CTA FINAL
            ═══════════════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden py-16 md:py-20 text-white">
+        <section className="section-animate relative overflow-hidden py-16 md:py-20 text-white">
           {/* Dark navy → primary gradient */}
           <div
             aria-hidden="true"
@@ -477,7 +530,7 @@ export default function LandingPage() {
             }}
           />
 
-          <div className="relative container mx-auto px-4 text-center scroll-reveal max-w-2xl">
+          <div className="relative container mx-auto px-4 text-center max-w-2xl">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-200 mb-3">
               {t('cta.kicker')}
             </span>

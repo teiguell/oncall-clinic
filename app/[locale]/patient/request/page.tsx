@@ -372,6 +372,57 @@ function RequestConsultationPage() {
                 {...register('symptoms')}
               />
               {errors.symptoms && <p className="text-xs text-destructive" role="alert">{errors.symptoms.message}</p>}
+
+              {/* Quick-chip symptom toggles — append to textarea when clicked */}
+              {(() => {
+                const chips: Array<{ id: string; labelKey: 'chipFever' | 'chipPain' | 'chipDizzy' | 'chipNausea' | 'chipCough' | 'chipWound' | 'chipAllergy' | 'chipOther' }> = [
+                  { id: 'fever',   labelKey: 'chipFever' },
+                  { id: 'pain',    labelKey: 'chipPain' },
+                  { id: 'dizzy',   labelKey: 'chipDizzy' },
+                  { id: 'nausea',  labelKey: 'chipNausea' },
+                  { id: 'cough',   labelKey: 'chipCough' },
+                  { id: 'wound',   labelKey: 'chipWound' },
+                  { id: 'allergy', labelKey: 'chipAllergy' },
+                  { id: 'other',   labelKey: 'chipOther' },
+                ]
+                const current = watch('symptoms') || ''
+                const toggleChip = (label: string) => {
+                  const marker = `· ${label}`
+                  if (current.includes(marker)) {
+                    setValue('symptoms', current.replace(marker, '').replace(/ {2,}/g, ' ').trim(), { shouldValidate: true })
+                  } else {
+                    const prefix = current.trim().length > 0 ? `${current.trim()} ` : ''
+                    setValue('symptoms', `${prefix}${marker}`, { shouldValidate: true })
+                  }
+                }
+                return (
+                  <>
+                    <p className="text-xs text-muted-foreground mt-3 font-medium">{t('request.chipsHint')}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-1.5">
+                      {chips.map(c => {
+                        const label = t(`request.${c.labelKey}`)
+                        const active = current.includes(`· ${label}`)
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => toggleChip(label)}
+                            aria-pressed={active}
+                            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                              active
+                                ? 'bg-primary/10 text-primary border-primary'
+                                : 'bg-card text-muted-foreground border-border hover:border-primary/40'
+                            }`}
+                          >
+                            {active && <CheckCircle className="h-3 w-3" aria-hidden="true" />}
+                            {label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                )
+              })()}
             </div>
 
             <div className="space-y-2">

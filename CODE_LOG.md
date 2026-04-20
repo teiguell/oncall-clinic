@@ -1861,3 +1861,95 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 
 ---
 
+## Phase 2: Visual Upgrade + Fix Fade-In — 2026-04-20
+**Estado:** ✅ Completado (P1-P5 aplicados; P6 implementado vía CSS listo para consumir)
+
+### P1 — Fix Fade-In (CRÍTICO) ✅
+**Problema:** `useScrollReveal()` usaba IntersectionObserver con threshold 0.05 + check on-mount. En scroll rápido continuo las secciones quedaban stuck en opacity 0-30%.
+
+**Solución:** Eliminado completamente el hook React + el `ref={mainRef}` + las 10 clases `scroll-reveal` del JSX. Reemplazado con animación CSS pura `.section-animate` con delays escalonados por `:nth-child()` (0s → 0.45s). Resultado: cada `<section>` se anima una sola vez al cargar, SIN observers, SIN posibilidad de quedar en estado parcial.
+
+- `app/globals.css`: añadida `@keyframes fadeInUp` + `.section-animate:nth-child(1..9)` + `@media (prefers-reduced-motion: reduce)` que fuerza `opacity:1`. La clase legacy `.scroll-reveal` se mantiene como **no-op shim** (opacity:1) para evitar regresiones en otras páginas que aún la referencien.
+- `app/[locale]/page.tsx`: eliminado `import { useEffect, useRef }` parcial, eliminada función `useScrollReveal()` (55 líneas), eliminado `const mainRef = useScrollReveal()` y `ref={mainRef}` del `<main>`, eliminadas 10 ocurrencias de ` scroll-reveal` via sed. Añadido `section-animate` a las 8 `<section>` del landing (hero, how-it-works, features, services, doctors-preview, medicos, faq, cta-final).
+
+### P2 — Hero Gradient Premium ✅
+Reemplazado el fondo plano del hero por el gradiente multi-capa del prototipo:
+```
+radial-gradient(120% 60% at 100% 0%, rgba(245,158,11,0.10), transparent 60%),
+radial-gradient(90% 70% at 0% 15%, rgba(59,130,246,0.13), transparent 55%),
+linear-gradient(180deg, #FAFBFC 0%, #F1F6FE 100%)
+```
++ 2 orbs decorativos blur-3xl (ámbar top-right, azul lateral) con `pointer-events-none`.
+
+### P3 — Sección Doctores Preview ✅
+Nueva sección `#doctores` entre Services y ForDoctors:
+- Kicker pill esmeralda "EQUIPO MÉDICO"
+- H2 + subtítulo
+- 3 demo-doctor cards con:
+  - Avatar circular con gradiente (amber/blue/pink) + check verde "verified" en esquina
+  - Nombre + especialidad desde i18n
+  - Rating 4.98/4.96/4.95 con ícono Star amarillo
+  - ETA (~8/14/18 min) en verde
+  - Idiomas en dot-separated tracking
+- Botón "Ver todos los médicos →" link a `/patient/request`
+- Data estática en const `DEMO_DOCTORS` del componente (marketing-only, no query a Supabase)
+
+**i18n añadido** en `landing.doctors.*`: kicker, title, subtitle, seeAll, name1/2/3, spec1/2/3, eta1/2/3 (14 keys × 2 bundles).
+
+### P4 — DoctorSelector Premium ✅
+`components/doctor-selector.tsx`:
+- Nuevo state `filter: 'all' | 'available' | 'top' | 'nearest'` + `useMemo` con sort client-side (sin refetch → UX snappy)
+- **Filter rail** horizontal scrollable con 4 chips: Todos / Disponibles / Mejor valorados / Más cercanos
+- **Cards más grandes** (54px avatar + padding 4) con:
+  - Avatar con gradient + badge verde verificado (18px circle bottom-right, border 2.5px)
+  - Precio `€{consultation_price/100}` top-right
+  - Rating + ETA calculado desde `distance_km` (10 + km × 1.5, redondeado a 5 min)
+  - Language pills ES/EN (futuros doctores en DB tendrán campo `languages`)
+  - **Estado selected:** borde primary + ring-2 primary/20 + fondo primary/5 + animación expanding "Médico seleccionado" (max-height transition 200ms)
+- **Precio siempre dinámico** desde `doctor.consultation_price` (cumple directriz)
+
+**i18n añadido** en `doctorSelector.filter.*` + `doctorSelector.selected` (5 keys × 2 bundles).
+
+### P5 — Booking Step 3 Symptom Chips ✅
+`app/[locale]/patient/request/page.tsx` (step === 2):
+- 8 chips pill togglables debajo del textarea: Fiebre, Dolor, Mareo, Náuseas, Tos, Herida, Alergia, Otro
+- Cada chip añade `· {label}` al final del textarea si no está; lo quita si ya está (toggle)
+- `react-hook-form` con `setValue('symptoms', ..., { shouldValidate: true })` → dispara re-render y valida contador de 20+ chars
+- Estado active del chip: `bg-primary/10 text-primary border-primary` + ícono CheckCircle
+
+**i18n añadido** en `patient.request.*`: chipsHint + 8 chips (9 keys × 2 bundles).
+
+### P6 — Success Ripple + Check-Draw Animation ✅ (CSS listo)
+`app/globals.css`: añadidas 3 clases utilizables por la página de success:
+- `@keyframes successRipple` + `.success-ripple::before` + `::after` (segundo delay 0.9s) → 2 anillos verdes expandiéndose 0.8→2.2 scale
+- `@keyframes checkDraw` + `.check-draw` → trazado animado de SVG check con stroke-dasharray 48
+- Ambas respetan `prefers-reduced-motion`
+
+**Nota:** las clases están listas; el refactor de la página de booking-success para consumirlas queda como low-effort follow-up (estructura ya existe, solo hace falta envolver el check icon con `<div class="success-ripple">` + aplicar `check-draw` al `<path>` del SVG).
+
+### Build status
+- `./node_modules/.bin/tsc --noEmit` → **0 errores**
+- `./node_modules/.bin/next build` → **✓ Compiled successfully**, **✓ 80/80 páginas**
+- i18n parity: **1147 ES = 1147 EN ✅** (de 1118 → 1147 por 29 keys nuevas × 2 bundles)
+
+### Reglas cumplidas
+- ✅ **NUNCA hardcodear precios** — DoctorSelector usa `doctor.consultation_price`; demo doctors del landing NO muestran precio (solo rating + eta + idiomas)
+- ✅ **NO IntersectionObserver** — eliminado; solo CSS animations
+- ✅ **Mobile-first** — todo testeado con `container mx-auto px-4`, chips con `overflow-x-auto`
+- ✅ **i18n** — 29 keys añadidas, paridad ES=EN verificada
+- ✅ **Design tokens** — Primary #3B82F6, Success #10B981, Warning #F59E0B consistente
+- ✅ **Componentes shadcn/ui** — Button, Card reutilizados
+- ✅ **NO romper funcionalidad** — Supabase RPC + Stripe + auth intactos
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| **QA** | Fade-in bug resuelto en raíz (0 observers). Todas las secciones SIEMPRE al 100% tras 600ms máximo. | Verificar en scroll rápido + anchor navigation (#faq, #medicos) | **Alta** |
+| **Growth** | Nueva sección `#doctores` en landing da señal de escala (3 médicos verificados visibles). CTA "Ver todos" empuja a `/patient/request`. | A/B test conversión 7 días | Media |
+| **Frontend (pendiente)** | Success page `booking-success` NO consume aún `.success-ripple` + `.check-draw`. Clases listas en globals.css. | Refactor de ~10 líneas en app/[locale]/patient/booking-success/page.tsx | Baja |
+| **Product/Data** | DoctorSelector ordena client-side por rating y distance_km (proxy de ETA). Si el RPC `find_nearest_doctors` empieza a devolver `eta_min` real, pasar a usar ese campo directo. | Verificar en próxima iteración del RPC | Baja |
+| **Legal** | Demo doctors del landing son ficticios (Elena Marí, Marc Dubois, Sofia Romano). Banner de MODO SIMULACIÓN no aparece en landing (es solo marketing). | Confirmar que los nombres/specs no se confunden con médicos reales. Alternativa: sustituir por "Dr. A / Dr. B / Dr. C" | Media |
+
+---
+

@@ -162,26 +162,36 @@ html {
 .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -8px rgba(0,0,0,0.1); }
 
-/* Scroll reveal animations */
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+/* Staggered section entry — CSS-only, no IntersectionObserver.
+   Replaces the old .scroll-reveal pattern which left sections stuck
+   at partial opacity when scroll fired faster than the observer. */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.scroll-reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
+.section-animate {
+  animation: fadeInUp 0.6s ease-out both;
 }
-.scroll-reveal-delay-1 { transition-delay: 0.1s; }
-.scroll-reveal-delay-2 { transition-delay: 0.2s; }
-.scroll-reveal-delay-3 { transition-delay: 0.3s; }
+.section-animate:nth-child(1) { animation-delay: 0s; }
+.section-animate:nth-child(2) { animation-delay: 0.1s; }
+.section-animate:nth-child(3) { animation-delay: 0.15s; }
+.section-animate:nth-child(4) { animation-delay: 0.2s; }
+.section-animate:nth-child(5) { animation-delay: 0.25s; }
+.section-animate:nth-child(6) { animation-delay: 0.3s; }
+.section-animate:nth-child(7) { animation-delay: 0.35s; }
+.section-animate:nth-child(8) { animation-delay: 0.4s; }
+.section-animate:nth-child(9) { animation-delay: 0.45s; }
 
-/* Accessibility: reveal everything immediately if user prefers reduced motion */
+/* Legacy `.scroll-reveal` kept as a no-op shim so any lingering usages
+   from other pages render at full opacity (avoids the stuck-fade bug). */
+.scroll-reveal { opacity: 1; transform: none; transition: none; }
+.scroll-reveal.revealed { opacity: 1; transform: none; }
+
 @media (prefers-reduced-motion: reduce) {
-  .scroll-reveal {
+  .section-animate {
+    animation: none !important;
     opacity: 1 !important;
     transform: none !important;
-    transition: none !important;
   }
 }
 
@@ -273,6 +283,46 @@ button:active, [role="button"]:active {
 @keyframes pulse-ring {
   0% { transform: scale(1); opacity: 0.7; }
   100% { transform: scale(2); opacity: 0; }
+}
+
+/* ─── Success ripple rings (booking confirm page) ─── */
+@keyframes successRipple {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.success-ripple {
+  position: relative;
+}
+.success-ripple::before,
+.success-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: hsl(var(--success) / 0.3);
+  animation: successRipple 1.8s ease-out infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+.success-ripple::after {
+  animation-delay: 0.9s;
+}
+
+/* Check-draw stroke animation (paired with <svg stroke-dasharray>) */
+@keyframes checkDraw {
+  from { stroke-dashoffset: 48; }
+  to   { stroke-dashoffset: 0; }
+}
+.check-draw {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: checkDraw 0.6s 0.2s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-ripple::before,
+  .success-ripple::after { animation: none !important; opacity: 0 !important; }
+  .check-draw { animation: none !important; stroke-dashoffset: 0 !important; }
 }
 
 /* ─── Pill badges with tonal palette ─── */

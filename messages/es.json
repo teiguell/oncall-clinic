@@ -117,6 +117,21 @@
       "verifiedTitle": "Médicos verificados",
       "verifiedDesc": "Todos nuestros médicos están colegiados, asegurados y verificados por nuestro equipo"
     },
+    "doctors": {
+      "kicker": "Equipo médico",
+      "title": "Profesionales colegiados, cerca de ti.",
+      "subtitle": "Médicos verificados con seguro RC. Lista completa al pedir consulta.",
+      "seeAll": "Ver todos los médicos",
+      "name1": "Dra. Elena Marí",
+      "spec1": "Medicina General · 14 años",
+      "eta1": "~8 min",
+      "name2": "Dr. Marc Dubois",
+      "spec2": "Medicina Interna · 11 años",
+      "eta2": "~14 min",
+      "name3": "Dra. Sofia Romano",
+      "spec3": "Medicina Familiar · 9 años",
+      "eta3": "~18 min"
+    },
     "servicesAvail": {
       "kicker": "Servicios",
       "title": "Servicios disponibles",
@@ -296,6 +311,15 @@
       "whatType": "¿Qué tipo de consulta necesitas?",
       "whatTypeDesc": "Elige entre urgencia inmediata o cita programada",
       "availabilityEyebrow": "Médicos colegiados disponibles hoy",
+      "chipsHint": "Síntomas frecuentes",
+      "chipFever": "Fiebre",
+      "chipPain": "Dolor",
+      "chipDizzy": "Mareo",
+      "chipNausea": "Náuseas",
+      "chipCough": "Tos",
+      "chipWound": "Herida",
+      "chipAllergy": "Alergia",
+      "chipOther": "Otro",
       "whatSpecialty": "¿Qué especialidad necesitas?",
       "whereAndWhat": "¿Dónde estás y qué te pasa?",
       "myLocation": "Usar mi ubicación",
@@ -1200,7 +1224,14 @@
     "callUs": "Llámanos: +34 871 18 34 15",
     "error": "No pudimos buscar médicos.",
     "retry": "Reintentar",
-    "verified": "Verificado"
+    "verified": "Verificado",
+    "selected": "Médico seleccionado",
+    "filter": {
+      "all": "Todos",
+      "available": "Disponibles",
+      "top": "Mejor valorados",
+      "nearest": "Más cercanos"
+    }
   },
   "demo": {
     "banner": "MODO SIMULACIÓN",

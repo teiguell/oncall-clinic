@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { DoctorCardSkeleton } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/shared/error-state'
 import { useBookingStore } from '@/stores/booking-store'
-import { Star, ShieldCheck, Check } from 'lucide-react'
+import { Star, Check, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+type FilterKey = 'all' | 'available' | 'top' | 'nearest'
 
 interface Doctor {
   id: string
@@ -41,6 +43,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [filter, setFilter] = useState<FilterKey>('all')
   const selectedDoctorId = useBookingStore(s => s.selectedDoctorId)
   const setSelectedDoctor = useBookingStore(s => s.setSelectedDoctor)
 
@@ -134,6 +137,20 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientLat, patientLng])
 
+  // Client-side sort per filter chip. We don't refetch — keeps UX snappy.
+  const sortedDoctors = useMemo(() => {
+    const copy = [...doctors]
+    if (filter === 'top') {
+      copy.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    } else if (filter === 'nearest') {
+      copy.sort((a, b) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity))
+    } else if (filter === 'available') {
+      // "Available" here means soonest (low distance proxy for ETA)
+      copy.sort((a, b) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity))
+    }
+    return copy
+  }, [doctors, filter])
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -171,14 +188,50 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
     )
   }
 
+  const filters: Array<{ key: FilterKey; label: string }> = [
+    { key: 'all',       label: t('filter.all') },
+    { key: 'available', label: t('filter.available') },
+    { key: 'top',       label: t('filter.top') },
+    { key: 'nearest',   label: t('filter.nearest') },
+  ]
+
+  // Approximate ETA: 1.5 min per km (city avg) + 10 min base; rounded to 5.
+  const etaFromDistance = (km?: number) =>
+    typeof km === 'number' ? Math.max(5, Math.round((10 + km * 1.5) / 5) * 5) : null
+
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground text-center">
         {t('found', { count: doctors.length })}
       </p>
-      {doctors.map(d => {
+
+      {/* Filter rail — horizontal scroll chips */}
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+        {filters.map(f => {
+          const active = filter === f.key
+          return (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setFilter(f.key)}
+              className={cn(
+                'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap min-h-[32px]',
+                active
+                  ? 'bg-primary text-primary-foreground border border-primary'
+                  : 'bg-card text-muted-foreground border border-border hover:border-primary/40',
+              )}
+              aria-pressed={active}
+            >
+              {f.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {sortedDoctors.map(d => {
         const isSelected = selectedDoctorId === d.id
         const initials = d.full_name.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase()
+        const eta = etaFromDistance(d.distance_km)
         return (
           <button
             key={d.id}
@@ -188,59 +241,90 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
               onSelect?.(d)
             }}
             className={cn(
-              'w-full rounded-card border-2 p-4 text-left transition-all min-h-[44px]',
+              'w-full rounded-card border p-4 text-left transition-all min-h-[44px]',
               isSelected
-                ? 'border-primary bg-primary/5 shadow-card'
+                ? 'border-primary ring-2 ring-primary/20 bg-primary/5 shadow-card'
                 : 'border-border bg-card card-hover hover:border-primary/40',
             )}
             aria-pressed={isSelected}
           >
-            <div className="flex items-start gap-3">
-              {/* Avatar */}
-              <div className="h-12 w-12 rounded-full bg-primary/10 text-primary font-display font-semibold flex items-center justify-center shrink-0">
-                {initials}
+            <div className="flex items-start gap-3.5">
+              {/* Avatar with verified check badge (bottom-right corner) */}
+              <div className="relative flex-shrink-0">
+                <div className="h-[54px] w-[54px] rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary-foreground font-display font-semibold text-base flex items-center justify-center">
+                  <span className="text-primary">{initials}</span>
+                </div>
+                <div
+                  className="absolute -bottom-0.5 -right-0.5 h-[18px] w-[18px] rounded-full bg-emerald-500 border-[2.5px] border-background flex items-center justify-center text-white"
+                  aria-label={t('verified')}
+                >
+                  <Check className="h-[10px] w-[10px]" aria-hidden="true" strokeWidth={3} />
+                </div>
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-display font-semibold text-sm truncate">{d.full_name}</span>
-                  <span className="pill-success">
-                    <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-                    {t('verified')}
-                  </span>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-display font-semibold text-[15px] tracking-tight truncate">
+                      {d.full_name}
+                    </p>
+                    <p className="text-[12.5px] text-muted-foreground mt-0.5 truncate leading-snug">
+                      {d.specialty?.replace('_', ' ')}{d.city ? ` · ${d.city}` : ''}
+                    </p>
+                  </div>
+                  {typeof d.consultation_price === 'number' && (
+                    <div className="text-right flex-shrink-0">
+                      <div className="font-display font-bold text-[15px] tracking-tight">
+                        €{(d.consultation_price / 100).toFixed(0)}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                  {d.specialty?.replace('_', ' ')} · {d.city}
-                </p>
-                <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
+
+                <div className="mt-2 flex items-center gap-2.5 text-xs">
                   {typeof d.rating === 'number' && d.rating > 0 && (
                     <span className="inline-flex items-center gap-1">
                       <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
-                      <span className="font-medium text-foreground">{d.rating.toFixed(1)}</span>
+                      <span className="font-semibold text-foreground">{d.rating.toFixed(1)}</span>
                       {typeof d.total_reviews === 'number' && (
-                        <span>({d.total_reviews})</span>
+                        <span className="text-muted-foreground/70">({d.total_reviews})</span>
                       )}
                     </span>
                   )}
-                  {typeof d.distance_km === 'number' && (
-                    <span>{d.distance_km.toFixed(1)} km</span>
-                  )}
-                  {typeof d.consultation_price === 'number' && (
-                    <span className="font-display font-semibold text-foreground">
-                      €{(d.consultation_price / 100).toFixed(0)}
-                    </span>
+                  {eta !== null && (
+                    <>
+                      <span className="text-muted-foreground/50" aria-hidden="true">·</span>
+                      <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                        <Clock className="h-3 w-3" aria-hidden="true" />
+                        ~{eta} min
+                      </span>
+                    </>
                   )}
                 </div>
-                {d.bio && (
-                  <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{d.bio}</p>
-                )}
-              </div>
 
-              {isSelected && (
-                <div className="h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
-                  <Check className="h-4 w-4" aria-hidden="true" />
+                {/* Language badges (pill format) */}
+                <div className="mt-2 flex gap-1">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10.5px] font-semibold bg-muted text-muted-foreground tracking-wide">
+                    ES
+                  </span>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10.5px] font-semibold bg-muted text-muted-foreground tracking-wide">
+                    EN
+                  </span>
                 </div>
+              </div>
+            </div>
+
+            {/* Expanding "Selected" confirmation */}
+            <div
+              className={cn(
+                'overflow-hidden transition-[max-height,opacity,margin] duration-200',
+                isSelected ? 'max-h-[44px] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0',
               )}
+            >
+              <div className="px-3 py-2.5 rounded-lg bg-primary/10 text-primary text-xs font-medium inline-flex items-center gap-2">
+                <Check className="h-3.5 w-3.5" aria-hidden="true" strokeWidth={2.5} />
+                {t('selected')}
+              </div>
             </div>
           </button>
         )
