@@ -51,11 +51,13 @@
     "badge": "Médicos colegiados a domicilio · Disponible 24/7",
     "liveBadge": "En directo — médicos disponibles hoy",
     "hero": {
+      "eyebrow": "IBIZA · BALEARES",
       "title": "Médico a domicilio\nen Ibiza.",
       "subtitle": "Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora.",
       "ctaPrimary": "Pedir médico",
       "ctaSecondary": "Soy médico, unirme",
-      "priceHint": "Desde €150 · Paga con tarjeta",
+      "ctaSub": "Respuesta en ~12 min",
+      "priceHint": "Desde 1 hora · Paga con tarjeta",
       "trust1": "Sin cargo hasta que un médico acepte",
       "trust2": "Médicos colegiados y verificados",
       "trust3": "Seguimiento GPS en tiempo real",
@@ -77,7 +79,9 @@
       "verified": "Médicos verificados"
     },
     "howItWorks": {
-      "title": "Cómo funciona",
+      "kicker": "Cómo funciona",
+      "title": "Tres pasos. Sin papeleo.",
+      "subtitle": "Del síntoma a la atención médica en menos de una hora.",
       "step1Title": "Cuéntanos dónde estás",
       "step1Desc": "Tu hotel, villa o domicilio. Detectamos tu ubicación o escríbela a mano.",
       "step2Title": "Elige el tipo de consulta",
@@ -90,6 +94,7 @@
       "subtitle": "Desde medicina general hasta urgencias — todo disponible en tu hotel, villa o domicilio."
     },
     "forDoctors": {
+      "kicker": "Para médicos",
       "title": "¿Eres médico o profesional sanitario?",
       "subtitle": "Únete a la red de OnCall Clinic. Trabaja cuando quieras, cobra al momento.",
       "benefit1Title": "Cobra al instante",
@@ -101,6 +106,7 @@
       "cta": "Unirme como médico"
     },
     "features": {
+      "kicker": "Por qué OnCall",
       "title": "Todo lo que necesitas",
       "urgentTitle": "Atención rápida",
       "urgentDesc": "Solicita una consulta y un médico llegará a tu alojamiento desde 1 hora",
@@ -112,6 +118,7 @@
       "verifiedDesc": "Todos nuestros médicos están colegiados, asegurados y verificados por nuestro equipo"
     },
     "servicesAvail": {
+      "kicker": "Servicios",
       "title": "Servicios disponibles",
       "subtitle": "Empezamos con medicina general. Pronto añadiremos más especialidades.",
       "availableBadge": "Disponible",
@@ -122,10 +129,12 @@
       "nursing_desc": "Servicios de enfermería a domicilio"
     },
     "cta": {
+      "kicker": "24/7 · IBIZA",
       "title": "¿Listo para cuidar tu salud\ndesde donde estés?",
       "subtitle": "Solicita un médico y paga solo cuando sea aceptado",
       "button": "Pedir médico ahora",
-      "trust": "Sin cargo hasta que un médico acepte"
+      "trust": "Sin cargo hasta que un médico acepte",
+      "or": "o llámanos"
     },
     "footer": {
       "tagline": "Plataforma intermediaria de servicios médicos. No somos un centro médico.",
@@ -286,6 +295,7 @@
       "validSymptoms": "Describe los síntomas (mínimo 20 caracteres)",
       "whatType": "¿Qué tipo de consulta necesitas?",
       "whatTypeDesc": "Elige entre urgencia inmediata o cita programada",
+      "availabilityEyebrow": "Médicos colegiados disponibles hoy",
       "whatSpecialty": "¿Qué especialidad necesitas?",
       "whereAndWhat": "¿Dónde estás y qué te pasa?",
       "myLocation": "Usar mi ubicación",
@@ -717,6 +727,7 @@
     "a5": "Sí. Los médicos están colegiados en España y cuentan con seguro RC profesional vigente. OnCall Clinic opera como intermediario tecnológico autorizado."
   },
   "faq": {
+    "kicker": "Preguntas",
     "title": "Preguntas frecuentes",
     "subtitle": "Respuestas a lo que los pacientes preguntan más",
     "q1": "¿Cuánto tarda en llegar el médico?",

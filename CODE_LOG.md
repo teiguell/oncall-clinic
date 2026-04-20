@@ -1801,3 +1801,61 @@ Keys i18n añadidas: `patient.bookingSuccess.stillSearching` + `patient.bookingS
 
 ---
 
+## Integración Claude Design — Landing + Booking Step 1 — 2026-04-20
+**Estado:** ✅ Completado (parcial — landing + step 1 del booking)
+**Fuente:** `claude-design-exports/` con 3 prototipos (Premium Landing, Booking Flow, Patient Dashboard)
+
+### Enfoque
+**Upgrade incremental, NO rewrite.** El codebase actual ya tenía la estructura correcta (secciones, i18n, Supabase wiring, Stripe, Realtime). Lo que faltaba era el **refinamiento visual del prototipo**: eyebrow pills con dot pulsante, kicker tones por sección, "01/02/03" en vez de "1/2/3", Final CTA dark gradient con orbs decorativos, icon-boxes con gradient suave.
+
+### Archivos modificados
+- `app/[locale]/page.tsx` (landing):
+  - **Hero:** nueva eyebrow "IBIZA · BALEARES" / "IBIZA · BALEARIC ISLANDS" con dot verde pulsante (live-dot + box-shadow glow)
+  - **Hero `priceHint`:** eliminado "€150" → "Desde 1 hora · Paga con tarjeta" (directriz: precios solo los pone el médico)
+  - **Cómo funciona:** kicker pill azul · h2 "Tres pasos. Sin papeleo." · cards con icon-box gradient blue-50→blue-100 · numeración "01/02/03" estilo prototipo (letterspace `0.12em`)
+  - **Features / Services:** kicker pill ámbar con `Por qué OnCall` y `Servicios`
+  - **ForDoctors:** kicker pill blanco con dot esmeralda
+  - **FAQ:** kicker pill azul `Preguntas`
+  - **Final CTA:** rediseño completo → dark gradient (`#0B1F3F → #1E3A8A → #3B82F6`) + 2 orbs decorativos (ámbar top-right + azul bottom-left) + eyebrow "24/7 · IBIZA" + botón blanco + divider "o llámanos" + CTA phone `+34 871 18 34 15` con backdrop-blur
+- `app/[locale]/patient/request/page.tsx` (step 0):
+  - Eyebrow verde "Médicos colegiados disponibles hoy" con dot pulsante
+  - Cards con icon-box estilizado: ámbar (Urgente) + azul (Programada), gradient suave
+  - Badge `< 20 MIN` en card Urgente (texto 9.5px, letterspace bold)
+  - Check radio visual (22×22 circle, fill al seleccionar) — reemplaza el ChevronRight plano
+  - Trust strip al final: ShieldCheck + "Médicos colegiados · Reembolso a tu aseguradora"
+- `messages/es.json` + `messages/en.json`: **+11 keys** añadidas en ambos bundles:
+  - `landing.hero.eyebrow`, `landing.hero.ctaSub`
+  - `landing.howItWorks.kicker`, `.subtitle` (title cambió a "Tres pasos. Sin papeleo.")
+  - `landing.features.kicker`, `landing.servicesAvail.kicker`, `landing.forDoctors.kicker`, `landing.cta.kicker`, `landing.cta.or`
+  - `faq.kicker`
+  - `patient.request.availabilityEyebrow`
+
+### Directriz de precios aplicada
+- ❌ Prototipo landing mostraba "€150" en servicios → **NO implementado** (sin precios en servicios del landing)
+- ❌ Prototipo booking step 1 mostraba "€150/€220" → **NO implementado** (ya resuelto en sprint anterior, cards solo título+descripción)
+- ❌ Hero mostraba "Desde €150" → **Cambiado a "Desde 1 hora"**
+- ✅ Eyebrow "N médicos disponibles" implementado SIN número hardcodeado (el número real vendría de una query en server component — pendiente)
+
+### Lo que NO se tocó (scope control)
+- **UI 3 (Patient Dashboard + Tracking + Complete + Chat):** pendiente. Las pantallas actuales están cableadas a Supabase Realtime + RPC `find_nearest_doctors` + Stripe checkout verify; rediseñar visualmente sin romper esa integración requiere un sprint propio. La estructura del prototipo está en `claude-design-exports/OnCall Clinic - Patient Dashboard/` para referencia futura.
+- **UI 2 Booking steps 2, 3, 4:** pendiente. Step 2 (service) y step 3 (symptoms) ya fueron limpiados en sprints previos de pricing; mejoras visuales (map preview, quick-chip toggles, summary card) quedan para después. Step 4 (payment) está cableado a Stripe — cambios visuales sin romperlo requieren test manual del checkout.
+- **SERVICES doctors preview en landing:** el prototipo muestra 3 doctores con foto/rating/eta. Implementarlo requiere un server component que haga query a `doctor_profiles` con `is_available=true`. Pendiente, pero el código del prototipo está disponible como referencia.
+- **iPhone frame del prototipo:** NO adoptado (directriz explícita del prompt).
+
+### Build status
+- `./node_modules/.bin/tsc --noEmit` → **0 errores**
+- `./node_modules/.bin/next build` → **✓ Compiled successfully**, **✓ 80/80 páginas**
+- i18n parity: **1118 ES = 1118 EN ✅** (de 1107 → 1118 por 11 keys nuevas × 2 bundles)
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| **Frontend/Growth** | Landing renovada: eyebrow IBIZA·BALEARES, "01/02/03" step labels, dark gradient Final CTA. Primera impresión mejorada; testear A/B de conversión post-deploy. | Monitorizar CTR del CTA hero y CTA final 7 días | Media |
+| **Frontend (pendiente)** | UI 3 (Dashboard + Tracking + Complete + Chat) NO se aplicó. Los prototipos están en `claude-design-exports/OnCall Clinic - Patient Dashboard/*.jsx` como referencia para futuro sprint. | Crear sprint dedicado post-simulación del Director | Baja |
+| **Producto/Director** | Eyebrow booking step 1 dice "Médicos colegiados disponibles hoy" (sin número). Para mostrar "N médicos disponibles" dinámico hace falta query SSR a `doctor_profiles` con `is_available=true AND verification_status='verified'`. | Decidir si vale la pena el query server-side para un número real | Baja |
+| **Legal/Compliance** | Hero ya no dice "Desde €150"; ahora "Desde 1 hora". Alineado con STS 805/2020 (plataforma NO fija precios). El número de contacto `+34 871 18 34 15` aparece ahora en Final CTA del landing. | Confirmar que el teléfono es el oficial y está registrado a nombre de Ibiza Care SL | Media |
+| **i18n** | +11 keys en ambos bundles (ES=EN=1118). Traducciones coherentes y paralelas. | Revisar tono de "IBIZA · BALEARIC ISLANDS" en copy EN (ok) | Baja |
+
+---
+

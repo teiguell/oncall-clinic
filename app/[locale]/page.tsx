@@ -170,8 +170,19 @@ export default function LandingPage() {
           />
 
           <div className="relative container mx-auto px-4 text-center">
-            {/* Badge + live pulse */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-6 animate-fade-in-up">
+            {/* IBIZA · BALEARES eyebrow — tracked, uppercase, green pulse dot */}
+            <div className="flex items-center justify-center gap-2 mb-5 animate-fade-in-up">
+              <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot"
+                  style={{ boxShadow: '0 0 0 4px rgba(16,185,129,0.15)' }}
+                />
+                {t('hero.eyebrow')}
+              </span>
+            </div>
+            {/* Secondary trust pills (compact) */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6 animate-fade-in-up">
               <span className="pill-info">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
                 {t('badge')}
@@ -242,27 +253,31 @@ export default function LandingPage() {
         <section id="como-funciona" className="py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-14 scroll-reveal">
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">{t('howItWorks.title')}</h2>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary mb-3">
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-primary" />
+                {t('howItWorks.kicker')}
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{t('howItWorks.title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-                {t('howItWorks.step1Desc')}
+                {t('howItWorks.subtitle')}
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto scroll-reveal">
               {[
-                { step: '1', icon: MapPin,      title: t('howItWorks.step1Title'), desc: t('howItWorks.step1Desc') },
-                { step: '2', icon: Stethoscope, title: t('howItWorks.step2Title'), desc: t('howItWorks.step2Desc') },
-                { step: '3', icon: CheckCircle2,title: t('howItWorks.step3Title'), desc: t('howItWorks.step3Desc') },
+                { n: '01', icon: MapPin,      title: t('howItWorks.step1Title'), desc: t('howItWorks.step1Desc') },
+                { n: '02', icon: Stethoscope, title: t('howItWorks.step2Title'), desc: t('howItWorks.step2Desc') },
+                { n: '03', icon: CheckCircle2,title: t('howItWorks.step3Title'), desc: t('howItWorks.step3Desc') },
               ].map((item) => {
                 const Icon = item.icon
                 return (
-                  <div key={item.step} className="relative bg-card rounded-card p-6 md:p-7 shadow-card border border-border/60">
-                    <div className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-primary text-primary-foreground font-display font-bold text-sm flex items-center justify-center shadow-card">
-                      {item.step}
-                    </div>
-                    <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                  <div key={item.n} className="relative bg-card rounded-card p-6 md:p-7 shadow-card border border-border/60">
+                    <div className="h-[52px] w-[52px] rounded-[14px] bg-gradient-to-br from-blue-50 to-blue-100 text-primary flex items-center justify-center mb-4">
                       <Icon className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <h3 className="font-display text-lg font-semibold mb-2">{item.title}</h3>
+                    <div className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground/80 uppercase mb-1">
+                      {item.n}
+                    </div>
+                    <h3 className="font-display text-lg font-semibold mb-2 tracking-tight">{item.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                   </div>
                 )
@@ -282,7 +297,11 @@ export default function LandingPage() {
         <section className="py-16 md:py-20 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-14 scroll-reveal">
-              <h2 className="font-display text-3xl md:text-4xl font-bold">{t('features.title')}</h2>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700 mb-3">
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
+                {t('features.kicker')}
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-balance">{t('features.title')}</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto scroll-reveal">
               {features.map((feature) => {
@@ -309,7 +328,11 @@ export default function LandingPage() {
         <section id="servicios" className="py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-14 scroll-reveal">
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">{t('servicesAvail.title')}</h2>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700 mb-3">
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
+                {t('servicesAvail.kicker')}
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{t('servicesAvail.title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
                 {t('servicesAvail.subtitle')}
               </p>
@@ -358,7 +381,11 @@ export default function LandingPage() {
         <section id="medicos" className="py-16 md:py-20 bg-gradient-to-br from-primary to-indigo-700 text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center scroll-reveal">
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-5">{t('forDoctors.title')}</h2>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 mb-3">
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-emerald-300" />
+                {t('forDoctors.kicker')}
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-5 text-balance">{t('forDoctors.title')}</h2>
               <p className="text-base md:text-lg opacity-90 mb-10 max-w-2xl mx-auto">
                 {t('forDoctors.subtitle')}
               </p>
@@ -393,7 +420,11 @@ export default function LandingPage() {
         <section id="faq" className="py-16 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4 max-w-3xl">
             <div className="text-center mb-10 scroll-reveal">
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">{tFaq('title')}</h2>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary mb-3">
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-primary" />
+                {tFaq('kicker')}
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{tFaq('title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground">{tFaq('subtitle')}</p>
             </div>
             <div className="space-y-3 scroll-reveal">
@@ -418,9 +449,39 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              CTA FINAL
            ═══════════════════════════════════════════════════════ */}
-        <section className="py-16 md:py-20 bg-background">
-          <div className="container mx-auto px-4 text-center scroll-reveal">
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-5">
+        <section className="relative overflow-hidden py-16 md:py-20 text-white">
+          {/* Dark navy → primary gradient */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10"
+            style={{
+              background:
+                'linear-gradient(160deg, #0B1F3F 0%, #1E3A8A 60%, #3B82F6 140%)',
+            }}
+          />
+          {/* Decorative orbs (amber top-right, blue bottom-left) */}
+          <div
+            aria-hidden="true"
+            className="absolute -top-20 -right-20 h-[260px] w-[260px] rounded-full -z-10"
+            style={{
+              background:
+                'radial-gradient(circle, rgba(245,158,11,0.35), transparent 70%)',
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-24 -left-16 h-[240px] w-[240px] rounded-full -z-10"
+            style={{
+              background:
+                'radial-gradient(circle, rgba(59,130,246,0.6), transparent 70%)',
+            }}
+          />
+
+          <div className="relative container mx-auto px-4 text-center scroll-reveal max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-200 mb-3">
+              {t('cta.kicker')}
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-balance leading-tight">
               {t('cta.title').split('\n').map((line, i, arr) => (
                 <span key={i}>
                   {line}
@@ -428,19 +489,37 @@ export default function LandingPage() {
                 </span>
               ))}
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+            <p className="text-base md:text-lg text-blue-100/80 mb-8">
               {t('cta.subtitle')}
             </p>
-            <Link href={`/${locale}/patient/request`}>
-              <Button size="xl" className="btn-lift shadow-cta gap-2 rounded-button">
+
+            <Link href={`/${locale}/patient/request`} className="inline-block w-full sm:w-auto">
+              <Button
+                size="xl"
+                className="btn-lift w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-50 shadow-[0_10px_30px_rgba(0,0,0,0.25)] gap-2 rounded-button"
+              >
                 {t('hero.ctaPrimary')}
                 <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </Button>
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+            <p className="mt-4 text-sm text-blue-100/80 inline-flex items-center gap-1.5 justify-center">
+              <CheckCircle2 className="h-4 w-4 text-emerald-300" aria-hidden="true" />
               {t('cta.trust')}
             </p>
+
+            {/* Divider + phone fallback (matches prototype "or call us") */}
+            <div className="flex items-center gap-3 my-6">
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-xs text-blue-100/70 uppercase tracking-wider">{t('cta.or')}</span>
+              <div className="flex-1 h-px bg-white/15" />
+            </div>
+            <a
+              href="tel:+34871183415"
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px] px-5 py-3 rounded-[14px] border border-white/15 bg-white/10 backdrop-blur text-white font-semibold hover:bg-white/15 transition-colors"
+            >
+              <PhoneCall className="h-4 w-4" aria-hidden="true" />
+              +34 871 18 34 15
+            </a>
           </div>
         </section>
       </main>
