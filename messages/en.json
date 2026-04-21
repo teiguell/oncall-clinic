@@ -282,7 +282,25 @@
       "seeAll": "See all",
       "bookNow": "Book now",
       "chatWithDoctor": "Chat with your doctor",
-      "unreadMessages": "{count} unread messages"
+      "unreadMessages": "{count} unread messages",
+      "estimatedArrival": "Estimated arrival time",
+      "trackDoctor": "Track doctor",
+      "newConsult": "New consult",
+      "profile": "My profile",
+      "invoices": "Invoices",
+      "pastConsultations": "Past consultations"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "accepted": "Accepted",
+      "doctor_assigned": "Doctor assigned",
+      "doctor_en_route": "Doctor en route",
+      "en_route": "En route",
+      "arrived": "Arrived",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
     "request": {
       "title": "Book a doctor",
@@ -820,7 +838,18 @@
     "request_now": "Request a doctor now",
     "confirm_pay": "Confirm and pay",
     "characters": "characters",
-    "phoneFormatHelp": "International format, e.g. +34 600 000 000"
+    "phoneFormatHelp": "International format, e.g. +34 600 000 000",
+    "orderSummary": "ORDER SUMMARY",
+    "consultation": "Medical consultation",
+    "displacement": "Travel fee",
+    "included": "Included",
+    "total": "Total",
+    "confirmAndPay": "Confirm and pay",
+    "signInToConfirm": "Sign in to confirm",
+    "infoSecure": "Your information is secure",
+    "signIn": "Sign in",
+    "confirmed": "Confirmed",
+    "doctorOnWay": "Doctor is on the way"
   },
   "doctorCard": {
     "verified_comib": "Licence verified",

@@ -26,6 +26,7 @@ export default function BookingSuccessPage() {
 
 function BookingSuccessContent() {
   const t = useTranslations('patient.bookingSuccess')
+  const tBooking = useTranslations('booking2')
   const locale = useLocale()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -147,6 +148,28 @@ function BookingSuccessContent() {
               {isTestMode ? t('testMode') : t('title')}
             </h1>
             <p className="text-gray-600 mb-6">{t('redirecting')}</p>
+
+            {/* ITEM 15: Premium ETA card with progress dots (prototype §success) */}
+            <div className="bg-white rounded-2xl border border-border p-4 mt-2 mb-6 w-full max-w-sm mx-auto text-left">
+              {/* Progress dots: 2/5 filled while doctor search proceeds */}
+              <div className="flex gap-1.5 mb-3" aria-hidden="true">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div
+                    key={i}
+                    className={`h-1 flex-1 rounded-full ${i <= 2 ? 'bg-emerald-500' : 'bg-border'}`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-[#047857] px-2.5 py-1.5 rounded-full">
+                  <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" aria-hidden="true" />
+                  <span className="text-[11px] font-semibold">{tBooking('confirmed')}</span>
+                </div>
+              </div>
+              <p className="text-[22px] font-bold tracking-[-0.4px] text-foreground">~12 min</p>
+              <p className="text-[13px] text-muted-foreground mt-0.5">{tBooking('doctorOnWay')}</p>
+            </div>
+
             {consultationId && (
               <Link href={`/${locale}/patient/tracking/${consultationId}`}>
                 <Button>{t('redirecting')}</Button>

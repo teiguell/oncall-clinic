@@ -282,7 +282,25 @@
       "seeAll": "Ver todo",
       "bookNow": "Pedir médico",
       "chatWithDoctor": "Chat con tu médico",
-      "unreadMessages": "{count} mensajes sin leer"
+      "unreadMessages": "{count} mensajes sin leer",
+      "estimatedArrival": "Tiempo estimado de llegada",
+      "trackDoctor": "Seguir al médico",
+      "newConsult": "Nueva consulta",
+      "profile": "Mi perfil",
+      "invoices": "Facturas",
+      "pastConsultations": "Consultas anteriores"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "confirmed": "Confirmada",
+      "accepted": "Aceptada",
+      "doctor_assigned": "Médico asignado",
+      "doctor_en_route": "Médico en camino",
+      "en_route": "En camino",
+      "arrived": "Ha llegado",
+      "in_progress": "En curso",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
     },
     "request": {
       "title": "Pedir médico",
@@ -820,7 +838,18 @@
     "request_now": "Solicitar médico ahora",
     "confirm_pay": "Confirmar y pagar",
     "characters": "caracteres",
-    "phoneFormatHelp": "Formato internacional, p.ej. +34 600 000 000"
+    "phoneFormatHelp": "Formato internacional, p.ej. +34 600 000 000",
+    "orderSummary": "RESUMEN DEL PEDIDO",
+    "consultation": "Consulta médica",
+    "displacement": "Desplazamiento",
+    "included": "Incluido",
+    "total": "Total",
+    "confirmAndPay": "Confirmar y pagar",
+    "signInToConfirm": "Inicia sesión para confirmar",
+    "infoSecure": "Tu información está segura",
+    "signIn": "Iniciar sesión",
+    "confirmed": "Confirmada",
+    "doctorOnWay": "El médico está en camino"
   },
   "doctorCard": {
     "verified_comib": "Colegiado verificado",

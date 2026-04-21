@@ -199,13 +199,19 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
   const etaFromDistance = (km?: number) =>
     typeof km === 'number' ? Math.max(5, Math.round((10 + km * 1.5) / 5) * 5) : null
 
+  // Ibiza local hour window for night pricing (22:00–07:59)
+  const isNightHour = (() => {
+    const h = new Date().getHours()
+    return h >= 22 || h < 8
+  })()
+
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground text-center">
         {t('found', { count: doctors.length })}
       </p>
 
-      {/* Filter rail — horizontal scroll chips */}
+      {/* Filter rail — horizontal scroll chips (prototype §step2) */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
         {filters.map(f => {
           const active = filter === f.key
@@ -215,10 +221,10 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
               type="button"
               onClick={() => setFilter(f.key)}
               className={cn(
-                'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap min-h-[32px]',
+                'shrink-0 px-5 py-1.5 rounded-full text-[13px] font-medium transition-colors whitespace-nowrap min-h-[32px]',
                 active
-                  ? 'bg-primary text-primary-foreground border border-primary'
-                  : 'bg-card text-muted-foreground border border-border hover:border-primary/40',
+                  ? 'bg-primary text-white border border-primary'
+                  : 'bg-white text-muted-foreground border border-border hover:border-primary/40',
               )}
               aria-pressed={active}
             >
@@ -232,12 +238,21 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
         const isSelected = selectedDoctorId === d.id
         const initials = d.full_name.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase()
         const eta = etaFromDistance(d.distance_km)
+        // Night price support (ITEM 13): if current Ibiza hour is in night
+        // window (22:00–07:59) and doctor has night_price, use it.
+        const dAny = d as unknown as { night_price?: number | null }
+        const displayPriceCents = isNightHour && typeof dAny.night_price === 'number'
+          ? dAny.night_price
+          : d.consultation_price
+        // We store whatever price the doctor will actually be charged so the
+        // booking store stays consistent with the render (step 2 summary + step 3 order).
+        const storedPriceCents = displayPriceCents
         return (
           <button
             key={d.id}
             type="button"
             onClick={() => {
-              setSelectedDoctor(d.id, d.full_name, d.consultation_price, d.specialty)
+              setSelectedDoctor(d.id, d.full_name, storedPriceCents, d.specialty)
               onSelect?.(d)
             }}
             className={cn(
@@ -249,7 +264,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
             aria-pressed={isSelected}
           >
             <div className="flex items-start gap-3.5">
-              {/* Avatar with verified check badge (bottom-right corner) */}
+              {/* Avatar 54px with verified badge (prototype §step2) */}
               <div className="relative flex-shrink-0">
                 <div className="h-[54px] w-[54px] rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary-foreground font-display font-semibold text-base flex items-center justify-center">
                   <span className="text-primary">{initials}</span>
@@ -265,36 +280,44 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="font-display font-semibold text-[15px] tracking-tight truncate">
+                    {/* Nombre: 15px / 600 / -0.2px */}
+                    <p className="font-semibold text-[15px] tracking-[-0.2px] truncate">
                       {d.full_name}
                     </p>
+                    {/* Especialidad: 12.5px */}
                     <p className="text-[12.5px] text-muted-foreground mt-0.5 truncate leading-snug">
                       {d.specialty?.replace('_', ' ')}{d.city ? ` · ${d.city}` : ''}
                     </p>
                   </div>
-                  {typeof d.consultation_price === 'number' && (
+                  {typeof displayPriceCents === 'number' && (
                     <div className="text-right flex-shrink-0">
-                      <div className="font-display font-bold text-[15px] tracking-tight">
-                        €{(d.consultation_price / 100).toFixed(0)}
+                      {/* Precio: 15px / 700 / -0.2px */}
+                      <div className="font-bold text-[15px] tracking-[-0.2px]">
+                        €{(displayPriceCents / 100).toFixed(0)}
                       </div>
+                      {isNightHour && typeof dAny.night_price === 'number' && (
+                        <div className="text-[9.5px] font-semibold text-amber-600 tracking-wide uppercase mt-0.5">
+                          Noche
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
 
-                <div className="mt-2 flex items-center gap-2.5 text-xs">
+                <div className="mt-2 flex items-center gap-2.5">
                   {typeof d.rating === 'number' && d.rating > 0 && (
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1 text-[12px]">
                       <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
                       <span className="font-semibold text-foreground">{d.rating.toFixed(1)}</span>
                       {typeof d.total_reviews === 'number' && (
-                        <span className="text-muted-foreground/70">({d.total_reviews})</span>
+                        <span className="text-muted-foreground/70 font-normal">({d.total_reviews})</span>
                       )}
                     </span>
                   )}
                   {eta !== null && (
                     <>
                       <span className="text-muted-foreground/50" aria-hidden="true">·</span>
-                      <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                      <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-600">
                         <Clock className="h-3 w-3" aria-hidden="true" />
                         ~{eta} min
                       </span>
@@ -302,28 +325,32 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
                   )}
                 </div>
 
-                {/* Language badges (pill format) */}
+                {/* Language badges — prototype tokens */}
                 <div className="mt-2 flex gap-1">
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10.5px] font-semibold bg-muted text-muted-foreground tracking-wide">
+                  <span className="inline-flex items-center bg-[#F1F5F9] text-[10.5px] font-semibold text-[#475569] tracking-[0.3px] px-[7px] py-[3px] rounded-[6px]">
                     ES
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10.5px] font-semibold bg-muted text-muted-foreground tracking-wide">
+                  <span className="inline-flex items-center bg-[#F1F5F9] text-[10.5px] font-semibold text-[#475569] tracking-[0.3px] px-[7px] py-[3px] rounded-[6px]">
                     EN
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Expanding "Selected" confirmation */}
+            {/* 2C: Expanding mini confirmation bar when selected */}
             <div
               className={cn(
                 'overflow-hidden transition-[max-height,opacity,margin] duration-200',
-                isSelected ? 'max-h-[44px] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0',
+                isSelected ? 'max-h-[48px] opacity-100 mt-2.5' : 'max-h-0 opacity-0 mt-0',
               )}
             >
-              <div className="px-3 py-2.5 rounded-lg bg-primary/10 text-primary text-xs font-medium inline-flex items-center gap-2">
-                <Check className="h-3.5 w-3.5" aria-hidden="true" strokeWidth={2.5} />
-                {t('selected')}
+              <div className="bg-primary/5 rounded-[10px] px-3 py-2.5 flex items-center gap-2">
+                <div className="h-5 w-5 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                  <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                </div>
+                <span className="text-[12.5px] font-medium text-primary">
+                  {t('selected')}
+                </span>
               </div>
             </div>
           </button>

@@ -297,7 +297,7 @@ function RequestConsultationPage() {
                   {t('request.availabilityEyebrow')}
                 </span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">{t('request.whatType')}</h2>
+              <h2 className="text-[26px] font-bold tracking-[-0.7px] text-foreground leading-tight">{t('request.whatType')}</h2>
               <p className="text-gray-500 text-sm mt-2">{t('request.whatTypeDesc')}</p>
             </div>
 
@@ -381,7 +381,7 @@ function RequestConsultationPage() {
         {step === 1 && (
           <div>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{t('request.chooseDoctor')}</h2>
+              <h2 className="text-[26px] font-bold tracking-[-0.7px] text-foreground leading-tight">{t('request.chooseDoctor')}</h2>
               <p className="text-muted-foreground text-sm mt-1">
                 {locale === 'en'
                   ? 'Pick the doctor you prefer. You see their price and ETA upfront.'
@@ -412,50 +412,72 @@ function RequestConsultationPage() {
         {step === 2 && (
           <form onSubmit={(e) => { e.preventDefault(); nextStep() }} className="space-y-5">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{t('request.whereAndWhat')}</h2>
+              <h2 className="text-[26px] font-bold tracking-[-0.7px] text-foreground leading-tight">{t('request.whereAndWhat')}</h2>
             </div>
 
-            {/* Live summary — doctor chosen in step 1, price locked */}
+            {/* Live summary — doctor chosen in step 1 (prototype §step3 summary) */}
             {selectedDoctorId && (
-              <div className="bg-card rounded-card border border-border p-3.5 flex items-center gap-3">
-                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary font-semibold flex items-center justify-center text-sm">
-                  {selectedDoctorName?.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || '—'}
+              <div className="bg-white rounded-[14px] border border-border p-3.5 flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary font-semibold text-[11px]">
+                    {selectedDoctorName?.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || '—'}
+                  </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
+                  <p className="text-[10px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
                     {t('request.doctorLocked')}
                   </p>
-                  <p className="font-semibold text-sm truncate leading-tight mt-0.5">
+                  <p className="font-semibold text-[13px] truncate leading-tight mt-0.5">
                     {selectedDoctorName}
                   </p>
-                  {selectedDoctorSpecialty && (
-                    <p className="text-xs text-muted-foreground truncate">
-                      {selectedDoctorSpecialty.replace('_', ' ')}
-                    </p>
-                  )}
+                  <p className="text-[11.5px] text-muted-foreground truncate">
+                    {selectedDoctorSpecialty ? selectedDoctorSpecialty.replace('_', ' ') : '—'} · ~12 min
+                  </p>
                 </div>
                 {priceEuros !== null && (
                   <div className="text-right">
-                    <p className="font-display font-bold text-base">€{priceEuros}</p>
+                    <p className="text-[15px] font-bold tracking-[-0.2px]">€{priceEuros}</p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Decorative Ibiza map placeholder — same as step 3 prototype */}
+            {/* Premium map placeholder — grid + stylized coastlines + glowing pin
+                 Prototype: step3.jsx §MapPreview */}
             <div
-              className="relative h-24 rounded-xl border border-border overflow-hidden"
+              className="relative h-[130px] rounded-[14px] overflow-hidden border border-border"
               aria-hidden="true"
-              style={{
-                background: 'linear-gradient(135deg, #E8F0FB 0%, #DDE8F5 100%)',
-              }}
+              style={{ background: 'linear-gradient(135deg, #E8F0FB, #DDE8F5)' }}
             >
-              <div className="absolute inset-0 flex items-center justify-center">
+              {/* Grid pattern (mapa estilo satelital) */}
+              <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.5 }}>
+                <defs>
+                  <pattern id="mapGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+                    <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#CBD6E5" strokeWidth="0.5" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#mapGrid)" />
+              </svg>
+              {/* Stylized coastlines + roads */}
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 80 Q75 60 150 75 T300 65" stroke="white" strokeWidth="2" opacity="0.6" />
+                <path d="M0 100 Q100 85 200 95 T300 90" stroke="white" strokeWidth="1.5" opacity="0.4" />
+                <path d="M50 0 Q55 40 70 130" stroke="white" strokeWidth="1" opacity="0.3" />
+                <path d="M200 0 Q190 50 210 130" stroke="white" strokeWidth="1" opacity="0.3" />
+              </svg>
+              {/* Pin with glow + ping */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="relative">
-                  <div className="h-9 w-9 rounded-full bg-primary border-[3px] border-white shadow-lg flex items-center justify-center">
+                  <div
+                    className="h-9 w-9 bg-primary rounded-full border-[3px] border-white flex items-center justify-center relative z-10"
+                    style={{ boxShadow: '0 6px 16px rgba(59,130,246,0.4)' }}
+                  >
                     <MapPin className="h-4 w-4 text-white" />
                   </div>
-                  <div className="absolute -inset-2 rounded-full bg-primary/20 animate-pulse" />
+                  <div
+                    className="absolute inset-0 rounded-full bg-primary/20 animate-ping"
+                    style={{ animationDuration: '2s' }}
+                  />
                 </div>
               </div>
               <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-white/85 text-[11px] font-medium text-muted-foreground">
@@ -556,10 +578,10 @@ function RequestConsultationPage() {
                             type="button"
                             onClick={() => toggleChip(label)}
                             aria-pressed={active}
-                            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                            className={`inline-flex items-center gap-1 px-3 py-[7px] rounded-full text-[12.5px] font-medium border transition-all duration-[160ms] ${
                               active
-                                ? 'bg-primary/10 text-primary border-primary'
-                                : 'bg-card text-muted-foreground border-border hover:border-primary/40'
+                                ? 'bg-primary/5 border-primary text-primary'
+                                : 'bg-white border-border text-muted-foreground hover:border-primary/40'
                             }`}
                           >
                             {active && <CheckCircle className="h-3 w-3" aria-hidden="true" />}
@@ -592,30 +614,37 @@ function RequestConsultationPage() {
         {step === 3 && (
           <div className="space-y-5">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{t('request.confirm')}</h2>
+              <h2 className="text-[26px] font-bold tracking-[-0.7px] text-foreground leading-tight">{t('request.confirm')}</h2>
               <p className="text-muted-foreground text-sm mt-1">{t('request.confirmDesc')}</p>
             </div>
 
-            {/* ─── AUTH INLINE (no redirect; preserves booking progress) ─── */}
+            {/* ─── AUTH INLINE — polished card (prototype §step4 auth) ─── */}
             {!authChecking && !authUser && (
-              <div className="rounded-card border border-primary/30 bg-primary/5 p-5">
-                <h3 className="font-display font-semibold text-[15.5px] tracking-tight">
-                  {t('request.authTitle')}
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1 mb-4">
-                  {t('request.authSubtitle')}
-                </p>
+              <div className="bg-primary/5 rounded-2xl p-5 border border-primary/10">
+                <div className="text-center mb-4">
+                  <div className="h-12 w-12 bg-primary/10 rounded-2xl mx-auto flex items-center justify-center mb-3">
+                    <Lock className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="text-[18px] font-bold tracking-[-0.3px]">
+                    {tBooking('signInToConfirm')}
+                  </h3>
+                  <p className="text-[13px] text-muted-foreground mt-1">
+                    {tBooking('infoSecure')}
+                  </p>
+                </div>
 
                 <div className="space-y-3">
                   {isRegistering && (
                     <>
                       <Input
+                        className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
                         type="text"
                         placeholder={t('request.authName')}
                         value={authName}
                         onChange={e => setAuthName(e.target.value)}
                       />
                       <Input
+                        className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
                         type="tel"
                         placeholder={t('request.authPhone')}
                         value={authPhone}
@@ -624,12 +653,14 @@ function RequestConsultationPage() {
                     </>
                   )}
                   <Input
+                    className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
                     type="email"
                     placeholder={t('request.authEmail')}
                     value={authEmail}
                     onChange={e => setAuthEmail(e.target.value)}
                   />
                   <Input
+                    className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
                     type="password"
                     placeholder={t('request.authPassword')}
                     value={authPassword}
@@ -637,13 +668,12 @@ function RequestConsultationPage() {
                   />
                   <Button
                     type="button"
-                    className="w-full"
-                    size="lg"
+                    className="w-full h-12 text-[15px] font-semibold"
                     onClick={isRegistering ? handleAuthRegister : handleAuthLogin}
                     loading={authLoading}
                     disabled={!authEmail || !authPassword || (isRegistering && !authName)}
                   >
-                    {isRegistering ? t('request.authRegister') : t('request.authLogin')}
+                    {isRegistering ? t('request.authRegister') : tBooking('signIn')}
                   </Button>
 
                   <div className="text-xs text-center text-muted-foreground">
@@ -678,81 +708,65 @@ function RequestConsultationPage() {
             {/* ─── ORDER SUMMARY + PAY (shown once authenticated) ─── */}
             {!authChecking && authUser && (
               <>
-                <Card className="border border-border/60 shadow-md">
-                  <CardContent className="p-5 space-y-4">
-                    <p className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
-                      {t('request.orderSummary')}
-                    </p>
-
-                    {/* Doctor */}
-                    <div className="flex items-center gap-3 pb-3 border-b">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary font-semibold flex items-center justify-center">
+                {/* ITEM 5: Premium order summary (prototype §step4) */}
+                <div className="bg-white rounded-2xl border border-border p-4">
+                  <p className="text-[11px] font-semibold tracking-[1.4px] uppercase text-muted-foreground mb-3">
+                    {tBooking('orderSummary')}
+                  </p>
+                  <div className="flex items-center gap-3 pb-3 border-b border-border">
+                    <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary font-semibold text-xs">
                         {selectedDoctorName?.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || '—'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{selectedDoctorName}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Badge variant={type === 'urgent' ? 'destructive' : 'success'}>
-                            {type === 'urgent' ? t('request.urgentBadge') : t('request.scheduledBadge')}
-                          </Badge>
-                          {selectedDoctorSpecialty && (
-                            <span className="text-xs text-muted-foreground truncate">
-                              {selectedDoctorSpecialty.replace('_', ' ')}
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                      </span>
                     </div>
-
-                    {/* Address (read-only echo from step 2) */}
-                    <div className="text-xs">
-                      <p className="text-muted-foreground mb-0.5">{t('request.address')}</p>
-                      <p className="text-foreground leading-relaxed">{watch('address') || '—'}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-semibold truncate">{selectedDoctorName}</p>
+                      <p className="text-[12px] text-muted-foreground truncate">
+                        {type === 'urgent' ? t('request.urgentBadge') : t('request.scheduledBadge')}
+                        {selectedDoctorSpecialty && ` · ${selectedDoctorSpecialty.replace('_', ' ')}`}
+                      </p>
                     </div>
-
-                    {/* Price breakdown — single line, transparent */}
-                    <div className="space-y-1.5 pt-3 border-t text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t('request.consultationLabel')}</span>
-                        <span className="font-medium">
-                          {priceEuros !== null ? `€${priceEuros}` : '—'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">{t('request.travelIncluded')}</span>
-                        <span className="text-emerald-600 font-medium inline-flex items-center gap-1">
-                          <CheckCircle className="h-3 w-3" />
-                          {tCommon('yes')}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between pt-2 border-t">
-                      <span className="font-display font-semibold">{t('request.totalLabel')}</span>
-                      <span className="font-display font-bold text-lg">
+                  </div>
+                  <div className="py-3 space-y-2.5">
+                    <div className="flex justify-between">
+                      <span className="text-[13.5px] text-muted-foreground">{tBooking('consultation')}</span>
+                      <span className="text-[13.5px] font-medium">
                         {priceEuros !== null ? `€${priceEuros}` : '—'}
                       </span>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex justify-between">
+                      <span className="text-[13.5px] text-muted-foreground">{tBooking('displacement')}</span>
+                      <span className="text-[13.5px] font-medium text-emerald-600">
+                        {tBooking('included')} ✓
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex justify-between pt-3">
+                    <span className="text-[13.5px] font-semibold">{tBooking('total')}</span>
+                    <span className="text-[18px] font-bold tracking-[-0.3px]">
+                      {priceEuros !== null ? `€${priceEuros}` : '—'}
+                    </span>
+                  </div>
+                </div>
 
-                {/* Trust badges — SSL, Stripe, RGPD, Colegiados */}
-                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1.5 py-1.5">
-                    <Lock className="h-3.5 w-3.5 text-emerald-600" />
-                    SSL
-                  </div>
-                  <div className="flex items-center gap-1.5 py-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                    Stripe
-                  </div>
-                  <div className="flex items-center gap-1.5 py-1.5">
-                    <Award className="h-3.5 w-3.5 text-emerald-600" />
-                    RGPD
-                  </div>
-                  <div className="flex items-center gap-1.5 py-1.5">
-                    <Stethoscope className="h-3.5 w-3.5 text-emerald-600" />
-                    {tTrust('comibShort')}
-                  </div>
+                {/* ITEM 6: Trust badges premium — 4 columnas con icon box */}
+                <div className="grid grid-cols-4 gap-2 mt-4">
+                  {[
+                    { icon: Lock,         label: 'SSL' },
+                    { icon: ShieldCheck,  label: 'Stripe' },
+                    { icon: Award,        label: 'RGPD' },
+                    { icon: Stethoscope,  label: tTrust('comibShort') },
+                  ].map(({ icon: Icon, label }) => (
+                    <div key={label} className="flex flex-col items-center gap-1 py-2">
+                      <div className="h-8 w-8 rounded-lg bg-gray-50 flex items-center justify-center">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground font-medium text-center leading-tight">
+                        {label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Terms checkbox (mandatory) */}
@@ -778,19 +792,22 @@ function RequestConsultationPage() {
                 {/* FAQ compact */}
                 <BookingFaq />
 
-                {/* Sticky CTA on mobile, inline on desktop */}
+                {/* ITEM 7: Green pay button 54px — emerald palette prototype */}
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="sticky bottom-0 -mx-4 md:mx-0 px-4 md:px-0 py-3 md:py-0 bg-background/95 backdrop-blur-sm border-t md:static md:bg-transparent md:border-0 z-10">
                     <Button
                       type="submit"
-                      className="w-full"
-                      size="xl"
-                      loading={loading}
-                      disabled={!termsAccepted || !selectedDoctorId}
+                      className="w-full h-[54px] text-[15px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25"
+                      disabled={!termsAccepted || !selectedDoctorId || loading}
                     >
+                      {loading ? (
+                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                      ) : (
+                        <Lock className="h-4 w-4 mr-2" />
+                      )}
                       {priceEuros !== null
-                        ? `${t('request.payNow')} · €${priceEuros}`
-                        : t('request.payNow')}
+                        ? `${tBooking('confirmAndPay')} · €${priceEuros}`
+                        : tBooking('confirmAndPay')}
                     </Button>
                   </div>
                 </form>

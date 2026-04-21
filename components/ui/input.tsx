@@ -30,8 +30,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             name={name}
             type={type}
             className={cn(
-              // text-base (16px) on mobile avoids iOS auto-zoom; md:text-sm for desktop density.
-              "flex h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-base md:text-sm ring-offset-background transition-colors",
+              // text-base (16px) on mobile avoids iOS auto-zoom; md:text-[14px] for desktop density.
+              // Prototype tokens: h-12, rounded-xl, border-[1.5px], px-3.5, text-[14px]
+              "flex h-12 w-full rounded-xl border-[1.5px] border-input bg-background px-3.5 py-2 text-base md:text-[14px] ring-offset-background transition-colors focus:border-primary",
               "file:border-0 file:bg-transparent file:text-sm file:font-medium",
               "placeholder:text-muted-foreground",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

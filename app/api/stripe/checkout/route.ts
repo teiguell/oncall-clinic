@@ -31,19 +31,32 @@ export async function POST(request: Request) {
   if (!service.active) return NextResponse.json({ error: 'Servicio próximamente disponible' }, { status: 400 })
 
   // Price model: the doctor sets the price (Ley 15/2007 Defensa Competencia;
-  // STS 805/2020 Glovo). If the patient picked a specific doctor, query their
-  // `consultation_price` (in cents) from `doctor_profiles`. Fallback to the
-  // service base price only if no doctor was chosen (should not happen in the
-  // new doctor-first flow, but kept for safety).
+  // STS 805/2020 Glovo). If the patient picked a specific doctor, query
+  // `consultation_price` + optional `night_price` from `doctor_profiles`.
+  // Ibiza night window: 22:00–07:59 local time → use night_price if set.
   let priceCents = Math.round(service.basePrice * 100)
   if (preferredDoctorId) {
     const { data: doctor } = await supabase
       .from('doctor_profiles')
-      .select('consultation_price')
+      .select('consultation_price, night_price')
       .eq('id', preferredDoctorId)
       .maybeSingle()
     if (doctor?.consultation_price && typeof doctor.consultation_price === 'number') {
       priceCents = doctor.consultation_price
+      // Switch to night_price between 22:00 and 07:59 Europe/Madrid
+      const ibizaHour = new Date().toLocaleString('en-US', {
+        timeZone: 'Europe/Madrid',
+        hour: 'numeric',
+        hour12: false,
+      })
+      const hour = parseInt(ibizaHour)
+      const dAny = doctor as unknown as { night_price?: number | null }
+      if (
+        typeof dAny.night_price === 'number' &&
+        (hour >= 22 || hour < 8)
+      ) {
+        priceCents = dAny.night_price
+      }
     }
   }
 

@@ -149,9 +149,12 @@ export default function LandingPage() {
           />
 
           <div className="relative container mx-auto px-4 text-center">
-            {/* IBIZA · BALEARES eyebrow — tracked, uppercase, green pulse dot */}
+            {/* IBIZA · BALEARES eyebrow — prototype tokens: 11px 600 0.12em */}
             <div className="flex items-center justify-center gap-2 mb-5 animate-fade-in-up">
-              <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">
+              <span
+                className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] uppercase px-2.5 py-1.5 rounded-full"
+                style={{ background: 'rgba(59,130,246,0.08)', color: '#3B82F6' }}
+              >
                 <span
                   aria-hidden="true"
                   className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot"
@@ -172,17 +175,20 @@ export default function LandingPage() {
               </span>
             </div>
 
-            {/* H1 — 40px mobile, 48px+ desktop, tight tracking, solid slate
-                 with gradient reserved for the second line only (prototype §hero.title). */}
-            <h1 className="font-display text-[40px] sm:text-5xl md:text-5xl lg:text-6xl font-bold tracking-[-0.035em] leading-[1.05] mb-6 animate-fade-in-up text-[#0B1220]">
+            {/* H1 — 46px mobile, 56px desktop, weight 680, tracking -0.035em
+                 (prototype §hero: fontWeight 680, line-height 1.03). */}
+            <h1
+              className="font-display text-[46px] md:text-[56px] leading-[1.03] tracking-[-0.035em] mb-6 animate-fade-in-up text-[#0B1220]"
+              style={{ fontWeight: 680 }}
+            >
               {heroTitleParts[0]}
               <span className="block bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                 {heroTitleParts[1]}
               </span>
             </h1>
 
-            {/* Subtitle using theme muted-foreground */}
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in-up">
+            {/* Subtitle — 17px / 1.45 / #475569 (prototype §hero.sub) */}
+            <p className="text-[17px] leading-[1.45] text-[#475569] mb-8 max-w-md mx-auto animate-fade-in-up">
               {t('hero.subtitle')}
             </p>
 
@@ -237,7 +243,7 @@ export default function LandingPage() {
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-primary" />
                 {t('howItWorks.kicker')}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{t('howItWorks.title')}</h2>
+              <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] mb-3 text-balance">{t('howItWorks.title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
                 {t('howItWorks.subtitle')}
               </p>
@@ -250,7 +256,13 @@ export default function LandingPage() {
               ].map((item) => {
                 const Icon = item.icon
                 return (
-                  <div key={item.n} className="relative bg-card rounded-card p-6 md:p-7 shadow-card border border-border/60 overflow-hidden">
+                  <div
+                    key={item.n}
+                    className="relative bg-white rounded-[16px] p-5 md:p-6 border border-[#EEF1F5] overflow-hidden"
+                    style={{
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.02), 0 8px 24px rgba(15,23,42,0.04)',
+                    }}
+                  >
                     {/* Big decorative "01/02/03" numeral — prototype §how */}
                     <span
                       aria-hidden="true"
@@ -258,14 +270,20 @@ export default function LandingPage() {
                     >
                       {item.n}
                     </span>
-                    <div className="relative h-[52px] w-[52px] rounded-[14px] bg-gradient-to-br from-blue-50 to-blue-100 text-primary flex items-center justify-center mb-4">
+                    {/* Icon box 52px with soft-blue gradient per prototype */}
+                    <div
+                      className="relative h-[52px] w-[52px] rounded-[14px] flex items-center justify-center mb-4 text-[#2563EB]"
+                      style={{ background: 'linear-gradient(135deg, #EFF5FF, #DCEAFC)' }}
+                    >
                       <Icon className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <div className="relative text-[11px] font-semibold tracking-[0.12em] text-muted-foreground/80 uppercase mb-1">
+                    <div className="relative text-[11px] font-semibold tracking-[0.12em] text-[#94A3B8] uppercase mb-1">
                       {item.n}
                     </div>
-                    <h3 className="relative font-display text-lg font-semibold mb-2 tracking-tight">{item.title}</h3>
-                    <p className="relative text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <h3 className="relative font-display text-[17px] font-semibold mb-2 tracking-[-0.01em] text-[#0B1220]">
+                      {item.title}
+                    </h3>
+                    <p className="relative text-[14px] text-[#64748B] leading-[1.45]">{item.desc}</p>
                   </div>
                 )
               })}
@@ -288,7 +306,7 @@ export default function LandingPage() {
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
                 {t('features.kicker')}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-balance">{t('features.title')}</h2>
+              <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] text-balance">{t('features.title')}</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {features.map((feature) => {
@@ -319,7 +337,7 @@ export default function LandingPage() {
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
                 {t('servicesAvail.kicker')}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{t('servicesAvail.title')}</h2>
+              <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] mb-3 text-balance">{t('servicesAvail.title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
                 {t('servicesAvail.subtitle')}
               </p>
@@ -373,7 +391,7 @@ export default function LandingPage() {
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-emerald-600" />
                 {tDoctors('kicker')}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{tDoctors('title')}</h2>
+              <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] mb-3 text-balance">{tDoctors('title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
                 {tDoctors('subtitle')}
               </p>
@@ -455,7 +473,7 @@ export default function LandingPage() {
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-emerald-300" />
                 {t('forDoctors.kicker')}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-5 text-balance">{t('forDoctors.title')}</h2>
+              <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] mb-5 text-balance">{t('forDoctors.title')}</h2>
               <p className="text-base md:text-lg opacity-90 mb-10 max-w-2xl mx-auto">
                 {t('forDoctors.subtitle')}
               </p>
@@ -494,20 +512,27 @@ export default function LandingPage() {
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-primary" />
                 {tFaq('kicker')}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 text-balance">{tFaq('title')}</h2>
+              <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] mb-3 text-balance">{tFaq('title')}</h2>
               <p className="text-base md:text-lg text-muted-foreground">{tFaq('subtitle')}</p>
             </div>
             <div className="space-y-3">
               {([1, 2, 3, 4, 5, 6] as const).map((n) => (
                 <details
                   key={n}
-                  className="rounded-card border border-border/60 bg-card shadow-card overflow-hidden group"
+                  className="bg-white rounded-[14px] border border-border p-4 hover:border-primary/20 transition-colors group"
                 >
-                  <summary className="cursor-pointer list-none flex items-center justify-between gap-4 p-5 font-display font-semibold text-left hover:bg-muted/40">
-                    <span>{tFaq(`q${n}`)}</span>
-                    <span className="text-primary text-xl group-open:rotate-45 transition-transform" aria-hidden="true">+</span>
+                  <summary className="cursor-pointer list-none flex items-center justify-between gap-4 text-left [&::-webkit-details-marker]:hidden">
+                    <span className="text-[15px] font-semibold tracking-[-0.1px] text-foreground">
+                      {tFaq(`q${n}`)}
+                    </span>
+                    <span
+                      className="flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(15,23,42,0.04)] text-foreground text-lg leading-none group-open:rotate-45 transition-transform"
+                      aria-hidden="true"
+                    >
+                      +
+                    </span>
                   </summary>
-                  <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                  <div className="pt-3 text-[14px] text-[#6B7280] font-medium leading-[1.55]">
                     {tFaq(`a${n}`)}
                   </div>
                 </details>
@@ -551,7 +576,7 @@ export default function LandingPage() {
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-200 mb-3">
               {t('cta.kicker')}
             </span>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-balance leading-tight">
+            <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] mb-4 text-balance leading-tight">
               {t('cta.title').split('\n').map((line, i, arr) => (
                 <span key={i}>
                   {line}
