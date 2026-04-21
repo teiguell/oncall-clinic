@@ -237,7 +237,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
             key={d.id}
             type="button"
             onClick={() => {
-              setSelectedDoctor(d.id, d.full_name)
+              setSelectedDoctor(d.id, d.full_name, d.consultation_price, d.specialty)
               onSelect?.(d)
             }}
             className={cn(

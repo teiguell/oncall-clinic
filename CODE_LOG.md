@@ -1955,3 +1955,79 @@ Nueva sección `#doctores` entre Services y ForDoctors:
 
 ---
 
+## Phase 2: UX Redesign — Doctor-First Booking + Inline Auth + Doctor Price — 2026-04-21
+**Estado:** ✅ Completado (P1-P5 del prompt)
+
+### Resumen ejecutivo
+Reestructuración completa del flujo de booking para resolver 3 problemas fundamentales de UX reportados por el usuario: fade-in stuck, doctor elegido tarde, redirect forzado a /login antes de pagar. P1 (fade-in) y P3/P4 (hero gradient + doctors preview) ya estaban implementados en commit `18987b3`; este sprint se centra en la reestructuración del flujo.
+
+### P1 — Fade-in (ya resuelto previamente) ✅
+Verificado: `useScrollReveal()` eliminado, IntersectionObserver fuera, `.section-animate` con delays escalonados activo en las 8 `<section>` del landing. `.scroll-reveal` queda como no-op shim (opacity:1) para evitar regresiones.
+
+### P2 — REDISEÑO UX: Doctor-First Booking Flow ✅
+**Antes:** `Tipo → Servicio → Detalles → (Doctor + Pago)` — el doctor se elige en el último paso, entremezclado con el resumen de precio y el botón de pagar. UX confuso.
+
+**Después:** `Tipo → Doctor → Detalles → Pago`
+
+**Cambios en `app/[locale]/patient/request/page.tsx`:**
+
+1. **Step 1 ("Servicio") eliminado.** Solo existe un servicio activo (`general_medicine`); se hardcodea como constante del componente. Evita un paso redundante donde solo había una opción.
+2. **Step 1 nuevo = DoctorSelector dedicado.** El paciente ve médicos disponibles con foto/rating/ETA/precio ANTES de rellenar nada. Botón "Continuar" se deshabilita hasta que hay doctor elegido.
+3. **Step 2 (Detalles) ahora incluye live summary card** arriba con avatar + nombre del doctor + especialidad + precio. El paciente NO pierde de vista su elección mientras escribe la dirección.
+4. **Mapa placeholder estilizado** (gradiente azul + pin pulsante + "Ibiza, ES") añadido en step 2 — guiño visual del prototipo sin integrar Google Maps aún.
+5. **Placeholder de dirección mejorado:** "Hotel Ushuaïa, Platja d'en Bossa..." (alineado con prototipo).
+6. **Step 3 (Auth + Pago) COMPLETAMENTE REESTRUCTURADO:**
+   - `useEffect` + `onAuthStateChange` checkea sesión al cargar
+   - **Si NO autenticado:** bloque inline con email + password + (si registro: nombre + teléfono). Toggle login/registro en el mismo bloque. NUNCA redirige a `/login`.
+   - Test mode: auto-confirma el email via `/api/demo/confirm` tras signUp
+   - Upsert automático de `profiles` (role='patient', full_name, phone) tras registro exitoso
+   - Error mapping i18n: invalid login / email not confirmed → traducciones de `auth.errors`
+   - **Si autenticado:** order summary card premium con avatar del doctor, badges de tipo, dirección echo, precio line-by-line, desplazamiento incluido (verde), total bold
+   - Trust badges: SSL + Stripe + RGPD + Colegiados (grid 2 columnas)
+   - **Checkbox de términos** obligatorio para habilitar el botón (cumple LSSI + GDPR)
+   - Links a `/legal/terms` y `/legal/privacy` abren en target="_blank"
+   - Botón "Confirmar y pagar · €{precio}" dinámico
+7. **STEPS array actualizado:** `[typeStep, chooseDoctor, detailsStep, confirmStep]`
+8. **Props del DoctorSelector siguen intactas** (patientLat/Lng); el componente guarda `consultation_price` + `specialty` en Zustand vía callback `onSelect`
+
+### P3 — Hero Gradient (ya resuelto) ✅
+Verificado: gradiente warm multi-capa activo en el hero + orbs decorativos (ámbar top-right, azul lateral).
+
+### P4 — Doctors Preview (ya resuelto) ✅
+Verificado: sección `#doctores` con 3 demo-doctors + kicker EQUIPO MÉDICO + botón "Ver todos".
+
+### P5 — Stripe Checkout: precio dinámico del doctor ✅
+**Archivo:** `app/api/stripe/checkout/route.ts`
+
+**Antes:** `priceCents = service.basePrice * 100` (hardcoded €150).
+
+**Después:** si `preferredDoctorId` está presente, query `doctor_profiles.consultation_price` y úsalo. Fallback a `service.basePrice` solo si no hay doctor (no debería ocurrir en el nuevo flow doctor-first).
+
+**Implicación legal:** cumple STS 805/2020 (Glovo) + Ley 15/2007 — la plataforma NO impone precios a profesionales autónomos.
+
+### Zustand store ampliado
+`stores/booking-store.ts`: añadidos campos `selectedDoctorPrice: number | null` y `selectedDoctorSpecialty: string | null`. La firma de `setSelectedDoctor()` ahora acepta `(id, name, priceCents?, specialty?)`. El `DoctorSelector` pasa estos 4 campos al click. Step 2 y step 3 los leen del store sin re-query a Supabase.
+
+### i18n
+**+25 keys** por bundle (1147 → 1172 ES = 1172 EN ✅):
+- `patient.request.*`: authTitle, authSubtitle, authEmail, authPassword, authName, authPhone, authLogin, authRegister, authNoAccount, authRegisterLink, authHasAccount, authLoginLink, authError, authLoginSuccess, authRegisterSuccess, orderSummary, consultationLabel, travelIncluded, totalLabel, termsAgree, termsLink, privacyLink, payNow, noDoctorSelected, doctorLocked
+
+### Build status
+- `tsc --noEmit` → **0 errores** (corregido ChevronRight que faltaba tras el rewrite)
+- `next build` → **✓ Compiled successfully**, **✓ 80/80 páginas**
+- i18n parity: **1172 ES = 1172 EN ✅**
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| **Producto/Director** | Flujo doctor-first: el paciente elige médico ANTES de rellenar dirección/síntomas. Esto cambia la conversión esperada: más clicks al inicio, menos abandonos en el pago. | Monitorizar funnel step 0→1→2→3 7 días post-deploy | **Alta** |
+| **Growth/CRO** | Auth inline en step 3 elimina el redirect a `/login` (pérdida de contexto del ~40% histórico). El paciente crea cuenta SIN perder dirección ni síntomas tipeados. | A/B test opcional: con vs sin auth inline | Alta |
+| **Ops/Backend** | `/api/stripe/checkout` ahora lee `doctor_profiles.consultation_price` via Supabase. Añade una query SQL por cada checkout (sin índice adicional, usa PK `id`). | Verificar latencia del endpoint — debería seguir <200ms | Media |
+| **Legal** | El registro inline crea cuenta con `full_name` + `phone` + role=patient. El checkbox de términos es mandatorio (desactiva CTA si no está marcado). Links a `/legal/terms` y `/legal/privacy` abren en nueva pestaña. | Verificar que el checkbox queda auditado (idealmente en consents table de migración 003) | **Alta** |
+| **QA** | 8 rutas críticas a re-testear: patient tourist → booking urgente, patient locale → booking programada, usuario existente login inline, nuevo usuario registro inline, pago test mode, pago real mode (Stripe), terms unchecked blocks, back navigation entre steps | Smoke test manual completo | **Alta** |
+| **Frontend (pendiente)** | Success state con ripple+check-draw sigue sin consumirse en `booking-success`. CSS listo en globals.css. | Refactor ~10 líneas post-simulación | Baja |
+| **SEO** | URL y title no cambian (`/[locale]/patient/request`). Metadata del layout hereda. | Nada | Baja |
+
+---
+

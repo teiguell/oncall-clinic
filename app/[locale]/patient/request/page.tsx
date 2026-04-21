@@ -1,19 +1,19 @@
 "use client"
 
-import { useState, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/use-toast'
-import { SERVICES, type ServiceType, type ConsultationType } from '@/types'
-import { formatCurrencyFromEuros } from '@/lib/utils'
-import { MapPin, Zap, Calendar, ArrowLeft, AlertCircle, ChevronRight, ShieldCheck, Award, Lock, CheckCircle } from 'lucide-react'
+import { type ServiceType, type ConsultationType } from '@/types'
+import { MapPin, Zap, Calendar, ArrowLeft, ChevronRight, ShieldCheck, Award, Lock, CheckCircle, Stethoscope } from 'lucide-react'
 import { BookingFaq } from '@/components/shared/booking-faq'
 import { DoctorSelector } from '@/components/doctor-selector'
 import { useBookingStore } from '@/stores/booking-store'
@@ -50,14 +50,50 @@ function RequestConsultationPage() {
   const [type, setType] = useState<ConsultationType>(
     searchParams.get('type') === 'scheduled' ? 'scheduled' : 'urgent'
   )
-  const [selectedService, setSelectedService] = useState<ServiceType>(
-    (searchParams.get('service') as ServiceType) || 'general_medicine'
-  )
+  // Service is locked to general_medicine (only active service). Kept as
+  // constant to avoid needing a dedicated step — the user reaches the doctor
+  // selector immediately after picking consultation type.
+  const selectedService: ServiceType = 'general_medicine'
   const [loading, setLoading] = useState(false)
   const [detecting, setDetecting] = useState(false)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
 
-  const STEPS = [t('request.typeStep'), t('request.serviceStep'), t('request.detailsStep'), t('request.confirmStep')]
+  // Doctor selection state from Zustand store
+  const selectedDoctorId = useBookingStore(s => s.selectedDoctorId)
+  const selectedDoctorName = useBookingStore(s => s.selectedDoctorName)
+  const selectedDoctorPrice = useBookingStore(s => s.selectedDoctorPrice)
+  const selectedDoctorSpecialty = useBookingStore(s => s.selectedDoctorSpecialty)
+
+  // Inline auth state (replaces redirect-to-/login — preserves booking progress)
+  const [authUser, setAuthUser] = useState<User | null>(null)
+  const [authChecking, setAuthChecking] = useState(true)
+  const [isRegistering, setIsRegistering] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
+  const [authName, setAuthName] = useState('')
+  const [authPhone, setAuthPhone] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
+
+  // Check session on mount + on step change to step 3
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setAuthUser(user)
+      setAuthChecking(false)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user ?? null)
+    })
+    return () => sub.subscription.unsubscribe()
+  }, [])
+
+  const STEPS = [
+    t('request.typeStep'),
+    t('request.chooseDoctor'),
+    t('request.detailsStep'),
+    t('request.confirmStep'),
+  ]
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -89,18 +125,81 @@ function RequestConsultationPage() {
     )
   }, [setValue])
 
-  const service = SERVICES.find(s => s.value === selectedService)!
-  // Flat base price (adjustments apply at payout); commission shown only
-  // internally to the doctor, never to the patient.
-  const price = service.basePrice
-  const commission = price * 0.10
-  const doctorAmount = price - commission
+  // Display price comes from the selected doctor (no hardcoded service price).
+  // Falls back to null until a doctor is picked; the UI guards against this.
+  const priceCents = selectedDoctorPrice ?? null
+  const priceEuros = priceCents !== null ? Math.round(priceCents / 100) : null
+
+  // Inline auth handlers — never redirect out of /patient/request
+  const handleAuthLogin = async () => {
+    setAuthLoading(true)
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: authEmail,
+      password: authPassword,
+    })
+    if (error) {
+      const msg = error.message.toLowerCase()
+      const description = msg.includes('invalid login')
+        ? tErrors('login.invalidCredentials')
+        : msg.includes('email not confirmed')
+          ? tErrors('errors.emailNotConfirmed')
+          : t('request.authError')
+      toast({ title: t('request.authError'), description, variant: 'destructive' })
+    } else if (data.user) {
+      setAuthUser(data.user)
+      toast({ title: t('request.authLoginSuccess'), variant: 'success' })
+    }
+    setAuthLoading(false)
+  }
+
+  const handleAuthRegister = async () => {
+    setAuthLoading(true)
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.signUp({
+      email: authEmail,
+      password: authPassword,
+      options: { data: { full_name: authName, phone: authPhone } },
+    })
+    if (error) {
+      toast({ title: t('request.authError'), description: error.message, variant: 'destructive' })
+    } else if (data.user) {
+      // Upsert profile so downstream queries find the patient row
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        email: authEmail,
+        full_name: authName,
+        phone: authPhone || null,
+        role: 'patient',
+      }, { onConflict: 'id' })
+      // Auto-confirm in test mode so they can continue without email verification
+      if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+        await fetch('/api/demo/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: data.user.id }),
+        }).catch(() => {})
+      }
+      setAuthUser(data.user)
+      toast({ title: t('request.authRegisterSuccess'), variant: 'success' })
+    }
+    setAuthLoading(false)
+  }
 
   const onSubmit = async (data: FormData) => {
+    if (!authUser) {
+      toast({ title: t('request.authTitle'), variant: 'destructive' })
+      return
+    }
+    if (!selectedDoctorId) {
+      toast({ title: t('request.noDoctorSelected'), variant: 'destructive' })
+      return
+    }
+    if (!termsAccepted) {
+      toast({ title: t('request.termsAgree'), variant: 'destructive' })
+      return
+    }
     setLoading(true)
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push(`/${locale}/login`); return }
 
     const scheduledAt = data.scheduledDate && data.scheduledTime
       ? new Date(`${data.scheduledDate}T${data.scheduledTime}`).toISOString()
@@ -115,8 +214,6 @@ function RequestConsultationPage() {
       symptoms: data.symptoms,
       submittedAt: new Date().toISOString(),
     })
-
-    const selectedDoctorId = useBookingStore.getState().selectedDoctorId
 
     try {
       const res = await fetch('/api/stripe/checkout', {
@@ -271,39 +368,33 @@ function RequestConsultationPage() {
           </div>
         )}
 
-        {/* Step 1: Service */}
+        {/* Step 1: Choose Doctor — prominent, dedicated step */}
         {step === 1 && (
           <div>
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">{t('request.whatSpecialty')}</h2>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{t('request.chooseDoctor')}</h2>
+              <p className="text-muted-foreground text-sm mt-1">
+                {locale === 'en'
+                  ? 'Pick the doctor you prefer. You see their price and ETA upfront.'
+                  : 'Elige el médico que prefieras. Ves su precio y hora de llegada desde el principio.'}
+              </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              {SERVICES.map((service) => {
-                const isDisabled = !service.active
-                return (
-                  <button
-                    key={service.value}
-                    disabled={isDisabled}
-                    onClick={() => { if (!isDisabled) { setSelectedService(service.value); nextStep() } }}
-                    className={`relative p-4 rounded-2xl border-2 text-left transition-all ${
-                      isDisabled
-                        ? 'border-border/60 bg-muted/40 opacity-60 cursor-not-allowed'
-                        : selectedService === service.value
-                          ? 'border-primary bg-primary/5 hover:shadow-md'
-                          : 'border-border bg-card hover:shadow-md'
-                    }`}
-                  >
-                    {service.comingSoon && (
-                      <span className="absolute top-2 right-2 pill-neutral">
-                        {t('request.comingSoon')}
-                      </span>
-                    )}
-                    <span className="text-3xl">{service.icon}</span>
-                    <p className="font-semibold text-sm mt-2 text-foreground">{service.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
-                  </button>
-                )
-              })}
+
+            <DoctorSelector
+              patientLat={userLocation?.lat || 38.9067}
+              patientLng={userLocation?.lng || 1.4206}
+            />
+
+            <div className="sticky bottom-0 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-t mt-4">
+              <Button
+                type="button"
+                className="w-full"
+                size="xl"
+                onClick={nextStep}
+                disabled={!selectedDoctorId}
+              >
+                {!selectedDoctorId ? t('request.noDoctorSelected') : tCommon('continue')}
+              </Button>
             </div>
           </div>
         )}
@@ -311,15 +402,63 @@ function RequestConsultationPage() {
         {/* Step 2: Symptoms */}
         {step === 2 && (
           <form onSubmit={(e) => { e.preventDefault(); nextStep() }} className="space-y-5">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">{t('request.whereAndWhat')}</h2>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{t('request.whereAndWhat')}</h2>
+            </div>
+
+            {/* Live summary — doctor chosen in step 1, price locked */}
+            {selectedDoctorId && (
+              <div className="bg-card rounded-card border border-border p-3.5 flex items-center gap-3">
+                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary font-semibold flex items-center justify-center text-sm">
+                  {selectedDoctorName?.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || '—'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
+                    {t('request.doctorLocked')}
+                  </p>
+                  <p className="font-semibold text-sm truncate leading-tight mt-0.5">
+                    {selectedDoctorName}
+                  </p>
+                  {selectedDoctorSpecialty && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {selectedDoctorSpecialty.replace('_', ' ')}
+                    </p>
+                  )}
+                </div>
+                {priceEuros !== null && (
+                  <div className="text-right">
+                    <p className="font-display font-bold text-base">€{priceEuros}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Decorative Ibiza map placeholder — same as step 3 prototype */}
+            <div
+              className="relative h-24 rounded-xl border border-border overflow-hidden"
+              aria-hidden="true"
+              style={{
+                background: 'linear-gradient(135deg, #E8F0FB 0%, #DDE8F5 100%)',
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative">
+                  <div className="h-9 w-9 rounded-full bg-primary border-[3px] border-white shadow-lg flex items-center justify-center">
+                    <MapPin className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="absolute -inset-2 rounded-full bg-primary/20 animate-pulse" />
+                </div>
+              </div>
+              <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-white/85 text-[11px] font-medium text-muted-foreground">
+                Ibiza, ES
+              </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('request.address')}</label>
               <div className="relative">
                 <Input
-                  placeholder={t('request.addressPlaceholder')}
+                  placeholder={locale === 'en' ? "Hotel Ushuaïa, Platja d'en Bossa..." : "Hotel Ushuaïa, Platja d'en Bossa..."}
                   icon={<MapPin className="h-4 w-4" />}
                   error={errors.address?.message}
                   {...register('address')}
@@ -440,88 +579,214 @@ function RequestConsultationPage() {
           </form>
         )}
 
-        {/* Step 3: Confirm */}
+        {/* Step 3: Auth inline (if not signed in) + Order summary + Pay */}
         {step === 3 && (
           <div className="space-y-5">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">{t('request.confirm')}</h2>
-              <p className="text-gray-500 mt-2">{t('request.confirmDesc')}</p>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{t('request.confirm')}</h2>
+              <p className="text-muted-foreground text-sm mt-1">{t('request.confirmDesc')}</p>
             </div>
 
-            {/* Doctor selector — patient picks preferred doctor before paying */}
-            <div className="rounded-card border border-border/60 bg-card p-4">
-              <h3 className="font-display font-semibold mb-3">{t('request.chooseDoctor')}</h3>
-              <DoctorSelector
-                patientLat={userLocation?.lat || 38.9067}
-                patientLng={userLocation?.lng || 1.4206}
-              />
-            </div>
+            {/* ─── AUTH INLINE (no redirect; preserves booking progress) ─── */}
+            {!authChecking && !authUser && (
+              <div className="rounded-card border border-primary/30 bg-primary/5 p-5">
+                <h3 className="font-display font-semibold text-[15.5px] tracking-tight">
+                  {t('request.authTitle')}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 mb-4">
+                  {t('request.authSubtitle')}
+                </p>
 
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-center gap-3 pb-3 border-b">
-                  <span className="text-3xl">{service.icon}</span>
-                  <div>
-                    <p className="font-semibold">{service.label}</p>
-                    <Badge variant={type === 'urgent' ? 'destructive' : 'success'}>
-                      {type === 'urgent' ? t('request.urgentBadge') : t('request.scheduledBadge')}
-                    </Badge>
+                <div className="space-y-3">
+                  {isRegistering && (
+                    <>
+                      <Input
+                        type="text"
+                        placeholder={t('request.authName')}
+                        value={authName}
+                        onChange={e => setAuthName(e.target.value)}
+                      />
+                      <Input
+                        type="tel"
+                        placeholder={t('request.authPhone')}
+                        value={authPhone}
+                        onChange={e => setAuthPhone(e.target.value)}
+                      />
+                    </>
+                  )}
+                  <Input
+                    type="email"
+                    placeholder={t('request.authEmail')}
+                    value={authEmail}
+                    onChange={e => setAuthEmail(e.target.value)}
+                  />
+                  <Input
+                    type="password"
+                    placeholder={t('request.authPassword')}
+                    value={authPassword}
+                    onChange={e => setAuthPassword(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    className="w-full"
+                    size="lg"
+                    onClick={isRegistering ? handleAuthRegister : handleAuthLogin}
+                    loading={authLoading}
+                    disabled={!authEmail || !authPassword || (isRegistering && !authName)}
+                  >
+                    {isRegistering ? t('request.authRegister') : t('request.authLogin')}
+                  </Button>
+
+                  <div className="text-xs text-center text-muted-foreground">
+                    {isRegistering ? (
+                      <>
+                        {t('request.authHasAccount')}{' '}
+                        <button
+                          type="button"
+                          onClick={() => setIsRegistering(false)}
+                          className="text-primary font-medium hover:underline"
+                        >
+                          {t('request.authLoginLink')}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {t('request.authNoAccount')}{' '}
+                        <button
+                          type="button"
+                          onClick={() => setIsRegistering(true)}
+                          className="text-primary font-medium hover:underline"
+                        >
+                          {t('request.authRegisterLink')}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ─── ORDER SUMMARY + PAY (shown once authenticated) ─── */}
+            {!authChecking && authUser && (
+              <>
+                <Card className="border border-border/60 shadow-md">
+                  <CardContent className="p-5 space-y-4">
+                    <p className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
+                      {t('request.orderSummary')}
+                    </p>
+
+                    {/* Doctor */}
+                    <div className="flex items-center gap-3 pb-3 border-b">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary font-semibold flex items-center justify-center">
+                        {selectedDoctorName?.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || '—'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm truncate">{selectedDoctorName}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge variant={type === 'urgent' ? 'destructive' : 'success'}>
+                            {type === 'urgent' ? t('request.urgentBadge') : t('request.scheduledBadge')}
+                          </Badge>
+                          {selectedDoctorSpecialty && (
+                            <span className="text-xs text-muted-foreground truncate">
+                              {selectedDoctorSpecialty.replace('_', ' ')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Address (read-only echo from step 2) */}
+                    <div className="text-xs">
+                      <p className="text-muted-foreground mb-0.5">{t('request.address')}</p>
+                      <p className="text-foreground leading-relaxed">{watch('address') || '—'}</p>
+                    </div>
+
+                    {/* Price breakdown — single line, transparent */}
+                    <div className="space-y-1.5 pt-3 border-t text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t('request.consultationLabel')}</span>
+                        <span className="font-medium">
+                          {priceEuros !== null ? `€${priceEuros}` : '—'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">{t('request.travelIncluded')}</span>
+                        <span className="text-emerald-600 font-medium inline-flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          {tCommon('yes')}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t">
+                      <span className="font-display font-semibold">{t('request.totalLabel')}</span>
+                      <span className="font-display font-bold text-lg">
+                        {priceEuros !== null ? `€${priceEuros}` : '—'}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Trust badges — SSL, Stripe, RGPD, Colegiados */}
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5 py-1.5">
+                    <Lock className="h-3.5 w-3.5 text-emerald-600" />
+                    SSL
+                  </div>
+                  <div className="flex items-center gap-1.5 py-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                    Stripe
+                  </div>
+                  <div className="flex items-center gap-1.5 py-1.5">
+                    <Award className="h-3.5 w-3.5 text-emerald-600" />
+                    RGPD
+                  </div>
+                  <div className="flex items-center gap-1.5 py-1.5">
+                    <Stethoscope className="h-3.5 w-3.5 text-emerald-600" />
+                    {tTrust('comibShort')}
                   </div>
                 </div>
 
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{t('request.basePrice')}</span>
-                    <span className="font-medium">{formatCurrencyFromEuros(price)}</span>
+                {/* Terms checkbox (mandatory) */}
+                <label className="flex items-start gap-2.5 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={e => setTermsAccepted(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-border"
+                  />
+                  <span>
+                    {t('request.termsAgree')} ·{' '}
+                    <Link href={`/${locale}/legal/terms`} className="text-primary hover:underline" target="_blank">
+                      {t('request.termsLink')}
+                    </Link>
+                    {' · '}
+                    <Link href={`/${locale}/legal/privacy`} className="text-primary hover:underline" target="_blank">
+                      {t('request.privacyLink')}
+                    </Link>
+                  </span>
+                </label>
+
+                {/* FAQ compact */}
+                <BookingFaq />
+
+                {/* Sticky CTA on mobile, inline on desktop */}
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <div className="sticky bottom-0 -mx-4 md:mx-0 px-4 md:px-0 py-3 md:py-0 bg-background/95 backdrop-blur-sm border-t md:static md:bg-transparent md:border-0 z-10">
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      size="xl"
+                      loading={loading}
+                      disabled={!termsAccepted || !selectedDoctorId}
+                    >
+                      {priceEuros !== null
+                        ? `${t('request.payNow')} · €${priceEuros}`
+                        : t('request.payNow')}
+                    </Button>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{t('request.toDoctor')}</span>
-                    <span>{formatCurrencyFromEuros(doctorAmount)}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{t('request.platformCommission')}</span>
-                    <span>{formatCurrencyFromEuros(commission)}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2 pt-3 border-t">
-                  <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-muted-foreground">
-                    {t('request.paymentNote')}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* FAQ compact — surfaces common questions at the decision point */}
-            <div className="mb-4">
-              <BookingFaq />
-            </div>
-
-            {/* ITEM-4: Trust signals above pay CTA */}
-            <div className="flex flex-col gap-2 mb-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                {tTrust('comibShort')}
-              </div>
-              <div className="flex items-center gap-2">
-                <Award className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                {tTrust('insuranceShort')}
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                {tTrust('rgpdShort')}
-              </div>
-            </div>
-
-            {/* ITEM-5: Sticky CTA on mobile, inline on desktop */}
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="sticky bottom-0 -mx-4 md:mx-0 px-4 md:px-0 py-3 md:py-0 bg-background/95 backdrop-blur-sm border-t md:static md:bg-transparent md:border-0 z-10">
-                <Button type="submit" className="w-full" size="xl" loading={loading}>
-                  {type === 'urgent' ? t('request.submitUrgent') : t('request.submitScheduled')}
-                </Button>
-              </div>
-            </form>
+                </form>
+              </>
+            )}
           </div>
         )}
 

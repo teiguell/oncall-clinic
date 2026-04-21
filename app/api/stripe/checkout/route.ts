@@ -30,10 +30,22 @@ export async function POST(request: Request) {
   if (!service) return NextResponse.json({ error: 'Servicio no válido' }, { status: 400 })
   if (!service.active) return NextResponse.json({ error: 'Servicio próximamente disponible' }, { status: 400 })
 
-  // Price is the regional base; per-doctor adjustment and night surcharge
-  // are applied at doctor acceptance / payout time.
-  const priceEuros = service.basePrice
-  const priceCents = Math.round(priceEuros * 100)
+  // Price model: the doctor sets the price (Ley 15/2007 Defensa Competencia;
+  // STS 805/2020 Glovo). If the patient picked a specific doctor, query their
+  // `consultation_price` (in cents) from `doctor_profiles`. Fallback to the
+  // service base price only if no doctor was chosen (should not happen in the
+  // new doctor-first flow, but kept for safety).
+  let priceCents = Math.round(service.basePrice * 100)
+  if (preferredDoctorId) {
+    const { data: doctor } = await supabase
+      .from('doctor_profiles')
+      .select('consultation_price')
+      .eq('id', preferredDoctorId)
+      .maybeSingle()
+    if (doctor?.consultation_price && typeof doctor.consultation_price === 'number') {
+      priceCents = doctor.consultation_price
+    }
+  }
 
   const commissionRate = parseFloat(process.env.NEXT_PUBLIC_COMMISSION_RATE || '0.15')
   const commission = Math.round(priceCents * commissionRate)
