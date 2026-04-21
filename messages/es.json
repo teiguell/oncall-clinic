@@ -849,7 +849,17 @@
     "infoSecure": "Tu información está segura",
     "signIn": "Iniciar sesión",
     "confirmed": "Confirmada",
-    "doctorOnWay": "El médico está en camino"
+    "doctorOnWay": "El médico está en camino",
+    "magicLinkDesc": "Introduce tu email y te enviaremos un enlace de acceso seguro",
+    "sendMagicLink": "Enviar enlace de acceso",
+    "orContinueWith": "o continúa con",
+    "continueWithGoogle": "Continuar con Google",
+    "authDisclaimer": "Al continuar, aceptas nuestros términos de servicio y política de privacidad",
+    "magicLinkSent": "Enlace enviado a tu email",
+    "checkYourEmail": "Revisa tu email",
+    "magicLinkSentTo": "Hemos enviado un enlace de acceso a:",
+    "useDifferentEmail": "Usar otro email",
+    "continueWith": "Continuar con"
   },
   "doctorCard": {
     "verified_comib": "Colegiado verificado",

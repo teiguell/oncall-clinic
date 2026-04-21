@@ -849,7 +849,17 @@
     "infoSecure": "Your information is secure",
     "signIn": "Sign in",
     "confirmed": "Confirmed",
-    "doctorOnWay": "Doctor is on the way"
+    "doctorOnWay": "Doctor is on the way",
+    "magicLinkDesc": "Enter your email and we'll send you a secure access link",
+    "sendMagicLink": "Send access link",
+    "orContinueWith": "or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "authDisclaimer": "By continuing, you agree to our terms of service and privacy policy",
+    "magicLinkSent": "Link sent to your email",
+    "checkYourEmail": "Check your email",
+    "magicLinkSentTo": "We've sent an access link to:",
+    "useDifferentEmail": "Use a different email",
+    "continueWith": "Continue with"
   },
   "doctorCard": {
     "verified_comib": "Licence verified",

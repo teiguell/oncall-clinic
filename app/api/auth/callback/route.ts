@@ -4,6 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  // Optional `next` param: if auth flow was initiated from inside a specific
+  // page (e.g. /patient/request?step=3), we return the user exactly there
+  // so the booking context is preserved. Only same-origin paths are allowed.
+  const nextParam = searchParams.get('next')
   // Default locale for OAuth callback — detect from Accept-Language or default to 'es'
   const acceptLang = request.headers.get('accept-language') || ''
   const locale = acceptLang.toLowerCase().startsWith('en') ? 'en' : 'es'
@@ -30,12 +34,20 @@ export async function GET(request: Request) {
             avatar_url: user.user_metadata.avatar_url || null,
             role: 'patient',
           })
-          return NextResponse.redirect(`${origin}/${locale}/patient/dashboard`)
         }
 
-        const redirectPath = profile.role === 'doctor'
+        // Sanitize next param — must start with / and be same-origin only
+        const safeNext = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+          ? nextParam
+          : null
+
+        if (safeNext) {
+          return NextResponse.redirect(`${origin}${safeNext}`)
+        }
+
+        const redirectPath = profile?.role === 'doctor'
           ? `/${locale}/doctor/dashboard`
-          : profile.role === 'admin'
+          : profile?.role === 'admin'
           ? `/${locale}/admin/dashboard`
           : `/${locale}/patient/dashboard`
 

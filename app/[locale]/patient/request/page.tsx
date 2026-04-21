@@ -36,7 +36,6 @@ function RequestConsultationPage() {
   const tCommon = useTranslations('common')
   const tTrust = useTranslations('trust')
   const tBooking = useTranslations('booking2')
-  const tErrors = useTranslations('auth')
   const locale = useLocale()
 
   const schema = z.object({
@@ -64,15 +63,13 @@ function RequestConsultationPage() {
   const selectedDoctorPrice = useBookingStore(s => s.selectedDoctorPrice)
   const selectedDoctorSpecialty = useBookingStore(s => s.selectedDoctorSpecialty)
 
-  // Inline auth state (replaces redirect-to-/login — preserves booking progress)
+  // Inline auth state — Magic Link primary + Google OAuth fallback.
+  // No password step: reduces friction for medical booking.
   const [authUser, setAuthUser] = useState<User | null>(null)
   const [authChecking, setAuthChecking] = useState(true)
-  const [isRegistering, setIsRegistering] = useState(false)
   const [authLoading, setAuthLoading] = useState(false)
   const [authEmail, setAuthEmail] = useState('')
-  const [authPassword, setAuthPassword] = useState('')
-  const [authName, setAuthName] = useState('')
-  const [authPhone, setAuthPhone] = useState('')
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
 
   // Check session on mount + on step change to step 3
@@ -130,60 +127,38 @@ function RequestConsultationPage() {
   const priceCents = selectedDoctorPrice ?? null
   const priceEuros = priceCents !== null ? Math.round(priceCents / 100) : null
 
-  // Inline auth handlers — never redirect out of /patient/request
-  const handleAuthLogin = async () => {
+  // Inline auth handlers — Magic Link + Google OAuth only.
+  // Both return the user to /patient/request?step=3 so booking context persists.
+  const handleMagicLink = async () => {
     setAuthLoading(true)
     const supabase = createClient()
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithOtp({
       email: authEmail,
-      password: authPassword,
+      options: {
+        emailRedirectTo: `${window.location.origin}/${locale}/patient/request?step=3`,
+      },
     })
     if (error) {
-      const msg = error.message.toLowerCase()
-      const description = msg.includes('invalid login')
-        ? tErrors('login.invalidCredentials')
-        : msg.includes('email not confirmed')
-          ? tErrors('errors.emailNotConfirmed')
-          : t('request.authError')
-      toast({ title: t('request.authError'), description, variant: 'destructive' })
-    } else if (data.user) {
-      setAuthUser(data.user)
-      toast({ title: t('request.authLoginSuccess'), variant: 'success' })
+      toast({
+        title: t('request.authError'),
+        description: error.message,
+        variant: 'destructive',
+      })
+    } else {
+      setMagicLinkSent(true)
+      toast({ title: tBooking('magicLinkSent'), variant: 'success' })
     }
     setAuthLoading(false)
   }
 
-  const handleAuthRegister = async () => {
-    setAuthLoading(true)
+  const handleGoogleLogin = async () => {
     const supabase = createClient()
-    const { data, error } = await supabase.auth.signUp({
-      email: authEmail,
-      password: authPassword,
-      options: { data: { full_name: authName, phone: authPhone } },
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/patient/request?step=3`,
+      },
     })
-    if (error) {
-      toast({ title: t('request.authError'), description: error.message, variant: 'destructive' })
-    } else if (data.user) {
-      // Upsert profile so downstream queries find the patient row
-      await supabase.from('profiles').upsert({
-        id: data.user.id,
-        email: authEmail,
-        full_name: authName,
-        phone: authPhone || null,
-        role: 'patient',
-      }, { onConflict: 'id' })
-      // Auto-confirm in test mode so they can continue without email verification
-      if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
-        await fetch('/api/demo/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: data.user.id }),
-        }).catch(() => {})
-      }
-      setAuthUser(data.user)
-      toast({ title: t('request.authRegisterSuccess'), variant: 'success' })
-    }
-    setAuthLoading(false)
   }
 
   const onSubmit = async (data: FormData) => {
@@ -394,17 +369,36 @@ function RequestConsultationPage() {
               patientLng={userLocation?.lng || 1.4206}
             />
 
-            <div className="sticky bottom-0 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-t mt-4">
-              <Button
-                type="button"
-                className="w-full"
-                size="xl"
-                onClick={nextStep}
-                disabled={!selectedDoctorId}
-              >
-                {!selectedDoctorId ? t('request.noDoctorSelected') : tCommon('continue')}
-              </Button>
-            </div>
+            {/* BLOQUE C: Floating CTA — fixed bottom on mobile only when
+                 a doctor is selected. On desktop, remains inline so the
+                 page doesn't lose its rhythm. Respects iOS safe-area. */}
+            {selectedDoctorId ? (
+              <div className="fixed bottom-0 left-0 right-0 md:static md:mt-6 p-4 md:p-0 bg-background/95 backdrop-blur-sm border-t md:border-0 z-40 safe-area-bottom">
+                <Button
+                  type="button"
+                  className="w-full h-[54px] text-[15px] font-semibold btn-lift"
+                  onClick={nextStep}
+                >
+                  {tBooking('continueWith')} Dr. {(selectedDoctorName || '').split(' ')[0]}
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            ) : (
+              <div className="sticky bottom-0 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-t mt-4">
+                <Button
+                  type="button"
+                  className="w-full"
+                  size="xl"
+                  onClick={nextStep}
+                  disabled
+                >
+                  {t('request.noDoctorSelected')}
+                </Button>
+              </div>
+            )}
+            {/* Spacer for floating button on mobile (prevents content from
+                 being hidden behind the fixed CTA) */}
+            {selectedDoctorId && <div className="h-20 md:h-0" aria-hidden="true" />}
           </div>
         )}
 
@@ -618,7 +612,7 @@ function RequestConsultationPage() {
               <p className="text-muted-foreground text-sm mt-1">{t('request.confirmDesc')}</p>
             </div>
 
-            {/* ─── AUTH INLINE — polished card (prototype §step4 auth) ─── */}
+            {/* ─── AUTH INLINE — Magic Link primary + Google OAuth ─── */}
             {!authChecking && !authUser && (
               <div className="bg-primary/5 rounded-2xl p-5 border border-primary/10">
                 <div className="text-center mb-4">
@@ -629,79 +623,85 @@ function RequestConsultationPage() {
                     {tBooking('signInToConfirm')}
                   </h3>
                   <p className="text-[13px] text-muted-foreground mt-1">
-                    {tBooking('infoSecure')}
+                    {tBooking('magicLinkDesc')}
                   </p>
                 </div>
 
-                <div className="space-y-3">
-                  {isRegistering && (
-                    <>
-                      <Input
-                        className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
-                        type="text"
-                        placeholder={t('request.authName')}
-                        value={authName}
-                        onChange={e => setAuthName(e.target.value)}
-                      />
-                      <Input
-                        className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
-                        type="tel"
-                        placeholder={t('request.authPhone')}
-                        value={authPhone}
-                        onChange={e => setAuthPhone(e.target.value)}
-                      />
-                    </>
-                  )}
-                  <Input
-                    className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
-                    type="email"
-                    placeholder={t('request.authEmail')}
-                    value={authEmail}
-                    onChange={e => setAuthEmail(e.target.value)}
-                  />
-                  <Input
-                    className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
-                    type="password"
-                    placeholder={t('request.authPassword')}
-                    value={authPassword}
-                    onChange={e => setAuthPassword(e.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    className="w-full h-12 text-[15px] font-semibold"
-                    onClick={isRegistering ? handleAuthRegister : handleAuthLogin}
-                    loading={authLoading}
-                    disabled={!authEmail || !authPassword || (isRegistering && !authName)}
-                  >
-                    {isRegistering ? t('request.authRegister') : tBooking('signIn')}
-                  </Button>
+                {!magicLinkSent ? (
+                  <div className="space-y-3">
+                    <Input
+                      className="h-12 rounded-xl border-[1.5px] text-[14px] px-3.5 focus:border-primary transition-colors"
+                      type="email"
+                      placeholder={t('request.authEmail')}
+                      value={authEmail}
+                      onChange={e => setAuthEmail(e.target.value)}
+                      autoComplete="email"
+                    />
+                    <Button
+                      type="button"
+                      className="w-full h-12 text-[15px] font-semibold"
+                      onClick={handleMagicLink}
+                      disabled={!authEmail || authLoading}
+                    >
+                      {authLoading ? (
+                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                      ) : (
+                        <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                      {tBooking('sendMagicLink')}
+                    </Button>
 
-                  <div className="text-xs text-center text-muted-foreground">
-                    {isRegistering ? (
-                      <>
-                        {t('request.authHasAccount')}{' '}
-                        <button
-                          type="button"
-                          onClick={() => setIsRegistering(false)}
-                          className="text-primary font-medium hover:underline"
-                        >
-                          {t('request.authLoginLink')}
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        {t('request.authNoAccount')}{' '}
-                        <button
-                          type="button"
-                          onClick={() => setIsRegistering(true)}
-                          className="text-primary font-medium hover:underline"
-                        >
-                          {t('request.authRegisterLink')}
-                        </button>
-                      </>
-                    )}
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div className="w-full border-t border-border" />
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="bg-primary/5 px-2 text-muted-foreground">
+                          {tBooking('orContinueWith')}
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-12 text-[14px] font-medium"
+                      onClick={handleGoogleLogin}
+                    >
+                      <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                      </svg>
+                      {tBooking('continueWithGoogle')}
+                    </Button>
+
+                    <p className="text-[11px] text-center text-muted-foreground mt-2 leading-relaxed">
+                      {tBooking('authDisclaimer')}
+                    </p>
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <div className="h-16 w-16 bg-emerald-50 rounded-full mx-auto flex items-center justify-center mb-3">
+                      <svg className="h-8 w-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                      </svg>
+                    </div>
+                    <h4 className="text-[16px] font-semibold mb-1">{tBooking('checkYourEmail')}</h4>
+                    <p className="text-[13px] text-muted-foreground">{tBooking('magicLinkSentTo')}</p>
+                    <p className="text-[14px] font-medium text-primary mt-1">{authEmail}</p>
+                    <button
+                      type="button"
+                      onClick={() => setMagicLinkSent(false)}
+                      className="text-[13px] text-primary hover:underline mt-3"
+                    >
+                      {tBooking('useDifferentEmail')}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

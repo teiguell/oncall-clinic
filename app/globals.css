@@ -327,6 +327,16 @@ button:active, [role="button"]:active {
   .check-draw { animation: none !important; stroke-dashoffset: 0 !important; }
 }
 
+/* ─── iOS safe-area bottom (for floating/fixed CTAs on mobile) ─── */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}
+
 /* ─── Booking inputs — prototype radius 12px + border 1.5px ─── */
 input[type="text"],
 input[type="email"],
