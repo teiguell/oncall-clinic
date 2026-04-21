@@ -141,7 +141,7 @@ export default async function PatientDashboard() {
     <div className="min-h-screen bg-gray-50">
       <Navbar user={profile} />
 
-      <main className="container mx-auto px-4 py-5 max-w-2xl">
+      <main className="container mx-auto px-4 py-5 max-w-md md:max-w-2xl">
         {/* ── 1A. Greeting + Bell ─────────────────── */}
         <div className="pt-3 px-1 mb-6">
           <p className="text-[13px] text-muted-foreground tracking-wide capitalize">
@@ -226,7 +226,7 @@ export default async function PatientDashboard() {
 
         {/* Post-consultation chat banner (retained — valuable UX) */}
         {chatConsultations && chatConsultations.length > 0 && (
-          <div className="rounded-[14px] border border-[#EEF1F5] bg-white border-l-4 border-l-blue-500 shadow-sm p-3 mb-6">
+          <div className="rounded-[14px] border border-[#EEF1F5] bg-white shadow-sm p-3 mb-6">
             {chatConsultations.map((c: { id: string; doctor_profiles: unknown }) => {
               const doctorName = getDoctorName(c.doctor_profiles)
               const unread = unreadCounts[c.id] || 0
@@ -260,7 +260,7 @@ export default async function PatientDashboard() {
         )}
 
         {/* ── 1C. Quick Actions Grid (3 columns) ─────────────────── */}
-        <div className="grid grid-cols-3 gap-2.5 mb-6">
+        <div className="grid grid-cols-3 gap-[10px] mb-6">
           <Link href={`/${locale}/patient/request`}>
             <div className="bg-primary text-white rounded-2xl p-3.5 hover:bg-primary/90 transition-colors h-full">
               <div className="h-[34px] w-[34px] bg-white/20 rounded-[10px] flex items-center justify-center mb-2">

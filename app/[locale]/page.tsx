@@ -70,10 +70,10 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
         <nav className="container mx-auto flex h-16 items-center justify-between px-4" aria-label="Main navigation">
           <Link href={`/${locale}`} className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary">
-              <Stethoscope className="h-5 w-5 text-white" aria-hidden="true" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg gradient-primary">
+              <Stethoscope className="h-4 w-4 text-white" aria-hidden="true" />
             </div>
-            <span className="font-display text-xl font-bold">OnCall Clinic</span>
+            <span className="font-display text-[15px]" style={{ fontWeight: 620 }}>OnCall Clinic</span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <Link href="#como-funciona" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t('howItWorks.title')}</Link>
@@ -148,23 +148,26 @@ export default function LandingPage() {
             className="absolute top-40 left-0 w-80 h-80 rounded-full bg-blue-200/20 blur-3xl pointer-events-none"
           />
 
-          <div className="relative container mx-auto px-4 text-center">
-            {/* IBIZA · BALEARES eyebrow — prototype tokens: 11px 600 0.12em */}
-            <div className="flex items-center justify-center gap-2 mb-5 animate-fade-in-up">
+          <div className="relative container mx-auto px-4 max-w-6xl">
+          <div className="md:grid md:grid-cols-2 md:gap-12 md:items-center md:min-h-[70vh]">
+          {/* Left column: hero content (mobile: center / desktop: left-align) */}
+          <div className="text-center md:text-left">
+            {/* IBIZA · BALEARES eyebrow — prototype tokens: 11px 600 0.16em */}
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-5 animate-fade-in-up">
               <span
-                className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] uppercase px-2.5 py-1.5 rounded-full"
+                className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] uppercase px-2.5 py-1.5 rounded-full"
                 style={{ background: 'rgba(59,130,246,0.08)', color: '#3B82F6' }}
               >
                 <span
                   aria-hidden="true"
-                  className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot"
+                  className="inline-block h-[6px] w-[6px] rounded-full bg-emerald-500 live-dot"
                   style={{ boxShadow: '0 0 0 4px rgba(16,185,129,0.15)' }}
                 />
                 {t('hero.eyebrow')}
               </span>
             </div>
             {/* Secondary trust pills (compact) */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-6 animate-fade-in-up">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-6 animate-fade-in-up">
               <span className="pill-info">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
                 {t('badge')}
@@ -188,12 +191,12 @@ export default function LandingPage() {
             </h1>
 
             {/* Subtitle — 17px / 1.45 / #475569 (prototype §hero.sub) */}
-            <p className="text-[17px] leading-[1.45] text-[#475569] mb-8 max-w-md mx-auto animate-fade-in-up">
+            <p className="text-[17px] leading-[1.45] text-[#475569] mb-8 max-w-md mx-auto md:mx-0 animate-fade-in-up">
               {t('hero.subtitle')}
             </p>
 
             {/* Single primary CTA (Hick's Law) */}
-            <div className="flex flex-col items-center gap-3 mb-5">
+            <div className="flex flex-col items-center md:items-start gap-3 mb-5">
               <Link href={`/${locale}/patient/request`} className="w-full sm:w-auto">
                 <Button size="xl" className="btn-lift shadow-cta w-full sm:w-auto min-h-[48px] gap-2 rounded-button">
                   {t('hero.ctaPrimary')}
@@ -231,13 +234,38 @@ export default function LandingPage() {
               <TrustBadges compact />
             </div>
           </div>
+          {/* Right column: desktop-only app preview mockup */}
+          <div className="hidden md:flex items-center justify-center">
+            <div
+              className="w-[320px] h-[640px] rounded-[40px] border-[8px] border-slate-800 overflow-hidden shadow-2xl bg-gradient-to-b from-slate-100 to-slate-200"
+              aria-hidden="true"
+            >
+              <div className="h-full w-full bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center p-6 text-center">
+                <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center mb-4">
+                  <Stethoscope className="h-8 w-8 text-white" aria-hidden="true" />
+                </div>
+                <p className="text-[15px] font-semibold text-slate-800">OnCall Clinic</p>
+                <p className="text-[12px] text-muted-foreground mt-1 max-w-[240px]">
+                  {t('hero.subtitle').slice(0, 80)}
+                </p>
+                <span
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] uppercase text-emerald-700"
+                >
+                  <span className="h-1 w-1 rounded-full bg-emerald-500 live-dot" aria-hidden="true" />
+                  {t('liveBadge')}
+                </span>
+              </div>
+            </div>
+          </div>
+          </div>
+          </div>
         </section>
 
         {/* ═══════════════════════════════════════════════════════
              HOW IT WORKS — 3 steps (Hick's + Miller's law)
            ═══════════════════════════════════════════════════════ */}
-        <section id="como-funciona" className="section-animate py-16 md:py-20 bg-muted/40">
-          <div className="container mx-auto px-4">
+        <section id="como-funciona" className="section-animate py-11 md:py-20 bg-muted/40">
+          <div className="container mx-auto px-4 max-w-5xl">
             <div className="text-center mb-14">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-primary" />
@@ -248,7 +276,7 @@ export default function LandingPage() {
                 {t('howItWorks.subtitle')}
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-3 md:gap-8 max-w-5xl mx-auto">
               {[
                 { n: '01', icon: MapPin,      title: t('howItWorks.step1Title'), desc: t('howItWorks.step1Desc') },
                 { n: '02', icon: Stethoscope, title: t('howItWorks.step2Title'), desc: t('howItWorks.step2Desc') },
@@ -258,7 +286,7 @@ export default function LandingPage() {
                 return (
                   <div
                     key={item.n}
-                    className="relative bg-white rounded-[16px] p-5 md:p-6 border border-[#EEF1F5] overflow-hidden"
+                    className="relative bg-white rounded-[16px] p-[18px] border border-[#EEF1F5] overflow-hidden"
                     style={{
                       boxShadow: '0 1px 2px rgba(0,0,0,0.02), 0 8px 24px rgba(15,23,42,0.04)',
                     }}
@@ -299,8 +327,8 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              FEATURES — 3 cards (reduced from 4, was overwhelming)
            ═══════════════════════════════════════════════════════ */}
-        <section className="section-animate py-16 md:py-20 bg-background">
-          <div className="container mx-auto px-4">
+        <section className="section-animate py-11 md:py-20 bg-background">
+          <div className="container mx-auto px-4 max-w-5xl">
             <div className="text-center mb-14">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700 mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
@@ -330,8 +358,8 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              SERVICES — 1 active + 3 coming soon
            ═══════════════════════════════════════════════════════ */}
-        <section id="servicios" className="section-animate py-16 md:py-20 bg-muted/40">
-          <div className="container mx-auto px-4">
+        <section id="servicios" className="section-animate py-11 md:py-20 bg-muted/40">
+          <div className="container mx-auto px-4 max-w-5xl">
             <div className="text-center mb-14">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700 mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-amber-600" />
@@ -342,7 +370,7 @@ export default function LandingPage() {
                 {t('servicesAvail.subtitle')}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
               {services.map((service) => {
                 const Icon = service.icon
                 const descKey = `${service.value}_desc` as const
@@ -350,7 +378,7 @@ export default function LandingPage() {
                   <Card
                     key={service.value}
                     className={
-                      'relative rounded-card border transition-all ' +
+                      'relative rounded-card border transition-all min-h-[168px] ' +
                       (service.active
                         ? 'border-primary/30 bg-card shadow-card hover:shadow-elevated cursor-pointer'
                         : 'border-border/60 bg-muted/50 opacity-75 cursor-default')
@@ -359,7 +387,7 @@ export default function LandingPage() {
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className={
-                          'h-11 w-11 rounded-xl flex items-center justify-center ' +
+                          'h-10 w-10 rounded-xl flex items-center justify-center ' +
                           (service.active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground')
                         }>
                           <Icon className="h-5 w-5" aria-hidden="true" />
@@ -384,7 +412,7 @@ export default function LandingPage() {
              DOCTORS PREVIEW — static marketing preview (real list
              lives in /patient/request via <DoctorSelector/>)
            ═══════════════════════════════════════════════════════ */}
-        <section id="doctores" className="section-animate py-16 md:py-20 bg-background">
+        <section id="doctores" className="section-animate py-11 md:py-20 bg-background">
           <div className="container mx-auto px-4 max-w-3xl">
             <div className="text-center mb-10">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-700 mb-3">
@@ -406,13 +434,16 @@ export default function LandingPage() {
                   {/* Avatar with verified check */}
                   <div className="relative flex-shrink-0">
                     <div
-                      className={`h-14 w-14 rounded-full bg-gradient-to-br ${d.bg} text-white font-display font-semibold text-lg flex items-center justify-center`}
-                      style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.08)' }}
+                      className={`h-[58px] w-[58px] rounded-full bg-gradient-to-br ${d.bg} text-white font-display text-lg flex items-center justify-center`}
+                      style={{
+                        fontWeight: 620,
+                        boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.08)',
+                      }}
                     >
                       {d.initials}
                     </div>
                     <div
-                      className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-emerald-500 border-[2.5px] border-background flex items-center justify-center text-white"
+                      className="absolute -bottom-[2px] -right-[2px] h-5 w-5 rounded-full bg-emerald-500 border-[2.5px] border-background flex items-center justify-center text-white"
                       aria-label="Verified"
                     >
                       <Check className="h-3 w-3" aria-hidden="true" strokeWidth={3} />
@@ -420,13 +451,13 @@ export default function LandingPage() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="font-display font-semibold text-[15px] tracking-tight truncate">
+                    <p className="font-display text-[15px] tracking-tight truncate" style={{ fontWeight: 620 }}>
                       {tDoctors(d.nameKey)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5 truncate">
                       {tDoctors(d.specKey)}
                     </p>
-                    <div className="mt-2 flex items-center gap-3 text-xs">
+                    <div className="mt-2 flex items-center gap-2.5 text-xs">
                       <span className="inline-flex items-center gap-1">
                         <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
                         <span className="font-semibold text-foreground">{d.rating.toFixed(2)}</span>
@@ -466,8 +497,8 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              FOR DOCTORS
            ═══════════════════════════════════════════════════════ */}
-        <section id="medicos" className="section-animate py-16 md:py-20 bg-gradient-to-br from-primary to-indigo-700 text-white">
-          <div className="container mx-auto px-4">
+        <section id="medicos" className="section-animate py-11 md:py-20 bg-gradient-to-br from-primary to-indigo-700 text-white">
+          <div className="container mx-auto px-4 max-w-5xl">
             <div className="max-w-4xl mx-auto text-center">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 mb-3">
                 <span aria-hidden="true" className="h-1 w-1 rounded-full bg-emerald-300" />
@@ -505,7 +536,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              FAQ — accordion, 6 common questions
            ═══════════════════════════════════════════════════════ */}
-        <section id="faq" className="section-animate py-16 md:py-20 bg-muted/40">
+        <section id="faq" className="section-animate py-11 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4 max-w-3xl">
             <div className="text-center mb-10">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary mb-3">
@@ -519,20 +550,23 @@ export default function LandingPage() {
               {([1, 2, 3, 4, 5, 6] as const).map((n) => (
                 <details
                   key={n}
-                  className="bg-white rounded-[14px] border border-border p-4 hover:border-primary/20 transition-colors group"
+                  className="bg-white rounded-[16px] border border-border p-4 hover:border-primary/20 transition-colors group"
                 >
                   <summary className="cursor-pointer list-none flex items-center justify-between gap-4 text-left [&::-webkit-details-marker]:hidden">
-                    <span className="text-[15px] font-semibold tracking-[-0.1px] text-foreground">
+                    <span
+                      className="text-[14.5px] tracking-[-0.005em] leading-[1.35] text-foreground"
+                      style={{ fontWeight: 580 }}
+                    >
                       {tFaq(`q${n}`)}
                     </span>
                     <span
-                      className="flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(15,23,42,0.04)] text-foreground text-lg leading-none group-open:rotate-45 transition-transform"
+                      className="flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(15,23,42,0.04)] text-foreground text-lg leading-none group-open:rotate-45 transition-transform flex-shrink-0"
                       aria-hidden="true"
                     >
                       +
                     </span>
                   </summary>
-                  <div className="pt-3 text-[14px] text-[#6B7280] font-medium leading-[1.55]">
+                  <div className="pt-3 text-[14px] text-muted-foreground font-medium leading-[1.55]">
                     {tFaq(`a${n}`)}
                   </div>
                 </details>
@@ -544,7 +578,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              CTA FINAL
            ═══════════════════════════════════════════════════════ */}
-        <section className="section-animate relative overflow-hidden py-16 md:py-20 text-white">
+        <section className="section-animate relative overflow-hidden py-11 md:py-20 text-white">
           {/* Dark navy → primary gradient */}
           <div
             aria-hidden="true"
@@ -584,7 +618,7 @@ export default function LandingPage() {
                 </span>
               ))}
             </h2>
-            <p className="text-base md:text-lg text-blue-100/80 mb-8">
+            <p className="text-base md:text-lg text-[#CBD5E1] mb-8">
               {t('cta.subtitle')}
             </p>
 
@@ -610,7 +644,7 @@ export default function LandingPage() {
             </div>
             <a
               href="tel:+34871183415"
-              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px] px-5 py-3 rounded-[14px] border border-white/15 bg-white/10 backdrop-blur text-white font-semibold hover:bg-white/15 transition-colors"
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px] px-5 py-3 rounded-[14px] border border-white/15 bg-white/[0.08] backdrop-blur text-white font-semibold hover:bg-white/15 transition-colors"
             >
               <PhoneCall className="h-4 w-4" aria-hidden="true" />
               +34 871 18 34 15
@@ -621,7 +655,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-slate-900 text-white py-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div>
               <h4 className="font-display font-semibold text-sm uppercase tracking-wider text-gray-400 mb-4">{t('footer.product')}</h4>

@@ -256,7 +256,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
               onSelect?.(d)
             }}
             className={cn(
-              'w-full rounded-card border p-4 text-left transition-all min-h-[44px]',
+              'w-full rounded-card border p-3.5 text-left transition-all min-h-[44px]',
               isSelected
                 ? 'border-primary ring-2 ring-primary/20 bg-primary/5 shadow-card'
                 : 'border-border bg-card card-hover hover:border-primary/40',
@@ -341,7 +341,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
             <div
               className={cn(
                 'overflow-hidden transition-[max-height,opacity,margin] duration-200',
-                isSelected ? 'max-h-[48px] opacity-100 mt-2.5' : 'max-h-0 opacity-0 mt-0',
+                isSelected ? 'max-h-[44px] opacity-100 mt-2.5' : 'max-h-0 opacity-0 mt-0',
               )}
             >
               <div className="bg-primary/5 rounded-[10px] px-3 py-2.5 flex items-center gap-2">

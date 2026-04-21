@@ -132,11 +132,14 @@ function BookingSuccessContent() {
                 />
               ))}
             </div>
-            {/* Check circle with ripple rings */}
-            <div className="relative mx-auto w-[120px] h-[120px] flex items-center justify-center mb-6">
-              <span className="ripple-ring absolute inset-0 rounded-full border-2 border-emerald-300" aria-hidden="true" />
+            {/* Check circle 84px with ripple rings (prototype §success) */}
+            <div className="relative mx-auto w-[84px] h-[84px] flex items-center justify-center mb-6">
               <span
-                className="ripple-ring absolute inset-0 rounded-full border-2 border-emerald-200"
+                className="ripple-ring absolute -inset-2 rounded-full border-2 border-emerald-300"
+                aria-hidden="true"
+              />
+              <span
+                className="ripple-ring absolute -inset-2 rounded-full border-2 border-emerald-200"
                 style={{ animationDelay: '0.5s' }}
                 aria-hidden="true"
               />

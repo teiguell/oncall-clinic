@@ -2216,3 +2216,80 @@ Verificado: `app/api/stripe/checkout/route.ts` ya query `doctor_profiles.consult
 
 ---
 
+## Phase 4 — Corrección Integral UI/UX — 2026-04-21
+**Estado:** ✅ 16/16 ítems (0-15) aplicados
+
+| # | Ítem | Estado | Archivo |
+|---|---|---|---|
+| **0** 🔴 | Middleware: excluir `/patient/request` de protected routes | ✅ | `lib/supabase/middleware.ts` |
+| **1** 🟡 | Navbar logo 28px + texto 15px/620 | ✅ | `app/[locale]/page.tsx` |
+| **2** 🟡 | Hero eyebrow dot 6px + tracking 0.16em | ✅ | `app/[locale]/page.tsx` |
+| **3** 🟡 | Section padding mobile 44px (py-11) | ✅ | `app/[locale]/page.tsx` (7 secciones) |
+| **4** 🟡 | Services grid 2 cols fijo + icon 40px + gap-3 + min-h-168 | ✅ | `app/[locale]/page.tsx` |
+| **5** 🟡 | How It Works gap-3 mobile + card p-[18px] | ✅ | `app/[locale]/page.tsx` |
+| **6** 🟡 | Doctors preview avatar 58px + verified -bottom-[2px] -right-[2px] + weight 620 | ✅ | `app/[locale]/page.tsx` |
+| **7** 🟡 | FAQ question 14.5px weight 580 + radius 16px + answer muted-foreground | ✅ | `app/[locale]/page.tsx` |
+| **8** 🟡 | CTA subtitle #CBD5E1 + phone button bg-white/[0.08] | ✅ | `app/[locale]/page.tsx` |
+| **9** 🔴 | Hero desktop 2-col grid + max-w-5xl secciones + app preview mockup | ✅ | `app/[locale]/page.tsx` |
+| **10** 🔴 | DoctorSelector card p-3.5 + selected max-h-[44px] | ✅ | `components/doctor-selector.tsx` |
+| **11** 🟡 | Booking step 2 eyebrow 11px tracking-[0.1em] | ✅ | `app/[locale]/patient/request/page.tsx` |
+| **12** 🔴 | Step 3 avatar 46px + trust icons 13px + checkbox 20x20 rounded-6 | ✅ | `app/[locale]/patient/request/page.tsx` |
+| **13** 🔴 | Dashboard max-w-md mobile + gap-[10px] + quitar border-l-blue | ✅ | `app/[locale]/patient/dashboard/page.tsx` |
+| **14** 🟡 | Booking Success circle 84px (ring wrapper -inset-2) | ✅ | `app/[locale]/patient/booking-success/page.tsx` |
+| **15** 🟡 | Input global radius 12px + border 1.5px !important | ✅ | `app/globals.css` |
+
+### ITEM 0 — BUG CRÍTICO Middleware
+**Problema:** `protectedPatientRoutes = ['/patient']` protegía TODA la ruta `/patient/*`, incluyendo `/patient/request`. Usuarios no autenticados eran redirigidos a `/login` ANTES del inline auth del Step 3 → **rompía el flujo de compra**.
+
+**Fix aplicado:**
+```typescript
+const protectedPatientRoutes = [
+  '/patient/dashboard',
+  '/patient/consultations',
+  '/patient/profile',
+  '/patient/booking-success',
+  '/patient/tracking',
+  '/patient/history',
+  '/patient/privacy',
+]
+```
+`/patient/request` queda OUT del whitelist → el Step 3 inline auth maneja la autenticación SIN perder el progreso.
+
+### ITEM 9 — Desktop layout premium
+- Hero envuelto en `md:grid md:grid-cols-2 md:gap-12 md:items-center md:min-h-[70vh]`
+- Left col: eyebrow, h1, subtitle, CTA, 112 disclaimer, trust badges — alineados left en desktop (md:text-left, md:justify-start)
+- Right col (desktop only): app preview mockup de iPhone con logo + subtitle truncado + live badge esmeralda
+- Secciones: contenedores con `max-w-5xl mx-auto` para evitar contenido estirado en pantallas grandes
+
+### Archivos modificados (7)
+- `lib/supabase/middleware.ts` — ITEM 0
+- `app/[locale]/page.tsx` — ITEMS 1, 2, 3, 4, 5, 6, 7, 8, 9
+- `components/doctor-selector.tsx` — ITEM 10
+- `app/[locale]/patient/request/page.tsx` — ITEMS 11, 12
+- `app/[locale]/patient/dashboard/page.tsx` — ITEM 13
+- `app/[locale]/patient/booking-success/page.tsx` — ITEM 14
+- `app/globals.css` — ITEM 15
+
+### Build status
+- `./node_modules/.bin/tsc --noEmit` → **0 errores**
+- `./node_modules/.bin/next build` → **✓ Compiled successfully**, **✓ 80/80 páginas**
+- i18n parity sin cambios: **1207 ES = 1207 EN ✅** (este sprint no añade keys)
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo | Qué necesita saber | Acción | Urgencia |
+|---|---|---|---|
+| **Producto/Director** | Bug crítico de compra RESUELTO. El usuario puede ahora completar Step 0→1→2→3 sin ser redirigido a /login. Inline auth del Step 3 es el único punto de entrada de credenciales. | Verificar flow completo en incógnito mobile | **CRÍTICA** |
+| **QA** | Rutas protegidas ahora EXPLÍCITAS en whitelist. `/patient/request` es pública (auth inline). `/patient/dashboard, consultations, profile, booking-success, tracking, history, privacy` requieren login. | Smoke test matriz `anon → /patient/*` (esperado 200 en `/patient/request`, 302 en el resto) | **Alta** |
+| **Growth** | Desktop ahora con layout 2-col (texto izq + mockup der) y max-width en todas las secciones. Primera impresión mejora drásticamente en 1280px+. | A/B test desktop conversión | Media |
+| **Frontend/UX** | Inputs globales ahora radius 12px + border 1.5px !important (override global en globals.css) aplicado a text/email/password/tel/number/textarea. Si hay regresión visual en otro form, revisar overrides locales. | Verificar forms de login/register/profile | Media |
+| **Mobile-first** | Dashboard ahora max-w-md mobile → max-w-2xl desktop. Evita el estiramiento raro. | Solo informativo | Baja |
+
+### Cumplimiento reglas absolutas
+- ✅ **NO se tocó lógica Stripe/Supabase queries/API routing**
+- ✅ **Middleware: solo la whitelist de rutas protegidas** (fix crítico sin tocar auth ni cookies)
+- ✅ **0 IntersectionObserver, opacity:1 preservado**
+- ✅ **Mobile-first + desktop layout premium**
+
+---
+

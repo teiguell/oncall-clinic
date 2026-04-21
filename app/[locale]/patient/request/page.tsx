@@ -424,7 +424,7 @@ function RequestConsultationPage() {
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
+                  <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-0.5">
                     {t('request.doctorLocked')}
                   </p>
                   <p className="font-semibold text-[13px] truncate leading-tight mt-0.5">
@@ -714,7 +714,7 @@ function RequestConsultationPage() {
                     {tBooking('orderSummary')}
                   </p>
                   <div className="flex items-center gap-3 pb-3 border-b border-border">
-                    <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center flex-shrink-0">
+                    <div className="h-[46px] w-[46px] rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center flex-shrink-0">
                       <span className="text-primary font-semibold text-xs">
                         {selectedDoctorName?.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || '—'}
                       </span>
@@ -760,7 +760,7 @@ function RequestConsultationPage() {
                   ].map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-1 py-2">
                       <div className="h-8 w-8 rounded-lg bg-gray-50 flex items-center justify-center">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <Icon className="h-[13px] w-[13px] text-muted-foreground" />
                       </div>
                       <span className="text-[10px] text-muted-foreground font-medium text-center leading-tight">
                         {label}
@@ -775,7 +775,7 @@ function RequestConsultationPage() {
                     type="checkbox"
                     checked={termsAccepted}
                     onChange={e => setTermsAccepted(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 rounded border-border"
+                    className="mt-0.5 h-5 w-5 rounded-[6px] border-border accent-primary"
                   />
                   <span>
                     {t('request.termsAgree')} ·{' '}

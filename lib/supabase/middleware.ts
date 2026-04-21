@@ -47,7 +47,19 @@ export async function updateSession(request: NextRequest) {
   const locale = getLocaleFromPath(fullPath)
   const path = stripLocale(fullPath)
 
-  const protectedPatientRoutes = ['/patient']
+  // ITEM 0: `/patient/request` is EXCLUDED from protection. The Step 3 of
+  // the booking flow has its own inline auth (login/register without leaving
+  // the page) which preserves the user's progress. Forcing a redirect here
+  // breaks the purchase flow on mobile.
+  const protectedPatientRoutes = [
+    '/patient/dashboard',
+    '/patient/consultations',
+    '/patient/profile',
+    '/patient/booking-success',
+    '/patient/tracking',
+    '/patient/history',
+    '/patient/privacy',
+  ]
   const protectedDoctorRoutes = ['/doctor']
   const protectedAdminRoutes = ['/admin']
   const authRoutes = ['/login', '/register']
