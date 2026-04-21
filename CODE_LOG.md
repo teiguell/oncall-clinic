@@ -2212,5 +2212,7 @@ Verificado: `app/api/stripe/checkout/route.ts` ya query `doctor_profiles.consult
 | **Growth** | Hero 46px mobile → 56px desktop con fontWeight 680. Kicker pill con `rgba(59,130,246,0.08)` destaca más. Conversión esperada +15%. | A/B test 7 días | Media |
 | **Legal** | Payment CTA "Confirmar y pagar · €X" muestra el precio EXACTO del doctor (no más 150 hardcoded). Alineado con STS 805/2020. | Solo informativo | Baja |
 
+**Deploy:** `dpl_4zX3aUX8ySVQsroz46PdFuhdAhGf` → https://oncall.clinic (READY). Commit `ea1371c`.
+
 ---
 
