@@ -2118,5 +2118,7 @@ Verificado: `app/api/stripe/checkout/route.ts` ya query `doctor_profiles.consult
 | **Booking UX** | Estado success del pago ahora con confetti + ripple + scaleIn check — cumple objetivo "celebratory moment" del prototipo. | Monitorizar NPS post-pago | Media |
 | **Tracking UX** | ETA hero card con gradiente azul premium + stepper emerald/primary/gray por estado (done/active/pending). Alineado con prototipo §tracking. | Solo informativo | Baja |
 
+**Deploy:** `dpl_Co2R7SDwn2uv2dtPcyugqB4F7Kak` → https://oncall.clinic (READY). Commit `7b3de0c`.
+
 ---
 
