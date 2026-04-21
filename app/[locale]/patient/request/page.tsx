@@ -312,13 +312,22 @@ function RequestConsultationPage() {
                   <Zap className="h-6 w-6" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-foreground text-[15.5px] tracking-tight">{t('request.urgent')}</h3>
                     <span className="text-[9.5px] font-bold tracking-[0.04em] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
                       &lt; 20 MIN
                     </span>
                   </div>
                   <p className="text-muted-foreground text-[12.5px] leading-snug mt-0.5">{t('request.urgentDesc')}</p>
+                  {/* "Doctors available now" trust signal — green pulse dot */}
+                  <span className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                    <span
+                      aria-hidden="true"
+                      className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot"
+                      style={{ boxShadow: '0 0 0 3px rgba(16,185,129,0.15)' }}
+                    />
+                    {t('request.availableNow')}
+                  </span>
                 </div>
                 <div
                   className={`h-[22px] w-[22px] rounded-full border-[1.5px] flex items-center justify-center flex-shrink-0 transition-all ${

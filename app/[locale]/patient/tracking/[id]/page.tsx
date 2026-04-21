@@ -310,30 +310,60 @@ export default function TrackingPage() {
       <div className="flex-1 bg-white rounded-t-3xl -mt-4 relative z-10 overflow-auto">
         <div className="p-6 space-y-6">
 
-          {/* Status timeline */}
+          {/* ETA hero card — premium blue gradient (prototype §tracking) */}
+          {!isCompleted && !isCancelled && eta !== null && (
+            <div
+              className="rounded-2xl p-4 text-white flex items-center justify-between"
+              style={{
+                background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
+              }}
+            >
+              <div>
+                <div className="text-[12px] font-medium text-white/75 tracking-wide">
+                  {t('tracking.estimatedArrival')}
+                </div>
+                <div className="text-[32px] font-bold tracking-tight leading-none mt-0.5">
+                  ~{eta} <span className="text-[20px] font-semibold">min</span>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
+                <MapPin className="w-6 h-6" />
+              </div>
+            </div>
+          )}
+
+          {/* Status timeline — colored stepper per prototype */}
           {!isCompleted && !isCancelled && (
             <div>
               <h3 className="font-semibold mb-4">{t('tracking.statusTitle')}</h3>
               <div className="space-y-3">
-                {STATUS_STEPS.slice(0, 5).map((step, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${
-                      i <= currentStep
-                        ? 'gradient-primary text-white'
-                        : 'bg-gray-100 text-gray-400'
-                    }`}>
-                      {i < currentStep ? <CheckCircle2 className="h-4 w-4" /> : step.icon}
+                {STATUS_STEPS.slice(0, 5).map((step, i) => {
+                  const done = i < currentStep
+                  const active = i === currentStep
+                  return (
+                    <div key={i} className="flex items-center gap-3">
+                      <div
+                        className={`h-8 w-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 transition-all ${
+                          done
+                            ? 'bg-emerald-500 text-white'
+                            : active
+                              ? 'bg-primary text-white ring-4 ring-primary/20'
+                              : 'bg-gray-100 text-gray-400'
+                        }`}
+                      >
+                        {done ? <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} /> : step.icon}
+                      </div>
+                      <div className={done ? 'text-emerald-700' : active ? 'text-primary' : 'text-gray-400'}>
+                        <p className={`text-sm font-medium ${active ? 'font-semibold' : ''}`}>
+                          {step.label}
+                        </p>
+                        {active && (
+                          <p className="text-xs text-gray-500 font-normal">{step.desc}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className={i <= currentStep ? 'text-gray-900' : 'text-gray-500'}>
-                      <p className={`text-sm font-medium ${i === currentStep ? 'font-bold text-blue-600' : ''}`}>
-                        {step.label}
-                      </p>
-                      {i === currentStep && (
-                        <p className="text-xs text-gray-500">{step.desc}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}

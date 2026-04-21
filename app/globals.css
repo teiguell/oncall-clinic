@@ -264,6 +264,29 @@ button:active, [role="button"]:active {
   100% { transform: scale(2); opacity: 0; }
 }
 
+/* ─── Success state animations (booking-success / tracking complete) ─── */
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes rippleExpand {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+}
+.success-check { animation: scaleIn 0.5s cubic-bezier(0.3, 1.4, 0.6, 1) both; }
+.ripple-ring { animation: rippleExpand 2s ease-out infinite; }
+.confetti-piece { animation: confettiFall 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .success-check { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .ripple-ring { animation: none !important; opacity: 0 !important; }
+  .confetti-piece { animation: none !important; opacity: 0 !important; }
+}
+
 /* ─── Success ripple rings (booking confirm page) ─── */
 @keyframes successRipple {
   0%   { transform: scale(0.8); opacity: 0.6; }
@@ -302,6 +325,27 @@ button:active, [role="button"]:active {
   .success-ripple::before,
   .success-ripple::after { animation: none !important; opacity: 0 !important; }
   .check-draw { animation: none !important; stroke-dashoffset: 0 !important; }
+}
+
+/* ─── Chat bubbles (patient vs doctor, asymmetric radius) ─── */
+.msg-patient {
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  color: #fff;
+  border-radius: 18px 18px 4px 18px;
+  margin-left: auto;
+  max-width: 80%;
+  padding: 10px 14px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+}
+.msg-doctor {
+  background: #fff;
+  border: 1px solid #EEF1F5;
+  color: #0F172A;
+  border-radius: 18px 18px 18px 4px;
+  margin-right: auto;
+  max-width: 80%;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 /* ─── Pill badges with tonal palette ─── */

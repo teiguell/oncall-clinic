@@ -311,6 +311,9 @@
       "whatType": "What type of consultation do you need?",
       "whatTypeDesc": "Choose between immediate emergency or scheduled appointment",
       "availabilityEyebrow": "Licensed doctors available today",
+      "availableNow": "Doctors available now",
+      "confirmed": "Consultation confirmed!",
+      "confirmedDesc": "Your doctor is getting ready to visit you",
       "chipsHint": "Common symptoms",
       "chipFever": "Fever",
       "chipPain": "Pain",
@@ -415,7 +418,11 @@
       "emergencyCall": "Call 112",
       "doctorOnTheWay": "Your doctor is on the way",
       "doctorLocation": "Doctor location",
-      "commentPlaceholder": "How was the consultation?"
+      "commentPlaceholder": "How was the consultation?",
+      "estimatedArrival": "Estimated arrival",
+      "invoice": "Invoice",
+      "paid": "Paid",
+      "downloadInvoice": "Download invoice"
     },
     "history": {
       "title": "Consultation history",

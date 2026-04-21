@@ -311,6 +311,9 @@
       "whatType": "¿Qué tipo de consulta necesitas?",
       "whatTypeDesc": "Elige entre urgencia inmediata o cita programada",
       "availabilityEyebrow": "Médicos colegiados disponibles hoy",
+      "availableNow": "Médicos disponibles ahora",
+      "confirmed": "¡Consulta confirmada!",
+      "confirmedDesc": "Tu médico está preparándose para visitarte",
       "chipsHint": "Síntomas frecuentes",
       "chipFever": "Fiebre",
       "chipPain": "Dolor",
@@ -415,7 +418,11 @@
       "emergencyCall": "Llamar al 112",
       "doctorOnTheWay": "Tu médico está en camino",
       "doctorLocation": "Ubicación del médico",
-      "commentPlaceholder": "¿Cómo fue la consulta?"
+      "commentPlaceholder": "¿Cómo fue la consulta?",
+      "estimatedArrival": "Llegada estimada",
+      "invoice": "Factura",
+      "paid": "Pagado",
+      "downloadInvoice": "Descargar factura"
     },
     "history": {
       "title": "Historial de consultas",

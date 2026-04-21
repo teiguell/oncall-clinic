@@ -172,10 +172,11 @@ export default function LandingPage() {
               </span>
             </div>
 
-            {/* H1 — font-display, responsive scale */}
-            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up">
-              {heroTitleParts[0]}<br />
-              <span className="text-transparent bg-clip-text gradient-primary">
+            {/* H1 — 40px mobile, 48px+ desktop, tight tracking, solid slate
+                 with gradient reserved for the second line only (prototype §hero.title). */}
+            <h1 className="font-display text-[40px] sm:text-5xl md:text-5xl lg:text-6xl font-bold tracking-[-0.035em] leading-[1.05] mb-6 animate-fade-in-up text-[#0B1220]">
+              {heroTitleParts[0]}
+              <span className="block bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                 {heroTitleParts[1]}
               </span>
             </h1>
@@ -249,15 +250,22 @@ export default function LandingPage() {
               ].map((item) => {
                 const Icon = item.icon
                 return (
-                  <div key={item.n} className="relative bg-card rounded-card p-6 md:p-7 shadow-card border border-border/60">
-                    <div className="h-[52px] w-[52px] rounded-[14px] bg-gradient-to-br from-blue-50 to-blue-100 text-primary flex items-center justify-center mb-4">
+                  <div key={item.n} className="relative bg-card rounded-card p-6 md:p-7 shadow-card border border-border/60 overflow-hidden">
+                    {/* Big decorative "01/02/03" numeral — prototype §how */}
+                    <span
+                      aria-hidden="true"
+                      className="absolute -top-2 right-4 font-display text-[72px] font-bold text-primary/[0.07] leading-none select-none pointer-events-none"
+                    >
+                      {item.n}
+                    </span>
+                    <div className="relative h-[52px] w-[52px] rounded-[14px] bg-gradient-to-br from-blue-50 to-blue-100 text-primary flex items-center justify-center mb-4">
                       <Icon className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <div className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground/80 uppercase mb-1">
+                    <div className="relative text-[11px] font-semibold tracking-[0.12em] text-muted-foreground/80 uppercase mb-1">
                       {item.n}
                     </div>
-                    <h3 className="font-display text-lg font-semibold mb-2 tracking-tight">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <h3 className="relative font-display text-lg font-semibold mb-2 tracking-tight">{item.title}</h3>
+                    <p className="relative text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                   </div>
                 )
               })}
@@ -400,17 +408,26 @@ export default function LandingPage() {
                     <p className="text-xs text-muted-foreground mt-0.5 truncate">
                       {tDoctors(d.specKey)}
                     </p>
-                    <div className="mt-2 flex items-center gap-2.5 text-xs">
+                    <div className="mt-2 flex items-center gap-3 text-xs">
                       <span className="inline-flex items-center gap-1">
                         <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
                         <span className="font-semibold text-foreground">{d.rating.toFixed(2)}</span>
                         <span className="text-muted-foreground/70">({d.reviews})</span>
                       </span>
-                      <span className="text-muted-foreground/50" aria-hidden="true">·</span>
-                      <span className="text-emerald-600 font-medium">{tDoctors(d.etaKey)}</span>
+                      <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
+                        <Clock className="h-3 w-3" aria-hidden="true" />
+                        {tDoctors(d.etaKey)}
+                      </span>
                     </div>
-                    <div className="mt-1.5 text-[10.5px] text-muted-foreground/80 tracking-wide">
-                      {d.langs.join(' · ')}
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {d.langs.map(lang => (
+                        <span
+                          key={lang}
+                          className="px-1.5 py-0.5 rounded-full bg-[#EFF5FF] text-[10.5px] font-semibold text-[#2563EB] tracking-wide"
+                        >
+                          {lang}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>

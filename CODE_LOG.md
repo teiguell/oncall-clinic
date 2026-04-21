@@ -2033,3 +2033,90 @@ Verificado: sección `#doctores` con 3 demo-doctors + kicker EQUIPO MÉDICO + bo
 
 ---
 
+## Prompt Integral Final — Corrección UX+UI — 2026-04-21
+**Estado:** ✅ Completado (correcciones críticas + alto impacto; deferrals documentados)
+
+### Correcciones aplicadas
+
+**BUG CRÍTICO 1 — Secciones invisibles (opacity:0) ✅**
+`app/globals.css`: reemplazado el bloque `@keyframes fadeInUp` + `.section-animate:nth-child(N)` + `@media prefers-reduced-motion` por una regla simple `.section-animate { opacity: 1 !important; transform: none !important; }`. Mismo tratamiento para `.scroll-reveal`. Eliminada la animación que se quedaba stuck en `currentTime:0` en Safari/mobile builds de producción. **Resultado: todas las secciones del landing al 100% opacidad siempre, sin animaciones que puedan fallar.**
+
+**Corrección 3 — Hero typography ✅**
+Título `text-[40px] sm:text-5xl md:text-5xl lg:text-6xl` + `tracking-[-0.035em]` + `leading-[1.05]`. Color sólido `#0B1220` para primera línea. Segunda línea envuelta en `<span className="block bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">` (gradiente azul solo ahí).
+
+**Corrección 4 — "Cómo funciona" con números decorativos ✅**
+Cada card tiene ahora un `<span>` absoluto top-right con el número `01/02/03` en `font-display text-[72px] font-bold text-primary/[0.07]` (watermark decorativo). El número pequeño uppercase tracking sigue arriba del título. Iconos gradient blue-50→blue-100 intactos.
+
+**Corrección 5 — Doctores preview con idiomas como pills ✅**
+Los 3 demo-doctors del landing ahora muestran idiomas como pills `bg-[#EFF5FF] text-[#2563EB] text-[10.5px] font-semibold` (en lugar de dot-separated). ETA ahora con icono Clock inline. Layout con mejor gap y font-weight.
+
+**Corrección 6 — Booking Step 0: dot verde "Disponible ahora" ✅**
+Añadido `<span>` con `live-dot + box-shadow glow` en la card Urgente: "Médicos disponibles ahora" (ES) / "Doctors available now" (EN). Color emerald-700 sobre emerald-500 glow. Alineado con prototipo §step1.
+
+**Corrección 9 — Success state premium ✅**
+`app/globals.css`: añadidas `@keyframes scaleIn` (0.5s cubic-bezier(0.3,1.4,0.6,1)) + `@keyframes rippleExpand` (2s infinite) + `@keyframes confettiFall` (3.5s infinite) + clases `.success-check`, `.ripple-ring`, `.confetti-piece`. Respetan `prefers-reduced-motion`.
+
+`app/[locale]/patient/booking-success/page.tsx` actualizado: el estado success ahora renderiza:
+- 16 confetti pieces de 5 colores con delays escalonados
+- 2 ripple rings (emerald-300 + emerald-200 con delay 0.5s)
+- Check circle 84px con gradient emerald-400→emerald-600 y `success-check` scaleIn
+
+**Corrección 11 — Tracking ETA hero card + stepper colored ✅**
+`app/[locale]/patient/tracking/[id]/page.tsx`:
+- **ETA hero card** con gradient `#1E40AF → #3B82F6`: texto blanco, "Llegada estimada" en 12px medium + "~{eta} min" en 32px bold. Icono MapPin 6×6 en bubble `bg-white/15 backdrop-blur-sm`.
+- **Stepper** con colores del prototipo: done → emerald-500 + check 2.5 stroke, active → primary con `ring-4 ring-primary/20`, pending → gray-100. Texto adapta color también (emerald-700 / primary / gray-400).
+
+**Corrección 13 — Chat bubbles premium ✅**
+`app/globals.css`: clases `.msg-patient` (gradient 135deg #3B82F6 → #2563EB, border-radius `18px 18px 4px 18px`, shadow azul) + `.msg-doctor` (white, border #EEF1F5, border-radius `18px 18px 18px 4px`). Listas para consumir por la página de chat (refactor de render ~10 líneas pendiente).
+
+**Corrección 16 — i18n keys faltantes ✅**
+Añadidas a ambos bundles:
+- `patient.request.availableNow`
+- `patient.request.confirmed`
+- `patient.request.confirmedDesc`
+- `patient.tracking.estimatedArrival`
+- `patient.tracking.invoice`
+- `patient.tracking.paid`
+- `patient.tracking.downloadInvoice`
+
+Paridad **1179 ES = 1179 EN ✅** (de 1172 → 1179 por 7 keys × 2 bundles).
+
+**Corrección 17 — Stripe precio doctor ✅** (ya estaba)
+Verificado: `app/api/stripe/checkout/route.ts` ya query `doctor_profiles.consultation_price` con fallback a `service.basePrice`. Implementado en commit `9b21ec4`.
+
+### Correcciones DEFERIDAS (documentadas para próximo sprint)
+
+- **Corrección 7 — DoctorSelector verification:** Ya tiene filter rail + avatar 54px + verified badge + precio dinámico + ETA + pills idiomas + selected state (commit `18987b3`). Detalles visuales finos (colores exactos de langs en `#EFF5FF/#2563EB` vs actual `bg-muted/text-muted-foreground`) quedan para refinamiento de microcopy.
+- **Corrección 8 — Mapa placeholder step 2:** Ya implementado en commit `9b21ec4` con gradient `#E8F0FB→#DDE8F5` + pin pulsante + "Ibiza, ES" footer.
+- **Corrección 10 — Patient Dashboard premium:** El dashboard actual tiene estructura correcta (saludo, active card, actions grid, history). Rediseño con gradient active card + mini-mapa + ETA grande 28px queda para sprint propio (requiere manipular consultas activas en Supabase).
+- **Corrección 12 — Complete invoice + rating:** La sección de rating existe vía `StarRating` component. Sección invoice con badge PAGADO + botón "Descargar factura" queda pendiente (requiere pipeline de factura PDF, ver migración 002 stripe_webhooks).
+- **Corrección 13 consumo en chat page:** CSS listo, refactor del render ~10 líneas pendiente.
+- **Corrección 14 — FAQ accordion polish:** El `<details>` nativo funciona; rotación del "+" y borders inter-items queda como microcopy.
+- **Corrección 15 — Footer verification:** Estructura ya correcta (3 columnas, logo, copyright, CIF, registro sanitario, disclaimer). Sin cambios.
+
+### Build status
+- `./node_modules/.bin/tsc --noEmit` → **0 errores**
+- `./node_modules/.bin/next build` → **✓ Compiled successfully**, **✓ 80/80 páginas**
+- i18n parity: **1179 ES = 1179 EN ✅**
+
+### Reglas cumplidas
+- ✅ **0 precios hardcodeados** (Stripe route y booking usan `doctor.consultation_price`)
+- ✅ **0 IntersectionObserver, 0 `@keyframes fadeInUp` stuck** — opacidad 100% garantizada
+- ✅ **Mobile-first** — todos los cambios testeados en 390px
+- ✅ **i18n** — 7 keys × 2 bundles añadidas con paridad
+- ✅ **Design tokens** — gradient #1E40AF→#3B82F6 (ETA), emerald-500 (stepper done), primary/20 ring (stepper active), `#EFF5FF/#2563EB` (language pills)
+- ✅ **Supabase + Stripe + tracking + chat intactos**
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo afectado | Qué necesita saber | Acción requerida | Urgencia |
+|---|---|---|---|
+| **QA / Director** | BUG CRÍTICO de secciones invisibles RESUELTO en raíz: eliminada la animación CSS que se stuck en producción. Landing ahora 100% visible en todos los devices. | Verificar en móvil real post-deploy (Safari iOS + Chrome Android) | **Crítica** |
+| **Growth** | Hero rediseñado con gradiente solo en "en Ibiza." + typography 40px mobile. Números "01/02/03" decorativos en "Cómo funciona" (estilo premium magazine). | A/B test conversión 7 días | Alta |
+| **Frontend (pendiente)** | CSS de chat bubbles (`msg-patient/msg-doctor`) listo en globals.css. Refactor del render en `app/[locale]/consultation/[id]/chat/page.tsx` queda para consumo. | Refactor ~10 líneas | Baja |
+| **Frontend (pendiente)** | Dashboard premium + invoice section en complete state queda para sprint dedicado. Estructura actual funcional, solo refinamiento visual. | Sprint dedicado post-director | Baja |
+| **Booking UX** | Estado success del pago ahora con confetti + ripple + scaleIn check — cumple objetivo "celebratory moment" del prototipo. | Monitorizar NPS post-pago | Media |
+| **Tracking UX** | ETA hero card con gradiente azul premium + stepper emerald/primary/gray por estado (done/active/pending). Alineado con prototipo §tracking. | Solo informativo | Baja |
+
+---
+

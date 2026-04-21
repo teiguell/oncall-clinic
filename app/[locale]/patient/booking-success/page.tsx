@@ -117,10 +117,33 @@ function BookingSuccessContent() {
 
         {status === 'success' && (
           <div className="fade-in">
-            <div className="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-pulse">
-              <CheckCircle2 className="h-14 w-14 text-green-600" />
+            {/* Confetti (16 colored pieces fall & rotate 3.5s infinite) */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-50" aria-hidden="true">
+              {Array.from({ length: 16 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="confetti-piece absolute w-2 h-2 rounded-sm"
+                  style={{
+                    left: `${5 + i * 6}%`,
+                    animationDelay: `${i * 0.15}s`,
+                    backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'][i % 5],
+                  }}
+                />
+              ))}
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+            {/* Check circle with ripple rings */}
+            <div className="relative mx-auto w-[120px] h-[120px] flex items-center justify-center mb-6">
+              <span className="ripple-ring absolute inset-0 rounded-full border-2 border-emerald-300" aria-hidden="true" />
+              <span
+                className="ripple-ring absolute inset-0 rounded-full border-2 border-emerald-200"
+                style={{ animationDelay: '0.5s' }}
+                aria-hidden="true"
+              />
+              <div className="success-check w-[84px] h-[84px] rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
+                <CheckCircle2 className="w-10 h-10 text-white" strokeWidth={3} />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">
               {isTestMode ? t('testMode') : t('title')}
             </h1>
             <p className="text-gray-600 mb-6">{t('redirecting')}</p>
