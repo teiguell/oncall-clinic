@@ -2291,5 +2291,7 @@ const protectedPatientRoutes = [
 - ✅ **0 IntersectionObserver, opacity:1 preservado**
 - ✅ **Mobile-first + desktop layout premium**
 
+**Deploy:** `dpl_7Nt6Cait5hfpoDfwed2RK9H5fiiJ` → https://oncall.clinic (READY). Commit `968672e`.
+
 ---
 
