@@ -162,37 +162,16 @@ html {
 .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -8px rgba(0,0,0,0.1); }
 
-/* Staggered section entry — CSS-only, no IntersectionObserver.
-   Replaces the old .scroll-reveal pattern which left sections stuck
-   at partial opacity when scroll fired faster than the observer. */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* Section visibility — all sections always fully visible.
+   Previous approaches (IntersectionObserver, CSS animation with fadeInUp)
+   both caused opacity:0 bugs in production. Simplest fix: no animation. */
 .section-animate {
-  animation: fadeInUp 0.6s ease-out both;
+  opacity: 1 !important;
+  transform: none !important;
 }
-.section-animate:nth-child(1) { animation-delay: 0s; }
-.section-animate:nth-child(2) { animation-delay: 0.1s; }
-.section-animate:nth-child(3) { animation-delay: 0.15s; }
-.section-animate:nth-child(4) { animation-delay: 0.2s; }
-.section-animate:nth-child(5) { animation-delay: 0.25s; }
-.section-animate:nth-child(6) { animation-delay: 0.3s; }
-.section-animate:nth-child(7) { animation-delay: 0.35s; }
-.section-animate:nth-child(8) { animation-delay: 0.4s; }
-.section-animate:nth-child(9) { animation-delay: 0.45s; }
-
-/* Legacy `.scroll-reveal` kept as a no-op shim so any lingering usages
-   from other pages render at full opacity (avoids the stuck-fade bug). */
-.scroll-reveal { opacity: 1; transform: none; transition: none; }
-.scroll-reveal.revealed { opacity: 1; transform: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  .section-animate {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
+.scroll-reveal, .scroll-reveal.revealed {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 /* Live pulse dot */
