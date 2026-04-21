@@ -2366,5 +2366,7 @@ Añadido spacer `<div className="h-20 md:h-0">` al final del step 1 para que la 
 | **Legal** | Card de auth inline tiene disclaimer de "Al continuar aceptas términos y política de privacidad" en 11px centered. Mantiene compliance GDPR Art. 6.1.b (contrato) + LSSI-CE. | Revisar wording del disclaimer | Media |
 | **Frontend Mobile** | `safe-area-bottom` class añadida globalmente — usable en cualquier fixed-bottom CTA del proyecto. | Propagar a otras pantallas si necesario | Baja |
 
+**Deploy:** `dpl_6ou3hqUF1damEWt4WgQQz4HEAJu2` → https://oncall.clinic (READY). Commit `60ebdec`.
+
 ---
 
