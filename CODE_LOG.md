@@ -2029,5 +2029,7 @@ Verificado: sección `#doctores` con 3 demo-doctors + kicker EQUIPO MÉDICO + bo
 | **Frontend (pendiente)** | Success state con ripple+check-draw sigue sin consumirse en `booking-success`. CSS listo en globals.css. | Refactor ~10 líneas post-simulación | Baja |
 | **SEO** | URL y title no cambian (`/[locale]/patient/request`). Metadata del layout hereda. | Nada | Baja |
 
+**Deploy:** `dpl_CQgxSuDGTACqwKwcfGxfUX1f76LF` → https://oncall.clinic (READY). Commit `9b21ec4`.
+
 ---
 
