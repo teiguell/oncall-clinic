@@ -2410,3 +2410,22 @@ Añadido spacer `<div className="h-20 md:h-0">` al final del step 1 para que la 
 E2E booking flow en Chrome MCP: mobile + desktop, desde landing → Step 0 (ciudad/fecha/hora) → Step 1 (síntomas) → Step 2 (selección doctor) → Step 3 (Magic Link auth) → confirmación email → pago simulado → success page.
 
 **Tiempo total:** ~40 min (vs. estimado 90-120 min).
+
+## [2026-04-22] — favicon fix
+
+| Item | SHA | Status |
+|---|---|---|
+| `/favicon.ico` 200 | `a795b30` | ✅ |
+| `/icon.png` 200 | `a795b30` | ✅ |
+
+**Método usado:** B · sharp + png-to-ico (ImageMagick no disponible en entorno)
+- `favicon.ico` → 5,430 bytes, 2 iconos (16×16 + 32×32), MS Windows ICO válido
+- `icon.png` → 822 bytes, 32×32 PNG
+
+**Archivos tocados:**
+- `public/favicon.ico` (nuevo)
+- `public/icon.png` (nuevo)
+- `app/[locale]/layout.tsx` (bloque `icons` completado: icon array + apple + shortcut)
+- `package.json` / `package-lock.json` (sharp, png-to-ico como devDependencies para generación one-off)
+
+**Siguiente:** `MEGA_PROMPT_UI_FIDELITY_PROTOTIPOS.md`
