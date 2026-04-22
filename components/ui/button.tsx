@@ -19,10 +19,11 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-11 px-6 py-2",
-        sm: "h-9 rounded-lg px-4",
+        // WCAG 2.5.5: min 44×44px touch target on mobile; md: can go smaller.
+        sm: "min-h-[44px] md:min-h-0 md:h-9 rounded-lg px-4",
         lg: "h-14 rounded-2xl px-8 text-base",
         xl: "h-16 rounded-2xl px-10 text-lg",
-        icon: "h-10 w-10",
+        icon: "min-h-[44px] min-w-[44px] md:h-10 md:w-10 md:min-h-0 md:min-w-0",
       },
     },
     defaultVariants: {
