@@ -2502,3 +2502,54 @@ Tensión: Magic Link redirige al usuario (callback) → si no persistimos perdem
 - Lighthouse CI automatizado (no ejecutado en este sprint por restricciones de entorno).
 
 **Deploy:** `dpl_9CV5GapDyRxgQk1sJwoKqMuW5CqG` → https://oncall.clinic (READY). Commit `c20178b`.
+
+## [2026-04-22] — BLOQUE B · Booking 4 steps split en sub-componentes
+
+### Refactor arquitectural
+`app/[locale]/patient/request/page.tsx` era un monolito de **842 líneas** con los 4 steps inline. Tras el split:
+
+| Archivo | LOC | Responsabilidad |
+|---|---|---|
+| `app/[locale]/patient/request/page.tsx` | **362** | Orquestador: state, handlers, routing entre steps |
+| `components/booking/BookingStepper.tsx` | 39 | Visual 4-dot progress (`done` / `active` / `future`) |
+| `components/booking/Step0Type.tsx` | 127 | Urgent vs Scheduled con cards + disponible-ahora |
+| `components/booking/Step1Doctor.tsx` | 70 | DoctorSelector + floating CTA mobile |
+| `components/booking/Step2Details.tsx` | 263 | Summary card + map + address + symptoms + chips |
+| `components/booking/Step3Confirm.tsx` | 275 | Inline auth (Magic Link + Google) ∨ order summary + pay |
+
+### Cambios clave
+1. **`BookingStepper` componente nuevo** — reemplaza la barra de progreso gradient-primary por visual pill-style 4 segmentos: `done=bg-primary`, `active=bg-primary/60`, `future=bg-border`. Más legible en mobile.
+2. **`initialStep`** lee `?step=3` de la URL — cuando Magic Link o OAuth callback vuelven al booking, el usuario aterriza en Confirm sin perder contexto.
+3. **Cada sub-componente es `'use client'`** con props tipadas. Ninguno fetch-ea datos; el parent page mantiene toda la lógica de auth, form, checkout.
+4. **Props pattern**: parent pasa `register/errors/watch/setValue/handleSubmit` de `react-hook-form` a `Step2Details`; pasa `authEmail/setAuthEmail/magicLinkSent/setMagicLinkSent` a `Step3Confirm`.
+5. **Sin cambios UX/visuales** — el flow es idéntico al commit anterior. Este sprint es solo estructura.
+
+### Preservado desde sprints anteriores
+- Zustand `persist` con GDPR-aware `partialize` (non-medical only + TTL 1h)
+- Magic Link + Google OAuth (no password)
+- Floating CTA mobile con `safe-area-bottom`
+- Map placeholder con SVG grid + coastlines + pin glow
+- Symptom chips togglables `160ms` transition
+- Green pay button `bg-emerald-600` con `shadow-emerald-600/25`
+- Trust badges 4-col (SSL/Stripe/RGPD/Colegiados)
+- Terms checkbox `h-5 w-5 rounded-[6px]`
+
+### Smoke test post-deploy
+
+| Ruta | HTTP |
+|---|---|
+| /es/patient/request | 200 |
+| /en/patient/request | 200 |
+| /es/patient/request?step=3 | 200 |
+
+- **Password inputs en `/patient/request`**: 0
+- **Build**: ✓ 80/80 páginas
+
+### Beneficios
+- Test unitario trivial por step (props typed)
+- Un desarrollador puede tocar Step2 sin leer Step3
+- Shared Stepper reusable para otros flows (p.ej. `/doctor/onboarding`)
+- Orquestador bajo 400 LOC (era 842)
+- Git blame útil por componente
+
+**Deploy:** `dpl_BwWaGCGPR9pdfHBoB9xBz8ufL4hQ` → https://oncall.clinic (READY). Commit `248284a`.
