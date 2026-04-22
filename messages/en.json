@@ -180,6 +180,17 @@
     }
   },
   "auth": {
+    "welcomeBack": "Welcome back",
+    "signInSubtitle": "We'll send you a magic link by email",
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "emailPlaceholder": "you@email.com",
+    "sendMagicLink": "Send magic link",
+    "sending": "Sending…",
+    "magicLinkSentTitle": "Check your email",
+    "magicLinkSentBody": "We sent a link to {email}. Click it to sign in.",
+    "useAnotherEmail": "Use another email",
+    "magicLinkExplainer": "No passwords. Just one click from your email.",
     "login": {
       "title": "Welcome back",
       "description": "Log in to your OnCall Clinic account",
