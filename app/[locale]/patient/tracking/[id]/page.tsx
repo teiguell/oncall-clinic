@@ -306,6 +306,24 @@ export default function TrackingPage() {
         <MapPlaceholder patientLoc={patientLoc} doctorLoc={doctorLoc} eta={eta} t={t} />
       )}
 
+      {/* Persistent 112 emergency banner (under map, above bottom card) */}
+      {!isCompleted && !isCancelled && (
+        <div
+          role="note"
+          className="flex items-center gap-2 bg-red-50 border-y border-red-200 px-4 py-2 text-[12.5px] text-red-900"
+        >
+          <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" aria-hidden="true" />
+          <span className="flex-1">{t('tracking.emergency_banner')}</span>
+          <a
+            href="tel:112"
+            className="inline-flex items-center gap-1 rounded-full bg-red-600 text-white px-3 py-1 text-[12px] font-semibold hover:bg-red-700 transition-colors min-h-[28px]"
+          >
+            <PhoneCall className="h-3 w-3" aria-hidden="true" />
+            112
+          </a>
+        </div>
+      )}
+
       {/* Bottom card */}
       <div className="flex-1 bg-white rounded-t-3xl -mt-4 relative z-10 overflow-auto">
         <div className="p-6 space-y-6">

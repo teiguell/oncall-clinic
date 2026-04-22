@@ -784,7 +784,7 @@
     "step5": "Report and prescription",
     "step5Desc": "You receive a digital medical report and prescription if needed",
     "step6": "Follow-up",
-    "step6Desc": "Chat with the doctor for 48h",
+    "step6Desc": "24h logistics chat with the doctor",
     "avgResponse": "Average response time: 12 minutes"
   },
   "scope": {
@@ -1333,6 +1333,21 @@
     "instr3": "Tab 2: sign in as Doctor → accept the request.",
     "instr4": "Back to Patient tab → you'll see tracking in real time.",
     "test_card": "Stripe test card"
+  },
+  "chatLogistics": {
+    "only_logistics": "This chat is for logistics only. For symptoms or emergencies, call 112.",
+    "call_112": "Call 112",
+    "clinical_warning_title": "For symptoms, call 112",
+    "clinical_warning_desc": "This chat is logistics only (ETA, address). If you have symptoms or an emergency, call 112.",
+    "clinical_warning_continue": "Edit message",
+    "clinical_warning_send_anyway": "Send anyway",
+    "placeholder": "Type a logistics message…",
+    "send": "Send",
+    "retention_hint": "Messages older than 12h will be deleted soon (24h retention)",
+    "empty_state": "No messages yet. Try «Arriving in 5 min»."
+  },
+  "tracking": {
+    "emergency_banner": "Life-threatening emergency? Call 112 immediately."
   },
   "consultation": {
     "internalNotes": "Internal notes",

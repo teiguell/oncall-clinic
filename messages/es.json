@@ -784,7 +784,7 @@
     "step5": "Informe y receta",
     "step5Desc": "Recibes informe médico digital y receta si procede",
     "step6": "Seguimiento",
-    "step6Desc": "Chat con el médico durante 48h",
+    "step6Desc": "Chat logístico 24h con el médico",
     "avgResponse": "Tiempo medio de respuesta: 12 minutos"
   },
   "scope": {
@@ -1333,6 +1333,21 @@
     "instr3": "Pestaña 2: entra como Doctor → acepta la solicitud.",
     "instr4": "Vuelve a la pestaña de Paciente → verás el tracking en tiempo real.",
     "test_card": "Tarjeta de prueba Stripe"
+  },
+  "chatLogistics": {
+    "only_logistics": "Este chat es solo logístico. Para síntomas o urgencias, llama al 112.",
+    "call_112": "Llamar al 112",
+    "clinical_warning_title": "Para síntomas llama al 112",
+    "clinical_warning_desc": "Este chat es solo para logística (ETA, dirección). Si tienes síntomas o urgencia, llama al 112.",
+    "clinical_warning_continue": "Editar mensaje",
+    "clinical_warning_send_anyway": "Enviar igualmente",
+    "placeholder": "Escribe un mensaje logístico…",
+    "send": "Enviar",
+    "retention_hint": "Mensajes >12h se borrarán pronto (retención 24h)",
+    "empty_state": "No hay mensajes. Di algo como «Llegando en 5 min»."
+  },
+  "tracking": {
+    "emergency_banner": "¿Emergencia vital? Llama al 112 inmediatamente."
   },
   "consultation": {
     "internalNotes": "Notas internas",
