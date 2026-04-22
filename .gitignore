@@ -7,3 +7,8 @@ out/
 *.log
 .claude/plugins/marketplaces/
 .vercel
+
+# Playwright
+/playwright-report/
+/test-results/
+/.playwright/

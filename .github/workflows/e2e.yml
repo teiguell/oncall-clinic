@@ -1,0 +1,56 @@
+name: E2E — Playwright simulation
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to test against'
+        required: false
+        default: 'https://oncall.clinic'
+
+jobs:
+  e2e:
+    # Only run when Vercel marks the deployment as successful, or on manual dispatch
+    if: github.event.deployment_status.state == 'success' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run patient spec
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url || inputs.base_url }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TEST_PATIENT_EMAIL: ${{ secrets.TEST_PATIENT_EMAIL }}
+          TEST_CONSULTATION_ID: ${{ secrets.TEST_CONSULTATION_ID }}
+          E2E_SESSION_COOKIE: ${{ secrets.E2E_SESSION_COOKIE }}
+        run: npx playwright test e2e/patient.spec.ts --reporter=list
+
+      - name: Run doctor spec
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url || inputs.base_url }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_DOCTOR_SESSION_COOKIE: ${{ secrets.E2E_DOCTOR_SESSION_COOKIE }}
+        run: npx playwright test e2e/doctor.spec.ts --reporter=list
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
