@@ -179,6 +179,9 @@
       "terms": "Terms & conditions"
     }
   },
+  "banner": {
+    "testMode": "TEST MODE — Payments are simulated. No real money is charged."
+  },
   "auth": {
     "welcomeBack": "Welcome back",
     "signInSubtitle": "We'll send you a magic link by email",

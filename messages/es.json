@@ -179,6 +179,9 @@
       "terms": "Términos y condiciones"
     }
   },
+  "banner": {
+    "testMode": "MODO PRUEBA — Los pagos son simulados. No se cobra dinero real."
+  },
   "auth": {
     "welcomeBack": "Bienvenido de nuevo",
     "signInSubtitle": "Te enviaremos un enlace mágico por email",

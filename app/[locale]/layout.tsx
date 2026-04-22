@@ -61,7 +61,7 @@ export async function generateMetadata(
         : 'Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora.',
       images: [
         {
-          url: '/og-image.svg',
+          url: '/og-image.jpg',
           width: 1200,
           height: 630,
           alt: 'OnCall Clinic — Home Doctor Ibiza',
@@ -76,7 +76,10 @@ export async function generateMetadata(
       description: isEn
         ? 'General medicine house calls in Ibiza from 1 hour.'
         : 'Consultas de medicina general en Ibiza desde 1 hora.',
-      images: ['/og-image.svg'],
+      images: ['/og-image.jpg'],
+    },
+    icons: {
+      apple: '/apple-touch-icon.png',
     },
     robots: {
       index: true,
