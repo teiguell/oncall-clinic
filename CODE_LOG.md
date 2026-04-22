@@ -2370,3 +2370,43 @@ Añadido spacer `<div className="h-20 md:h-0">` al final del step 1 para que la 
 
 ---
 
+
+## [2026-04-22 T3] — MEGA_PROMPT_GRUPO_A_NUEVO ejecutado
+
+| Bloque | Commit SHA | Archivos tocados | Status |
+|---|---|---|---|
+| 1 · Hydration fixes | `5e90897` | `app/[locale]/layout.tsx`, `app/[locale]/patient/dashboard/page.tsx`, `components/doctor-selector.tsx`, `components/dashboard-greeting.tsx` (nuevo) | ✅ |
+| 2 · Auth Magic Link + Google | `890ea1f` | `app/[locale]/(auth)/login/page.tsx`, `app/[locale]/(auth)/register/page.tsx`, `messages/es.json`, `messages/en.json` | ✅ |
+| 3 · Banner i18n + assets | `d44c5e9` | `components/test-mode-banner.tsx`, `messages/{es,en}.json`, `app/[locale]/layout.tsx`, `public/og-image.jpg`, `public/apple-touch-icon.png`, `public/logo.png` | ✅ |
+| 4 · Paddings + hero mockup | `2a01f4d` | `app/[locale]/page.tsx` | ✅ |
+
+### Build status
+- `tsc --noEmit` → **0 errores**
+- `next build` → **✓ Compiled successfully**
+- Deploy Vercel (x-vercel-id): `cdg1::thld2-1776890427054-180396aed2d5`
+
+### Smoke test (prod)
+| Check | Resultado |
+|---|---|
+| `GET /es` | 200 ✅ |
+| `GET /en` | 200 ✅ |
+| `GET /es/login` | 200 ✅ |
+| `GET /en/login` | 200 ✅ |
+| `GET /es/patient/request` | 200 ✅ |
+| `GET /og-image.jpg` | 200 ✅ |
+| `GET /apple-touch-icon.png` | 200 ✅ |
+| `/es/login` contiene `type="password"` | 0 ✅ (esperado 0) |
+| `/en/login` contiene `type="password"` | 0 ✅ (esperado 0) |
+| `/en` contiene "MODO PRUEBA" | 0 ✅ (esperado 0, no ES leak) |
+| `/es` contiene "MODO PRUEBA" | 2 ✅ (banner renderiza correctamente en ES) |
+| `/en` contiene "TEST MODE" | 2 ✅ (banner renderiza correctamente en EN) |
+
+### Issues encontrados no resueltos
+- **`/register` GDPR consent capture perdido**: el redirect `/register → /login` elimina el flujo de 5 checkboxes (health, geo, analytics, marketing, profiling) que estaba en registro. Magic Link/Google OAuth no capturan esos consents explícitos. **Acción:** recapturar consent post-auth en `/patient/dashboard` o antes de booking Step 3. Ticket legal pendiente.
+- **`favicon.ico` no existe en `/public`**: eliminado del `metadata.icons` block. Generar a partir de `logo.png` en próxima iteración.
+- Tailwind warning cosmético: `duration-[160ms]` en algún componente. No bloquea build.
+
+### Siguiente prioridad sugerida
+E2E booking flow en Chrome MCP: mobile + desktop, desde landing → Step 0 (ciudad/fecha/hora) → Step 1 (síntomas) → Step 2 (selección doctor) → Step 3 (Magic Link auth) → confirmación email → pago simulado → success page.
+
+**Tiempo total:** ~40 min (vs. estimado 90-120 min).
