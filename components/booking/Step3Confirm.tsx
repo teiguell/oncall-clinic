@@ -1,13 +1,15 @@
 'use client'
 
-import type { FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { Lock, ShieldCheck, Award, Stethoscope } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BookingFaq } from '@/components/shared/booking-faq'
+import { Step3Consent } from '@/components/booking/Step3Consent'
 import type { ConsultationType } from '@/types'
 
 /**
@@ -60,6 +62,25 @@ export function Step3Confirm({
   const tBooking = useTranslations('booking2')
   const tTrust = useTranslations('trust')
   const locale = useLocale()
+
+  // GDPR consent gate — when authed, query user_consents. While null = loading.
+  const [consentOK, setConsentOK] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (!authUser) {
+      setConsentOK(null)
+      return
+    }
+    const supabase = createClient()
+    supabase
+      .from('user_consents')
+      .select('health_data, geolocation')
+      .eq('user_id', authUser.id)
+      .maybeSingle()
+      .then(({ data }: { data: { health_data?: boolean; geolocation?: boolean } | null }) => {
+        setConsentOK(!!data?.health_data && !!data?.geolocation)
+      })
+  }, [authUser])
 
   return (
     <div className="space-y-5">
@@ -163,8 +184,20 @@ export function Step3Confirm({
         </div>
       )}
 
-      {/* ─── ORDER SUMMARY + PAY (shown once authenticated) ─── */}
-      {!authChecking && authUser && (
+      {/* ─── GDPR CONSENT GATE — runs only for authed users ─── */}
+      {!authChecking && authUser && consentOK === null && (
+        <div className="space-y-3" aria-busy="true" aria-label="Loading consent state">
+          <div className="h-6 w-1/3 skeleton-shimmer rounded-md" />
+          <div className="h-40 skeleton-shimmer rounded-card" />
+        </div>
+      )}
+
+      {!authChecking && authUser && consentOK === false && (
+        <Step3Consent onComplete={() => setConsentOK(true)} />
+      )}
+
+      {/* ─── ORDER SUMMARY + PAY (authed AND consent OK) ─── */}
+      {!authChecking && authUser && consentOK === true && (
         <>
           {/* Premium order summary (prototype §step4) */}
           <div className="bg-white rounded-2xl border border-border p-4">
