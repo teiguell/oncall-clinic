@@ -2654,3 +2654,108 @@ El layout `/patient/layout.tsx` aplica a TODOS los hijos, incluido `/patient/req
 **Consent:** OK. **Deltas:** 3/3. **Deploy final:** `dpl_CYPz8Cc1s9uoA8bcCk4nyydTcRBa`. **Commit final:** `6523a3c`.
 
 **Pendiente Ops:** aplicar migración 015 en Supabase prod (`supabase db push`) antes de que usuarios reales intenten pagar — sin la tabla `user_consents` el endpoint `/api/consent/state` fallará con `relation "user_consents" does not exist`.
+
+## [2026-04-22] — PROMPT 02 · Cierre simulación E2E (6 bloques)
+
+### Resumen ejecutivo
+6 bloques secuenciales. Build ✓ 81/81 páginas. tsc 0 errores. i18n parity 1272 ES = 1272 EN. Deploy final `dpl_8tU4uvyMXgqRq5FfLXVaf6FiRo96` en `oncall.clinic` con `/api/health` respondiendo `{ok:true, supabase:"up", stripe:"configured"}`.
+
+### SHA por bloque
+
+| # | Bloque | SHA | Archivos principales |
+|---|---|---|---|
+| A | Webhook + KYC seed | `2efae38` | `app/api/stripe/webhooks/route.ts` + migration 016 |
+| B | Doctor notes + reviews | `da9bd44` | migration 017 + `ConsultationNotesTabs.tsx` + `PostConsultationReview.tsx` |
+| C | Chat 24h + 112 | `575f510` | migration 018 (pg_cron) + `ChatLogistico.tsx` + tracking banner |
+| D | Consent consolidation | `894dc9b` | migration 019 (backfill) + `/api/consent` refactor a `user_consents` |
+| E | Playwright E2E | `563ff9f` | `playwright.config.ts` + `e2e/{patient,doctor,seed}.{spec.ts,ts}` + workflow |
+| F | Sentry + Lighthouse + health | `5e91df8` | `/api/health` + `sentry.*.config.ts` + `instrumentation.ts` + lighthouse.yml |
+
+### BLOQUE A — fix webhook payment_status + KYC seed ✅
+**Webhook handler actualizado** (`app/api/stripe/webhooks/route.ts`):
+- `checkout.session.completed` → añade `payment_status='paid'`, `stripe_session_id`, `updated_at`
+- `payment_intent.succeeded` → añade `payment_status='paid'`, `updated_at` (defensive)
+- `charge.refunded` → añade `payment_status='refunded'` en consultations
+- Logging: `insert` → `upsert onConflict event_id` (duplicados overwrite clean)
+
+**Migration 016**: completa COMIB licence, RC insurance (AXA TEST), contract_version, RETA para los 3 seed doctors (`d1000000-*`).
+
+### BLOQUE B — notas médicas + reviews ✅
+**Migration 017**:
+- `consultations.doctor_internal_notes` (privado)
+- `consultations.patient_report` (enviado al paciente al finalizar)
+- Vista `consultations_patient_view` que proyecta SIN `doctor_internal_notes` — a prueba de bugs que hagan `select *`
+
+**`ConsultationNotesTabs.tsx`** (médico): 2 tabs (interno / paciente) con autoguardado debounce 3s, botón "Finalizar consulta" flipa status='completed'.
+
+**`PostConsultationReview.tsx`** (paciente): 1-5 estrellas + comentario opcional + checkbox "hacer pública"; inserta en `consultation_reviews`. Trigger `update_doctor_rating` recalcula media.
+
+### BLOQUE C — chat 24h + 112 + guardrails ✅
+**Migration 018**: `pg_cron` schedule `purge_chat_24h` cada hora + RLS policy `chat_24h_window` que refuerza window + participant check.
+
+**`ChatLogistico.tsx`**:
+- Banner rojo "solo logístico, llama 112 para síntomas"
+- Botón flotante 112 bottom-right (safe-area)
+- Realtime subscription a `consultation_messages`
+- Burbujas asimétricas (msg-patient gradient / msg-doctor white)
+- Opacity 60% para mensajes >12h + hint "se borrará pronto"
+- **Keyword scanner ES+EN** (22 términos clínicos): modal warning antes de enviar; el usuario puede forzar el envío tras leer el aviso
+
+**Tracking page**: banner 112 persistente entre mapa y bottom card + botón "Llamar 112" con min-h 28px.
+
+**Copy fix landing**: "Chat con médico durante 48h" → "Chat logístico 24h" en ES + EN.
+
+### BLOQUE D — consent consolidation ✅
+**Migration 019**: backfill `user_consents` desde `consent_log` (bool_or por consent_type, MAX(granted_at)). COMMENT DEPRECATED en `consent_log` (tabla preservada para audit histórico).
+
+**`/api/consent/route.ts` refactorizado**: ahora usa RLS session auth + lee user_consents + flipa single field + upsert. Mantiene interfaz legacy (`consent_type` + `granted`) para compatibilidad con `/patient/privacy`. No enforce mandatory consents (respeta derecho Art. 7(3) GDPR a retirar).
+
+### BLOQUE E — Playwright E2E ✅ (specs escritos, CI-ready)
+- `playwright.config.ts`: 2 projects (desktop Chrome 1440, mobile iPhone 14), baseURL overrideable
+- `e2e/patient.spec.ts`: landing → booking Steps 0-3 → consent gate → review submit (requiere `E2E_SESSION_COOKIE` para Magic Link step)
+- `e2e/doctor.spec.ts`: dashboard → accept → notes tabs → finalizar
+- `e2e/seed.ts`: `adminClient`, `forceConsultationStatus`, `cleanupTestConsent`
+- `.github/workflows/e2e.yml`: se dispara on `deployment_status=success`, sube artifact playwright-report on failure
+
+**No ejecutados aquí** (requieren servidor corriendo + browsers + session cookies de test). CI los correrá automáticamente cuando Vercel marque el deploy como READY.
+
+### BLOQUE F — Sentry + Lighthouse + health ✅
+**`/api/health`**: query `profiles.limit(1)` + flags stripe/webhook/supabase + `VERCEL_GIT_COMMIT_SHA`. Respuesta live:
+```json
+{"ok":true,"supabase":"up","stripe":"configured","stripe_webhook":"configured","env_supabase":"configured","commit":"5e91df8...","timestamp":"2026-04-22T22:21:31Z"}
+```
+
+**Sentry**:
+- `@sentry/nextjs@8.55.1` instalado (213 packages added)
+- 3 config files (client/server/edge) con `beforeSend` **que redacta 10 claves sensibles**: symptoms, notes, patient_report, doctor_internal_notes, health_data, email, phone, ip_address, stripe_secret_key, supabase_service_role_key → `[REDACTED]` antes de salir del runtime.
+- `instrumentation.ts` condicional: solo inicia si `SENTRY_DSN` está seteado; try/catch si el paquete no resuelve (app boota siempre).
+
+**Lighthouse CI** (`.github/workflows/lighthouse.yml`): 3 URLs × desktop preset × thresholds perf≥0.85, a11y≥0.95, bp≥0.90. Falla PR si no se cumple.
+
+### Smoke test post-deploy
+
+| Ruta | HTTP |
+|---|---|
+| /es | 200 |
+| /es/patient/request?step=3 | 200 |
+| /es/patient/dashboard | 200 |
+| /api/health | 200 (`{ok:true}`) |
+
+### Estado final
+
+- **Build**: ✓ 81/81 páginas · tsc 0 errores
+- **i18n**: **1272 ES = 1272 EN** ✅ (+55 keys respecto al sprint anterior)
+- **Migraciones**: 015-019 listas (pendiente `supabase db push` en prod para 016-019)
+- **CI**: 2 workflows nuevos (E2E + Lighthouse) disparables on `deployment_status`
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo | Acción pendiente | Urgencia |
+|---|---|---|
+| **Ops/Supabase** | Aplicar migraciones 016-019 en prod (`supabase db push`). 018 requiere pg_cron extension — Supabase Pro ya lo tiene; en Free hay que habilitar. | **Crítica** |
+| **Ops/Env** | Configurar `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` en Vercel si quieren capturar errores. Sin DSN, instrumentation.ts no-op. | Alta |
+| **QA/CI** | Setear en GitHub Secrets: `E2E_SESSION_COOKIE`, `E2E_DOCTOR_SESSION_COOKIE`, `TEST_PATIENT_EMAIL`, `TEST_CONSULTATION_ID` para que los workflows E2E puedan correr end-to-end. Sin estos, los specs hacen skip pero no fallan. | Alta |
+| **Legal/DPO** | Doctor internal notes ahora OCULTAS al paciente (vista `consultations_patient_view`). Chat retention 24h con pg_cron hourly purge. Documentar ambos en DPIA. | Media |
+| **Marketing** | Copy "Chat logístico 24h" sustituye "Chat con médico 48h" en ES+EN. Actualizar cualquier asset externo (AdWords, LinkedIn) que aún diga 48h. | Baja |
+
+**Deploy final:** `dpl_8tU4uvyMXgqRq5FfLXVaf6FiRo96` → https://oncall.clinic (READY). Commit final: `5e91df8`.
