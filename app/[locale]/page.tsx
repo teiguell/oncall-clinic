@@ -652,14 +652,14 @@ export default function LandingPage() {
             {/* Divider + phone fallback (matches prototype "or call us") */}
             <div className="flex items-center gap-3 my-6">
               <div className="flex-1 h-px bg-white/15" />
-              <span className="text-xs text-blue-100/70 uppercase tracking-wider">{t('cta.or')}</span>
+              <span className="text-xs text-white/85 uppercase tracking-wider">{t('cta.or')}</span>
               <div className="flex-1 h-px bg-white/15" />
             </div>
             <a
               href="tel:+34871183415"
-              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px] px-5 py-3 rounded-[14px] border border-white/15 bg-white/[0.08] backdrop-blur text-white font-semibold hover:bg-white/15 transition-colors"
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px] px-5 py-3 rounded-[14px] border border-white/15 bg-white/[0.08] backdrop-blur text-xl md:text-2xl font-semibold text-white/95 hover:bg-white/15 transition-colors"
             >
-              <PhoneCall className="h-4 w-4" aria-hidden="true" />
+              <PhoneCall className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
               +34 871 18 34 15
             </a>
           </div>

@@ -46,7 +46,7 @@ export function Navbar({ user }: NavbarProps) {
     : '🏥 ' + t('rolePatient')
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-border/40">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href={dashboardHref} className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-xl gradient-primary flex items-center justify-center">
