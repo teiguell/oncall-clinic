@@ -2553,3 +2553,104 @@ Tensión: Magic Link redirige al usuario (callback) → si no persistimos perdem
 - Git blame útil por componente
 
 **Deploy:** `dpl_BwWaGCGPR9pdfHBoB9xBz8ufL4hQ` → https://oncall.clinic (READY). Commit `248284a`.
+
+## [2026-04-22] — BLOQUE 1 · GDPR CONSENT RECAPTURE
+
+### Problema
+Al migrar a Magic Link + Google OAuth (sprints anteriores), se perdieron los 5 checkboxes de consent del antiguo `/register`. Esto deja datos de salud siendo procesados sin consent explícito (Art. 9 GDPR — violación grave) y la geolocalización usada sin consent.
+
+### Solución — dual-table (state + log) con gate en Step 3
+Mantenemos la tabla `consent_log` (migración 003, append-only audit trail) y añadimos `user_consents` (migración 015, single-row-per-user current state) para quick-lookup en el booking.
+
+### Archivos creados
+| Archivo | Propósito |
+|---|---|
+| `supabase/migrations/015_user_consents.sql` | Tabla `user_consents` + RLS (SELECT/INSERT/UPDATE solo own row) |
+| `app/api/consent/state/route.ts` | POST upsert con rate limit 10/min, IP + UA capture, validación estricta `=== true` |
+| `components/booking/Step3Consent.tsx` | 5 checkboxes GDPR-compliant (ningún pre-marcado, 2 grupos visuales: Obligatorios vs Opcionales) |
+| `app/[locale]/patient/layout.tsx` | Server-layout que enforce consent en dashboard/tracking/history/profile — salta `/patient/request` via `x-pathname` header |
+
+### Archivos modificados
+| Archivo | Cambio |
+|---|---|
+| `components/booking/Step3Confirm.tsx` | Import `Step3Consent` + 3-state render (null/false/true) según `user_consents` |
+| `lib/supabase/middleware.ts` | `supabaseResponse.headers.set('x-pathname', fullPath)` para server-components |
+| `messages/es.json` + `messages/en.json` | Namespace `consent` (17 keys × 2 bundles) |
+
+### Compliance RGPD
+- **Art. 7 (consent demostrable):** cada upsert guarda `consented_at`, `ip_address`, `user_agent`, `version='1.0'`
+- **Art. 7(2) (freely given):** los 5 checkboxes arrancan `FALSE`. Ningún bundled consent (salud + geo son independientes aunque ambos obligatorios).
+- **Art. 9.2.a (health data):** consent explícito, con copy que cita el artículo.
+- **Ningún dark pattern:** no hay opt-out oculto, no hay checkbox pre-marcado, la jerarquía visual es clara.
+- **LOPDGDD 3/2018:** citada en el subtítulo del card en ambos idiomas.
+
+### Decisión arquitectural — redirect loop prevention
+El layout `/patient/layout.tsx` aplica a TODOS los hijos, incluido `/patient/request`. Si redirigiéramos desde ahí, infinito loop. Solución:
+1. `middleware.ts` setea header `x-pathname` con el path completo de la request
+2. `layout.tsx` lee `headers().get('x-pathname')`; si incluye `/patient/request`, short-circuit (`return children`)
+3. Solo el resto de rutas patient ejecuta el consent check
+
+### Commits (6, separados por unidad lógica)
+- `e6be533` feat(gdpr): add user_consents table with RLS policies
+- `b3135e3` feat(gdpr): add /api/consent/state route with IP + UA capture
+- `9de7f49` feat(booking): add Step3Consent component (5 checkboxes, RGPD compliant)
+- `ee9f700` feat(booking): enforce consent check before order summary
+- `051dd40` feat(patient): middleware layout enforces consent before dashboard access
+- `07299e0` feat(i18n): add consent namespace ES+EN (RGPD Art. 9 compliant)
+
+### Build + i18n
+- `tsc --noEmit` → **0 errores**
+- `next build` → **✓ 81/81 páginas** (+1 por `/api/consent/state`)
+- i18n parity: **1246 ES = 1246 EN ✅**
+
+### 📡 IMPACTO CROSS-GRUPO
+
+| Grupo | Qué necesita saber | Acción | Urgencia |
+|---|---|---|---|
+| **Ops/Supabase** | Migración 015 pendiente de aplicar en prod. Tabla `user_consents` con RLS. Sin ella el upsert falla con relation-does-not-exist. | `supabase db push` o ejecutar migration manual | **CRÍTICA** |
+| **Legal/DPO** | Todos los usuarios nuevos recapturarán 5 consents antes del primer pago. Los usuarios existentes sin row en `user_consents` serán redirigidos al flow de consent al intentar acceder al dashboard. | Revisar copy en ES+EN (¿es suficientemente granular? ¿Art. 22 automated decisions?) | **Alta** |
+| **Data/Analytics** | La tabla `user_consents.analytics` actúa como kill switch. Si `analytics=false`, la app NO debe llamar a GA4/Segment/etc. Respetar este flag en futuras integraciones. | Añadir lectura de la flag en los hooks analytics | Media |
+| **Test QA** | Flujo a probar: nuevo usuario Magic Link → aterriza en ?step=3 → render Step3Consent → submit 2 obligatorios → upsert user_consents → render order summary. Usuario existente con consent → render directo order summary. | Smoke test mobile + desktop | **Alta** |
+| **Growth** | Friction +1 paso antes del primer pago. Medir drop-off en el consent step. El drop-off legal-obligatorio no A/B-testeable pero sí se puede medir. | Monitorizar funnel post-deploy 7 días | Media |
+
+**Deploy:** `dpl_22q3EHK1X5jGUBrdnv2Ym665E9fL` → https://oncall.clinic (READY). Commit final: `07299e0`.
+
+## [2026-04-22] — BLOQUE 2 · DELTAS COSMÉTICOS BLOQUE A (Audit)
+
+### 3 deltas verificados
+
+| Delta | Estado | Resultado |
+|---|---|---|
+| **2.1** Section padding mobile | ✅ | 0 ocurrencias de `py-16` en landing (Phase 4 ya lo había hecho) |
+| **2.2** Final CTA contraste | ✅ | "O LLÁMANOS" → `text-white/85` (era `/70`) + teléfono → `text-xl md:text-2xl font-semibold text-white/95` (era `font-semibold` sin tamaño) + icono escalado `h-5 md:h-6` |
+| **2.3** Navbar sticky blur | ✅ | `backdrop-blur` → `backdrop-blur-md` (14px) + `bg-white/95` → `bg-white/90` + `border-b` → `border-b border-border/40` |
+
+### Commit
+- `6523a3c` fix(landing): resolve Block A audit deltas (padding + CTA contrast + navbar blur)
+
+### Smoke test post-deploy
+
+| Ruta | HTTP |
+|---|---|
+| /es | HTTP/2 200 |
+| /es/patient/request?step=3 | HTTP/2 200 |
+| /es/patient/dashboard | HTTP/2 200 |
+
+### Build
+- `tsc --noEmit` → **0 errores**
+- `next build` → **✓ 81/81 páginas**
+
+**Deploy:** `dpl_CYPz8Cc1s9uoA8bcCk4nyydTcRBa` → https://oncall.clinic (READY). Commit final: `6523a3c`.
+
+---
+
+## BATCH GDPR+DELTAS — RESUMEN
+
+| Bloque | Commits | Deploy | Estado |
+|---|---|---|---|
+| 1 GDPR Consent Recapture | 6 (`e6be533`, `b3135e3`, `9de7f49`, `ee9f700`, `051dd40`, `07299e0`) | `dpl_22q3EHK1X5jGUBrdnv2Ym665E9fL` | ✅ |
+| 2 Deltas Cosméticos A | 1 (`6523a3c`) | `dpl_CYPz8Cc1s9uoA8bcCk4nyydTcRBa` | ✅ 3/3 |
+
+**Consent:** OK. **Deltas:** 3/3. **Deploy final:** `dpl_CYPz8Cc1s9uoA8bcCk4nyydTcRBa`. **Commit final:** `6523a3c`.
+
+**Pendiente Ops:** aplicar migración 015 en Supabase prod (`supabase db push`) antes de que usuarios reales intenten pagar — sin la tabla `user_consents` el endpoint `/api/consent/state` fallará con `relation "user_consents" does not exist`.
