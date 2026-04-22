@@ -1334,6 +1334,28 @@
     "instr4": "Back to Patient tab → you'll see tracking in real time.",
     "test_card": "Stripe test card"
   },
+  "consultation": {
+    "internalNotes": "Internal notes",
+    "internalNotesDesc": "Private. The patient does not see these.",
+    "internalNotesPlaceholder": "Diagnosis, hypotheses, medication to review...",
+    "patientReport": "Report for patient",
+    "patientReportDesc": "The patient will receive this text once you finish.",
+    "patientReportPlaceholder": "Clinical summary, treatment, recommendations...",
+    "savedDraft": "Saved",
+    "saving": "Saving...",
+    "finishConsultation": "Finish consultation",
+    "finishConfirmTitle": "Finish consultation?",
+    "finishConfirmDesc": "The patient receives the report and can leave a review."
+  },
+  "review": {
+    "rateDoctor": "Rate your doctor",
+    "rateDoctorDesc": "Your feedback helps other patients",
+    "commentPlaceholder": "Briefly share your experience (optional)",
+    "makePublic": "Make my review public",
+    "submit": "Submit review",
+    "thanks": "Thanks for your review!",
+    "errorSubmit": "Couldn't submit the review. Please try again."
+  },
   "consent": {
     "title": "GDPR Consents",
     "subtitle": "Pursuant to Regulation (EU) 2016/679 and Spanish LOPDGDD 3/2018",

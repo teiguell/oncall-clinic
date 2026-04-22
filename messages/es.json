@@ -1334,6 +1334,28 @@
     "instr4": "Vuelve a la pestaña de Paciente → verás el tracking en tiempo real.",
     "test_card": "Tarjeta de prueba Stripe"
   },
+  "consultation": {
+    "internalNotes": "Notas internas",
+    "internalNotesDesc": "Privadas. El paciente no las ve.",
+    "internalNotesPlaceholder": "Diagnóstico, hipótesis, medicación a revisar...",
+    "patientReport": "Informe para paciente",
+    "patientReportDesc": "El paciente recibirá este texto al finalizar.",
+    "patientReportPlaceholder": "Resumen clínico, tratamiento, recomendaciones...",
+    "savedDraft": "Guardado",
+    "saving": "Guardando...",
+    "finishConsultation": "Finalizar consulta",
+    "finishConfirmTitle": "¿Finalizar consulta?",
+    "finishConfirmDesc": "El paciente recibirá el informe y podrá valorar."
+  },
+  "review": {
+    "rateDoctor": "Valora a tu médico",
+    "rateDoctorDesc": "Tu opinión ayuda a otros pacientes",
+    "commentPlaceholder": "Cuenta brevemente tu experiencia (opcional)",
+    "makePublic": "Hacer pública mi reseña",
+    "submit": "Enviar valoración",
+    "thanks": "¡Gracias por tu valoración!",
+    "errorSubmit": "No se pudo enviar la valoración. Inténtalo de nuevo."
+  },
   "consent": {
     "title": "Consentimientos RGPD",
     "subtitle": "De acuerdo con el Reglamento (UE) 2016/679 y la LOPDGDD 3/2018",
