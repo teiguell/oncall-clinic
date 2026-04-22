@@ -2429,3 +2429,76 @@ E2E booking flow en Chrome MCP: mobile + desktop, desde landing → Step 0 (ciud
 - `package.json` / `package-lock.json` (sharp, png-to-ico como devDependencies para generación one-off)
 
 **Siguiente:** `MEGA_PROMPT_UI_FIDELITY_PROTOTIPOS.md`
+
+## [2026-04-22] — UI FIDELITY prototipos portada (MEGA PROMPT)
+
+### Preflight
+- **Baseline tsc:** limpio
+- **Prototipos presentes:** Premium Landing, Booking Flow, Patient Dashboard (3 carpetas)
+- **Commits previos relevantes a esta iteración ya aplicaban gran parte del prototipo:**
+  - `a879ad8` favicon fix
+  - `a795b30` favicon + icon.png
+  - `2a01f4d` unify paddings + richer iPhone mockup hero
+  - `d44c5e9` banner i18n + static assets
+  - `890ea1f` Magic Link + Google OAuth (Phase 5)
+  - Phases 2-5 ya portaron: hero gradient, sections kickers, doctors preview, section-animate fix, doctor-first flow, dashboard premium, success animations, floating CTA, etc.
+
+### Bloques ejecutados en esta iteración
+| Bloque | Estado | Detalle |
+|---|---|---|
+| A Landing | ✅ Ya aplicado | Verificado: primitives, hero warm gradient + mockup, kicker pills, numbered steps 01/02/03, doctors preview, FAQ tokens, CTA dark gradient. i18n coverage completa en `landing.*` |
+| B Booking | ✅ Parcial + persist nuevo | Step 0→1→2→3 ya portado (Phase 5). **NUEVO:** Zustand store con persist a localStorage, GDPR-aware (NO symptoms/address) + TTL 1h |
+| C Dashboard+Tracking | ✅ Ya aplicado | Dashboard premium (Phase 3), tracking ETA gradient + stepper colored (Phase 3). Ambos via i18n |
+| D Polish a11y | ✅ | Spinners: solo 2 micro-interacciones de botón (Magic Link + Pay), aceptable. Reduced-motion global ya presente (3 rulesets). Button size=sm ahora `min-h-[44px] md:h-9` (WCAG 2.5.5) |
+| E Smoke test | ✅ | 11/11 rutas 200; 0 password leaks; 0 ES leaks en /en |
+
+### Archivos modificados (esta iteración)
+- `stores/booking-store.ts` — **persist middleware** + `partialize` GDPR-aware + TTL 1h via `_persistedAt` + `onRehydrateStorage` cleaner
+- `components/ui/button.tsx` — `size="sm"` ahora `min-h-[44px] md:min-h-0 md:h-9`; `size="icon"` similar
+
+### Zustand persist — diseño GDPR
+Tensión: Magic Link redirige al usuario (callback) → si no persistimos perdemos el contexto del booking. Pero los síntomas + dirección son datos de salud (Art. 9 GDPR) que NO deben ir a localStorage.
+
+**Resolución:** `partialize` solo guarda:
+- `consultationType`, `scheduledDate`
+- `selectedDoctorId`, `selectedDoctorName`, `selectedDoctorPrice`, `selectedDoctorSpecialty`
+- `_persistedAt` (epoch ms)
+
+**NO persistidos (memoria-only):** `location`, `coordinates`, `symptoms`, `phone`, `lastSubmission`. Si el usuario recarga, re-introduce.
+
+**TTL:** `onRehydrateStorage` compara `Date.now() - _persistedAt`; si > 1 hora, limpia localStorage. Evita fugas intersesión.
+
+### Smoke test resultados
+
+| Ruta | HTTP |
+|---|---|
+| /es | 200 |
+| /en | 200 |
+| /es/login | 200 |
+| /es/patient/request | 200 |
+| /en/patient/request | 200 |
+| /es/patient/dashboard | 200 |
+| /es/contact | 200 |
+| /es/legal/privacy | 200 |
+| /es/legal/terms | 200 |
+| /es/legal/cookies | 200 |
+| /es/legal/aviso-legal | 200 |
+
+- **Password inputs**: 0 en `/es/login`, `/en/login`, `/es/patient/request` (inline auth usa Magic Link + Google)
+- **Spanish leaks in /en**: 0 en homepage (búsqueda de "MODO PRUEBA|Iniciar sesión|Continuar|Atrás")
+
+### Build
+- `tsc --noEmit` → **0 errores**
+- `next build` → **✓ 80/80 páginas**
+- i18n parity: **1230 ES = 1230 EN ✅**
+
+### Fidelity vs prototipo
+**Alto.** Los 3 prototipos (Premium Landing, Booking Flow, Patient Dashboard) ya estaban portados en Phases 2-5 con tokens exactos (fontWeight 680, tracking -0.035em, padding py-11/md:py-20, gradients, kickers, status colors, etc.). Esta iteración cierra:
+1. El gap de persistencia Magic Link (Bloque B.4)
+2. A11y WCAG 2.5.5 en botones size=sm (Bloque D)
+
+### Pendiente para próxima iteración
+- Split de `patient/request/page.tsx` en sub-componentes `Step{0,1,2,3,4}.tsx` (refactor arquitectural grande). Actual es monolítico pero funciona. Bloque B.2 del prompt.
+- Lighthouse CI automatizado (no ejecutado en este sprint por restricciones de entorno).
+
+**Deploy:** `dpl_9CV5GapDyRxgQk1sJwoKqMuW5CqG` → https://oncall.clinic (READY). Commit `c20178b`.
