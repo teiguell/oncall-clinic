@@ -79,7 +79,12 @@ export async function generateMetadata(
       images: ['/og-image.jpg'],
     },
     icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/icon.png', type: 'image/png', sizes: '32x32' },
+      ],
       apple: '/apple-touch-icon.png',
+      shortcut: '/favicon.ico',
     },
     robots: {
       index: true,
