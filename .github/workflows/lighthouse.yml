@@ -1,0 +1,36 @@
+name: Lighthouse CI
+
+on:
+  deployment_status:
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    if: github.event.deployment_status.state == 'success' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.14.x
+
+      - name: Run Lighthouse on 3 URLs
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url || 'https://oncall.clinic' }}
+        run: |
+          lhci autorun \
+            --collect.url="$BASE_URL/es" \
+            --collect.url="$BASE_URL/es/patient/request" \
+            --collect.url="$BASE_URL/en" \
+            --collect.numberOfRuns=1 \
+            --collect.settings.preset=desktop \
+            --assert.preset=lighthouse:recommended \
+            --assert.assertions.categories:performance="[\"error\", {\"minScore\": 0.85}]" \
+            --assert.assertions.categories:accessibility="[\"error\", {\"minScore\": 0.95}]" \
+            --assert.assertions.categories:best-practices="[\"error\", {\"minScore\": 0.90}]" \
+            --upload.target=temporary-public-storage
