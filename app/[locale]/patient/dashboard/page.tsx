@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ReferralCard } from '@/components/referral-card'
+import { DashboardGreeting } from '@/components/dashboard-greeting'
 import { EmptyState } from '@/components/ui/empty-state'
 import type { Consultation } from '@/types'
 
@@ -105,13 +106,6 @@ export default async function PatientDashboard() {
   }
 
   const firstName = profile.full_name?.split(' ')[0] || 'Usuario'
-  const hour = new Date().getHours()
-  // 6-12 morning, 12-20 afternoon, else evening/night
-  const greeting = hour >= 6 && hour < 12
-    ? t('dashboard.greeting')
-    : hour >= 12 && hour < 20
-      ? t('dashboard.greetingAfternoon')
-      : t('dashboard.greetingEvening')
 
   // Doctor info for active consultation
   const activeDoctorName = activeConsultation
@@ -130,13 +124,6 @@ export default async function PatientDashboard() {
   // Safe key lookup for status (falls back to raw key if missing)
   const statusKey = (s: string) => (`status.${s}` as const)
 
-  // Localized date string (weekday, day, month — prototype §dashboard)
-  const today = new Date().toLocaleDateString(locale, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  })
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar user={profile} />
@@ -144,13 +131,10 @@ export default async function PatientDashboard() {
       <main className="container mx-auto px-4 py-5 max-w-md md:max-w-2xl">
         {/* ── 1A. Greeting + Bell ─────────────────── */}
         <div className="pt-3 px-1 mb-6">
-          <p className="text-[13px] text-muted-foreground tracking-wide capitalize">
-            {today}
-          </p>
-          <div className="flex items-center justify-between mt-1">
-            <h1 className="text-[26px] font-bold tracking-[-0.7px] text-foreground leading-tight">
-              {greeting}, {firstName}
-            </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <DashboardGreeting firstName={firstName} locale={locale} />
+            </div>
             <button
               className="relative h-11 w-11 rounded-[14px] bg-white border border-border flex items-center justify-center hover:bg-gray-50 transition-colors"
               aria-label="Notifications"

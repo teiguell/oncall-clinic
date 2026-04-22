@@ -200,10 +200,11 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
     typeof km === 'number' ? Math.max(5, Math.round((10 + km * 1.5) / 5) * 5) : null
 
   // Ibiza local hour window for night pricing (22:00–07:59)
-  const isNightHour = (() => {
+  const [isNightHour, setIsNightHour] = useState(false)
+  useEffect(() => {
     const h = new Date().getHours()
-    return h >= 22 || h < 8
-  })()
+    setIsNightHour(h >= 22 || h < 8)
+  }, [])
 
   return (
     <div className="space-y-3">

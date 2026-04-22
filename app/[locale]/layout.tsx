@@ -122,7 +122,7 @@ export default async function LocaleLayout({
   const tA11y = await getTranslations({ locale, namespace: 'a11y' })
 
   return (
-    <html lang={locale} className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang={locale} className={`${inter.variable} ${jakarta.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <a href="#main-content" className="skip-to-content">
           {tA11y('skipToContent')}
