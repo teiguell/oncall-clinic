@@ -47,6 +47,11 @@ export async function updateSession(request: NextRequest) {
   const locale = getLocaleFromPath(fullPath)
   const path = stripLocale(fullPath)
 
+  // Expose the current path to server components (layouts) via a header.
+  // Used by `/[locale]/patient/layout.tsx` to skip the consent gate on
+  // `/patient/request` itself (prevents redirect loops).
+  supabaseResponse.headers.set('x-pathname', fullPath)
+
   // ITEM 0: `/patient/request` is EXCLUDED from protection. The Step 3 of
   // the booking flow has its own inline auth (login/register without leaving
   // the page) which preserves the user's progress. Forcing a redirect here
