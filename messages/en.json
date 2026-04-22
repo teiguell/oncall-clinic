@@ -1333,5 +1333,22 @@
     "instr3": "Tab 2: sign in as Doctor → accept the request.",
     "instr4": "Back to Patient tab → you'll see tracking in real time.",
     "test_card": "Stripe test card"
+  },
+  "consent": {
+    "title": "GDPR Consents",
+    "subtitle": "Pursuant to Regulation (EU) 2016/679 and Spanish LOPDGDD 3/2018",
+    "mandatoryHeading": "Required to provide the service",
+    "optionalHeading": "Optional",
+    "healthData": "I authorise the processing of my health data (GDPR Art. 9.2.a) for the at-home medical service.",
+    "geolocation": "I authorise the use of my geolocation to match me with the nearest doctor.",
+    "analytics": "I accept cookies and analytics tools to improve the service.",
+    "marketing": "I accept commercial communications from OnCall Clinic.",
+    "profiling": "I accept the use of my data for personalised medical recommendations.",
+    "privacyLink": "Privacy policy",
+    "termsLink": "Terms and conditions",
+    "cookiesLink": "Cookies policy",
+    "continueBtn": "Continue",
+    "mandatoryError": "You must accept the required consents to continue.",
+    "saveError": "Could not save your consent. Please try again."
   }
 }

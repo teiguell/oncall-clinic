@@ -1333,5 +1333,22 @@
     "instr3": "Pestaña 2: entra como Doctor → acepta la solicitud.",
     "instr4": "Vuelve a la pestaña de Paciente → verás el tracking en tiempo real.",
     "test_card": "Tarjeta de prueba Stripe"
+  },
+  "consent": {
+    "title": "Consentimientos RGPD",
+    "subtitle": "De acuerdo con el Reglamento (UE) 2016/679 y la LOPDGDD 3/2018",
+    "mandatoryHeading": "Obligatorios para prestar el servicio",
+    "optionalHeading": "Opcionales",
+    "healthData": "Autorizo el tratamiento de mis datos de salud (Art. 9.2.a RGPD) para la prestación del servicio médico a domicilio.",
+    "geolocation": "Autorizo el uso de mi geolocalización para el matching con el médico más cercano.",
+    "analytics": "Acepto el uso de cookies y herramientas analíticas para mejorar el servicio.",
+    "marketing": "Acepto recibir comunicaciones comerciales sobre OnCall Clinic.",
+    "profiling": "Acepto que mis datos se usen para personalizar recomendaciones médicas.",
+    "privacyLink": "Política de privacidad",
+    "termsLink": "Términos y condiciones",
+    "cookiesLink": "Política de cookies",
+    "continueBtn": "Continuar",
+    "mandatoryError": "Debes aceptar los consentimientos obligatorios para continuar.",
+    "saveError": "No se pudo guardar tu consentimiento. Inténtalo de nuevo."
   }
 }
