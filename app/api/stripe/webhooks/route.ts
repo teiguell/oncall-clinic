@@ -76,25 +76,31 @@ export async function POST(request: NextRequest) {
         console.log(`Unhandled event type: ${event.type}`)
     }
 
-    // Log the processed event
-    await supabase.from('stripe_webhook_logs').insert({
-      event_type: event.type,
-      event_id: event.id,
-      payload: event.data.object as unknown as Record<string, unknown>,
-      status: 'processed',
-    })
+    // BLOQUE A: log with upsert so duplicate event_ids overwrite cleanly
+    // instead of failing the unique constraint and masking real errors.
+    await supabase.from('stripe_webhook_logs').upsert(
+      {
+        event_type: event.type,
+        event_id: event.id,
+        payload: event.data.object as unknown as Record<string, unknown>,
+        status: 'processed',
+      },
+      { onConflict: 'event_id' }
+    )
 
     return NextResponse.json({ received: true })
   } catch (err) {
     console.error(`Error processing webhook ${event.type}:`, err)
 
-    // Log the failed event
-    await supabase.from('stripe_webhook_logs').insert({
-      event_type: event.type,
-      event_id: event.id,
-      payload: event.data.object as unknown as Record<string, unknown>,
-      status: 'failed',
-    })
+    await supabase.from('stripe_webhook_logs').upsert(
+      {
+        event_type: event.type,
+        event_id: event.id,
+        payload: event.data.object as unknown as Record<string, unknown>,
+        status: 'failed',
+      },
+      { onConflict: 'event_id' }
+    )
 
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
@@ -110,11 +116,15 @@ async function handleCheckoutCompleted(supabase: SupabaseClient, session: Stripe
   const consultationId = session.metadata?.consultation_id
   if (!consultationId) return
 
+  // BLOQUE A: set payment_status='paid' + stripe_session_id + updated_at
   await supabase
     .from('consultations')
     .update({
+      payment_status: 'paid',
+      stripe_session_id: session.id,
       stripe_payment_intent_id: session.payment_intent as string,
       status: 'accepted',
+      updated_at: new Date().toISOString(),
     })
     .eq('id', consultationId)
 }
@@ -123,11 +133,16 @@ async function handlePaymentSucceeded(supabase: SupabaseClient, paymentIntent: S
   const consultationId = paymentIntent.metadata?.consultation_id
   if (!consultationId) return
 
+  // BLOQUE A: payment_intent.succeeded is the authoritative "money captured"
+  // signal. Mark payment_status='paid' here too in case checkout.session.completed
+  // fired earlier but failed the UPDATE.
   await supabase
     .from('consultations')
     .update({
+      payment_status: 'paid',
       stripe_payment_intent_id: paymentIntent.id,
       payout_status: 'pending',
+      updated_at: new Date().toISOString(),
     })
     .eq('id', consultationId)
 }
@@ -160,6 +175,15 @@ function handlePayoutPaid(payout: Stripe.Payout) {
 async function handleChargeRefunded(supabase: SupabaseClient, charge: Stripe.Charge) {
   const paymentIntentId = charge.payment_intent as string
   if (!paymentIntentId) return
+
+  // BLOQUE A: also flip consultations.payment_status='refunded'
+  await supabase
+    .from('consultations')
+    .update({
+      payment_status: 'refunded',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('stripe_payment_intent_id', paymentIntentId)
 
   const { data: consultation } = await supabase
     .from('consultations')
