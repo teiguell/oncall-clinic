@@ -125,7 +125,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              HERO — clarity-first, single CTA, 112 disclaimer
            ═══════════════════════════════════════════════════════ */}
-        <section className="section-animate relative overflow-hidden pt-10 md:pt-16 pb-16 md:pb-20">
+        <section className="section-animate relative overflow-hidden py-11 md:py-20">
           {/* Premium warm multi-layer gradient from prototype */}
           <div
             aria-hidden="true"
@@ -234,28 +234,41 @@ export default function LandingPage() {
               <TrustBadges compact />
             </div>
           </div>
-          {/* Right column: desktop-only app preview mockup */}
-          <div className="hidden md:flex items-center justify-center">
-            <div
-              className="w-[320px] h-[640px] rounded-[40px] border-[8px] border-slate-800 overflow-hidden shadow-2xl bg-gradient-to-b from-slate-100 to-slate-200"
-              aria-hidden="true"
-            >
-              <div className="h-full w-full bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center p-6 text-center">
-                <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center mb-4">
-                  <Stethoscope className="h-8 w-8 text-white" aria-hidden="true" />
+          {/* Right column: desktop-only iPhone mockup with app preview */}
+          <div className="hidden md:flex items-center justify-center relative" aria-hidden="true">
+            <div className="relative w-[300px] h-[620px] rounded-[50px] bg-neutral-900 shadow-2xl overflow-hidden border-[10px] border-neutral-800">
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-neutral-900 rounded-b-2xl z-10" />
+              {/* Screen */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100">
+                <div className="p-6 pt-12 space-y-4">
+                  <div className="h-3 w-24 bg-blue-600 rounded-full" />
+                  <div className="h-8 w-3/4 bg-[#0B1220] rounded-lg" />
+                  <div className="h-4 w-1/2 bg-neutral-300 rounded-full" />
+                  <div className="mt-8 space-y-3">
+                    <div className="h-20 bg-white rounded-2xl shadow-sm flex items-center gap-3 px-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700" />
+                      <div className="flex-1 space-y-1">
+                        <div className="h-2 w-3/4 bg-neutral-300 rounded-full" />
+                        <div className="h-2 w-1/2 bg-neutral-200 rounded-full" />
+                      </div>
+                    </div>
+                    <div className="h-20 bg-white rounded-2xl shadow-sm flex items-center gap-3 px-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700" />
+                      <div className="flex-1 space-y-1">
+                        <div className="h-2 w-2/3 bg-neutral-300 rounded-full" />
+                        <div className="h-2 w-1/3 bg-neutral-200 rounded-full" />
+                      </div>
+                    </div>
+                    <div className="h-14 bg-blue-600 rounded-2xl flex items-center justify-center">
+                      <div className="h-3 w-24 bg-white/90 rounded-full" />
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[15px] font-semibold text-slate-800">OnCall Clinic</p>
-                <p className="text-[12px] text-muted-foreground mt-1 max-w-[240px]">
-                  {t('hero.subtitle').slice(0, 80)}
-                </p>
-                <span
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] uppercase text-emerald-700"
-                >
-                  <span className="h-1 w-1 rounded-full bg-emerald-500 live-dot" aria-hidden="true" />
-                  {t('liveBadge')}
-                </span>
               </div>
             </div>
+            {/* Decorative glow */}
+            <div className="absolute -z-10 w-[400px] h-[400px] rounded-full bg-blue-400/20 blur-3xl" />
           </div>
           </div>
           </div>
@@ -654,7 +667,7 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16">
+      <footer className="bg-slate-900 text-white py-11 md:py-20">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div>
