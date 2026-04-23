@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import { Home, ClipboardList, Shield, User, DollarSign } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { LogoutButton } from '@/components/auth/LogoutButton'
 
 interface NavItem {
   href: string
@@ -97,6 +98,11 @@ export function MobileNav() {
             </Link>
           )
         })}
+        {/* Logout slot — audit P0-1: mobile users need an obvious exit.
+             Rendered as a compact icon button styled to match the nav. */}
+        <div className="flex flex-col items-center justify-center flex-1">
+          <LogoutButton variant="icon" className="!rounded-lg !p-1.5 h-auto" />
+        </div>
       </div>
     </nav>
   )

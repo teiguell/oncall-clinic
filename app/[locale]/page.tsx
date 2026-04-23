@@ -690,7 +690,7 @@ export default function LandingPage() {
               <h4 className="font-display font-semibold text-sm uppercase tracking-wider text-gray-400 mb-4">{t('footer.company')}</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><Link href="#medicos" className="hover:text-white transition-colors">{t('footer.forDoctors')}</Link></li>
-                <li><Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white transition-colors">{t('footer.about')}</Link></li>
+                <li><Link href={`/${locale}/about`} className="hover:text-white transition-colors">{t('footer.about')}</Link></li>
                 <li><Link href={`/${locale}/contact`} className="hover:text-white transition-colors">{t('footer.contact')}</Link></li>
               </ul>
             </div>

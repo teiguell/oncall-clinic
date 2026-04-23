@@ -1,33 +1,56 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 
+const BASE_URL = 'https://oncall.clinic'
+
+/**
+ * Dynamic sitemap at /sitemap.xml (Next.js App Router).
+ * Only lists PUBLIC routes that actually exist. Authenticated routes
+ * (dashboard, tracking, profile, doctor/*) are intentionally excluded
+ * and blocked via robots.ts.
+ *
+ * Audit P1-3 (2026-04-23): cleaned out the /servicios/* URLs that
+ * never shipped (404-generating sitemap entries hurt SEO), added /about,
+ * and wired hreflang alternates.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://oncall.clinic'
+  const now = new Date()
 
-  return [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/es`, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/en`, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/es/login`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/en/login`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/es/register`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/en/register`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/es/servicios/medico-domicilio-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${baseUrl}/en/servicios/medico-domicilio-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${baseUrl}/es/servicios/pediatria-domicilio-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/en/servicios/pediatria-domicilio-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/es/servicios/urgencias-domicilio-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${baseUrl}/en/servicios/urgencias-domicilio-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${baseUrl}/es/servicios/iv-drips-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/en/servicios/iv-drips-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/es/servicios/medico-ingles-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/en/servicios/medico-ingles-ibiza`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/es/legal/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/en/legal/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/es/legal/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/en/legal/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/es/legal/cookies`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/en/legal/cookies`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/es/legal/aviso-legal`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/en/legal/aviso-legal`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+  type Entry = {
+    path: string
+    priority: number
+    changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
+  }
+
+  const paths: Entry[] = [
+    { path: '',                    priority: 1.0, changeFrequency: 'weekly' },
+    { path: '/login',              priority: 0.5, changeFrequency: 'monthly' },
+    { path: '/register',           priority: 0.6, changeFrequency: 'monthly' },
+    { path: '/patient/request',    priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/contact',            priority: 0.7, changeFrequency: 'monthly' },
+    { path: '/about',              priority: 0.6, changeFrequency: 'monthly' },
+    { path: '/legal/privacy',      priority: 0.4, changeFrequency: 'yearly' },
+    { path: '/legal/terms',        priority: 0.4, changeFrequency: 'yearly' },
+    { path: '/legal/cookies',      priority: 0.4, changeFrequency: 'yearly' },
+    { path: '/legal/aviso-legal',  priority: 0.4, changeFrequency: 'yearly' },
   ]
+
+  const entries: MetadataRoute.Sitemap = []
+  for (const { path, priority, changeFrequency } of paths) {
+    for (const locale of ['es', 'en'] as const) {
+      entries.push({
+        url: `${BASE_URL}/${locale}${path}`,
+        lastModified: now,
+        changeFrequency,
+        priority,
+        alternates: {
+          languages: {
+            es: `${BASE_URL}/es${path}`,
+            en: `${BASE_URL}/en${path}`,
+          },
+        },
+      })
+    }
+  }
+
+  return entries
 }

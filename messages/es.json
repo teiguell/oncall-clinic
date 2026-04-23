@@ -183,6 +183,7 @@
     "testMode": "MODO PRUEBA — Los pagos son simulados. No se cobra dinero real."
   },
   "auth": {
+    "signOut": "Cerrar sesión",
     "welcomeBack": "Bienvenido de nuevo",
     "signInSubtitle": "Te enviaremos un enlace mágico por email",
     "continueWithGoogle": "Continuar con Google",
@@ -1370,6 +1371,19 @@
     "submit": "Enviar valoración",
     "thanks": "¡Gracias por tu valoración!",
     "errorSubmit": "No se pudo enviar la valoración. Inténtalo de nuevo."
+  },
+  "about": {
+    "kicker": "Sobre nosotros",
+    "title": "OnCall Clinic",
+    "intro": "Plataforma intermediaria de servicios médicos a domicilio en Ibiza. Conectamos pacientes con médicos colegiados para consultas presenciales en hoteles, villas y domicilios. Estamos en fase alpha — gracias por probar el servicio.",
+    "company": "Datos societarios",
+    "legalName": "Razón social",
+    "location": "Sede",
+    "contactLink": "Contacto",
+    "contactHint": "Email, DPO, WhatsApp",
+    "privacyLink": "Privacidad",
+    "legalNoticeLink": "Aviso legal",
+    "wip": "Página en construcción. Más información próximamente."
   },
   "consent": {
     "title": "Consentimientos RGPD",

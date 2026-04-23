@@ -3,19 +3,30 @@ import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
 /**
- * PatientLayout — server-side guard that enforces BOTH:
- *   1. Authentication (handled in practice by middleware.ts too)
- *   2. Mandatory GDPR consents (health_data + geolocation)
+ * PatientLayout — server-side auth gate for every /[locale]/patient/*.
  *
- * NOTE: `/patient/request` is INTENTIONALLY excluded from the `protectedPatientRoutes`
- * in `lib/supabase/middleware.ts`, so the booking flow handles auth/consent inline
- * via Step3 (`Step3Confirm` + `Step3Consent`). This layout catches everything
- * else — dashboard, tracking, history, profile, etc.
+ * AUDIT P0-2 (2026-04-23): the previous version of this layout enforced a
+ * mandatory GDPR consent check on ALL patient routes (dashboard, profile,
+ * history, tracking, privacy, ...), redirecting everyone without a
+ * `user_consents` row to `/patient/request?step=3&consent=required`.
  *
- * If the user is missing mandatory consent, they are redirected to
- * `/patient/request?step=3&consent=required` — the booking flow will render
- * the consent form at Step 3 and then return them to the original target
- * after completion (UX nice-to-have for a future iteration).
+ * That was legally over-reaching. Art. 9.2.a GDPR requires explicit consent
+ * to PROCESS new health data — i.e., before creating a new consultation.
+ * Browsing your existing profile, reviewing past consultations, or
+ * following a tracking map for a consultation you already consented to
+ * does NOT need a fresh consent gate.
+ *
+ * New behaviour:
+ *   1. Unauthenticated → /login?next=<current-path> (preserves context)
+ *   2. Authenticated → pass through. No consent check at the layout level.
+ *   3. The consent capture still lives INSIDE the booking flow
+ *      (Step3Consent at /patient/request?step=3) — that's where new health
+ *      data gets processed, so that's where the gate belongs.
+ *
+ * Special case: /patient/request is excluded from this layout's auth
+ * redirect because it self-gates with inline Magic Link + Google OAuth
+ * + consent capture. Reading x-pathname (set by middleware.ts) avoids
+ * the redirect loop that a blanket layout check would create.
  */
 export default async function PatientLayout({
   children,
@@ -26,29 +37,19 @@ export default async function PatientLayout({
 }) {
   const { locale } = await params
 
-  // Read current pathname from the header injected by `lib/supabase/middleware.ts`.
-  // /patient/request self-gates (inline auth + consent) — skip the layout check
-  // to avoid redirect loops.
   const hdrs = await headers()
   const pathname = hdrs.get('x-pathname') || ''
+
+  // Self-gated: the booking flow handles its own auth + consent inline.
   if (pathname.includes('/patient/request')) {
     return <>{children}</>
   }
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect(`/${locale}/login`)
-
-  // Protected sub-route (dashboard, tracking, history, profile, etc.) — require
-  // mandatory GDPR consents before rendering.
-  const { data: consent } = await supabase
-    .from('user_consents')
-    .select('health_data, geolocation')
-    .eq('user_id', user.id)
-    .maybeSingle()
-
-  if (!consent?.health_data || !consent?.geolocation) {
-    redirect(`/${locale}/patient/request?step=3&consent=required`)
+  if (!user) {
+    const encodedNext = encodeURIComponent(pathname || `/${locale}/patient/dashboard`)
+    redirect(`/${locale}/login?next=${encodedNext}`)
   }
 
   return <>{children}</>

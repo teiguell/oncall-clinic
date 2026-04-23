@@ -183,6 +183,7 @@
     "testMode": "TEST MODE — Payments are simulated. No real money is charged."
   },
   "auth": {
+    "signOut": "Sign out",
     "welcomeBack": "Welcome back",
     "signInSubtitle": "We'll send you a magic link by email",
     "continueWithGoogle": "Continue with Google",
@@ -1370,6 +1371,19 @@
     "submit": "Submit review",
     "thanks": "Thanks for your review!",
     "errorSubmit": "Couldn't submit the review. Please try again."
+  },
+  "about": {
+    "kicker": "About us",
+    "title": "OnCall Clinic",
+    "intro": "Medical services intermediary platform for home visits in Ibiza. We connect patients with licensed doctors for in-person consultations at hotels, villas and residences. We are in alpha — thanks for trying the service.",
+    "company": "Company details",
+    "legalName": "Legal name",
+    "location": "Headquarters",
+    "contactLink": "Contact",
+    "contactHint": "Email, DPO, WhatsApp",
+    "privacyLink": "Privacy",
+    "legalNoticeLink": "Legal notice",
+    "wip": "Page under construction. More information coming soon."
   },
   "consent": {
     "title": "GDPR Consents",
