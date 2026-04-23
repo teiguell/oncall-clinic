@@ -18,7 +18,18 @@ export async function POST(request: Request) {
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  // Art. 9.2.a GDPR: explicit consent required before processing health data.
+  // Defence-in-depth alongside the inline Step3Consent gate in the UI.
+  const { data: consent } = await supabase
+    .from('user_consents')
+    .select('health_data, geolocation')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!consent?.health_data || !consent?.geolocation) {
+    return NextResponse.json({ error: 'consent_required' }, { status: 403 })
+  }
 
   const body = await request.json()
   const { serviceType, type, scheduledAt, lat, lng, locale, preferredDoctorId } = body
@@ -27,8 +38,8 @@ export async function POST(request: Request) {
   const notes = sanitizeText(body.notes, 1000)
 
   const service = SERVICES.find(s => s.value === serviceType as ServiceType)
-  if (!service) return NextResponse.json({ error: 'Servicio no válido' }, { status: 400 })
-  if (!service.active) return NextResponse.json({ error: 'Servicio próximamente disponible' }, { status: 400 })
+  if (!service) return NextResponse.json({ error: 'invalid_service' }, { status: 400 })
+  if (!service.active) return NextResponse.json({ error: 'service_coming_soon' }, { status: 400 })
 
   // Price model: the doctor sets the price (Ley 15/2007 Defensa Competencia;
   // STS 805/2020 Glovo). If the patient picked a specific doctor, query
@@ -117,10 +128,67 @@ export async function POST(request: Request) {
     })
   }
 
-  // PRODUCTION MODE: real Stripe Checkout
+  // PRODUCTION MODE: real Stripe Checkout with marketplace split.
+  //
+  // Flow:
+  //   1. INSERT consultation with status='pending' + payment_status='pending'
+  //      → gives us an id to pass in metadata + success_url
+  //   2. Create Stripe Checkout session (with application_fee + transfer_data
+  //      if the doctor is Connect-onboarded, else plain charge)
+  //   3. UPDATE consultation with stripe_session_id
+  //   4. Webhook (checkout.session.completed) flips payment_status='paid'
+  //      by looking up consultation via metadata.consultation_id
+  const { data: consultation, error: insertError } = await supabase
+    .from('consultations')
+    .insert({
+      patient_id: user.id,
+      doctor_id: preferredDoctorId || null,
+      type,
+      status: 'pending',
+      payment_status: 'pending',
+      service_type: serviceType,
+      symptoms,
+      notes: notes || null,
+      address,
+      lat: lat || 38.9067,
+      lng: lng || 1.4206,
+      scheduled_at: scheduledAt || null,
+      price: priceCents,
+      commission,
+      doctor_amount: doctorAmount,
+    })
+    .select('id')
+    .single()
+
+  if (insertError || !consultation) {
+    console.error('[checkout] insert failed:', insertError?.message)
+    return NextResponse.json({ error: 'insert_failed' }, { status: 500 })
+  }
+
+  // Marketplace split: if the doctor has completed Stripe Connect onboarding,
+  // route the funds so the doctor receives (price − commission) directly and
+  // the platform keeps the commission as application_fee. If not, the charge
+  // goes to the platform account and payouts are handled by a separate
+  // transfer (fallback path).
+  let stripeAccountId: string | null = null
+  if (preferredDoctorId) {
+    const { data: doctor } = await supabase
+      .from('doctor_profiles')
+      .select('stripe_account_id, stripe_onboarded')
+      .eq('id', preferredDoctorId)
+      .maybeSingle()
+    if (doctor?.stripe_onboarded && doctor.stripe_account_id) {
+      stripeAccountId = doctor.stripe_account_id as string
+    }
+  }
+
   const { stripe } = await import('@/lib/stripe')
-  const session = await stripe.checkout.sessions.create({
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+
+  const sessionParams: import('stripe').Stripe.Checkout.SessionCreateParams = {
     mode: 'payment',
+    payment_method_types: ['card'],
     line_items: [{
       price_data: {
         currency: 'eur',
@@ -129,24 +197,47 @@ export async function POST(request: Request) {
       },
       quantity: 1,
     }],
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${locale}/patient/booking-success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${locale}/patient/request?cancelled=true`,
+    success_url: `${baseUrl}/${locale}/patient/consultation/${consultation.id}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/${locale}/patient/request?step=3&cancelled=1`,
     customer_email: user.email,
     metadata: {
+      consultation_id: consultation.id,
       patient_id: user.id,
+      doctor_id: preferredDoctorId || '',
       service_type: serviceType,
       type,
-      address,
-      symptoms,
-      notes: notes || '',
-      scheduled_at: scheduledAt || '',
-      lat: String(lat || 38.9067),
-      lng: String(lng || 1.4206),
+      locale: locale || 'es',
+      price: String(priceCents),
       commission: String(commission),
       doctor_amount: String(doctorAmount),
-      price: String(priceCents),
     },
-  })
+  }
 
-  return NextResponse.json({ sessionUrl: session.url })
+  if (stripeAccountId) {
+    sessionParams.payment_intent_data = {
+      application_fee_amount: commission,
+      transfer_data: {
+        destination: stripeAccountId,
+      },
+    }
+  }
+
+  const stripeSession = await stripe.checkout.sessions.create(sessionParams)
+
+  // Save session id so webhook idempotency & retries can cross-reference
+  await supabase
+    .from('consultations')
+    .update({
+      stripe_session_id: stripeSession.id,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', consultation.id)
+
+  return NextResponse.json({
+    url: stripeSession.url,
+    sessionId: stripeSession.id,
+    consultationId: consultation.id,
+    // Keep old key for backwards compat with existing Step3Confirm code
+    sessionUrl: stripeSession.url,
+  })
 }
