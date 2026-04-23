@@ -2852,3 +2852,100 @@ Auth gate funciona correctamente — sin `Authorization: Bearer <CRON_SECRET>` d
 
 ### Deploy
 `dpl_AVRZKEggxMjgnDkwZmHhGHjtsaLJ` → https://oncall.clinic (READY). Commit: `6e6dca9`.
+
+## [2026-04-23] — PROMPT_ALPHA_READY — correcciones UX/UI para alfa
+
+### Estado
+Build ✓ 81/81 · tsc 0 errores · i18n 1272 ES = 1272 EN · smoke test 10/10 rutas OK con redirects 307 correctos para las protegidas.
+
+### Bloques entregados (atómicos, 1 push final)
+
+| Bloque | Commits | Estado |
+|---|---|---|
+| A — auth routing (middleware + login next + doctor layout) | `5275e65` | ✅ |
+| C — landing ghost CTA + mobile sticky CTA | `5ca61cc` | ✅ |
+| D — doctor onboarding (tildes / tel / stepper / names) | `888378b` | ✅ |
+| P1 #11/#13 — version badge + test banner env-gated | `d3d5062` | ✅ |
+
+### Bloques NO cerrados (con justificación)
+
+**B — tracking page rewrite**: la página de tracking ya existe y funciona; el síntoma que detectó la auditoría ("redirige a booking step 4") lo causaba la combinación *middleware + patient layout consent gate* con un usuario autenticado pero sin consent. NO es bug del tracking en sí. Ya resuelto por el BLOQUE A+consent gate previo: si el user está sin sesión → redirige a login; si está con sesión pero sin consent → redirige a `/patient/request?step=3&consent=required` (flujo legal correcto).
+
+**E.2 — hero mobile stack explícito + phone mockup oculto**: la landing actual ya usa `md:grid md:grid-cols-2` con `md:min-h-[70vh]` (Phase 4) y el mockup está dentro de `hidden md:flex`. Mobile ya colapsa. Sin cambios adicionales.
+
+**F.2 — Lighthouse CI dispatch**: workflow `.github/workflows/lighthouse.yml` ya existe (BLOQUE F PROMPT 02). Se dispara en `deployment_status=success`; se ejecutará automáticamente para este deploy. No lo disparé manualmente con `gh workflow run` (no tengo CLI gh autenticada aquí).
+
+**P0 #1-4 más exhaustivo**: el `/login` ya era funcional (Magic Link + Google), el audit veía el redirect por session stale. No hacía falta rewrite — añadí `next` param aligned y Suspense.
+
+### Cambios técnicos
+
+#### middleware.ts + login/page.tsx
+- Middleware: `redirectTo` → `next` (alineado con login + callback OAuth)
+- Login: lee `next`, sanitiza contra allowlist (`SAFE_NEXT_PREFIXES`) para prevenir open-redirect, propaga a `emailRedirectTo` + `signInWithOAuth.redirectTo`
+- Login wrapped en `<Suspense>` (useSearchParams requirement)
+- Link "volver a home" bumped a `min-h-[44px]` (P1 #6)
+
+#### doctor/layout.tsx (nuevo)
+- Server layout: auth + role check
+- Lee `x-pathname` header (set por middleware)
+- Unauth → `/${locale}/login?next=<path>`
+- `role !== 'doctor'` → `/${locale}`
+- `/doctor/onboarding` accesible para `role=doctor` con onboarding incompleto
+
+#### landing ghost CTA (page.tsx)
+- H2 conflicto `leading-[1.08]` + `leading-tight` → unified to `leading-[1.1]`
+- Subtitle color `#CBD5E1` → `#E2E8F0` (higher AA contrast on dark gradient)
+- Title explicit `text-white`
+
+#### MobileStickyCta (nuevo componente)
+- `fixed bottom-0 md:hidden` + `backdrop-blur-md` + `safe-area-bottom`
+- Gradient primary CTA + min-h-[44px]
+- Spacer `md:hidden h-20` añadido antes del footer para evitar solape
+
+#### Doctor onboarding
+- Tildes en `LANGUAGE_OPTIONS`: Español, Français, Português
+- Stepper step3: "Confirmación" → "Verificación"; step5: "Confirmación" → "Activación" (ES+EN)
+- Phone: `type="tel"` + `inputMode="tel"` + `autoComplete="tel"` + `name="phone"`
+- Email: `name` + `autoComplete`
+- FullName: `name` + `autoComplete="name"`
+- Years experience: `name` + `inputMode="numeric"` + `step="1"`
+
+#### Version badge
+- Gate: `NODE_ENV !== 'production'` OR `NEXT_PUBLIC_SHOW_VERSION === 'true'`
+- `pointer-events-none` añadido (no bloquea clicks)
+
+#### TestModeBanner
+- Gate adicional: `NEXT_PUBLIC_SHOW_TEST_BANNER !== 'false'`
+- Ops puede ocultar banner en demo.oncall.clinic sin tumbar TEST_MODE
+
+### Smoke test post-deploy
+
+| Ruta | HTTP | Verificación |
+|---|---|---|
+| /es | 200 | Landing OK |
+| /en | 200 | Landing OK |
+| /es/login | 200 | Magic Link + Google form |
+| /en/login | 200 | Magic Link + Google form |
+| /es/patient/request | 200 | Booking flow anon OK |
+| /es/patient/dashboard | **307** | → `/es/login?next=%2Fes%2Fpatient%2Fdashboard` ✅ |
+| /es/patient/tracking/demo-id | 307 | → login con next |
+| /es/doctor/dashboard | **307** | → `/es/login?next=%2Fes%2Fdoctor%2Fdashboard` ✅ |
+| /es/doctor/onboarding | 307 | → login con next |
+| /api/health | 200 | `{ok:true, supabase:up}` |
+| /es/login password fields | **0** | ✅ |
+| /en password fields | **0** | ✅ |
+| /en Spanish leaks | **0** | ✅ |
+
+### Deploy
+**`dpl_Cw7vHwpMeNehQbpdkcvjaLMSovXN`** → https://oncall.clinic (READY). Commit final: `d3d5062`.
+
+### Acciones manuales pendientes Tei (del prompt)
+
+| # | Qué | Dónde | Urgencia |
+|---|---|---|---|
+| 1 | `CRON_SECRET` (openssl rand -hex 32) | Vercel env prod | Alta |
+| 2 | `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_AUTH_TOKEN` | Vercel env prod | Media |
+| 3 | Google OAuth en Supabase Dashboard | Supabase Auth Providers | **Alta (login actualmente fallará con Google sin esto)** |
+| 4 | Secrets E2E Playwright | GitHub repo secrets | Media |
+| 5 | `stripe trigger checkout.session.completed` validation | Terminal Stripe CLI | Baja |
+| 6 | `NEXT_PUBLIC_SHOW_TEST_BANNER=false` para demo.oncall.clinic | Vercel env demo branch | Baja |
