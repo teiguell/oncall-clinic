@@ -18,13 +18,13 @@ import {
 const SPECIALTIES = [...new Set(SERVICES.map(s => s.label))].filter(s => s !== 'Urgencias')
 
 const LANGUAGE_OPTIONS = [
-  { code: 'es', label: 'Espanol' },
+  { code: 'es', label: 'Español' },
   { code: 'en', label: 'English' },
   { code: 'de', label: 'Deutsch' },
-  { code: 'fr', label: 'Francais' },
+  { code: 'fr', label: 'Français' },
   { code: 'it', label: 'Italiano' },
   { code: 'nl', label: 'Nederlands' },
-  { code: 'pt', label: 'Portugues' },
+  { code: 'pt', label: 'Português' },
 ]
 
 const COMIB_REGEX = /^\d{2}\/\d{5}$/
@@ -370,6 +370,8 @@ export default function DoctorRegisterPage() {
               <CardContent className="space-y-4">
                 <Input
                   label={`${t('onboarding.fullName')} *`}
+                  name="fullName"
+                  autoComplete="name"
                   value={formData.fullName}
                   onChange={e => updateField('fullName', e.target.value)}
                   error={errors.fullName}
@@ -378,6 +380,8 @@ export default function DoctorRegisterPage() {
                 <Input
                   label={`${t('onboarding.email')} *`}
                   type="email"
+                  name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={e => updateField('email', e.target.value)}
                   error={errors.email}
@@ -386,6 +390,10 @@ export default function DoctorRegisterPage() {
 
                 <Input
                   label={`${t('onboarding.phone')} *`}
+                  type="tel"
+                  inputMode="tel"
+                  name="phone"
+                  autoComplete="tel"
                   placeholder={t('onboarding.phonePlaceholder')}
                   value={formData.phone}
                   onChange={e => updateField('phone', e.target.value)}
@@ -425,8 +433,11 @@ export default function DoctorRegisterPage() {
                 <Input
                   label={t('onboarding.yearsExperience')}
                   type="number"
+                  name="yearsExperience"
+                  inputMode="numeric"
                   min="0"
                   max="60"
+                  step="1"
                   value={formData.yearsExperience}
                   onChange={e => updateField('yearsExperience', e.target.value)}
                 />
