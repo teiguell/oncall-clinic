@@ -1,17 +1,52 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Stethoscope, ArrowLeft } from 'lucide-react'
 
-export default function LoginPage() {
+// Allowlist for post-auth redirect to prevent open-redirect abuse.
+// Matches the paths a legitimate flow would want to resume on.
+const SAFE_NEXT_PREFIXES = [
+  '/patient/dashboard',
+  '/patient/request',
+  '/patient/tracking',
+  '/patient/history',
+  '/patient/profile',
+  '/patient/booking-success',
+  '/doctor/dashboard',
+  '/doctor/consultations',
+  '/doctor/profile',
+  '/doctor/earnings',
+  '/doctor/onboarding',
+  '/admin',
+]
+
+function sanitizeNext(raw: string | null): string | null {
+  if (!raw) return null
+  // Strip locale prefix (/es or /en) before checking
+  const stripped = raw.replace(/^\/(es|en)/, '')
+  if (!stripped.startsWith('/')) return null
+  if (stripped.startsWith('//')) return null
+  if (!SAFE_NEXT_PREFIXES.some(p => stripped.startsWith(p))) return null
+  return raw
+}
+
+function LoginInner() {
   const t = useTranslations('auth')
   const locale = useLocale()
   const supabase = createClient()
+  const searchParams = useSearchParams()
+  const nextParam = sanitizeNext(searchParams.get('next'))
+  const callbackUrl = (() => {
+    const base = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/callback`
+    return nextParam ? `${base}?next=${encodeURIComponent(nextParam)}` : base
+  })()
+
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -24,7 +59,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+        emailRedirectTo: callbackUrl,
       },
     })
     setLoading(false)
@@ -36,7 +71,7 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
+        redirectTo: callbackUrl,
       },
     })
   }
@@ -120,7 +155,7 @@ export default function LoginPage() {
         <div className="text-center mt-6">
           <Link
             href={`/${locale}`}
-            className="text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1"
+            className="text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1 min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4" />
             {t('common.backToHome')}
@@ -128,5 +163,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+          <div className="h-10 w-40 skeleton-shimmer rounded-md" aria-busy="true" aria-label="Loading" />
+        </div>
+      }
+    >
+      <LoginInner />
+    </Suspense>
   )
 }

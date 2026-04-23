@@ -77,7 +77,8 @@ export async function updateSession(request: NextRequest) {
   )) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = `/${locale}/login`
-    redirectUrl.searchParams.set('redirectTo', fullPath)
+    // Use `next` param (aligned with login page + /api/auth/callback)
+    redirectUrl.searchParams.set('next', fullPath)
     return NextResponse.redirect(redirectUrl)
   }
 
