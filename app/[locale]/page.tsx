@@ -9,6 +9,7 @@ import { LanguageSwitcher } from '@/components/shared/language-switcher'
 import { TrustBadges } from '@/components/trust-badges'
 import { IntermediaryDisclaimer } from '@/components/intermediary-disclaimer'
 import { ServiceScope } from '@/components/shared/service-scope'
+import { MobileStickyCta } from '@/components/landing/MobileStickyCta'
 import {
   Stethoscope, MapPin, Clock, Shield, ArrowRight,
   Baby, Dumbbell, Syringe, CheckCircle2, Menu, X,
@@ -630,7 +631,7 @@ export default function LandingPage() {
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-200 mb-3">
               {t('cta.kicker')}
             </span>
-            <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.08] tracking-[-0.025em] mb-4 text-balance leading-tight">
+            <h2 className="font-display text-[32px] md:text-[36px] font-bold leading-[1.1] tracking-[-0.025em] mb-4 text-balance text-white">
               {t('cta.title').split('\n').map((line, i, arr) => (
                 <span key={i}>
                   {line}
@@ -638,7 +639,7 @@ export default function LandingPage() {
                 </span>
               ))}
             </h2>
-            <p className="text-base md:text-lg text-[#CBD5E1] mb-8">
+            <p className="text-base md:text-lg text-[#E2E8F0] mb-8">
               {t('cta.subtitle')}
             </p>
 
@@ -722,6 +723,12 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile sticky bottom CTA — ride-hailing pattern (audit P2 #15).
+           Hidden on md+. Adds pb-20 to <body> on mobile indirectly via
+           the footer spacer below so the last link isn't hidden. */}
+      <div className="md:hidden h-20" aria-hidden="true" />
+      <MobileStickyCta />
     </div>
   )
 }
