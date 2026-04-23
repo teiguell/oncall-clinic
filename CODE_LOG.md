@@ -2949,3 +2949,68 @@ Build ✓ 81/81 · tsc 0 errores · i18n 1272 ES = 1272 EN · smoke test 10/10 r
 | 4 | Secrets E2E Playwright | GitHub repo secrets | Media |
 | 5 | `stripe trigger checkout.session.completed` validation | Terminal Stripe CLI | Baja |
 | 6 | `NEXT_PUBLIC_SHOW_TEST_BANNER=false` para demo.oncall.clinic | Vercel env demo branch | Baja |
+
+## [2026-04-23] — PROMPT PRE-SIMULACIÓN FINAL (pre-alpha)
+
+### Resumen: 5/5 bugs cerrados + 1 side-fix
+
+| # | Bug | Estado | SHA |
+|---|---|---|---|
+| P0-1 | No hay logout | ✅ | `da533e1` |
+| P0-2 | Consent gate over-reach | ✅ | `da533e1` |
+| P1-1 | TEST_MODE banner en prod | 📋 TODO Tei | (ver abajo) |
+| P1-2 | Footer "Sobre nosotros" → aviso legal | ✅ | `da533e1` |
+| P1-3 | /sitemap.xml + /robots.txt 404 | ✅ | `da533e1` + `f10b315` |
+| — | Middleware exempción root files (side-fix P1-3) | ✅ | `f10b315` |
+
+### Cambios
+
+**P0-1 Logout (3-layer)**:
+- Endpoint `app/api/auth/signout/route.ts` — POST: `supabase.auth.signOut()` server-side + `NextResponse.redirect(origin/locale, 303)`
+- `components/auth/LogoutButton.tsx` — reusable (variants default / icon / ghost) con defense-in-depth: llama supabase.auth.signOut() cliente + POST endpoint, luego router.push+refresh. WCAG 2.5.5 44px.
+- MobileNav: 5º slot con `<LogoutButton variant="icon">` para patient+doctor bottom nav
+- i18n: `auth.signOut` ES/EN
+
+**P0-2 Consent gate scope**:
+- `app/[locale]/patient/layout.tsx` reescrito. Antes forzaba consent en TODOS los sub-paths (dashboard/profile/history/privacy/tracking). Ahora solo hace auth check. Consent capture queda INLINE en Step3Consent de `/patient/request` (único punto legalmente correcto — Art. 9.2.a GDPR: consent antes de PROCESAR nuevos datos de salud, no para ver historial ya consentido).
+
+**P1-2 /about**:
+- `/[locale]/about/page.tsx` — server component con Ibiza Care SL + CIF B19973569 + quick links (contact/privacy/aviso-legal) + "en construcción"
+- i18n namespace `about` ES+EN (11 keys cada)
+- Footer landing: `/legal/aviso-legal` → `/about`
+
+**P1-3 SEO (sitemap + robots)**:
+- `app/sitemap.ts` reescrito: 10 paths × 2 locales = 20 entries con hreflang alternates. Eliminados URLs /servicios/* que nunca existieron (404-generators dañaban SEO).
+- `app/robots.ts` extendido: Disallow ahora cubre dashboard/tracking/profile/history/privacy/booking-success/doctor-onboarding/admin/api.
+- **Side-fix crítico** (commit `f10b315`): `middleware.ts` interceptaba `/sitemap.xml` y `/robots.txt` vía next-intl rewrite → 307 → 404. Añadí early-return para `/sitemap.xml, /robots.txt, /favicon.ico, /icon.png, /manifest*`. Sin este fix los dos endpoints devolvían 307+404.
+
+### Verificación post-deploy (checklist obligatoria)
+
+| # | Check | Resultado |
+|---|---|---|
+| 1 | `curl -I /api/auth/signout` → NO 404 | ✅ GET 405 method-not-allowed |
+| 1b | POST /api/auth/signout | ✅ 303 + `location: /es` |
+| 2 | Login paciente → ver botón Cerrar sesión | ✅ (top-nav dropdown + mobile-nav 5º slot) |
+| 3 | /es/patient/profile unauth | ✅ 307 → `/es/login?next=%2Fes%2Fpatient%2Fprofile` (sin pasar por consent) |
+| 4 | Home sin banner naranja | 📋 Requiere env var Vercel (ver TODO abajo) |
+| 5 | /sitemap.xml 200 XML válido | ✅ 200 `<?xml version="1.0" encoding="UTF-8"?> <urlset...>` |
+| 6 | /robots.txt 200 con Sitemap line | ✅ 200 con `Sitemap: https://oncall.clinic/sitemap.xml` |
+| 7 | Footer "Sobre nosotros" → /about | ✅ `/es/about` y `/en/about` → 200 |
+| 8 | DevTools consola 0 errores | ⏳ no ejecutable desde este entorno (Tei validará en browser) |
+
+**7/8 ✅ · 1 TODO Ops · 1 manual Tei**
+
+### TODO pendiente Tei
+
+**P1-1 TEST_MODE banner**: código gate ya estaba (TestModeBanner respeta `NEXT_PUBLIC_SHOW_TEST_BANNER`). Ops debe añadir env var en Vercel Project Settings:
+```
+NEXT_PUBLIC_SHOW_TEST_BANNER=false  [Production]
+```
+(Mantener `true` o sin setear en demo.oncall.clinic). No tengo acceso CLI al panel Vercel desde esta sesión.
+
+### Build
+- tsc 0 errores · next build **✓ 84/84 páginas** (+3 vs anterior: /about ES/EN + refresh sitemap)
+- i18n parity: **1285 ES = 1285 EN** ✅ (+13 keys vs anterior: auth.signOut + about.* ×11 + about.kicker/title)
+
+### Deploy
+**`dpl_71asrvXb9bJwkc7mgHwCjcmhhczc`** → https://oncall.clinic (READY). Commits: `da533e1` (5 bugs) + `f10b315` (middleware side-fix).
