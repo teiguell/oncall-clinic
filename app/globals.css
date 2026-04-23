@@ -327,6 +327,31 @@ button:active, [role="button"]:active {
   .check-draw { animation: none !important; stroke-dashoffset: 0 !important; }
 }
 
+/* ─── Claude Design v2 Landing — shadow + hero polish ─── */
+:root {
+  --shadow-glow: 0 20px 80px -20px rgba(124, 58, 237, 0.35);
+}
+
+/* Grid overlay pattern with radial fade — adds subtle depth to heros
+   without stealing attention from the CTA. Apply via .hero-grid-overlay. */
+.hero-grid-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(10, 14, 26, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 14, 26, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse at center top, #000 30%, transparent 70%);
+  mask-image: radial-gradient(ellipse at center top, #000 30%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-grid-overlay::before { opacity: 0.6; }
+}
+
 /* ─── iOS safe-area bottom (for floating/fixed CTAs on mobile) ─── */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);

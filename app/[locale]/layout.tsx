@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
+import { Inter, Inter_Tight, Plus_Jakarta_Sans } from 'next/font/google'
 import '../globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { NextIntlClientProvider } from 'next-intl'
@@ -16,6 +16,14 @@ import { VersionBadge } from '@/components/version-badge'
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
+})
+// Inter Tight — tighter sibling for display headlines (landing H1/H2).
+// From Claude Design v2 Landing bundle: crisper letter-spacing on large type.
+const interTight = Inter_Tight({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-inter-tight',
   display: 'swap',
 })
 const jakarta = Plus_Jakarta_Sans({
@@ -130,7 +138,7 @@ export default async function LocaleLayout({
   const tA11y = await getTranslations({ locale, namespace: 'a11y' })
 
   return (
-    <html lang={locale} className={`${inter.variable} ${jakarta.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`${inter.variable} ${interTight.variable} ${jakarta.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <a href="#main-content" className="skip-to-content">
           {tA11y('skipToContent')}

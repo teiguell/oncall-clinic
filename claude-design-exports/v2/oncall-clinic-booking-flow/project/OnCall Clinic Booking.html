@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>OnCall Clinic — Booking Flow</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: #EEF0F4; color: #0F172A; overflow: hidden; height: 100vh; }
+  input, textarea, button { font-family: inherit; }
+  input::placeholder, textarea::placeholder { color: #94A3B8; }
+  button { -webkit-tap-highlight-color: transparent; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulseDot { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  @keyframes pulseRing {
+    0% { transform: scale(0.8); opacity: 0.4; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  @keyframes successPop {
+    0% { transform: scale(0.3); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes drawCheck {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes ringExpand {
+    0% { transform: scale(0.9); opacity: 0.4; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .screen-fade { animation: fadeSlide 260ms cubic-bezier(.3,.9,.4,1); }
+
+  /* hide scrollbars inside phone */
+  .phone-inner ::-webkit-scrollbar { display: none; }
+  .phone-inner { scrollbar-width: none; }
+</style>
+</head>
+<body>
+<div id="root" style="width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center;"></div>
+
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="primitives.jsx"></script>
+<script type="text/babel" src="step1.jsx"></script>
+<script type="text/babel" src="step2.jsx"></script>
+<script type="text/babel" src="step3.jsx"></script>
+<script type="text/babel" src="step4.jsx"></script>
+
+<script type="text/babel">
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "language": "es",
+  "step": 4
+}/*EDITMODE-END*/;
+
+function App() {
+  const [lang, setLang] = React.useState(TWEAKS.language);
+  const [step, setStep] = React.useState(TWEAKS.step);
+  const [editMode, setEditMode] = React.useState(false);
+
+  const [selectedType, setSelectedType] = React.useState('general');
+  const [selectedDoctor, setSelectedDoctor] = React.useState('d1');
+  const [location, setLocation] = React.useState("Hotel Ushuaïa, Playa d'en Bossa");
+  const [symptoms, setSymptoms] = React.useState(lang === 'es'
+    ? 'Fiebre de 38.5°C desde anoche con dolor de cabeza y malestar general.'
+    : 'Fever of 38.5°C since last night with headache and general malaise.');
+  const [quickSyms, setQuickSyms] = React.useState(['fever', 'head']);
+  const [paid, setPaid] = React.useState(false);
+
+  const t = COPY[lang];
+
+  // Persist playback position
+  React.useEffect(() => {
+    const saved = localStorage.getItem('oncall_state');
+    if (saved) {
+      try {
+        const s = JSON.parse(saved);
+        if (s.step) setStep(s.step);
+        if (s.lang) setLang(s.lang);
+        if (s.paid) setPaid(s.paid);
+      } catch {}
+    }
+  }, []);
+  React.useEffect(() => {
+    localStorage.setItem('oncall_state', JSON.stringify({ step, lang, paid }));
+  }, [step, lang, paid]);
+
+  // When entering step 4 fresh, reset paid
+  const goToStep = (n) => {
+    if (n !== 4) setPaid(false);
+    setStep(n);
+  };
+
+  // Tweaks bridge
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const d = e.data || {};
+      if (d.type === '__activate_edit_mode') setEditMode(true);
+      if (d.type === '__deactivate_edit_mode') setEditMode(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const setKey = (k, v) => {
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*');
+  };
+
+  const toggleQuick = (id) => {
+    setQuickSyms(qs => qs.includes(id) ? qs.filter(x => x !== id) : [...qs, id]);
+  };
+
+  const handleBack = () => { if (step > 1) goToStep(step - 1); };
+
+  let screen;
+  if (step === 1) {
+    screen = <Step1 t={t} lang={lang}
+      selectedType={selectedType} setSelectedType={setSelectedType}
+      onNext={() => goToStep(2)} />;
+  } else if (step === 2) {
+    screen = <Step2 t={t} lang={lang}
+      selectedDoctor={selectedDoctor} setSelectedDoctor={setSelectedDoctor}
+      onNext={() => goToStep(3)} onBack={handleBack} />;
+  } else if (step === 3) {
+    screen = <Step3 t={t} lang={lang} selectedType={selectedType} selectedDoctor={selectedDoctor}
+      location={location} setLocation={setLocation}
+      symptoms={symptoms} setSymptoms={setSymptoms}
+      quickSyms={quickSyms} toggleQuick={toggleQuick}
+      onNext={() => goToStep(4)} />;
+  } else {
+    screen = <Step4 t={t} lang={lang} selectedType={selectedType} selectedDoctor={selectedDoctor}
+      onPay={() => setPaid(true)} paid={paid} />;
+  }
+
+  return (
+    <div data-screen-label={`0${step} ${['Type','Doctor','Location','Payment'][step-1]}`}
+         style={{ position: 'relative' }}>
+      {/* Phone */}
+      <div style={{
+        width: 390, height: 844, borderRadius: 52,
+        background: '#000', padding: 5,
+        boxShadow: '0 60px 120px rgba(15,23,42,0.2), 0 0 0 1px rgba(0,0,0,0.12)',
+      }}>
+        <div style={{
+          width: '100%', height: '100%', borderRadius: 48, overflow: 'hidden',
+          background: TOKENS.bg, position: 'relative',
+        }} className="phone-inner">
+          {/* Dynamic island */}
+          <div style={{
+            position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
+            width: 120, height: 34, borderRadius: 22, background: '#000', zIndex: 100,
+          }} />
+          <AppStatusBar tint="dark" />
+          {step <= 4 && !paid && <StepHeader step={step} total={4} t={t} onBack={handleBack} />}
+          <div key={step + '-' + (paid ? 'paid' : 'x')} className="screen-fade" style={{
+            height: paid ? 'calc(100% - 44px)' : `calc(100% - 44px - ${paid ? 0 : 100}px)`,
+            position: 'relative',
+          }}>
+            {screen}
+          </div>
+          {/* Home indicator */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 110,
+            height: 34, display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+            paddingBottom: 8, pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: 134, height: 5, borderRadius: 100,
+              background: 'rgba(0,0,0,0.25)',
+            }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Tweaks panel */}
+      {editMode && (
+        <div style={{
+          position: 'fixed', right: 20, bottom: 20, zIndex: 1000,
+          width: 240, padding: 14, borderRadius: 14,
+          background: '#fff', border: '1px solid #E7EAF0',
+          boxShadow: '0 20px 40px rgba(15,23,42,0.15)',
+          fontFamily: 'Inter',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: TOKENS.ink, marginBottom: 10, letterSpacing: -0.2 }}>
+            Tweaks
+          </div>
+          <div style={{ fontSize: 11, color: TOKENS.ink3, fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>LANGUAGE</div>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+            {['es', 'en'].map(l => (
+              <button key={l} onClick={() => { setLang(l); setKey('language', l); }} style={{
+                flex: 1, padding: '8px 0', borderRadius: 8,
+                border: `1px solid ${lang === l ? TOKENS.primary : TOKENS.line}`,
+                background: lang === l ? TOKENS.softBlue : '#fff',
+                color: lang === l ? TOKENS.primaryDark : TOKENS.ink2,
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                textTransform: 'uppercase', letterSpacing: 0.5,
+              }}>{l}</button>
+            ))}
+          </div>
+          <div style={{ fontSize: 11, color: TOKENS.ink3, fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>STEP</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {[1,2,3,4].map(n => (
+              <button key={n} onClick={() => { goToStep(n); setKey('step', n); }} style={{
+                flex: 1, padding: '8px 0', borderRadius: 8,
+                border: `1px solid ${step === n ? TOKENS.primary : TOKENS.line}`,
+                background: step === n ? TOKENS.softBlue : '#fff',
+                color: step === n ? TOKENS.primaryDark : TOKENS.ink2,
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              }}>{n}</button>
+            ))}
+          </div>
+          {step === 4 && (
+            <>
+              <div style={{ fontSize: 11, color: TOKENS.ink3, fontWeight: 600, letterSpacing: 1, marginTop: 12, marginBottom: 6 }}>PAYMENT</div>
+              <button onClick={() => setPaid(!paid)} style={{
+                width: '100%', padding: '8px 0', borderRadius: 8,
+                border: `1px solid ${TOKENS.line}`, background: '#fff',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer', color: TOKENS.ink2,
+              }}>{paid ? 'Reset to form' : 'Show success state'}</button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -125,15 +125,17 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════
              HERO — clarity-first, single CTA, 112 disclaimer
            ═══════════════════════════════════════════════════════ */}
-        <section className="section-animate relative overflow-hidden py-11 md:py-20">
-          {/* Premium warm multi-layer gradient from prototype */}
+        <section className="hero-grid-overlay section-animate relative overflow-hidden py-11 md:py-20">
+          {/* Multi-layer gradient — adds subtle violet accent from v2 Landing
+              without changing the brand palette. */}
           <div
             aria-hidden="true"
             className="absolute inset-0 -z-10"
             style={{
               background: `
+                radial-gradient(ellipse 60% 50% at 30% 40%, rgba(124, 58, 237, 0.10), transparent 60%),
+                radial-gradient(ellipse 50% 50% at 70% 50%, rgba(37, 99, 235, 0.14), transparent 60%),
                 radial-gradient(120% 60% at 100% 0%, rgba(245,158,11,0.10), transparent 60%),
-                radial-gradient(90% 70% at 0% 15%, rgba(59,130,246,0.13), transparent 55%),
                 linear-gradient(180deg, #FAFBFC 0%, #F1F6FE 100%)
               `,
             }}
@@ -146,6 +148,11 @@ export default function LandingPage() {
           <div
             aria-hidden="true"
             className="absolute top-40 left-0 w-80 h-80 rounded-full bg-blue-200/20 blur-3xl pointer-events-none"
+          />
+          {/* Violet orb — bottom center (new from v2 Landing) */}
+          <div
+            aria-hidden="true"
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-violet-300/10 blur-3xl pointer-events-none"
           />
 
           <div className="relative container mx-auto px-4 max-w-6xl">
@@ -185,7 +192,7 @@ export default function LandingPage() {
               style={{ fontWeight: 680 }}
             >
               {heroTitleParts[0]}
-              <span className="block bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-blue-600 via-blue-500 to-violet-500 bg-clip-text text-transparent">
                 {heroTitleParts[1]}
               </span>
             </h1>

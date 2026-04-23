@@ -51,9 +51,11 @@ const config: Config = {
         },
       },
       fontFamily: {
-        // Inter for body, Plus Jakarta Sans for display
+        // Inter for body; Inter Tight for display (tighter letter-spacing
+        // on large type, per Claude Design v2 Landing). Plus Jakarta kept
+        // as fallback for backwards compat on pages still using font-display.
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-        display: ["var(--font-jakarta)", "var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-inter-tight)", "var(--font-jakarta)", "var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       fontSize: {
         // UI_DESIGN_MASTERGUIDE scale: 12/14/16/18/20/24/30/36/48px
