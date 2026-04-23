@@ -8,10 +8,18 @@ const intlMiddleware = createMiddleware(routing)
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip for API routes and static files
+  // Skip for API routes, Next internals, and well-known root files
+  // (audit P1-3: /sitemap.xml and /robots.txt were being intercepted by
+  // next-intl and redirected to /<locale>/sitemap.xml → 404. Same issue
+  // potentially for favicon/icon/manifest if they ever route-match.)
   if (
     pathname.startsWith('/api/') ||
-    pathname.startsWith('/_next/')
+    pathname.startsWith('/_next/') ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/robots.txt' ||
+    pathname === '/favicon.ico' ||
+    pathname === '/icon.png' ||
+    pathname.startsWith('/manifest')
   ) {
     return NextResponse.next()
   }
