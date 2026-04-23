@@ -68,6 +68,11 @@ export async function POST(request: NextRequest) {
         await handleChargeRefunded(supabase, event.data.object as Stripe.Charge)
         break
 
+      case 'checkout.session.expired':
+      case 'checkout.session.async_payment_failed':
+        await handleSessionFailed(supabase, event.data.object as Stripe.Checkout.Session)
+        break
+
       case 'account.updated':
         await handleAccountUpdated(supabase, event.data.object as Stripe.Account)
         break
@@ -203,6 +208,21 @@ async function handleChargeRefunded(supabase: SupabaseClient, charge: Stripe.Cha
     })
     .eq('consultation_id', consultation.id)
     .eq('status', 'processing')
+}
+
+async function handleSessionFailed(supabase: SupabaseClient, session: Stripe.Checkout.Session) {
+  const consultationId = session.metadata?.consultation_id
+  if (!consultationId) return
+  await supabase
+    .from('consultations')
+    .update({
+      status: 'cancelled',
+      payment_status: 'failed',
+      cancelled_at: new Date().toISOString(),
+      cancellation_reason: session.status === 'expired' ? 'checkout_expired' : 'async_payment_failed',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', consultationId)
 }
 
 async function handleAccountUpdated(supabase: SupabaseClient, account: Stripe.Account) {
