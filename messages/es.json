@@ -1351,6 +1351,19 @@
     "emergency_banner": "¿Emergencia vital? Llama al 112 inmediatamente."
   },
   "consultation": {
+    "success": {
+      "title": "¡Pago confirmado!",
+      "subtitle": "Tu consulta está activa. Puedes seguir al médico en el mapa.",
+      "receipt": "Recibo",
+      "paidAt": "Pagado el {date}",
+      "viewTracking": "Ver seguimiento",
+      "backToDashboard": "Volver al inicio",
+      "processingTitle": "Procesando tu pago…",
+      "processingDesc": "Esto suele tardar unos segundos. Estamos confirmando tu pago con el banco.",
+      "stillProcessingTitle": "Aún procesando",
+      "stillProcessingDesc": "El pago está tardando más de lo esperado. Si llegó un cargo, llegará al panel en pocos minutos.",
+      "callSupport": "Llamar soporte"
+    },
     "internalNotes": "Notas internas",
     "internalNotesDesc": "Privadas. El paciente no las ve.",
     "internalNotesPlaceholder": "Diagnóstico, hipótesis, medicación a revisar...",

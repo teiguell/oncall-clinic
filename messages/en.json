@@ -1351,6 +1351,19 @@
     "emergency_banner": "Life-threatening emergency? Call 112 immediately."
   },
   "consultation": {
+    "success": {
+      "title": "Payment confirmed!",
+      "subtitle": "Your consultation is active. Track your doctor on the map.",
+      "receipt": "Receipt",
+      "paidAt": "Paid on {date}",
+      "viewTracking": "View tracking",
+      "backToDashboard": "Back to dashboard",
+      "processingTitle": "Processing your payment…",
+      "processingDesc": "This usually takes a few seconds. We're confirming the payment with your bank.",
+      "stillProcessingTitle": "Still processing",
+      "stillProcessingDesc": "The payment is taking longer than expected. If a charge went through, it will appear in your dashboard shortly.",
+      "callSupport": "Call support"
+    },
     "internalNotes": "Internal notes",
     "internalNotesDesc": "Private. The patient does not see these.",
     "internalNotesPlaceholder": "Diagnosis, hypotheses, medication to review...",
