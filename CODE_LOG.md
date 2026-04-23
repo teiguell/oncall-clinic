@@ -2805,3 +2805,50 @@ Auth gate funciona correctamente — sin `Authorization: Bearer <CRON_SECRET>` d
    SELECT proname FROM pg_proc WHERE proname = 'purge_old_chat_messages';
    ```
 
+
+## [2026-04-23] — Claude Design v2 bundles (Tei direct request)
+
+### Fetched 4 new bundles
+| Bundle | Tipo | Conflicto con live |
+|---|---|---|
+| b1 Patient Dashboard | Iteración | No — ya portamos en Phase 3 |
+| b2 Booking Flow | Iteración | No — ya portamos en Phase 5 + BLOQUE B split |
+| b3 **Landing Page** | **Nuevo desktop-first** | **SÍ — palette `#2563EB` + international (no Ibiza)** |
+| b4 Premium Landing | Iteración | No — ya portamos en Phase 2 |
+
+### Decisiones (Tei-safe)
+
+**Aplicado** (high-signal / low-risk):
+1. **Inter Tight font** para headlines
+   - `app/[locale]/layout.tsx`: añadido `Inter_Tight` de `next/font/google` con variable `--font-inter-tight`
+   - `tailwind.config.ts`: `fontFamily.display` ahora prefiere Inter Tight, fallback a Jakarta
+2. **Hero gradient refinado** en `app/[locale]/page.tsx`
+   - Añadidos orbs violetas sutiles `rgba(124, 58, 237, 0.10)` junto a azul/amber existentes
+   - Nuevo orb bottom-center violeta 500×300 (10% opacity)
+   - H1 gradient accent: `blue-600 → blue-500 → violet-500` (3-stop)
+3. **Grid overlay** vía clase `.hero-grid-overlay`
+   - 48px pattern con radial mask fade (del v2 Landing HTML)
+   - Respeta `prefers-reduced-motion` (opacity 60% en vez de hidden)
+4. **`--shadow-glow`** CSS var `0 20px 80px -20px rgba(124,58,237,.35)` disponible para cards elevadas futuras
+
+**NO aplicado** (documentado como deferred con razón):
+- ❌ Palette migration `#3B82F6 → #2563EB` — rompería todos los tokens/buttons/rings/trust signals ya en producción
+- ❌ "International / no Ibiza references" — contradice el business Ibiza Care SL
+- ❌ "Your doctor, at your door" vs "Médico a domicilio en Ibiza" — copy locked
+- ❌ 6-service grid (General Med + Pediatría + Urgencias + Teleconsulta + Medicina Interna + Fisio) — product actual solo tiene `general_medicine` activo; comingSoon limitados deliberadamente
+- ❌ Stats row "30 min arrival / 4.9 rating / 24/7 / 15% fee" — legal review pendiente (no hay rating público real, 30min requiere verificación de SLA)
+
+### Archivos
+- `claude-design-exports/v2/` — 4 bundles archivados como referencia (HTML + JSX + chat transcripts)
+- `app/[locale]/layout.tsx` — Inter Tight import + className
+- `app/[locale]/page.tsx` — hero gradient + violet orbs + H1 gradient 3-stop + hero-grid-overlay
+- `app/globals.css` — `.hero-grid-overlay::before` + `--shadow-glow`
+- `tailwind.config.ts` — font-display priorities
+
+### Build
+- `tsc --noEmit` → 0 errores
+- `next build` → ✓ 81/81 páginas
+- Smoke: `/es`, `/en`, `/es/patient/request?step=3` → HTTP 200
+
+### Deploy
+`dpl_AVRZKEggxMjgnDkwZmHhGHjtsaLJ` → https://oncall.clinic (READY). Commit: `6e6dca9`.
