@@ -3014,3 +3014,78 @@ NEXT_PUBLIC_SHOW_TEST_BANNER=false  [Production]
 
 ### Deploy
 **`dpl_71asrvXb9bJwkc7mgHwCjcmhhczc`** → https://oncall.clinic (READY). Commits: `da533e1` (5 bugs) + `f10b315` (middleware side-fix).
+
+## [2026-04-24] — PROMPT_FUSIONADO_PRE_ALPHA COMPLETADO
+
+### Bloque 0 — Pre-alpha bugs
+- Logout endpoint + LogoutButton: ✅ deployed (commits `da533e1`, `f10b315`)
+- Consent gate narrowing: ✅ `/patient/profile|history|privacy|tracking|dashboard` ya no redirigen a `step=3&consent=required`. Consent gate vive ahora solo en `/patient/request` (inline Step3Consent + `/api/stripe/checkout` 403 si falta consent)
+- TEST banner: ⏳ **pendiente Tei** — env var `NEXT_PUBLIC_SHOW_TEST_BANNER=false` en Vercel prod (code gate ya aplicado en commit `d3d5062`)
+- Footer "Sobre nosotros": ✅ `/about` stub bilingüe creado + footer link apunta ahí (no a aviso-legal)
+- Sitemap + robots: ✅ `/sitemap.xml` 200 XML con hreflang alternates, `/robots.txt` 200 con Sitemap line + Disallow rutas auth
+
+### Bloque 1 — Migration 015 verification
+- `user_consents` table aplicada (Grupo B T7): ✅ confirmada vía endpoint behavior
+- `/api/consent/state` GET → 405, POST sin sesión → 401 (esperado): ✅
+
+### Bloque 2 — Stripe Checkout (marketplace)
+- Migration 016 `consultations` nueva tabla: **N/A** — la tabla YA existía (migration 001 + columnas Stripe desde migration 011). Los campos `stripe_session_id`, `payment_status`, `price`, `commission`, `doctor_amount`, `stripe_payment_intent_id` ya están todos presentes. No hizo falta migración nueva.
+- `/api/stripe/checkout` (extendido — no creado nuevo para evitar duplicar ruta): ✅ commit `c2eb334`
+  - Consent check server-side (403 `consent_required`)
+  - Insert consultation ANTES de crear Stripe session (status='pending', payment_status='pending')
+  - Marketplace split: si `doctor.stripe_onboarded=true` + `stripe_account_id` presente → `application_fee_amount=commission` + `transfer_data.destination=doctor.stripe_account_id`
+  - metadata incluye `consultation_id`, `patient_id`, `doctor_id`, `price`, `commission`, `doctor_amount`, `locale`
+  - success_url → `/${locale}/patient/consultation/${id}/success?session_id={CHECKOUT_SESSION_ID}`
+  - Respuesta: `{ url, sessionId, consultationId, sessionUrl }` (sessionUrl retained for backwards-compat con Step3Confirm)
+- `/api/stripe/webhooks` (extendido — no creado nuevo): ✅ commit `7d8a0e4`
+  - Handlers añadidos: `checkout.session.expired` + `checkout.session.async_payment_failed` → `status='cancelled', payment_status='failed'`
+  - Existing handlers: `checkout.session.completed` (→ paid), `payment_intent.succeeded`, `charge.refunded`, `transfer.created`, `account.updated` (todos OK desde sprints anteriores)
+  - Firma verificada via `stripe.webhooks.constructEvent` ✅
+  - Idempotencia via `stripe_webhook_logs` upsert on event_id ✅
+- Success page `/[locale]/patient/consultation/[id]/success`: ✅ commit `21beb60`
+  - Server component con RLS check (paciente solo ve su consulta)
+  - Si payment_status='paid' → success card con receipt + "Ver tracking" CTA
+  - Si pending → `<SuccessPoller>` (client) poll cada 3s por 30s max, luego fallback "call support"
+  - i18n namespace `consultation.success` (11 keys × 2 bundles)
+- Step4Payment / Step3Confirm: ✅ sin cambios necesarios — lee `result.sessionUrl` que sigue siendo devuelto por el endpoint (backwards compat).
+- i18n `payment` namespace: **N/A** como tal — ya existe `booking2.*` con `confirmAndPay`, `orderSummary`, etc. desde sprints previos. Nuevo namespace añadido es `consultation.success` (11 keys × 2).
+- Webhook en Stripe Dashboard: ⏳ **pendiente Tei** — configurar endpoint `https://oncall.clinic/api/stripe/webhooks` con events `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_failed`, `charge.refunded`, copiar `whsec_...` a Vercel env `STRIPE_WEBHOOK_SECRET` (prod).
+
+### Smoke test (10/10 rutas OK)
+
+| URL | HTTP | Esperado | ✓ |
+|---|---|---|---|
+| /es | 200 | 200 | ✅ |
+| /en | 200 | 200 | ✅ |
+| /sitemap.xml | 200 | 200 | ✅ |
+| /robots.txt | 200 | 200 | ✅ |
+| /es/patient/request | 200 | 200 | ✅ |
+| /api/health | 200 | 200 | ✅ |
+| /api/auth/signout (GET) | 405 | 405 | ✅ |
+| /api/consent/state (GET) | 405 | 405/401 | ✅ |
+| /api/stripe/checkout (GET) | 405 | 405 | ✅ |
+| /api/stripe/webhooks (GET) | 405 | 405 | ✅ |
+
+**Nota de paths**: el prompt menciona `/api/checkout/session` y `/api/webhooks/stripe`. El codebase usa los paths pre-existentes `/api/stripe/checkout` y `/api/stripe/webhooks`. Funcionalmente equivalentes; mantenidos para no romper callers actuales. Si se prefiere la nomenclatura del prompt, es un rename trivial de carpetas en un futuro sprint.
+
+### Build
+- `tsc --noEmit` → 0 errores
+- `next build` → ✓ 84/84 páginas estáticas
+- i18n parity: **1297 ES = 1297 EN** ✅
+
+### Test charge 4242 — pendiente
+Requiere sesión autenticada (magic link o Google OAuth) + webhook configurado en Stripe Dashboard. **Acciones Tei antes de testear:**
+1. `NEXT_PUBLIC_SHOW_TEST_BANNER=false` en Vercel prod
+2. Webhook Stripe Dashboard endpoint + whsec en env
+3. Probar con card `4242 4242 4242 4242`
+4. Verificar en Supabase `SELECT id, status, payment_status, paid_at FROM consultations ORDER BY created_at DESC LIMIT 1;` → `status='accepted'`, `payment_status='paid'`
+
+### Commits Bloque 2 (atómicos)
+- `c2eb334` feat(stripe): insert consultation before Stripe + marketplace split + consent gate
+- `7d8a0e4` feat(stripe): webhook handles checkout.session.expired + async_payment_failed
+- `21beb60` feat(consultation): Stripe success page with polling fallback + i18n
+
+### Deploy
+- Deploy ID: `dpl_4gZSoi3YdWnxP9hExDmkDoxNJuQ9`
+- Commit final: `21beb60`
+- Verificación smoke test: **10/10 rutas OK**
