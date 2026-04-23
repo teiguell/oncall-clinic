@@ -2759,3 +2759,49 @@ El layout `/patient/layout.tsx` aplica a TODOS los hijos, incluido `/patient/req
 | **Marketing** | Copy "Chat logístico 24h" sustituye "Chat con médico 48h" en ES+EN. Actualizar cualquier asset externo (AdWords, LinkedIn) que aún diga 48h. | Baja |
 
 **Deploy final:** `dpl_8tU4uvyMXgqRq5FfLXVaf6FiRo96` → https://oncall.clinic (READY). Commit final: `5e91df8`.
+
+## [2026-04-23] — Vercel Cron para purga chat 24h
+
+### Contexto
+pg_cron no está disponible en el plan actual de Supabase → la `purge_old_chat_messages()` (RPC SECURITY DEFINER, service_role only) necesita scheduler externo. Vercel Cron sustituye el schedule de migración 018 que era no-op aquí.
+
+### Archivos creados
+- `app/api/cron/purge-chat/route.ts` — GET endpoint con bearer-token auth (`CRON_SECRET`), llama la RPC `purge_old_chat_messages()`, responde `{ok, deleted_count, timestamp}`
+- `vercel.json` — `crons[0]: { path: '/api/cron/purge-chat', schedule: '0 3 * * *' }` (daily 03:00 UTC, low-traffic window)
+
+### Commit + deploy
+- SHA: `e7a64b3`
+- Deploy: **`dpl_BM75Jm698Gz5M317mJ9rR7RQVRdr`** → https://oncall.clinic (READY)
+
+### Validación post-deploy
+```
+$ curl -sI https://oncall.clinic/api/cron/purge-chat
+HTTP/2 401
+content-type: application/json
+
+$ curl -s https://oncall.clinic/api/cron/purge-chat
+{"error":"unauthorized"}
+```
+Auth gate funciona correctamente — sin `Authorization: Bearer <CRON_SECRET>` devuelve 401. Vercel Cron inyecta ese header automáticamente en las invocaciones programadas.
+
+### Build
+- `tsc --noEmit` → 0 errores
+- `next build` → ✓ 81/81 páginas (el cron route no inflama el count; es un route handler)
+
+### ⚠️ Acciones pendientes para Ops
+
+1. **Crítica — `CRON_SECRET`**: generar + pegar en Vercel Project Settings → Environment Variables → Production
+   ```
+   openssl rand -hex 32
+   ```
+   Sin esto, el cron programado devolverá 401 y no purgará nada (el endpoint es seguro pero inútil).
+
+2. **Verificar `SUPABASE_SERVICE_ROLE_KEY`** en Vercel prod env (debería ya estar; usado por otros endpoints tipo `/api/demo/confirm`, `/api/stripe/webhooks`).
+
+3. **Verificar aparición en UI**: Vercel Dashboard → Project → Crons tab. El cron debe listarse tras el primer deploy que contenga `vercel.json`. Primera ejecución: próximo 03:00 UTC.
+
+4. **Verificar la RPC en Supabase**: si `purge_old_chat_messages()` aún no está creada (a pesar del pre-requisito), el cron devolverá 500 con `function public.purge_old_chat_messages() does not exist`. Verificar con:
+   ```sql
+   SELECT proname FROM pg_proc WHERE proname = 'purge_old_chat_messages';
+   ```
+
