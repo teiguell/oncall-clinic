@@ -106,18 +106,18 @@ export const useBookingStore = create<BookingState>()(
     }),
     {
       name: PERSIST_KEY,
-      // BUG FIX P0 #3 (2026-04-24): skipHydration prevents Zustand from
-      // reading localStorage during the first render. Without this, the
-      // store's `_hasHydrated` flag could flip between SSR (localStorage
-      // unavailable → default state) and CSR (localStorage → persisted
-      // state), causing React hydration mismatches (#418) on any page
-      // that reads the store in render. The useEffect below rehydrates
-      // safely AFTER mount.
-      skipHydration: true,
+      // Audit Round 3 (2026-04-24): skipHydration was removed because it
+      // required an explicit rehydrate() call which, if not fired in time,
+      // left the store silently empty and broke Step-0 → Step-1 advance
+      // (user click marked blue but no state propagated).
+      //
+      // Current strategy: SSR returns a noop storage (zero read/write on
+      // server), CSR returns real localStorage. Zustand's persist middleware
+      // auto-rehydrates on first client render. Server HTML and first
+      // client render both see `selectedDoctorId = null` etc. Any read of
+      // these in render SSR vs CSR returns identical defaults → no #418.
       storage: createJSONStorage(() => {
         if (typeof window === 'undefined') {
-          // SSR safety — createJSONStorage is called at module load; on
-          // the server we return a noop storage so no read/write happens.
           return {
             getItem: () => null,
             setItem: () => {},
