@@ -11,6 +11,7 @@ import { CrispChat } from '@/components/crisp-chat'
 import { MobileNav } from '@/components/mobile-nav'
 import { TestModeBanner } from '@/components/test-mode-banner'
 import { CookieConsent } from '@/components/cookie-consent'
+import { BookingStoreRehydrator } from '@/components/providers/BookingStoreRehydrator'
 import { VersionBadge } from '@/components/version-badge'
 
 const inter = Inter({
@@ -153,6 +154,7 @@ export default async function LocaleLayout({
           <MobileNav />
           <CrispChat />
           <CookieConsent />
+          <BookingStoreRehydrator />
         </NextIntlClientProvider>
       </body>
     </html>
