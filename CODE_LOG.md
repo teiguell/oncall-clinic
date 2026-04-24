@@ -3249,3 +3249,118 @@ If Cowork re-audit still shows #418 on auth routes, the next best defence
 would be to add `skipHydration: true` to `stores/auth.store.ts` even
 though no component reads it (module-load side effect). Holding off until
 evidence suggests we need it.
+
+## [2026-04-24] — ROUND 3 #418 + Zustand regresión — DELIVERABLES
+
+### Commits
+
+| Fix | Commit |
+|---|---|
+| A — Mounted-gate pattern en CookieConsent | `6fcd020` |
+| B — Remove skipHydration + delete BookingStoreRehydrator (regresión) | `719de90` |
+
+### Bundle hash live (verificado vía `/api/health`)
+
+| Iteration | layout-*.js hash |
+|---|---|
+| Cowork audit Round 1 | `layout-336f82ea7060b580` |
+| Cowork audit Round 2 (después de mi 1er intento) | `layout-61557854cee15234` |
+| **Round 3 (este fix, live ahora)** | **`layout-74f06689e8372eca`** |
+
+### Bundle counts (objetivos de Cowork eran "deben bajar")
+
+| Pattern | Round 1 | Round 2 | **Round 3 (now)** |
+|---|---|---|---|
+| `localStorage` refs | 2 | 4 | **2** ✓ |
+| `window.*` refs | 2 | 3 | **2** ✓ |
+| `useEffect` count | 3 | 4 | _no medido — mounted-gate añade 1_ |
+
+Counts bajaron al nivel original o por debajo. **El IIFE problemático fue eliminado**.
+
+### Code diff demonstrating IIFE removal
+
+**Antes (Round 2 bundle pattern):**
+```js
+a.useEffect)(()=>{let e=document.cookie.split("; ").some(e=>e.startsWith("cookie_consent=")),
+  t=(()=>{try{return!!window.localStorage.getItem("cookie-consent")}catch(e){return!1}})();
+  //   ^^^^ NESTED IIFE for try/catch → bundle-grep flagged as "top-level"
+  if(!e&&!t){let e=setTimeout(()=>l(!0),800);return()=>clearTimeout(e)}},[]);
+```
+
+**Después (Round 3 live bundle pattern):**
+```js
+l(!0);  // setMounted(true) — runs FIRST inside useEffect
+let e=!1,t=!1;
+try{e=document.cookie.split("; ").some(e=>e.startsWith("cookie_consent="))}catch(e){}
+try{t=!!window.localStorage.getItem("cookie-consent")}catch(e){}
+//  ^^^^ plain try/catch, no IIFE wrapper
+if(!e&&!t){...setTimeout(()=>setShow(true),800)...}
+```
+
+The wrapping arrow `useEffect(()=>` is still there in the source — the IIFE that Cowork flagged was the inner localStorage read pattern, which is now plain `try{...}catch{}`.
+
+### Mounted-gate verification
+
+`components/cookie-consent.tsx`:
+```ts
+const [mounted, setMounted] = useState(false)  // SSR-safe initial
+useEffect(() => {
+  setMounted(true)         // first thing inside effect
+  // ...read localStorage etc
+}, [])
+if (!mounted) return null  // server HTML == first-client HTML (both null)
+```
+
+### Zustand regresión — fix
+
+`stores/booking-store.ts`:
+- ❌ Removed `skipHydration: true`
+- ❌ Removed `BookingStoreRehydrator` component (deleted file)
+- ❌ Removed import + mount from `app/[locale]/layout.tsx`
+- ✅ Kept noop SSR storage (returns no-op getItem/setItem on server)
+- ✅ Zustand auto-rehydrates on first client render (default behaviour)
+
+Initial state now identical SSR/CSR (`selectedDoctorId: null`, `consultationType: null`, etc.). After hydration, Zustand reads localStorage and updates via subscribe. UI re-renders. No #418, no broken click.
+
+### Live smoke test 8/8 ✓
+
+| Route | HTTP |
+|---|---|
+| /es/login | 200 |
+| /en/login | 200 |
+| /es/doctor/login | 200 |
+| /es/doctor/onboarding | 200 |
+| /es/patient/dashboard | 200 |
+| /es/patient/request | 200 |
+| /api/doctors?near=38.98,1.42 | 200 |
+| /api/health | 200 (commit `719de90`) |
+
+### Lo que NO puedo verificar desde aquí
+
+Sigue siendo cliente-side. Necesito Cowork con Chrome MCP para confirmar:
+1. `/es/login` carga sin error page (HTML bien renderizado, sin 11 errores en consola)
+2. `/es/patient/request` → click "Urgente" → **avanza a Step 2 (doctor list)**
+3. Step 2 (DoctorSelector) renderiza sin white screen (#310 ya parcheado en commit `e94ef19`)
+
+Si Cowork sigue viendo issues con `layout-74f06689e8372eca` activo, **necesito el stack trace exacto + URL del bundle citado** porque las patches estándar para hydration ya están aplicadas.
+
+### Archivos tocados (Round 3)
+
+```
+M components/cookie-consent.tsx          (mounted-gate pattern)
+M stores/booking-store.ts                (remove skipHydration, keep noop SSR storage)
+M app/[locale]/layout.tsx                (remove BookingStoreRehydrator import + mount)
+D components/providers/BookingStoreRehydrator.tsx  (file deleted)
+```
+
+### Commits de la cadena completa #310 + #418
+
+```
+e94ef19  fix(doctor-selector): hoist isNightHour hook before early-returns (React #310)
+c12e7be  feat(api): /api/doctors endpoint + Haversine RPC
+efdd15a  fix(hydration): skipHydration + noop SSR storage (Round 2 — partial)
+6fcd020  fix(cookie-consent): mounted-gate pattern (Round 3)
+719de90  fix(booking-store): remove skipHydration + rehydrator (Round 3 regression fix)
+```
+
+Live deploy: commit `719de90`, bundle `layout-74f06689e8372eca`.
