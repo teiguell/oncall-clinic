@@ -3164,3 +3164,88 @@ If after re-audit #418 still appears on any route, the remaining culprit is else
 - `efdd15a` fix(hydration): skipHydration + noop SSR storage + client rehydrator (#418)
 
 Live deploy commit: `efdd15a`
+
+## [2026-04-24] — Bundle forensics on live #418 (post-deploy `efdd15a`)
+
+After applying FIX 1 + 2 + 3 (commits `e94ef19`, `c12e7be`, `efdd15a`) and
+the Vercel auto-deploy landed (commit `efdd15a` confirmed via /api/health),
+I re-ran a bundle-level forensic check directly against the live CDN:
+
+```
+BUNDLE: /_next/static/chunks/app/[locale]/layout-254420f22a59a7b1.js
+ (Cowork's audit referenced layout-336f82ea7060b580.js — older hash)
+
+localStorage hits: 4  (expected — CookieConsent getItem+setItem+Zustand+TTL-cleanup)
+window.* hits:     3  (expected — window.location in safe handlers + useEffect)
+document.* hits:   6  (expected — document.cookie reads inside useEffect)
+new Date hits:     5  (expected — all inside handlers/useEffect/invisible-on-SSR paths)
+```
+
+### Lexical scope verification of the `localStorage.getItem("cookie-consent")` call
+
+Raw extract (with 120 chars context):
+```
+a.useEffect)(()=>{let e=document.cookie.split("; ").some(e=>e.startsWith(
+  "cookie_consent=")),t=(()=>{try{return!!window.localStorage.getItem(
+  "cookie-consent")}catch(e){return!1}})();if(!e&&!t){let e=setTimeout(
+  ()=>l(!0),800);return()=>clearTimeout(e)}},[]);
+```
+
+The `localStorage.getItem` call is **inside** an IIFE (`(()=>{...})()`),
+and that IIFE is **inside** the `useEffect` callback (scope tag
+`a.useEffect)(()=>{...}, [])`). SWC's minifier combined multi-statement
+useEffect body into one chained comma expression + nested IIFE for the
+try/catch around localStorage — but lexically, **all of it runs only
+after the component mounts, never during server render**.
+
+### Implication
+
+The "smoking gun" Cowork identified is a **false positive from bundle
+grepping**. The `localStorage` call pattern at the top of the minified
+useEffect body looks like a top-level IIFE when grepped, but the
+`useEffect)(()` prefix immediately before it is the actual anchor — the
+callback scope.
+
+**No SSR/CSR divergence can come from this code path.** The CookieConsent
+component initial state (`show=false`) is identical on server and client,
+and the localStorage read only happens in useEffect which never runs on
+the server.
+
+### What this means for the 5 crashing routes (/es/login, /en/login, etc.)
+
+If these routes still crash with #418 after deploy `efdd15a`, the culprit
+is NOT the cookie-consent component. Plausible remaining sources:
+
+1. **Zustand persist on another store** (auth.store, or a newly imported one)
+   — mitigated by my FIX 3 (skipHydration) for booking-store. auth.store
+   is defined with persist but isn't imported by any component in render,
+   so it doesn't trigger. Still, I could add skipHydration there too as
+   defence-in-depth if this persists.
+
+2. **A server component emitting locale-dependent content** that differs
+   between the server's intl state and the client's next-intl state.
+   I do not see this in my audit.
+
+3. **Third-party scripts injected at different times on SSR vs CSR**
+   (Crisp widget loads via Next/Script strategy that could interfere).
+
+4. **An older cached bundle in Cowork's browser** — bust cache and retry.
+
+**Without a post-`efdd15a` stack trace from Cowork, I cannot narrow
+further.** The 3 fixes I applied are complete for every issue I could
+confirm from the source + bundle.
+
+### Status of the 14-item checklist
+
+Server-side (what I can verify from curl):
+- 1-6, 9: ✅ HTTP 200 (server renders fine; always did)
+
+Client-side (need Cowork browser re-audit):
+- 7, 8, 10-14: ⏳ pending Cowork re-audit with fresh cache
+
+### Auth-store defensive patch (optional)
+
+If Cowork re-audit still shows #418 on auth routes, the next best defence
+would be to add `skipHydration: true` to `stores/auth.store.ts` even
+though no component reads it (module-load side effect). Holding off until
+evidence suggests we need it.
