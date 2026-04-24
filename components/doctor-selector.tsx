@@ -44,6 +44,10 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterKey>('all')
+  // BUG FIX P0 #1 (Rules of Hooks): MUST be declared before any early-return.
+  // Used only in the "data loaded" branch but React requires the same
+  // hook count on every render of the same component instance.
+  const [isNightHour, setIsNightHour] = useState(false)
   const selectedDoctorId = useBookingStore(s => s.selectedDoctorId)
   const setSelectedDoctor = useBookingStore(s => s.setSelectedDoctor)
 
@@ -151,6 +155,13 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
     return copy
   }, [doctors, filter])
 
+  // BUG FIX P0 #1: isNightHour effect BEFORE early-returns (Rules of Hooks).
+  // new Date() ONLY inside useEffect → no SSR/CSR hydration mismatch.
+  useEffect(() => {
+    const h = new Date().getHours()
+    setIsNightHour(h >= 22 || h < 8)
+  }, [])
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -199,12 +210,8 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
   const etaFromDistance = (km?: number) =>
     typeof km === 'number' ? Math.max(5, Math.round((10 + km * 1.5) / 5) * 5) : null
 
-  // Ibiza local hour window for night pricing (22:00–07:59)
-  const [isNightHour, setIsNightHour] = useState(false)
-  useEffect(() => {
-    const h = new Date().getHours()
-    setIsNightHour(h >= 22 || h < 8)
-  }, [])
+  // Note: isNightHour state + its useEffect now live at the top of the
+  // component (pre early-returns) to comply with Rules of Hooks.
 
   return (
     <div className="space-y-3">
