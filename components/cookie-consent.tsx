@@ -6,39 +6,63 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Cookie } from 'lucide-react'
 
-type CookieConsent = {
+type CookieConsentValue = {
   necessary: boolean
   analytics: boolean
   marketing: boolean
   timestamp: string
 }
 
+/**
+ * Cookie consent banner — hydration-safe via mounted-gate pattern.
+ *
+ * CRITICAL (audit Round 3, 2026-04-24): the first SSR render AND the
+ * first CSR render MUST return IDENTICAL HTML. Any browser-only read
+ * (document.cookie, localStorage, navigator) is forbidden in the
+ * render path before `mounted` flips true.
+ *
+ * Contract:
+ *   - Initial state: mounted=false → returns null
+ *   - After useEffect fires (client-only): mounted=true + check existing consent
+ *   - If no existing consent → show banner after 800ms delay
+ *
+ * Server HTML and first-client HTML both output `null` → no #418 risk.
+ */
 export function CookieConsent() {
   const t = useTranslations('cookieBanner')
   const locale = useLocale()
+
+  // mounted = hard gate for SSR/CSR symmetry
+  const [mounted, setMounted] = useState(false)
   const [show, setShow] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
 
   useEffect(() => {
-    // Check both cookie and localStorage fallback (some privacy browsers
-    // block cookies but allow localStorage)
-    const hasCookie = document.cookie
-      .split('; ')
-      .some(row => row.startsWith('cookie_consent='))
-    const hasLocalStorage = (() => {
-      try { return !!window.localStorage.getItem('cookie-consent') } catch { return false }
-    })()
+    // Mark mounted FIRST so any subsequent logic runs client-only
+    setMounted(true)
+
+    // Now safe to read browser-only APIs
+    let hasCookie = false
+    let hasLocalStorage = false
+    try {
+      hasCookie = document.cookie
+        .split('; ')
+        .some(row => row.startsWith('cookie_consent='))
+    } catch { /* ignore */ }
+    try {
+      hasLocalStorage = !!window.localStorage.getItem('cookie-consent')
+    } catch { /* localStorage disabled */ }
+
     if (!hasCookie && !hasLocalStorage) {
       const timer = setTimeout(() => setShow(true), 800)
       return () => clearTimeout(timer)
     }
   }, [])
 
-  const saveConsent = (consent: CookieConsent) => {
+  const saveConsent = (consent: CookieConsentValue) => {
     const expires = new Date()
     expires.setMonth(expires.getMonth() + 13)
     const payload = encodeURIComponent(JSON.stringify(consent))
-    // Dual storage: cookie (AEPD preferred) + localStorage (fallback)
     try {
       document.cookie = `cookie_consent=${payload}; expires=${expires.toUTCString()}; path=/; SameSite=Lax; Secure`
     } catch { /* cookie disabled */ }
@@ -48,8 +72,10 @@ export function CookieConsent() {
     setShow(false)
 
     if (!consent.analytics) {
-      document.cookie = '_ga=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
-      document.cookie = '_ga_=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+      try {
+        document.cookie = '_ga=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+        document.cookie = '_ga_=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+      } catch { /* ignore */ }
     }
   }
 
@@ -60,8 +86,8 @@ export function CookieConsent() {
     saveConsent({ necessary: true, analytics: false, marketing: false, timestamp: new Date().toISOString() })
 
   const acceptSelected = () => {
-    const analyticsCheckbox = document.getElementById('cookie-analytics') as HTMLInputElement
-    const marketingCheckbox = document.getElementById('cookie-marketing') as HTMLInputElement
+    const analyticsCheckbox = document.getElementById('cookie-analytics') as HTMLInputElement | null
+    const marketingCheckbox = document.getElementById('cookie-marketing') as HTMLInputElement | null
     saveConsent({
       necessary: true,
       analytics: analyticsCheckbox?.checked || false,
@@ -70,6 +96,8 @@ export function CookieConsent() {
     })
   }
 
+  // Hard gate: SSR and first-CSR render MUST be identical. Both return null here.
+  if (!mounted) return null
   if (!show) return null
 
   return (
