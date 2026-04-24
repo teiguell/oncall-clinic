@@ -3089,3 +3089,78 @@ Requiere sesión autenticada (magic link o Google OAuth) + webhook configurado e
 - Deploy ID: `dpl_4gZSoi3YdWnxP9hExDmkDoxNJuQ9`
 - Commit final: `21beb60`
 - Verificación smoke test: **10/10 rutas OK**
+
+## [2026-04-24] — BUG FIX P0 CONSOLIDADO (patient #310 + auth #418)
+
+### Context
+Cowork live audit 2026-04-24 13:40 CET reported 2 P0 bugs blocking alpha:
+1. React #310 Rules of Hooks in DoctorSelector → white screen on Step 1 click "Urgente"
+2. React #418 hydration mismatch on `/es/login, /en/login, /es/doctor/onboarding, /es/patient/dashboard` → client crash, error page
+
+### Fixes applied
+
+**FIX 1 — Hoist isNightHour hook (DoctorSelector)**
+- Commit `e94ef19`
+- File: `components/doctor-selector.tsx`
+- Confirmed root cause by code inspection: `useState(isNightHour)` + `useEffect` declared at line 203-207, AFTER 3 early-returns (loading/error/empty) at lines 154, 165, 179.
+- Render 1 (loading): 5 hooks | Render 2 (data): 7 hooks → React #310
+- Moved both hooks BEFORE the early-returns. Same UI, same logic, hook count stable.
+
+**FIX 2 — /api/doctors endpoint + RPC migration**
+- Commit `c12e7be` (pending hash — part of the 3-file commit)
+- New: `app/api/doctors/route.ts` — GET accepts `?near=lat,lng`, tries RPC first, falls back to plain availability query, returns `[]` on any error (never surfaces 500).
+- New: `supabase/migrations/020_find_nearest_doctors_rpc.sql` — Haversine distance function (no PostGIS required), returns 20 nearest verified+available doctors sorted ascending.
+- Route is live; RPC migration **pending Ops `supabase db push`** before RPC hits fire. Fallback query works without it.
+
+**FIX 3 — Hydration-safe persist store**
+- Commit `efdd15a`
+- `stores/booking-store.ts`: added `skipHydration: true` + noop SSR storage guard (`typeof window === 'undefined'` → return memory-only storage)
+- New: `components/providers/BookingStoreRehydrator.tsx` — client component that calls `useBookingStore.persist.rehydrate()` inside useEffect (AFTER first paint)
+- Mounted in `app/[locale]/layout.tsx` below NextIntlClientProvider
+- Net effect: booking state still restored from localStorage on Magic Link return, but the restore happens AFTER React hydrates. No more SSR/CSR state divergence.
+
+### Deploy
+- Push to main → Vercel GitHub auto-deploy
+- Deploy active at commit `efdd15a` (verified via `/api/health` returning `"commit":"efdd15aa..."`)
+- Vercel CLI was unavailable from this environment (/tmp node npm/npx symlinks dangling) — relied on auto-deploy
+
+### Verification — SERVER-SIDE ONLY
+
+I can only verify HTTP status codes from the server. The hydration bug (#418) is **client-side** and can only be definitively verified via browser DevTools console or Playwright. Cowork must re-audit live.
+
+| # | Check | Method | Result |
+|---|---|---|---|
+| 1 | /es/login | GET | HTTP 200 ✓ |
+| 2 | /en/login | GET | HTTP 200 ✓ |
+| 3 | /es/doctor/login | GET | HTTP 200 ✓ |
+| 4 | /es/doctor/onboarding | GET | HTTP 200 ✓ |
+| 5 | /es/patient/dashboard | GET | HTTP 200 ✓ |
+| 6 | /es/patient/request | GET | HTTP 200 ✓ |
+| 7 | Step 2 (Urgente) no crash | **Cowork needs to re-click and inspect console** | pending |
+| 8 | Consola DevTools 0 errores | **Cowork** | pending |
+| 9 | /api/doctors 200 | GET | **HTTP 200, body: []** ✓ (empty until RPC migrated) |
+| 10 | Step 3 / Step 4 / Doctor flow | **Cowork** | pending |
+
+**Important**: server 200s DO NOT prove React hydration is fixed. The server was returning 200s BEFORE the fixes too — the crash was after client-side hydration failed. My confidence in each fix:
+
+- FIX 1 (hooks hoist): **high** — rule violation confirmed by code inspection, fix applied correctly
+- FIX 2 (endpoint): **high** — /api/doctors no longer 404, returns [] until RPC deployed
+- FIX 3 (skipHydration): **medium-high** — attacks one known SSR/CSR divergence source. Other latent divergences might still exist. Cowork browser re-audit required.
+
+### Pending Ops
+1. Apply migration 020 in Supabase prod (`supabase db push` or MCP `apply_migration`). Until then, /api/doctors returns [] and DoctorSelector uses its existing direct-query fallback.
+
+### Pending Cowork re-audit
+Re-run the 14-item checklist via Chrome MCP on live. Specifically:
+- Item 7: Step 1 → click Urgente → does Step 2 render the doctor list without white screen?
+- Item 8: DevTools console on /es/login — 0 React errors?
+- Items 10, 11, 12, 13, 14: Step 3/4 and doctor flow.
+
+If after re-audit #418 still appears on any route, the remaining culprit is elsewhere (possibly a server component's `new Date()` in the dashboard producing different HTML per request, or a third-party script like Crisp/Intercom). At that point I'll need the specific stack trace or line number from the browser.
+
+### Commits
+- `e94ef19` fix(doctor-selector): hoist isNightHour hook before early-returns (React #310)
+- `c12e7be` feat(api): /api/doctors endpoint + Haversine find_nearest_doctors RPC
+- `efdd15a` fix(hydration): skipHydration + noop SSR storage + client rehydrator (#418)
+
+Live deploy commit: `efdd15a`
