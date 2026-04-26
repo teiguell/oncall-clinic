@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useOptimistic, startTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -60,6 +60,16 @@ export function ChatLogistico({
   const supabase = createClient()
 
   const [messages, setMessages] = useState<Message[]>([])
+  // Round 7 M11 — useOptimistic appends a pending message immediately on
+  // submit; the underlying `messages` state is updated by the realtime
+  // INSERT listener which will replace the temp once Supabase echoes it
+  // back. The optimistic entry has a `tmp-` id we use to render a faded
+  // "sending" bubble. If insert fails, we surface a toast and the
+  // optimistic state is auto-reset when startTransition completes.
+  const [optimisticMessages, addOptimisticMessage] = useOptimistic(
+    messages,
+    (state: Message[], newMsg: Message) => [...state, newMsg],
+  )
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
   const [warning, setWarning] = useState(false)
@@ -106,20 +116,35 @@ export function ChatLogistico({
 
   const reallySend = async () => {
     if (!draft.trim()) return
-    setSending(true)
     const content = draft.trim()
     setDraft('')
-    const { error } = await supabase.from('consultation_messages').insert({
+    // Round 7 M11: optimistic append BEFORE the await so the bubble
+    // appears instantly. tmp-id is replaced by the realtime listener
+    // when Supabase echoes the row back.
+    const tempMsg: Message = {
+      id: `tmp-${Date.now()}`,
       consultation_id: consultationId,
       sender_id: currentUserId,
       sender_role: currentUserRole,
       content,
-    })
-    setSending(false)
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' })
-      setDraft(content) // restore so user doesn't lose what they typed
+      created_at: new Date().toISOString(),
+      read_at: null,
     }
+    setSending(true)
+    startTransition(async () => {
+      addOptimisticMessage(tempMsg)
+      const { error } = await supabase.from('consultation_messages').insert({
+        consultation_id: consultationId,
+        sender_id: currentUserId,
+        sender_role: currentUserRole,
+        content,
+      })
+      setSending(false)
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' })
+        setDraft(content) // restore so user doesn't lose what they typed
+      }
+    })
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -149,22 +174,25 @@ export function ChatLogistico({
         className="flex-1 overflow-y-auto px-3 py-4 space-y-2"
         aria-live="polite"
       >
-        {messages.length === 0 && (
+        {optimisticMessages.length === 0 && (
           <div className="text-center text-[13px] text-muted-foreground py-8">
             {t('empty_state')}
           </div>
         )}
-        {messages.map(m => {
+        {optimisticMessages.map(m => {
           const mine = m.sender_id === currentUserId
           const ageHours = (Date.now() - new Date(m.created_at).getTime()) / 3600_000
           const fading = ageHours > 12
+          // Round 7 M11: tmp-id signals an optimistic (sending) bubble.
+          const isPending = m.id.startsWith('tmp-')
           return (
             <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={`max-w-[78%] px-3 py-2 text-[14px] leading-snug ${
                   mine ? 'msg-patient' : 'msg-doctor'
-                } ${fading ? 'opacity-60' : ''}`}
+                } ${fading ? 'opacity-60' : ''} ${isPending ? 'opacity-70' : ''}`}
                 title={fading ? t('retention_hint') : undefined}
+                aria-busy={isPending || undefined}
               >
                 {m.content}
                 <div className={`text-[10px] mt-1 ${mine ? 'text-white/70' : 'text-muted-foreground'}`}>

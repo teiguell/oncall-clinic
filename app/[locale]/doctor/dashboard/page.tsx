@@ -30,6 +30,11 @@ export default function DoctorDashboard() {
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(false)
   const [accepting, setAccepting] = useState<string | null>(null)
+  // Round 7 M11: ids of consultations the doctor has clicked Accept on. Cards
+  // in this set disappear from the pending list IMMEDIATELY on click, so the
+  // doctor sees instant feedback. If the server rejects (already taken by
+  // another doctor) we remove from the set and the card reappears.
+  const [optimisticAccepted, setOptimisticAccepted] = useState<Set<string>>(new Set())
 
   const fetchData = useCallback(async () => {
     const supabase = createClient()
@@ -210,6 +215,8 @@ export default function DoctorDashboard() {
 
   const acceptRequest = async (consultationId: string) => {
     if (!doctorProfile) return
+    // Round 7 M11: optimistic accept — hide card immediately. Restore on error.
+    setOptimisticAccepted(prev => new Set(prev).add(consultationId))
     setAccepting(consultationId)
     const supabase = createClient()
 
@@ -231,9 +238,18 @@ export default function DoctorDashboard() {
       .is('doctor_id', null) // Prevent double-accepting
 
     if (error) {
+      // Server rejected (race lost or RLS) — restore the card to pending list.
+      setOptimisticAccepted(prev => {
+        const next = new Set(prev)
+        next.delete(consultationId)
+        return next
+      })
       toast({ title: t('dashboard.toastAlreadyTakenTitle'), description: t('dashboard.toastAlreadyTakenDesc'), variant: 'destructive' })
     } else {
       toast({ title: t('dashboard.toastAcceptedTitle'), description: t('dashboard.toastAcceptedDesc'), variant: 'success' })
+      // fetchData() will overwrite pendingRequests / activeConsultation;
+      // no need to clear optimisticAccepted because the now-accepted row is
+      // already excluded from `in ('status', ['pending'])` queries.
       fetchData()
     }
     setAccepting(null)
@@ -432,14 +448,17 @@ export default function DoctorDashboard() {
           </Card>
         )}
 
-        {/* Pending requests */}
-        {doctorProfile.is_available && pendingRequests.length > 0 && (
+        {/* Pending requests — Round 7 M11: filter out optimistically-accepted IDs */}
+        {(() => {
+          const visiblePending = pendingRequests.filter(r => !optimisticAccepted.has(r.id))
+          if (!doctorProfile.is_available || visiblePending.length === 0) return null
+          return (
           <div>
             <h3 className="font-bold text-gray-900 mb-3">
-              {t('dashboard.nearbyRequests')} ({pendingRequests.length})
+              {t('dashboard.nearbyRequests')} ({visiblePending.length})
             </h3>
             <div className="space-y-3">
-              {pendingRequests.map((req) => {
+              {visiblePending.map((req) => {
                 const service = getService(req.service_type)
                 const patient = (req as Consultation & { profiles?: { full_name: string } }).profiles
                 const dist = doctorProfile.current_lat && req.lat
@@ -487,7 +506,8 @@ export default function DoctorDashboard() {
               })}
             </div>
           </div>
-        )}
+          )
+        })()}
 
         {doctorProfile.is_available && pendingRequests.length === 0 && !activeConsultation && (
           <div className="text-center py-12 text-gray-400">

@@ -863,6 +863,7 @@
     "included": "Included",
     "total": "Total",
     "confirmAndPay": "Confirm and pay",
+    "processingPayment": "Processing payment…",
     "signInToConfirm": "Sign in to confirm",
     "infoSecure": "Your information is secure",
     "signIn": "Sign in",

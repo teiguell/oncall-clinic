@@ -291,13 +291,18 @@ export function Step3Confirm({
                 disabled={!termsAccepted || !selectedDoctorId || loading}
               >
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
+                    {tBooking('processingPayment')}
+                  </>
                 ) : (
-                  <Lock className="h-4 w-4 mr-2" />
+                  <>
+                    <Lock className="h-4 w-4 mr-2" />
+                    {priceEuros !== null
+                      ? `${tBooking('confirmAndPay')} · €${priceEuros}`
+                      : tBooking('confirmAndPay')}
+                  </>
                 )}
-                {priceEuros !== null
-                  ? `${tBooking('confirmAndPay')} · €${priceEuros}`
-                  : tBooking('confirmAndPay')}
               </Button>
             </div>
           </form>
