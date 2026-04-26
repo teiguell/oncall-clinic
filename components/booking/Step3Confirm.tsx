@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { Lock, ShieldCheck, Award, Stethoscope } from 'lucide-react'
+import { Lock, Loader2, ShieldCheck, Award, Stethoscope } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -123,7 +123,7 @@ export function Step3Confirm({
                 disabled={!authEmail || authLoading}
               >
                 {authLoading ? (
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
                 ) : (
                   <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -291,7 +291,7 @@ export function Step3Confirm({
                 disabled={!termsAccepted || !selectedDoctorId || loading}
               >
                 {loading ? (
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
                 ) : (
                   <Lock className="h-4 w-4 mr-2" />
                 )}

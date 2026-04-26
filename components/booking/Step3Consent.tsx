@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { ShieldCheck } from 'lucide-react'
+import { Loader2, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 
@@ -170,7 +170,7 @@ export function Step3Consent({ onComplete }: { onComplete: () => void }) {
         disabled={!canContinue || submitting}
       >
         {submitting ? (
-          <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+          <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
         ) : null}
         {t('continueBtn')}
       </Button>
