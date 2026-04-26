@@ -3807,3 +3807,125 @@ Server-side gates en `doctor/layout.tsx` y `patient/layout.tsx` redirigen anonym
 
 - **Cowork retest en Incognito** para validar/falsar la hipótesis "extensión del navegador" sobre el cascade #418 que ellos venían reportando. Con sourcemaps activos, si los #418 persisten en Incognito el primer stack frame en DevTools dará el componente real en un click.
 - Si los #418 desaparecen en Incognito → hipótesis confirmada, no hay fix de código.
+
+---
+
+## Round 7 — UX Batch M1-M12 + P0/P1 corrections — [2026-04-26]
+
+> **Status**: 6 commits pushed a `main`. Bundle live `layout-70fa3c68c7fae1fc.js` (anterior `layout-bd0804a56692286d.js` de Round 6). Sourcemap `.map` HTTP 200. Live audit Chromium real (mobile UA + system Chrome): 0 console errors, 0 hydration markers.
+
+### Commits
+
+| # | SHA | Scope | M-IDs |
+|---|---|---|---|
+| P0-A | `63f8831` | Revert Round 5 mount-time auth redirect en /patient/request | (regression fix) |
+| A | `fc3163d` | DistanceBadge + ETA helper + expandable doctor cards | M1, M3, M12, P1-E |
+| B | `d806b51` | formatDoctorShortName + sticky Step 2 CTA + Google Map + chip icons + P1-D copy | M2, M4, M5, M6, P0-B, P1-D |
+| C | `78fce76` | BottomTabBar wires + ServiceTimeline embeds | M7, M8 |
+| D | `5f95657` | Spinners → unified Loader2 | M10 |
+| E | `89d28d7` | Optimistic UI booking + chat + doctor accept | M11 |
+
+M9 (BookingFaq en Step 4) already wired in `Step3Confirm.tsx` desde Round previo — no commit necesario, validado en código.
+P0-C (login Magic Link / Google) es **infra** — pendiente de Tei en Supabase Dashboard + Google Cloud Console (config de redirect URIs y SMTP). Code no puede arreglar desde el repo.
+
+### Bundle hash
+
+| | Hash |
+|---|---|
+| Anterior (Round 6) | `layout-bd0804a56692286d.js` |
+| Nuevo (Round 7) | **`layout-70fa3c68c7fae1fc.js`** ✓ |
+
+### Verificación CLAUDE.md R2 (post-deploy)
+
+```
+$ git rev-parse HEAD
+89d28d72bde57b810b02162c71e8bed91a92f26b
+
+$ curl -s https://oncall.clinic/es | grep -oE 'layout-[a-f0-9]{16}\.js' | head -1
+layout-70fa3c68c7fae1fc.js
+
+$ [ "$HASH" != "layout-bd0804a56692286d.js" ] && echo "✓ DEPLOY"
+✓ DEPLOY DETECTADO
+
+$ curl -sI 'https://oncall.clinic/_next/static/chunks/app/%5Blocale%5D/layout-70fa3c68c7fae1fc.js.map'
+HTTP/2 200
+content-type: application/json
+```
+
+### Live audit (Playwright + system Chrome --disable-extensions equivalent, mobile UA, 3s settle)
+
+| Ruta | OK/FAIL | Notas |
+|---|---|---|
+| `/es` landing | ✓ | 0 console errors. ServiceTimeline visible (regex test detected "Solicitas" + "Doctor acepta" + "Seguimiento" en DOM). |
+| `/es/login` | ✓ | 0 console errors. |
+| `/es/doctor/login` (→ /login?next=...) | ✓ | Server gate doctor/layout.tsx redirige correctamente. 0 errors. |
+| `/es/patient/dashboard` (→ /login?next=...) | ✓ | Server gate. 0 errors. |
+| `/es/patient/request` (anónimo) | ✓ | **NO redirect a /login** (P0-A unblock confirmed). Step 0 "Urgente"/"Programada" visible. 0 errors. |
+
+### M-IDs status
+
+| M | Descripción | Status |
+|---|---|---|
+| M1 | Doctor card distancia km + ETA | ✓ DistanceBadge wired |
+| M2 | Botón "Continuar con [médico]" sin ambigüedad | ✓ formatFullNameShort |
+| M3 | Distancia visible en card | ✓ DistanceBadge variant=solid |
+| M4 | CTA "Continuar" sticky mobile en Step 2 (Cowork=Step 3) | ✓ fixed bottom-0 md:static |
+| M5 | Mapa Google Maps real Step 3 (Cowork=Step 3) | ✓ AddressMap @vis.gl/react-google-maps |
+| M6 | Chips síntomas con iconos | ✓ Lucide icons por symptom id |
+| M7 | BottomTabBar wired | ✓ patient/layout.tsx + doctor/layout.tsx, MobileNav removido del LocaleLayout |
+| M8 | ServiceTimeline en landing + tracking | ✓ explainer mode landing, currentStep mode tracking |
+| M9 | BookingFaq en Step 4 | ✓ ya wired desde antes |
+| M10 | Spinners → skeletons | ✓ audit closed: codebase ya cumple, 3 div-spinners unificados a Loader2 |
+| M11 | useOptimistic | ✓ chat send (full pattern), doctor accept (Set<string> filter), booking submit (copy "Procesando pago…") |
+| M12 | DistanceBadge reusable | ✓ components/shared/distance-badge.tsx |
+
+### P0/P1 status
+
+| Item | Descripción | Status |
+|---|---|---|
+| P0-A | Revert mount-time auth redirect en /patient/request | ✓ commit `63f8831`, funnel desbloqueado live |
+| P0-B | "Continuar con Dr. Dr." (PREFIXES regex) | ✓ lib/doctor-format.ts strip honoríficos |
+| P0-C | Magic Link + Google login (infra) | ⏳ requiere Tei en Supabase/Google Cloud (no code change) |
+| P1-D | Copy contradictorio "<20 MIN" vs "1h" | ✓ urgentBadgeShort + urgentDesc actualizados ES/EN |
+| P1-E | Doctor cards expandibles | ✓ chevron + collapsible panel con bio/distancia/reviews |
+
+### Files touched
+
+```
+M app/[locale]/(auth)/login/page.tsx        (no changes Round 7, mantenido R6)
+M app/[locale]/layout.tsx                   (-MobileNav)
+M app/[locale]/patient/layout.tsx           (+BottomTabBarWrapper)
+M app/[locale]/doctor/layout.tsx            (+BottomTabBarWrapper)
+M app/[locale]/page.tsx                     (+ServiceTimeline section)
+M app/[locale]/patient/request/page.tsx     (P0-A revert)
+M app/[locale]/patient/tracking/[id]/page.tsx (+ServiceTimeline currentStep)
+M app/[locale]/doctor/dashboard/page.tsx    (+optimisticAccepted Set)
+M components/booking/Step0Type.tsx          (P1-D urgentBadgeShort)
+M components/booking/Step1Doctor.tsx        (continueWithDoctor i18n)
+M components/booking/Step2Details.tsx       (sticky CTA + AddressMap + chip icons)
+M components/booking/Step3Confirm.tsx       (Loader2 + processingPayment copy)
+M components/booking/Step3Consent.tsx       (div spinner → Loader2)
+M components/doctor-selector.tsx            (DistanceBadge + expandable)
+M components/shared/ChatLogistico.tsx       (useOptimistic + startTransition)
+A components/shared/distance-badge.tsx      (NEW)
+A components/shared/address-map.tsx         (NEW)
+A lib/eta.ts                                (NEW)
+A lib/doctor-format.ts                      (NEW)
+M messages/es.json                          (5 new keys)
+M messages/en.json                          (5 new keys)
+M CODE_LOG.md                               (este bloque)
+```
+
+### Pendiente para Tei (P0-C — infra)
+
+Para que login Magic Link + Google funcionen end-to-end:
+
+1. **Supabase Dashboard → Auth → SMTP Settings**: configurar Resend (env `RESEND_API_KEY` ya en uso para transaccionales). Sin SMTP custom Supabase rate-limit-ea Magic Link a ~3-4/h en plan free.
+2. **Supabase Dashboard → Auth → URL Configuration**:
+   - Site URL: `https://oncall.clinic`
+   - Redirect URLs: incluir `https://oncall.clinic/api/auth/callback*`
+3. **Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client → Authorized redirect URIs**:
+   - `https://oncall.clinic/api/auth/callback`
+   - `https://<project>.supabase.co/auth/v1/callback`
+
+Si en algún test sale `redirect_uri_mismatch` o `error sending email`, esos 3 ajustes son la causa.
