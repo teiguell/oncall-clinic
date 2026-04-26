@@ -3725,3 +3725,85 @@ M app/[locale]/(auth)/login/page.tsx         (Round 6)
 M stores/auth.store.ts                       (Round 6)
 M CODE_LOG.md                                (Round 5+6)
 ```
+
+---
+
+## Round 6 — verified in prod — [2026-04-26]
+
+> Director (Tei vía Cowork) autorizó push. 2 commits en main. Vercel deploy detectado y verificado.
+
+### Commit SHAs
+
+```
+a1b4833  fix(round5): cookie-consent dynamic loader + auth gate + Stripe readable errors
+85607f7  fix(round6): sourcemaps + RCA-driven hardening (Hipótesis #4 + auth.store latent)
+```
+
+`git push origin main`: `79eafa9..85607f7` ✅
+
+### Bundle hash transition
+
+| | Hash | Notes |
+|---|---|---|
+| Anterior (Round 2) | `layout-04fcd2e46af2f1dd.js` | el que Cowork venía citando |
+| Nuevo (Round 5+6) | `layout-bd0804a56692286d.js` | post-deploy 2026-04-26 00:21 UTC |
+
+### Verificación CLAUDE.md R2 (post-deploy)
+
+```bash
+$ LOCAL=$(git rev-parse HEAD)
+$ HASH=$(curl -s https://oncall.clinic/es | grep -oE 'layout-[a-f0-9]{16}\.js' | head -1)
+$ echo "Mi commit:    $LOCAL"
+Mi commit:    85607f75a996cc0e2671ce22a45d288337acfe30
+$ echo "Bundle live:  $HASH"
+Bundle live:  layout-bd0804a56692286d.js
+$ [ "$HASH" != "layout-04fcd2e46af2f1dd.js" ] && echo "✓ DEPLOY DETECTADO" || echo "✗ MISMO BUNDLE"
+✓ DEPLOY DETECTADO
+```
+
+### Sourcemap HTTP 200
+
+```
+$ curl -sI 'https://oncall.clinic/_next/static/chunks/app/%5Blocale%5D/layout-bd0804a56692286d.js.map'
+HTTP/2 200
+accept-ranges: bytes
+content-disposition: inline; filename="layout-bd0804a56692286d.js.map"
+content-type: application/json; charset=utf-8
+cache-control: public,max-age=31536000,immutable
+last-modified: Sun, 26 Apr 2026 00:21:19 GMT
+```
+
+✅ `productionBrowserSourceMaps: true` activo. Cowork puede stack-trace #418 directamente al `.tsx:line` original en DevTools Sources.
+
+### Live bundle audit (post-deploy)
+
+```bash
+$ curl -s 'https://oncall.clinic/_next/static/chunks/app/%5Blocale%5D/layout-bd0804a56692286d.js' \
+    | grep -oE '(localStorage|window\.|document\.cookie)' \
+    | sort | uniq -c
+(empty — 0 matches)
+```
+
+✅ El layout chunk vivo tiene 0 ocurrencias de browser-API references. Round 5 Fix A verificado en producción.
+
+### Hydration probe live (Playwright + system Chrome, mobile UA, 3s settle)
+
+| Ruta | console errors | warnings | data-dgst | Failed requests |
+|---|---|---|---|---|
+| `/es` | 0 | 0 | none | 1 (`_rsc` prefetch ERR_ABORTED, normal) |
+| `/es/login` | 0 | 0 | none | 0 |
+| `/es/doctor/login` (→ /login?next=...) | 0 | 0 | none | 0 |
+| `/es/patient/dashboard` (→ /login?next=...) | 0 | 0 | none | 0 |
+
+Server-side gates en `doctor/layout.tsx` y `patient/layout.tsx` redirigen anonymous → login con `?next=` correctamente.
+
+### Stripe FK fix (Round 5 Fix B+C) — operativo en prod
+
+- `/es/patient/request` ahora redirige al unauthed user a `/es/login?next=...` antes de que pueda alcanzar Step 4
+- `/api/stripe/checkout` 401 path → `code: 'unauthorized'` → frontend hace `router.replace` a login en lugar de mostrar toast genérico
+- Patient layout server-gate también protege la ruta a nivel de SSR
+
+### Pendiente (no bloqueante)
+
+- **Cowork retest en Incognito** para validar/falsar la hipótesis "extensión del navegador" sobre el cascade #418 que ellos venían reportando. Con sourcemaps activos, si los #418 persisten en Incognito el primer stack frame en DevTools dará el componente real en un click.
+- Si los #418 desaparecen en Incognito → hipótesis confirmada, no hay fix de código.
