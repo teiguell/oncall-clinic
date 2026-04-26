@@ -169,7 +169,19 @@ export default function DoctorDashboard() {
       }, () => fetchData())
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    // Round 11 Fix D — 30s polling fallback. Belt-and-braces alongside
+    // realtime: if the WebSocket is dropped (mobile background, captive
+    // portal, etc.) the doctor still picks up new consultations within
+    // half a minute. Web Push is post-alpha.
+    const POLL_MS = 30_000
+    const pollHandle = window.setInterval(() => {
+      fetchData()
+    }, POLL_MS)
+
+    return () => {
+      supabase.removeChannel(channel)
+      window.clearInterval(pollHandle)
+    }
   }, [fetchData])
 
   const toggleAvailability = async () => {

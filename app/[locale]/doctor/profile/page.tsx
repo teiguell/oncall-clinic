@@ -9,7 +9,7 @@ import type { Profile as ProfileType } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { User, Star, Globe, Clock, Shield, CreditCard, Edit, Stethoscope } from 'lucide-react'
+import { User, Star, Globe, Clock, Shield, CreditCard, Edit, Stethoscope, MessageSquare } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 
 interface Profile {
@@ -38,6 +38,8 @@ interface DoctorProfile {
   rc_insurance_expiry_date: string | null
   reta_registration_number: string | null
   commission_rate: number | null
+  // Round 11 Fix D — opt-in to SMS for new consultation alerts.
+  sms_notifications_enabled?: boolean | null
 }
 
 const LANGUAGE_LABELS: Record<string, string> = {
@@ -56,6 +58,26 @@ export default function DoctorProfilePage() {
   const [totalEarnings, setTotalEarnings] = useState(0)
   const [completedConsultations, setCompletedConsultations] = useState(0)
   const [loading, setLoading] = useState(true)
+  // Round 11 Fix D — SMS preference toggle. Optimistic update; reverts
+  // to previous value if the DB write fails.
+  const [smsSaving, setSmsSaving] = useState(false)
+
+  const toggleSmsPref = async () => {
+    if (!doctorProfile || smsSaving) return
+    const next = !(doctorProfile.sms_notifications_enabled ?? true)
+    setSmsSaving(true)
+    setDoctorProfile({ ...doctorProfile, sms_notifications_enabled: next })
+    const { error } = await supabase
+      .from('doctor_profiles')
+      .update({ sms_notifications_enabled: next })
+      .eq('id', doctorProfile.id)
+    if (error) {
+      // Revert on failure.
+      setDoctorProfile({ ...doctorProfile, sms_notifications_enabled: !next })
+      console.error('[profile] sms toggle failed:', error.message)
+    }
+    setSmsSaving(false)
+  }
 
   useEffect(() => {
     async function load() {
@@ -213,6 +235,47 @@ export default function DoctorProfilePage() {
                 </span>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Round 11 Fix D — Notifications preferences */}
+        <Card className="border-0 shadow-sm mb-6">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-emerald-600" />
+              {t('profile.notifications')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-900">
+                  {t('profile.smsNotifs')}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5 leading-snug">
+                  {t('profile.smsNotifsDesc')}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleSmsPref}
+                disabled={smsSaving}
+                role="switch"
+                aria-checked={doctorProfile.sms_notifications_enabled ?? true}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors disabled:opacity-50 ${
+                  (doctorProfile.sms_notifications_enabled ?? true) ? 'bg-emerald-500' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
+                    (doctorProfile.sms_notifications_enabled ?? true) ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+            <p className="text-[11px] text-gray-400 mt-3">
+              {t('profile.emailAlwaysOn')}
+            </p>
           </CardContent>
         </Card>
 
