@@ -55,8 +55,11 @@ export function Step0Type({
               <h3 className="font-semibold text-foreground text-[15.5px] tracking-tight">
                 {t('request.urgent')}
               </h3>
-              <span className="text-[9.5px] font-bold tracking-[0.04em] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
-                &lt; 20 MIN
+              {/* Round 7 P1-D: badge says "Respuesta <20 min" so users
+                  understand it's RESPONSE TIME, not arrival time. The
+                  "1–3 horas" arrival window now lives in urgentDesc. */}
+              <span className="text-[9.5px] font-bold tracking-[0.04em] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded uppercase">
+                {t('request.urgentBadgeShort')}
               </span>
             </div>
             <p className="text-muted-foreground text-[12.5px] leading-snug mt-0.5">

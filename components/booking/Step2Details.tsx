@@ -3,10 +3,27 @@
 import type { FormEvent } from 'react'
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
 import { useTranslations, useLocale } from 'next-intl'
-import { MapPin, ChevronRight, CheckCircle } from 'lucide-react'
+import {
+  MapPin, ChevronRight, CheckCircle,
+  Thermometer, Activity, Wind, Droplets, Mic, Bandage, Sparkles, MoreHorizontal,
+} from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { AddressMap } from '@/components/shared/address-map'
 import type { ConsultationType } from '@/types'
+
+// Round 7 Fix B (M6) — symptom chip icons. Keys must match the chips array
+// id below so the icon resolves by lookup.
+const SYMPTOM_ICONS: Record<string, typeof Thermometer> = {
+  fever: Thermometer,
+  pain: Activity,
+  dizzy: Wind,
+  nausea: Droplets,
+  cough: Mic,
+  wound: Bandage,
+  allergy: Sparkles,
+  other: MoreHorizontal,
+}
 
 type DetailsFormData = {
   address: string
@@ -103,44 +120,16 @@ export function Step2Details({
         </div>
       )}
 
-      {/* Premium map placeholder — grid + stylized coastlines + glowing pin */}
-      <div
-        className="relative h-[130px] rounded-[14px] overflow-hidden border border-border"
-        aria-hidden="true"
-        style={{ background: 'linear-gradient(135deg, #E8F0FB, #DDE8F5)' }}
-      >
-        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.5 }}>
-          <defs>
-            <pattern id="mapGrid" width="24" height="24" patternUnits="userSpaceOnUse">
-              <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#CBD6E5" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#mapGrid)" />
-        </svg>
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 80 Q75 60 150 75 T300 65" stroke="white" strokeWidth="2" opacity="0.6" />
-          <path d="M0 100 Q100 85 200 95 T300 90" stroke="white" strokeWidth="1.5" opacity="0.4" />
-          <path d="M50 0 Q55 40 70 130" stroke="white" strokeWidth="1" opacity="0.3" />
-          <path d="M200 0 Q190 50 210 130" stroke="white" strokeWidth="1" opacity="0.3" />
-        </svg>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="relative">
-            <div
-              className="h-9 w-9 bg-primary rounded-full border-[3px] border-white flex items-center justify-center relative z-10"
-              style={{ boxShadow: '0 6px 16px rgba(59,130,246,0.4)' }}
-            >
-              <MapPin className="h-4 w-4 text-white" />
-            </div>
-            <div
-              className="absolute inset-0 rounded-full bg-primary/20 animate-ping"
-              style={{ animationDuration: '2s' }}
-            />
-          </div>
-        </div>
-        <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-white/85 text-[11px] font-medium text-muted-foreground">
-          Ibiza, ES
-        </div>
-      </div>
+      {/* Round 7 Fix B (M5): real Google Maps with draggable marker.
+          AddressMap gracefully degrades to the prior SVG placeholder
+          when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY isn't configured. */}
+      <AddressMap
+        onChange={() => {
+          // The pin position is informational here — the canonical
+          // address comes from the text input + geocoding. Future iter:
+          // reverse-geocode the pin coords into the address field.
+        }}
+      />
 
       {/* Address input */}
       <div className="space-y-2">
@@ -222,19 +211,25 @@ export function Step2Details({
                 {chips.map(c => {
                   const label = t(`request.${c.labelKey}`)
                   const active = current.includes(`· ${label}`)
+                  // Round 7 Fix B (M6): per-symptom Lucide icon on every chip
+                  const Icon = SYMPTOM_ICONS[c.id] || MoreHorizontal
                   return (
                     <button
                       key={c.id}
                       type="button"
                       onClick={() => toggleChip(label)}
                       aria-pressed={active}
-                      className={`inline-flex items-center gap-1 px-3 py-[7px] rounded-full text-[12.5px] font-medium border transition-all duration-[160ms] ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-[7px] rounded-full text-[12.5px] font-medium border transition-all duration-[160ms] ${
                         active
                           ? 'bg-primary/5 border-primary text-primary'
                           : 'bg-white border-border text-muted-foreground hover:border-primary/40'
                       }`}
                     >
-                      {active && <CheckCircle className="h-3 w-3" aria-hidden="true" />}
+                      {active ? (
+                        <CheckCircle className="h-3 w-3" aria-hidden="true" />
+                      ) : (
+                        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                      )}
                       {label}
                     </button>
                   )
@@ -255,9 +250,15 @@ export function Step2Details({
         />
       </div>
 
-      <Button type="submit" className="w-full" size="lg">
-        {tCommon('continue')} <ChevronRight className="ml-2 h-4 w-4" />
-      </Button>
+      {/* Round 7 Fix B (M4): sticky CTA on mobile, inline on md+. Spacer
+          below preserves room so the textarea / notes don't get hidden
+          behind the floating bar. Mirrors the Step 1 pattern. */}
+      <div className="fixed bottom-0 left-0 right-0 md:static p-4 md:p-0 bg-background/95 backdrop-blur-sm border-t md:border-0 z-40 safe-area-bottom">
+        <Button type="submit" className="w-full h-[54px] text-[15px] font-semibold" size="lg">
+          {tCommon('continue')} <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+      <div className="h-20 md:h-0" aria-hidden="true" />
     </form>
   )
 }

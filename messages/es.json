@@ -326,7 +326,8 @@
       "chooseDoctor": "Elige tu médico",
       "confirmStep": "Confirmar",
       "urgent": "Urgente",
-      "urgentDesc": "Médico a domicilio desde 1 hora",
+      "urgentDesc": "Médico en tu puerta en 1-3 horas según tráfico de Ibiza",
+      "urgentBadgeShort": "Respuesta <20 min",
       "scheduled": "Programada",
       "scheduledDesc": "Elige tu día y hora preferidos",
       "symptoms": "Describe tus síntomas",
@@ -876,7 +877,8 @@
     "checkYourEmail": "Revisa tu email",
     "magicLinkSentTo": "Hemos enviado un enlace de acceso a:",
     "useDifferentEmail": "Usar otro email",
-    "continueWith": "Continuar con"
+    "continueWith": "Continuar con",
+    "continueWithDoctor": "Continuar con Dr. {name}"
   },
   "doctorCard": {
     "verified_comib": "Colegiado verificado",

@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DoctorSelector } from '@/components/doctor-selector'
+import { formatFullNameShort } from '@/lib/doctor-format'
 
 /**
  * Step 1 — Doctor selection (doctor-first flow).
@@ -52,7 +53,10 @@ export function Step1Doctor({
             className="w-full h-[54px] text-[15px] font-semibold btn-lift"
             onClick={onNext}
           >
-            {tBooking('continueWith')} Dr. {(selectedDoctorName || '').split(' ')[0]}
+            {/* Round 7 Fix B + P0-B: formatFullNameShort sanitizes any
+                "Dr." prefix already in the data so we don't end up with
+                "Continuar con Dr. Dr. James". */}
+            {tBooking('continueWithDoctor', { name: formatFullNameShort(selectedDoctorName) })}
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
