@@ -373,6 +373,8 @@
       "toastScheduledTitle": "Cita programada",
       "toastScheduledDesc": "Tu cita ha sido registrada correctamente",
       "errorCreating": "No se pudo crear la solicitud. Inténtalo de nuevo.",
+      "consentRequiredTitle": "Falta tu consentimiento",
+      "consentRequiredDesc": "Para reservar necesitamos tu consentimiento explícito sobre datos de salud y geolocalización (Art. 9 RGPD). Te llevamos al panel de privacidad.",
       "paymentCancelled": "Pago cancelado. Puedes intentarlo de nuevo.",
       "confirmDesc": "Revisa los detalles antes de confirmar",
       "date": "Fecha",

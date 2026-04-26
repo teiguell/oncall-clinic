@@ -373,6 +373,8 @@
       "toastScheduledTitle": "Appointment scheduled",
       "toastScheduledDesc": "Your appointment has been registered successfully",
       "errorCreating": "Couldn't create the request. Please try again.",
+      "consentRequiredTitle": "Consent required",
+      "consentRequiredDesc": "To book we need your explicit consent for health data and geolocation processing (Art. 9 GDPR). Taking you to the privacy panel.",
       "paymentCancelled": "Payment cancelled. You can try again.",
       "confirmDesc": "Review the details before confirming",
       "date": "Date",

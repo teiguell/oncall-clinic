@@ -87,16 +87,47 @@ function RequestConsultationPage() {
   const [termsAccepted, setTermsAccepted] = useState(false)
 
   useEffect(() => {
+    /**
+     * Round 5 Fix B (2026-04-25) — Magic Link gate al entrar Step 1.
+     *
+     * Background: anonymous users used to be allowed to walk all the way
+     * to Step 4 and only meet auth at the inline Step3Confirm widget. If
+     * they skipped that and hit /api/stripe/checkout directly, the API
+     * returned 401 → consultation INSERT failed with FK violation
+     * `consultations_patient_id_fkey` (no row in auth.users for null id).
+     *
+     * Strategy: redirect anonymous visitors at mount to /login with a
+     * `next` query param so the post-Magic-Link callback brings them
+     * back to /patient/request. Any deep-step query (`?type=scheduled`,
+     * `?step=3`) is preserved so the flow resumes where the user left.
+     *
+     * Render gating: while `authChecking` is true we render a skeleton
+     * — this prevents Step0 / Step1 from briefly flashing on unauthed
+     * users before the redirect resolves.
+     */
     const supabase = createClient()
+    let cancelled = false
     supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled) return
+      if (!user) {
+        const here =
+          typeof window !== 'undefined'
+            ? window.location.pathname + window.location.search
+            : `/${locale}/patient/request`
+        router.replace(`/${locale}/login?next=${encodeURIComponent(here)}`)
+        return
+      }
       setAuthUser(user)
       setAuthChecking(false)
     })
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthUser(session?.user ?? null)
     })
-    return () => sub.subscription.unsubscribe()
-  }, [])
+    return () => {
+      cancelled = true
+      sub.subscription.unsubscribe()
+    }
+  }, [locale, router])
 
   const STEPS = [
     t('request.typeStep'),
@@ -226,16 +257,32 @@ function RequestConsultationPage() {
       } else if (result.sessionUrl) {
         window.location.href = result.sessionUrl
       } else {
-        toast({
-          title: tCommon('error'),
-          description: result.error || t('request.errorCreating'),
-          variant: 'destructive',
-        })
+        // Round 5 Fix C — surface the real backend error.message instead
+        // of the generic "Algo fue mal" title. Some codes have specific
+        // recovery actions (e.g. consent_required → redirect to consent).
+        if (result.code === 'consent_required') {
+          toast({
+            title: t('request.consentRequiredTitle'),
+            description: t('request.consentRequiredDesc'),
+            variant: 'destructive',
+          })
+          router.push(`/${locale}/patient/privacy?next=${encodeURIComponent(`/${locale}/patient/request?step=3`)}`)
+        } else if (result.code === 'unauthorized') {
+          // Defensive: gate at mount should already prevent this, but if
+          // the session expired between mount and submit, push them to login.
+          router.replace(`/${locale}/login?next=${encodeURIComponent(`/${locale}/patient/request?step=3`)}`)
+        } else {
+          toast({
+            title: result.error || t('request.errorCreating'),
+            description: result.code ? `[${result.code}]` : undefined,
+            variant: 'destructive',
+          })
+        }
       }
-    } catch {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : t('request.errorCreating')
       toast({
-        title: tCommon('error'),
-        description: t('request.errorCreating'),
+        title: msg,
         variant: 'destructive',
       })
     } finally {
@@ -245,6 +292,21 @@ function RequestConsultationPage() {
 
   const nextStep = () => setStep(s => Math.min(s + 1, STEPS.length - 1))
   const prevStep = () => setStep(s => Math.max(s - 1, 0))
+
+  // Round 5 Fix B — skeleton while auth check resolves. If the user is
+  // anonymous, the useEffect above has already kicked off a router.replace;
+  // we just hold the UI quiet until that lands.
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-3" aria-busy="true" aria-label="Loading">
+          <div className="h-8 w-2/3 skeleton-shimmer rounded-md" />
+          <div className="h-32 skeleton-shimmer rounded-card" />
+          <div className="h-12 skeleton-shimmer rounded-card" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

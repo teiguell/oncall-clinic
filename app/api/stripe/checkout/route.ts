@@ -9,16 +9,21 @@ function sanitizeText(value: unknown, maxLength = 500): string {
 }
 
 export async function POST(request: Request) {
+  // Round 5 Fix C (2026-04-25) — top-level try/catch so any unexpected
+  // throw (Stripe SDK, Supabase, JSON parse, etc.) returns a JSON body
+  // with `error.message` + `code` instead of a bare 500. The frontend
+  // toast reads `error` and shows it verbatim — no more "Algo fue mal".
+  try {
   // Rate limit: 5 checkout attempts per minute per IP
   const ip = getClientIp(request)
   const { allowed } = checkRateLimit(ip, 5, 60_000)
   if (!allowed) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    return NextResponse.json({ error: 'Too many requests', code: 'rate_limited' }, { status: 429 })
   }
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
 
   // Art. 9.2.a GDPR: explicit consent required before processing health data.
   // Defence-in-depth alongside the inline Step3Consent gate in the UI.
@@ -28,7 +33,7 @@ export async function POST(request: Request) {
     .eq('user_id', user.id)
     .maybeSingle()
   if (!consent?.health_data || !consent?.geolocation) {
-    return NextResponse.json({ error: 'consent_required' }, { status: 403 })
+    return NextResponse.json({ error: 'consent_required', code: 'consent_required' }, { status: 403 })
   }
 
   const body = await request.json()
@@ -38,8 +43,8 @@ export async function POST(request: Request) {
   const notes = sanitizeText(body.notes, 1000)
 
   const service = SERVICES.find(s => s.value === serviceType as ServiceType)
-  if (!service) return NextResponse.json({ error: 'invalid_service' }, { status: 400 })
-  if (!service.active) return NextResponse.json({ error: 'service_coming_soon' }, { status: 400 })
+  if (!service) return NextResponse.json({ error: 'invalid_service', code: 'invalid_service' }, { status: 400 })
+  if (!service.active) return NextResponse.json({ error: 'service_coming_soon', code: 'service_coming_soon' }, { status: 400 })
 
   // Price model: the doctor sets the price (Ley 15/2007 Defensa Competencia;
   // STS 805/2020 Glovo). If the patient picked a specific doctor, query
@@ -105,7 +110,7 @@ export async function POST(request: Request) {
       .select()
       .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    if (error) return NextResponse.json({ error: error.message, code: 'consultation_insert_failed' }, { status: 400 })
 
     // Broadcast to nearby doctors (fire-and-forget; don't block redirect)
     try {
@@ -162,7 +167,10 @@ export async function POST(request: Request) {
 
   if (insertError || !consultation) {
     console.error('[checkout] insert failed:', insertError?.message)
-    return NextResponse.json({ error: 'insert_failed' }, { status: 500 })
+    return NextResponse.json(
+      { error: insertError?.message || 'insert_failed', code: 'insert_failed' },
+      { status: 500 },
+    )
   }
 
   // Marketplace split: if the doctor has completed Stripe Connect onboarding,
@@ -240,4 +248,16 @@ export async function POST(request: Request) {
     // Keep old key for backwards compat with existing Step3Confirm code
     sessionUrl: stripeSession.url,
   })
+  } catch (e: unknown) {
+    // Round 5 Fix C — never let an unexpected throw bubble out as a bare
+    // 500 with no body. Surface the underlying message so the toast can
+    // show something useful to the user instead of "Algo fue mal".
+    const msg = e instanceof Error ? e.message : 'unknown_error'
+    const code =
+      e && typeof e === 'object' && 'code' in e && typeof (e as { code: unknown }).code === 'string'
+        ? (e as { code: string }).code
+        : 'unknown_error'
+    console.error('[checkout] unhandled error:', msg, e)
+    return NextResponse.json({ error: msg, code }, { status: 500 })
+  }
 }
