@@ -14,17 +14,17 @@ import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { useBookingStore } from '@/stores/booking-store'
 
-// Sub-components (BLOQUE B split)
+// Sub-components — Round 9 pivot: 3 steps (was 4). Step2Details deleted.
 import { BookingStepper } from '@/components/booking/BookingStepper'
 import { Step0Type } from '@/components/booking/Step0Type'
 import { Step1Doctor } from '@/components/booking/Step1Doctor'
-import { Step2Details } from '@/components/booking/Step2Details'
 import { Step3Confirm } from '@/components/booking/Step3Confirm'
 
 type FormData = {
   address: string
-  symptoms: string
-  notes?: string
+  // Round 9 Fix B: symptoms + notes ya no se recogen.
+  // Phone añadido en Step 3 para que el médico pueda contactar logística.
+  phone?: string
   scheduledDate?: string
   scheduledTime?: string
 }
@@ -51,16 +51,20 @@ function RequestConsultationPage() {
   const tBooking = useTranslations('booking2')
   const locale = useLocale()
 
+  // Round 9 Fix B: schema simplified — no symptoms/notes. Address required;
+  // phone optional (some bookings will have it on the auth user metadata).
   const schema = z.object({
     address: z.string().min(10, t('request.validAddress')),
-    symptoms: z.string().min(20, t('request.validSymptoms')),
-    notes: z.string().optional(),
+    phone: z.string().optional(),
     scheduledDate: z.string().optional(),
     scheduledTime: z.string().optional(),
   })
 
-  // Step: jump to 3 if Magic Link redirect set ?step=3
-  const initialStep = searchParams.get('step') === '3' ? 3 : 0
+  // Round 9 Fix A: 3 steps. Magic Link redirect now uses ?step=2 (was 3).
+  // Backwards compat: also accept old ?step=3 deep links until Q3 2026.
+  const stepParam = searchParams.get('step')
+  const initialStep =
+    stepParam === '2' || stepParam === '3' ? 2 : 0
   const [step, setStep] = useState(initialStep)
 
   const [type, setType] = useState<ConsultationType>(
@@ -117,10 +121,11 @@ function RequestConsultationPage() {
     return () => sub.subscription.unsubscribe()
   }, [])
 
+  // Round 9 Fix A: 3 step labels. typeStep now covers Type + Address.
+  // detailsStep label removed — old Step 2 (symptoms/chips/notes) eliminated.
   const STEPS = [
     t('request.typeStep'),
     t('request.chooseDoctor'),
-    t('request.detailsStep'),
     t('request.confirmStep'),
   ]
 
@@ -163,7 +168,7 @@ function RequestConsultationPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email: authEmail,
       options: {
-        emailRedirectTo: `${window.location.origin}/${locale}/patient/request?step=3`,
+        emailRedirectTo: `${window.location.origin}/${locale}/patient/request?step=2`,
       },
     })
     if (error) {
@@ -184,7 +189,7 @@ function RequestConsultationPage() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/patient/request?step=3`,
+        redirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/patient/request?step=2`,
       },
     })
   }
@@ -231,6 +236,7 @@ function RequestConsultationPage() {
           address: data.address,
           // Round 9 Fix B — symptoms/notes ya no se recogen ni envían.
           // El payload se mantiene minimal: tipo + dirección + médico + geo.
+          phone: data.phone || null,
           scheduledAt,
           lat: userLocation?.lat || 38.9067,
           lng: userLocation?.lng || 1.4206,
@@ -264,7 +270,7 @@ function RequestConsultationPage() {
             description: t('request.consentRequiredDesc'),
             variant: 'destructive',
           })
-          router.push(`/${locale}/patient/privacy?next=${encodeURIComponent(`/${locale}/patient/request?step=3`)}`)
+          router.push(`/${locale}/patient/privacy?next=${encodeURIComponent(`/${locale}/patient/request?step=2`)}`)
           return
         }
         if (result.code === 'unauthorized' || res.status === 401) {
@@ -273,7 +279,7 @@ function RequestConsultationPage() {
             description: t('request.authDesc'),
             variant: 'destructive',
           })
-          router.replace(`/${locale}/login?next=${encodeURIComponent(`/${locale}/patient/request?step=3`)}`)
+          router.replace(`/${locale}/login?next=${encodeURIComponent(`/${locale}/patient/request?step=2`)}`)
           return
         }
         toast({
@@ -351,10 +357,21 @@ function RequestConsultationPage() {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-lg">
+        {/* Round 9 Fix A: 3-step flow.
+            Step 0 — Tipo + Dirección (was Step 0 type + Step 2 address)
+            Step 1 — Médico
+            Step 2 — Confirmar y pagar (auth inline + order summary) */}
         {step === 0 && (
           <Step0Type
             type={type}
-            onSelect={(next) => { setType(next); nextStep() }}
+            setType={setType}
+            register={register}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            detecting={detecting}
+            detectLocation={detectLocation}
+            onNext={nextStep}
           />
         )}
 
@@ -368,23 +385,6 @@ function RequestConsultationPage() {
         )}
 
         {step === 2 && (
-          <Step2Details
-            type={type}
-            selectedDoctorId={selectedDoctorId}
-            selectedDoctorName={selectedDoctorName}
-            selectedDoctorSpecialty={selectedDoctorSpecialty}
-            priceEuros={priceEuros}
-            detecting={detecting}
-            detectLocation={detectLocation}
-            register={register}
-            errors={errors}
-            watch={watch}
-            setValue={setValue}
-            onSubmit={(e) => { e.preventDefault(); nextStep() }}
-          />
-        )}
-
-        {step === 3 && (
           <Step3Confirm
             authChecking={authChecking}
             authUser={authUser}
@@ -404,11 +404,13 @@ function RequestConsultationPage() {
             setTermsAccepted={setTermsAccepted}
             loading={loading}
             onSubmit={handleSubmit(onSubmit)}
+            register={register}
+            errors={errors}
           />
         )}
 
-        {/* Back navigation (hide on step 0 + step 3 since Step3 has its own sticky CTA) */}
-        {step > 0 && step < 3 && (
+        {/* Back navigation (hide on step 0 + step 2 — Step 2 has its own sticky CTA) */}
+        {step > 0 && step < 2 && (
           <div className="mt-6">
             <button
               onClick={prevStep}

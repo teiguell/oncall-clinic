@@ -25,22 +25,24 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
 
-  // Art. 9.2.a GDPR: explicit consent required before processing health data.
-  // Defence-in-depth alongside the inline Step3Consent gate in the UI.
-  const { data: consent } = await supabase
-    .from('user_consents')
-    .select('health_data, geolocation')
-    .eq('user_id', user.id)
-    .maybeSingle()
-  if (!consent?.health_data || !consent?.geolocation) {
-    return NextResponse.json({ error: 'consent_required', code: 'consent_required' }, { status: 403 })
-  }
+  // Round 9 Fix C: Art.9 RGPD consent gate REMOVED. OnCall is now a pure
+  // intermediary (LSSI-CE) — no special-category data processing happens
+  // here. The visiting doctor is responsible for clinical anamnesis under
+  // their own data-controller role. Art.6.1.b basic consent (terms +
+  // privacy) is captured client-side in Step 3.
 
   const body = await request.json()
   const { serviceType, type, scheduledAt, lat, lng, locale, preferredDoctorId } = body
   const address = sanitizeText(body.address, 500)
-  const symptoms = sanitizeText(body.symptoms, 2000)
-  const notes = sanitizeText(body.notes, 1000)
+  // Round 9 Fix B: phone capturado en UI pero todavía no persiste en DB
+  // (no hay columna). Lo añadimos a Stripe metadata para visibilidad en
+  // dashboard / soporte. Sprint dedicado más adelante: ALTER TABLE
+  // consultations ADD COLUMN phone_at_booking TEXT.
+  const phone = sanitizeText(body.phone, 30)
+  // Round 9 Fix B: symptoms/notes ya no se recogen ni se persisten.
+  // Para consultas legacy estos campos quedan null en DB.
+  const symptoms = ''
+  const notes = ''
 
   const service = SERVICES.find(s => s.value === serviceType as ServiceType)
   if (!service) return NextResponse.json({ error: 'invalid_service', code: 'invalid_service' }, { status: 400 })
@@ -206,7 +208,7 @@ export async function POST(request: Request) {
       quantity: 1,
     }],
     success_url: `${baseUrl}/${locale}/patient/consultation/${consultation.id}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/${locale}/patient/request?step=3&cancelled=1`,
+    cancel_url: `${baseUrl}/${locale}/patient/request?step=2&cancelled=1`,
     customer_email: user.email,
     metadata: {
       consultation_id: consultation.id,
@@ -218,6 +220,8 @@ export async function POST(request: Request) {
       price: String(priceCents),
       commission: String(commission),
       doctor_amount: String(doctorAmount),
+      // Round 9: phone visible en Stripe dashboard para soporte (no en DB todavía).
+      ...(phone ? { contact_phone: phone } : {}),
     },
   }
 

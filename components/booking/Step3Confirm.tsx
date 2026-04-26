@@ -1,22 +1,38 @@
 'use client'
 
-import { useEffect, useState, type FormEvent } from 'react'
+import { type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
+import type { UseFormRegister, FieldErrors } from 'react-hook-form'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { Lock, Loader2, ShieldCheck, Award, Stethoscope } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { Lock, Loader2, ShieldCheck, Award, Stethoscope, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BookingFaq } from '@/components/shared/booking-faq'
-import { Step3Consent } from '@/components/booking/Step3Consent'
 import type { ConsultationType } from '@/types'
 
+type ConfirmFormData = {
+  address: string
+  phone?: string
+  scheduledDate?: string
+  scheduledTime?: string
+}
+
 /**
- * Step 3 — Confirm & Pay.
- * Conditionally renders:
- *   - Inline Magic Link / Google auth (NO password) when the user is anon.
- *   - Premium order summary + trust badges + terms + green pay CTA when authed.
+ * Step 3 of 3 — Confirm & Pay (Round 9 pivot, "intermediario puro").
+ *
+ * Round 9 changes:
+ *   - REMOVED: Art.9 RGPD consent gate (Step3Consent + user_consents query).
+ *     OnCall is now a pure intermediary; the visiting doctor is the
+ *     responsible-party for clinical data. No special-category data
+ *     processing happens at OnCall, so Art.9.2.a explicit consent is no
+ *     longer required.
+ *   - ADDED: phone field (logística para que el médico contacte al paciente).
+ *   - KEPT: básic Art.6.1.b consent (terms of service + privacy policy) +
+ *     LSSI-CE Art.22.2 cookie consent (separate banner, not in this widget).
+ *
+ * File name kept (still Step3Confirm.tsx) for diff minimality. Component
+ * is now rendered at orchestrator step index 2 (Step 3 of 3 user-facing).
  */
 export function Step3Confirm({
   authChecking,
@@ -38,6 +54,8 @@ export function Step3Confirm({
   setTermsAccepted,
   loading,
   onSubmit,
+  register,
+  errors,
 }: {
   authChecking: boolean
   authUser: User | null
@@ -57,30 +75,13 @@ export function Step3Confirm({
   setTermsAccepted: (v: boolean) => void
   loading: boolean
   onSubmit: (e: FormEvent<HTMLFormElement>) => void
+  register: UseFormRegister<ConfirmFormData>
+  errors: FieldErrors<ConfirmFormData>
 }) {
   const t = useTranslations('patient')
   const tBooking = useTranslations('booking2')
   const tTrust = useTranslations('trust')
   const locale = useLocale()
-
-  // GDPR consent gate — when authed, query user_consents. While null = loading.
-  const [consentOK, setConsentOK] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    if (!authUser) {
-      setConsentOK(null)
-      return
-    }
-    const supabase = createClient()
-    supabase
-      .from('user_consents')
-      .select('health_data, geolocation')
-      .eq('user_id', authUser.id)
-      .maybeSingle()
-      .then(({ data }: { data: { health_data?: boolean; geolocation?: boolean } | null }) => {
-        setConsentOK(!!data?.health_data && !!data?.geolocation)
-      })
-  }, [authUser])
 
   return (
     <div className="space-y-5">
@@ -184,20 +185,13 @@ export function Step3Confirm({
         </div>
       )}
 
-      {/* ─── GDPR CONSENT GATE — runs only for authed users ─── */}
-      {!authChecking && authUser && consentOK === null && (
-        <div className="space-y-3" aria-busy="true" aria-label="Loading consent state">
-          <div className="h-6 w-1/3 skeleton-shimmer rounded-md" />
-          <div className="h-40 skeleton-shimmer rounded-card" />
-        </div>
-      )}
+      {/* Round 9 Fix C: Art.9 RGPD consent gate REMOVED. OnCall is now a
+          pure intermediary — the visiting doctor (not OnCall) handles
+          health-data anamnesis under their own data-controller role.
+          Only Art.6.1.b consent (terms + privacy) is captured below. */}
 
-      {!authChecking && authUser && consentOK === false && (
-        <Step3Consent onComplete={() => setConsentOK(true)} />
-      )}
-
-      {/* ─── ORDER SUMMARY + PAY (authed AND consent OK) ─── */}
-      {!authChecking && authUser && consentOK === true && (
+      {/* ─── ORDER SUMMARY + PAY (authed user) ─── */}
+      {!authChecking && authUser && (
         <>
           {/* Premium order summary (prototype §step4) */}
           <div className="bg-white rounded-2xl border border-border p-4">
@@ -258,6 +252,23 @@ export function Step3Confirm({
                 </span>
               </div>
             ))}
+          </div>
+
+          {/* Round 9 Fix B: phone field — para que el médico contacte
+              logística (ETA / instrucciones de acceso). NO es dato clínico. */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">
+              {t('request.phone')}
+              <span className="text-muted-foreground/70 ml-1">({t('request.phoneOptional')})</span>
+            </label>
+            <Input
+              type="tel"
+              autoComplete="tel"
+              placeholder="+34 600 12 34 56"
+              icon={<Phone className="h-4 w-4" />}
+              error={errors.phone?.message}
+              {...register('phone')}
+            />
           </div>
 
           {/* Terms checkbox */}
