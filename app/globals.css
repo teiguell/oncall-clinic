@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Round 9 Fix E: force light color-scheme. Without this, browsers auto-
+   adapt native form controls + scrollbars to the system dark preference,
+   producing a fragmented look against our light Tailwind tokens. Real
+   dark-mode token set is post-alpha. */
+:root {
+  color-scheme: light;
+}
+
 @layer base {
   :root {
     /* OnCall Clinic — warm healthcare palette

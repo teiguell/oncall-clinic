@@ -139,8 +139,15 @@ export default async function LocaleLayout({
   const messages = await getMessages({ locale })
   const tA11y = await getTranslations({ locale, namespace: 'a11y' })
 
+  // Round 9 Fix E: force light color-scheme on the document root.
+  // Without `color-scheme: light` the browser auto-adapts native form
+  // controls (selects, checkboxes, scrollbars, date pickers) to the
+  // system dark mode → fragmented look against our light Tailwind
+  // tokens. Until a real dark-mode token set lands (post-alpha),
+  // we lock to light. The inline `style` mirrors the CSS rule in
+  // globals.css so the very first paint is correct (no FOUC).
   return (
-    <html lang={locale} className={`${inter.variable} ${interTight.variable} ${jakarta.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`${inter.variable} ${interTight.variable} ${jakarta.variable}`} style={{ colorScheme: 'light' }} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <a href="#main-content" className="skip-to-content">
           {tA11y('skipToContent')}
