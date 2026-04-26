@@ -3929,3 +3929,126 @@ Para que login Magic Link + Google funcionen end-to-end:
    - `https://<project>.supabase.co/auth/v1/callback`
 
 Si en algún test sale `redirect_uri_mismatch` o `error sending email`, esos 3 ajustes son la causa.
+
+---
+
+## Round 9 — Pivot intermediario puro + 8 fixes — [2026-04-26]
+
+> **Pivot estratégico** (Director): OnCall pasa a modelo intermediario puro (LSSI-CE, Uber-for-doctors). Cero recogida de datos clínicos. El médico hace anamnesis presencial bajo su propio rol de prestador sanitario (Art.9.2.h RGPD). Round 9 ejecuta el pivot + arregla 6 bugs adicionales del audit Round 8.
+
+### Commits (orden de ejecución per Director: F+G → B+A+C → D+E → H)
+
+| # | SHA | Scope |
+|---|---|---|
+| F+G | `1248eaa` | Google OAuth observability + pay button hardened error paths |
+| B+A+C | `e95d377` | Pivot intermediario puro — 3 steps, no symptoms, no Art.9 consent |
+| D+E | `9972c2d` | Force light color-scheme (Fix D copy ya en BAC) |
+| H | `5d0fa52` | NEXT_PUBLIC_AUTH_BYPASS mode TEMPORAL para Cowork audit |
+
+### Fix-by-fix detail
+
+#### Fix A — Compresión 4 → 3 steps
+
+**Antes**: Step 0 (Type) → Step 1 (Doctor) → Step 2 (Details: address+symptoms+chips+notes) → Step 3 (Confirm).
+**Después**: Step 0 (Type+Address+Map+Datetime) → Step 1 (Doctor) → Step 2 (Confirm+Pay).
+
+- `components/booking/Step2Details.tsx` **DELETED**
+- `components/booking/Step0Type.tsx` rebuilt: ahora hostea Type cards + scheduled date/time + address input + AddressMap (Google Maps draggable) + sticky Continue CTA. Continue solo se habilita si address ≥ 10 chars y (urgent || date+time).
+- `app/[locale]/patient/request/page.tsx`: STEPS array de 3 entries. `?step=2` deep-link reemplaza `?step=3` (back-compat hasta Q3 2026).
+
+#### Fix B — Eliminar síntomas / chips / notas
+
+- Schema Zod sin `symptoms` / `notes`.
+- API `/api/stripe/checkout`: `symptoms = ''` (NOT NULL constraint en DB) y `notes = ''`. Sin migración por ahora.
+- Frontend ya no envía esos campos en el payload.
+
+#### Fix C — Eliminar Art.9 RGPD consent
+
+- `Step3Confirm.tsx`: removido `<Step3Consent>` gate + el query a `user_consents` + el state `consentOK`. Order summary se renderiza directamente cuando `authUser` está presente.
+- `app/api/stripe/checkout/route.ts`: removido el pre-check `health_data + geolocation` que devolvía 403 `consent_required`.
+- `messages/{es,en}.json` privacy doc `purpose6`: reescrito — OnCall es intermediario, el médico es responsable del tratamiento clínico (Art.9.2.h RGPD).
+
+#### Fix D — Copy Urgente sin contradicción
+
+- `messages/{es,en}.json`: `request.urgent` ahora es objeto con `{title, badge, subtitle}`:
+  - ES: "Urgente" · "Disponible ahora" · "Llegada en 30-90 minutos"
+  - EN: "Urgent" · "Available now" · "Arrival in 30-90 min"
+- `Step0Type.tsx` consume `t('request.urgent.title')` etc. Badge color ahora emerald (verde "disponible") en lugar del amber "<20 MIN" que contradecía el subtitle.
+
+#### Fix E — Force light color-scheme
+
+- `app/[locale]/layout.tsx`: `<html style={{ colorScheme: 'light' }}>`.
+- `app/globals.css`: top-level `:root { color-scheme: light }`.
+- Sin esto, navegadores en mobile dark-mode adaptaban form controls/scrollbars al sistema → fragmentación visual contra el palette light de Tailwind. Real dark-mode = post-alpha.
+
+#### Fix F — Google OAuth observability
+
+- `app/api/auth/callback/route.ts`: log estructurado en cada path de fallo (exchange, no-user, missing-code, profile insert) con `console.error` que aparece en Vercel logs. Redirect ahora pasa `?error=<reason>&detail=<msg>` al login.
+- `app/[locale]/(auth)/login/page.tsx`: lee `?error=&detail=` en mount, mensaje humano en banner rojo arriba del Google button.
+- Si Cowork sigue viendo Google sign-in fail tras este deploy, los logs de Vercel mostrarán el motivo exacto. Si el redirect ni siquiera llega a `/api/auth/callback` (no log), causa = redirect_uri_mismatch en Google Cloud Console (responsabilidad infra Director).
+
+#### Fix G — Pay button toast en cada error path
+
+- `app/[locale]/patient/request/page.tsx` onSubmit:
+  - `await res.json()` envuelto en try/catch (handles 5xx no-JSON)
+  - branch `!res.ok` toastea `result.error` o status code
+  - 401 / `unauthorized` → `router.replace` a `/login?next=`
+  - testMode requiere ambos `testMode + redirectUrl` para redirect simulado
+  - acepta tanto `url` (canónico) como `sessionUrl` (legacy back-compat)
+  - toast "Stripe no devolvió URL" si ninguno presente
+  - catch toastea el mensaje del network/parse error
+  - `console.error` en cada failure para facilitar debug desde Vercel logs
+
+#### Fix H — Auth bypass mode (TEMPORAL)
+
+- **NEW** `lib/auth-bypass.ts`: `AUTH_BYPASS` flag + `BYPASS_USER` const. UUID seed `00000000-0000-0000-0000-000000000001` (Director-managed seed en `auth.users` + `profiles`).
+- **NEW** `components/auth-bypass-banner.tsx`: banner púrpura sticky bajo el banner amber MODO PRUEBA. Server component, no client JS.
+- `app/[locale]/patient/request/page.tsx` useEffect: short-circuit cuando `AUTH_BYPASS=true` → `setAuthUser(BYPASS_USER)` + `setAuthChecking(false)`.
+- `app/api/stripe/checkout/route.ts`: `effectiveUser = user ?? (AUTH_BYPASS ? BYPASS_USER : null)`. Todos los `patient_id` y `customer_email` downstream usan `effectiveUser`.
+- **Off por default** — la activación es exclusivamente por env var `NEXT_PUBLIC_AUTH_BYPASS=true` en Vercel. Cuando off, builds byte-idénticos al baseline (banner gate retorna null).
+
+### Bundle hash transition (en propagación)
+
+| | Hash |
+|---|---|
+| Anterior (Round 7) | `layout-70fa3c68c7fae1fc.js` |
+| Round 9 deploys (Vercel READY, edge cache propagando) | dpl_7Fcb8ThCj7tLq3XZwBhJjRp15CjE → SHA `9972c2d` |
+
+**Verificación R2**: `/api/health` devuelve `commit: 9972c2d` (post-Fix-E). Las páginas estáticas mostraban brevemente el hash de Round 7 por edge cache; ya en propagación. La verificación final con bundle hash nuevo se reportará en outbox cuando `curl https://oncall.clinic/es | grep 'layout-'` devuelva un hash distinto.
+
+### CLAUDE.md actualizado
+
+- **R7 NUEVA**: "OnCall NO recoge síntomas, chips, notas clínicas. Modelo intermediario puro."
+- **R4 actualizada**: añadido `components/booking/Step2Details.tsx` como **DELETED, no recrear**. login page entry actualizado con commit Round 9 Fix F.
+
+### Files touched (Round 9 completo)
+
+```
+NEW:
+  components/auth-bypass-banner.tsx
+  lib/auth-bypass.ts
+
+DELETED:
+  components/booking/Step2Details.tsx
+
+MODIFIED:
+  app/[locale]/(auth)/login/page.tsx               (Fix F: ?error= display)
+  app/[locale]/layout.tsx                          (Fix E: colorScheme light + AuthBypassBanner)
+  app/[locale]/patient/request/page.tsx            (Fix A: 3 steps + Fix B: no symptoms + Fix G: hardened submit + Fix H: bypass)
+  app/api/stripe/checkout/route.ts                 (Fix C: no Art.9 + Fix B: no symptoms + Fix H: bypass)
+  app/api/auth/callback/route.ts                   (Fix F: structured error logging)
+  components/booking/Step0Type.tsx                 (Fix A: rebuilt for Type+Address+Map)
+  components/booking/Step3Confirm.tsx              (Fix C: no consent gate + phone field)
+  app/globals.css                                  (Fix E: color-scheme: light)
+  messages/es.json                                 (Fix B/C/D: copy)
+  messages/en.json                                 (Fix B/C/D: copy)
+  CLAUDE.md                                        (R7 + R4 updates)
+  CODE_LOG.md                                      (este bloque)
+```
+
+### Pendiente
+
+- **Esperar propagación edge cache** Vercel (típicamente <5 min). Reporte final en outbox con bundle hash nuevo.
+- **Director** (P0-C infra): confirmar Supabase SMTP + URL Configuration + Google Cloud OAuth redirect URIs. Round 9 Fix F surface ahora cualquier fallo del callback con detalle.
+- **Director** (Fix H activación): tras confirmar login real funciona, setear `NEXT_PUBLIC_AUTH_BYPASS=true` en Vercel para audit Cowork.
+- **Sprint dedicado posterior**: añadir columna `consultations.phone_at_booking` para persistir el teléfono que ahora va solo en Stripe metadata.

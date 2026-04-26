@@ -31,7 +31,8 @@ La palabra "fixed" requiere:
 - `stores/booking-store.ts` — fixed Round 3 (commit `719de90`). Auto-rehydrate, noop SSR storage.
 - `stores/auth.store.ts` — hardened Round 6 (commit `85607f7`). Preventive SSR-noop, tree-shaken anyway.
 - `components/referral-card.tsx` — fixed Round 6 (commit `85607f7`). Mounted-gate canShareNative.
-- `app/[locale]/(auth)/login/page.tsx` — fixed Round 6 (commit `85607f7`). callbackUrl IIFE → lazy fn.
+- `app/[locale]/(auth)/login/page.tsx` — fixed Round 6 (commit `85607f7`) + Round 9 Fix F (`1248eaa`). callbackUrl IIFE → lazy fn + ?error=&detail= display.
+- **DELETED** `components/booking/Step2Details.tsx` — eliminado en Round 9 (commit `e95d377`). NO recrear. Era el formulario de síntomas (modelo "facilitador con triaje" abandonado, ver R7).
 
 Si encuentras razón fundada para modificar uno: párate, justifica en `CODE_LOG.md` con file+line+por qué, espera respuesta del Director.
 
@@ -40,9 +41,22 @@ Si encuentras razón fundada para modificar uno: párate, justifica en `CODE_LOG
 
 ### R6 — Rutas críticas (verificar en CADA deploy)
 End-to-end, en este orden:
-- Patient: `/es/login` magic link → `/es/patient/dashboard` → `/es/patient/request` Steps 1→2→3→4 → Stripe Checkout → success → tracking
+- Patient: `/es/login` magic link → `/es/patient/dashboard` → `/es/patient/request` Steps **1→2→3** (3 steps post-Round-9) → Stripe Checkout → success → tracking
 - Doctor: `/es/doctor/login` → `/es/doctor/onboarding` → `/es/doctor/dashboard` → aceptar consulta
 - Cron + API: `/api/health`, `/api/doctors?near=`, `/api/cron/purge-chat`
+
+### R7 — Modelo intermediario puro (Round 9 pivot)
+**OnCall NO recoge datos clínicos.** Es un intermediario tecnológico (LSSI-CE, como Uber para médicos). Específicamente PROHIBIDO:
+- ❌ Recoger síntomas, chips clínicos, notas clínicas
+- ❌ Pedir consentimiento Art. 9 RGPD (datos de salud / categoría especial)
+- ❌ Tratar / persistir información médica del paciente
+- ❌ Hacer DPIA de datos de salud
+
+El médico que realiza la visita es el responsable independiente del tratamiento clínico (Art. 9.2.h RGPD — asistencia sanitaria). Cualquier feature que implique recoger datos clínicos en OnCall debe **escalar al Director ANTES de implementar**. Si lo encuentras en un prompt futuro sin justificación explícita: párate y reporta en outbox.
+
+Off-limits adicional (Round 9):
+- `components/booking/Step2Details.tsx` — **eliminado**, no recrear (era el formulario de síntomas/chips/notas).
+- Chips síntomas, textareas de "describe tus síntomas / notas clínicas" — no reintroducir en ningún componente.
 
 ## Aprendizajes documentados (no repetir errores)
 
@@ -82,4 +96,6 @@ Sistema híbrido:
 Bash(git *), Bash(npm *), Bash(curl *), Read, Write, Edit, Grep, Glob
 
 ## Versión
-Última actualización: 2026-04-26. Owner: Tei (Cowork Director).
+Última actualización: 2026-04-26 (post-Round-9). Owner: Tei (Cowork Director).
+Pivot vigente: intermediario puro (R7). Booking flow: 3 steps (Tipo+Dirección / Médico / Confirmar+Pagar).
+Auth bypass: `lib/auth-bypass.ts` + `components/auth-bypass-banner.tsx` — TEMPORAL alpha audit, env var `NEXT_PUBLIC_AUTH_BYPASS=true`. A eliminar tras alpha launch.
