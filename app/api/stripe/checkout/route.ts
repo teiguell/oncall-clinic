@@ -29,7 +29,10 @@ export async function POST(request: Request) {
   // The seed UUID must exist in auth.users + profiles (Director-managed seed).
   // See lib/auth-bypass.ts for the rationale and removal plan.
   const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS === 'true'
-  const BYPASS_USER_ID = '00000000-0000-0000-0000-000000000001'
+  // Director note (2026-04-26): switched to existing demo-patient row
+  // 3d23f1d6-... (which already exists in auth.users + profiles).
+  // The previous 00000000-... seed UUID never existed.
+  const BYPASS_USER_ID = '3d23f1d6-0bfe-4bf5-90ff-e63919cd0b6f'
   const BYPASS_EMAIL = 'demo-patient@oncall.clinic'
 
   const effectiveUser = user ?? (AUTH_BYPASS ? { id: BYPASS_USER_ID, email: BYPASS_EMAIL } : null)

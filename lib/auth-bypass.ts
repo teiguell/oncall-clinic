@@ -36,7 +36,11 @@ export const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS === 'true'
  * the consultations FK to succeed. Director-controlled (one-time SQL seed).
  * If you change this, also update the seed migration.
  */
-export const BYPASS_USER_ID = '00000000-0000-0000-0000-000000000001'
+// Director note (2026-04-26): seed UUID 00000000-... no longer matched any
+// real row. Switched to existing demo-patient row (3d23f1d6-...) which
+// already exists in auth.users + has profile {role: 'patient'} created
+// via Supabase MCP. No new seed needed.
+export const BYPASS_USER_ID = '3d23f1d6-0bfe-4bf5-90ff-e63919cd0b6f'
 
 /**
  * Shape mimics @supabase/supabase-js User just enough for the booking flow.
