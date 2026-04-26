@@ -42,10 +42,20 @@ function LoginInner() {
   const supabase = createClient()
   const searchParams = useSearchParams()
   const nextParam = sanitizeNext(searchParams.get('next'))
-  const callbackUrl = (() => {
-    const base = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/callback`
+
+  // Round 6 (2026-04-25) — derive callbackUrl lazily inside the event
+  // handlers instead of during render. The previous IIFE read
+  // `typeof window` in the render path, which produced a different value
+  // SSR (origin = '') vs CSR (origin = 'https://oncall.clinic'). Even
+  // though that string was never rendered into the DOM, putting
+  // browser-only reads in the render body is fragile — any future
+  // refactor that bubbles the value into JSX would silently introduce
+  // a hydration mismatch.
+  const buildCallbackUrl = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const base = `${origin}/api/auth/callback`
     return nextParam ? `${base}?next=${encodeURIComponent(nextParam)}` : base
-  })()
+  }
 
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
@@ -59,7 +69,7 @@ function LoginInner() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: callbackUrl,
+        emailRedirectTo: buildCallbackUrl(),
       },
     })
     setLoading(false)
@@ -71,7 +81,7 @@ function LoginInner() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: callbackUrl,
+        redirectTo: buildCallbackUrl(),
       },
     })
   }

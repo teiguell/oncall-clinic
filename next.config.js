@@ -4,6 +4,11 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Round 6 (2026-04-25) — production sourcemaps so #418 stack traces
+  // resolve to original .tsx files in DevTools. Adds ~2× JS payload to
+  // the static build but is the only way to diagnose minified React
+  // errors without a custom webpack hook.
+  productionBrowserSourceMaps: true,
   images: {
     formats: ['image/avif', 'image/webp'],
     domains: [

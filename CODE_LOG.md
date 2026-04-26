@@ -3364,3 +3364,364 @@ efdd15a  fix(hydration): skipHydration + noop SSR storage (Round 2 — partial)
 ```
 
 Live deploy: commit `719de90`, bundle `layout-74f06689e8372eca`.
+
+---
+
+## Round 5 — [2026-04-25] — Hydration hardening + auth gate + readable errors
+
+> **Status**: trabajo en working tree, **sin commit ni push** (a la espera de autorización Tei). Cowork sigue viendo bundle Round 2 hasta que hagamos deploy.
+>
+> Cowork pidió 3 fixes obligatorios: (A) bundle audit del layout chunk con 0 ocurrencias de localStorage/window./document.cookie, (B) Magic Link gate al entrar Step 1 booking, (C) errores legibles en frontend en lugar de "Algo fue mal".
+
+### Fix A — Hydration IIFE OUT del layout bundle
+
+**Archivos:**
+- `components/cookie-consent-loader.tsx` (NEW) — wrapper `next/dynamic({ ssr: false })`
+- `app/[locale]/layout.tsx` — swap import `CookieConsent` → `CookieConsentLoader`
+
+**Diff key:**
+```ts
+// cookie-consent-loader.tsx
+const CookieConsent = dynamic(
+  () => import('./cookie-consent').then((m) => ({ default: m.CookieConsent })),
+  { ssr: false }
+)
+export function CookieConsentLoader() { return <CookieConsent /> }
+```
+
+**Bundle audit local (post-build):**
+```
+$ grep -oE '(localStorage|window\.|document\.cookie)' \
+    .next/static/chunks/app/[locale]/layout-c244bd8f6534e7bc.js \
+    | sort | uniq -c
+(empty — 0 matches)
+```
+
+El cookie-consent ahora vive en `9793.ffc061788e03b535.js` (chunk separado, lazy-loaded post-hydration), conservando sus 4×document.cookie / 2×localStorage / 2×window — todos legítimos pero fuera del payload SSR.
+
+> **Nota Round 6**: este fix era preventivo. Cowork confirmó después que el IIFE original del cookie-consent ya estaba dentro de useEffect (falso positivo de bundle grep — `useEffect)(()` aparecía antes del IIFE). La medida es harmless pero overkill. Se mantiene porque (a) elimina ruido en futuros audits y (b) no degrada UX (banner aparece ~50ms más tarde, ya tenía 800ms de delay intencional).
+
+### Fix B — Magic Link gate al entrar Step 1
+
+**Archivo:** `app/[locale]/patient/request/page.tsx`
+
+**Diff key:**
+```tsx
+useEffect(() => {
+  const supabase = createClient()
+  let cancelled = false
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    if (cancelled) return
+    if (!user) {
+      const here = typeof window !== 'undefined'
+        ? window.location.pathname + window.location.search
+        : `/${locale}/patient/request`
+      router.replace(`/${locale}/login?next=${encodeURIComponent(here)}`)
+      return
+    }
+    setAuthUser(user)
+    setAuthChecking(false)
+  })
+  // ...
+}, [locale, router])
+
+if (authChecking) return <LoadingSkeleton />
+```
+
+**Behaviour:** anonymous → `/<locale>/login?next=<encoded>` con preservación de query (`?type=scheduled`, `?step=3`). El callback existente en `/login` ya tiene allowlist + locale strip → redirect post-Magic-Link funciona end-to-end.
+
+**Cierra el bug FK violation** `consultations_patient_id_fkey`: el INSERT en `/api/stripe/checkout` ya nunca recibe un usuario anónimo porque éste es interceptado en mount.
+
+### Fix C — Errores legibles
+
+**Archivos:**
+- `app/api/stripe/checkout/route.ts` — top-level try/catch + cada return de error añade `code`
+- `app/[locale]/patient/request/page.tsx` (onSubmit) — lee `result.error` + `result.code`, mapea a UX específica
+- `messages/{es,en}.json` — keys nuevas `patient.request.consentRequiredTitle` / `consentRequiredDesc`
+
+**Diff key API (catch top-level añadido):**
+```ts
+try { /* todo el cuerpo del POST */ }
+catch (e: unknown) {
+  const msg = e instanceof Error ? e.message : 'unknown_error'
+  const code = (e as any)?.code || 'unknown_error'
+  console.error('[checkout] unhandled error:', msg, e)
+  return NextResponse.json({ error: msg, code }, { status: 500 })
+}
+```
+
+**Diff key frontend onSubmit:**
+```tsx
+if (result.code === 'consent_required') {
+  toast({ title: t('request.consentRequiredTitle'), ... })
+  router.push(`/${locale}/patient/privacy?next=...`)
+} else if (result.code === 'unauthorized') {
+  router.replace(`/${locale}/login?next=...`)
+} else {
+  toast({ title: result.error || t('request.errorCreating'), description: `[${result.code}]` })
+}
+```
+
+### Build local Round 5
+
+```
+tsc --noEmit          → clean
+next build            → 31 routes prerender, 14 dynamic, 0 warnings
+layout chunk          → layout-c244bd8f6534e7bc.js
+bundle audit          → 0 matches
+```
+
+### Archivos tocados (Round 5)
+
+```
+A components/cookie-consent-loader.tsx
+M app/[locale]/layout.tsx
+M app/[locale]/patient/request/page.tsx
+M app/api/stripe/checkout/route.ts
+M messages/es.json
+M messages/en.json
+```
+
+---
+
+## Round 6 — [2026-04-25] — RCA #418 + sourcemaps + 4-hipótesis audit
+
+> **Estado de alineación con Cowork**: el cookie-consent NO es el culpable (falso positivo de bundle grep, confirmado). Round 6 sigue las 4 hipótesis del log del 24-abr en orden de prioridad (Crisp, Zustand auth.store, next-intl, classics) + fix Stripe FK paralelo (ya cerrado en Round 5 Fix B+C).
+>
+> **No commit / no push aún** — esperando autorización para deploy.
+
+### Sourcemaps activos
+
+- Archivo: `next.config.js`
+- Diff:
+  ```js
+  const nextConfig = {
+    productionBrowserSourceMaps: true,    // ← Round 6
+    images: { ... }
+  }
+  ```
+- Verificación local post-build: `find .next/static -name '*.map' | wc -l` → **57 sourcemaps emitidos**.
+- Commit que activa: **PENDIENTE** (working tree).
+
+### Reproducción con `next dev` + Playwright real Chromium
+
+**Setup:** Playwright + system Google Chrome (no chromium-headless), iPhone-class mobile UA, viewport 390×844, captura de console+pageerror+failedRequests, settle 3s post-networkidle.
+
+**Targets probados:** `/es`, `/es/login`, `/es/doctor/login`, `/es/patient/dashboard`.
+
+**Resultado dev (`localhost:3210`):**
+
+| Ruta | console errors | warnings | data-dgst markers |
+|---|---|---|---|
+| `/es` | 0 | 0 | none |
+| `/es/login` | 0 | 0 | none |
+| `/es/doctor/login` (→ /es/login?next=/es/doctor/login, server gate doctor/layout.tsx) | 0 | 0 | none |
+| `/es/patient/dashboard` (→ /es/login?next=/es/patient/dashboard, server gate patient/layout.tsx) | 0 | 0 | none |
+
+**Resultado producción (`https://oncall.clinic`, bundle Round 2 `layout-04fcd2e46af2f1dd.js` activo):**
+
+| Ruta | console errors | warnings | data-dgst markers |
+|---|---|---|---|
+| `/es` | 0 | 0 | none |
+| `/es/login` | 0 | 0 | none |
+| `/es/doctor/login` (→ redirect correcto) | 0 | 0 | none |
+| `/es/patient/dashboard` (→ redirect correcto) | 0 | 0 | none |
+
+**HTML diff de hydration capturado:** ninguno. `next dev` no emitió warning "Hydration failed because…" en ninguna de las 4 rutas. La consola en producción tampoco emite #418.
+
+> ⚠️ **No puedo capturar el diff Server/Client legible que pide el Paso 3 de Round 6 porque el warning no se dispara en mi reproducción.**
+
+### Las 4 hipótesis — investigación detallada
+
+#### Hipótesis 1 — Crisp / third-party scripts
+
+**Resultado: FALSIFICADA.**
+
+```
+$ grep -rEn "next/script|<Script\b|\$crisp|window\.crisp|window\.\$crisp|gtag\(|googletagmanager|dataLayer" \
+    --include="*.tsx" --include="*.ts" app components lib
+(zero matches)
+```
+
+Único loader third-party: `components/crisp-chat.tsx`. Lazy-importa `crisp-sdk-web` dentro de `useEffect`, retorna `null` en el render path. Crisp inyecta su iframe **fuera** del root de React → no puede causar #418 en la reconciliación.
+
+#### Hipótesis 2 — Zustand `auth.store` con persist
+
+**Resultado: HALLAZGO LATENTE pero NO es el cascade.**
+
+`stores/auth.store.ts` usa `persist()` sin custom storage, sin `skipHydration`:
+```ts
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({ user: null, isLoading: true, ... }),
+    { name: 'oncall-auth', partialize: (s) => ({ user: s.user }) }
+  )
+)
+```
+
+Esto ES el patrón clásico SSR/CSR-divergente: SSR `user=null`, primer CSR rehydrate de localStorage `user={...}` → mismatch. Pero:
+
+```
+$ grep -rln "useAuthStore" --include="*.tsx" --include="*.ts" app components
+(zero results)
+
+$ grep -rln "auth\.store\|stores/auth" --include="*.tsx" --include="*.ts" app components lib
+(zero results)
+```
+
+**Es código muerto** — ningún componente lo importa. Tree-shaking lo elimina del bundle. No puede causar el cascade #418 actual, pero es un footgun: si alguien añade `useAuthStore(...)` mañana, #418 inmediato.
+
+**Acción tomada (preventiva):** aplicado el mismo SSR-noop storage que `booking-store.ts` ya tiene desde Round 3, para que el día que se use no estalle.
+
+```ts
+// stores/auth.store.ts (Round 6)
+storage: createJSONStorage(() => {
+  if (typeof window === 'undefined') {
+    return { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+  }
+  return localStorage
+})
+```
+
+#### Hipótesis 3 — next-intl provider divergence
+
+**Resultado: FALSIFICADA.**
+
+`i18n/request.ts`:
+```ts
+export default getRequestConfig(async ({ requestLocale }) => {
+  let locale = await requestLocale
+  if (!locale || !routing.locales.includes(locale as 'es' | 'en')) {
+    locale = routing.defaultLocale
+  }
+  return { locale, messages: (await import(`../messages/${locale}.json`)).default }
+})
+```
+
+Locale derivado deterministicamente del header. Messages cargados via static `import()` (mismo objeto JSON en server y client). El `NextIntlClientProvider` recibe `messages` por prop desde el layout — no hay client-side fetch ni dynamic divergente.
+
+#### Hipótesis 4 — Los clásicos
+
+Audit completo de patrones peligrosos en componentes de las rutas crasheadas:
+
+| Componente | Patrón | Status |
+|---|---|---|
+| `version-badge.tsx` | `process.env.NODE_ENV` gate | ✅ inlined at build, idéntico SSR/CSR |
+| `test-mode-banner.tsx` | `process.env.NEXT_PUBLIC_TEST_MODE` | ✅ inlined, idéntico |
+| `dashboard-greeting.tsx` | `new Date()` | ✅ dentro de useEffect, mounted-gate correcto |
+| `doctor-selector.tsx` | `new Date().getHours()` | ✅ ya hoisted en Round 3 (`isNightHour` useState/useEffect) |
+| `cookie-consent.tsx` | `document.cookie`, `localStorage` | ✅ dentro de useEffect (Round 3) + dynamic ssr:false (Round 5) |
+| `mobile-nav.tsx` | `usePathname()` | ✅ next/navigation, hidratación segura |
+| `crisp-chat.tsx` | `crisp-sdk-web` | ✅ lazy import en useEffect, returns null |
+| `referral-card.tsx:87` | `'share' in navigator` en JSX | ❌ **MISMATCH REAL** — solo afecta /es/patient/dashboard |
+| `(auth)/login/page.tsx:46` | `typeof window` IIFE en render | ⚠️ string no se renderiza (solo se pasa a Supabase OAuth), pero render-path leak latente |
+
+**Hallazgos reales fixed en Round 6:**
+
+##### Fix 6.A — `components/referral-card.tsx`
+
+Antes:
+```tsx
+{typeof navigator !== 'undefined' && 'share' in navigator && (
+  <Button onClick={shareOther}>...</Button>
+)}
+```
+
+Después:
+```tsx
+const [canShareNative, setCanShareNative] = useState(false)
+useEffect(() => {
+  setCanShareNative(typeof navigator !== 'undefined' && 'share' in navigator)
+}, [])
+// ...
+{canShareNative && <Button onClick={shareOther}>...</Button>}
+```
+
+**Por qué causa mismatch:** SSR no tiene `navigator` → render `false` → no Button. CSR tiene `navigator.share` → render `true` → Button. React reconcilia → text-content #418 en /es/patient/dashboard (única ruta que renderiza ReferralCard).
+
+Verificación post-build: el único `typeof navigator` que queda en `app/[locale]/patient/dashboard/page-*.js` está dentro de `useEffect(()=>{f("undefined"!=typeof navigator&&"share"in navigator)},[])` — fuera del render path.
+
+##### Fix 6.B — `app/[locale]/(auth)/login/page.tsx`
+
+Antes:
+```tsx
+const callbackUrl = (() => {
+  const base = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/callback`
+  return nextParam ? `${base}?next=${encodeURIComponent(nextParam)}` : base
+})()
+```
+
+Después:
+```tsx
+const buildCallbackUrl = () => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const base = `${origin}/api/auth/callback`
+  return nextParam ? `${base}?next=${encodeURIComponent(nextParam)}` : base
+}
+// invocada lazy en sendMagicLink() y signInGoogle()
+```
+
+**Por qué se cambia aunque no rendere texto:** la string `callbackUrl` solo se pasa a `supabase.auth.signInWithOtp({ emailRedirectTo: ... })` y `signInWithOAuth({ redirectTo: ... })` — eventos handlers, no JSX. **No causa #418 hoy.** Pero tener un valor SSR-divergente vivo en el render scope es un footgun: cualquier refactor futuro que lo bubble a JSX (p.ej. mostrar el callback URL como debug info) introduciría mismatch silenciosamente.
+
+### Hipótesis principal sobre el cascade Cowork
+
+Tras descartar (1)(3) y reducir (2) a footgun-no-cascade, y dado que **0 errores reproducen en Chrome real contra producción**, mi diagnóstico:
+
+> **El cascade `7×#418 + 1×#423 + HierarchyRequestError + NotFoundError + AggregateError` es la firma canónica de una extensión de navegador inyectando DOM post-SSR**. `HierarchyRequestError` y `NotFoundError` son `DOMException` que React por sí solo no puede tirar — requieren manipulación externa del DOM mientras la reconciliación corre. Sospechosos: traductor automático, Grammarly, password manager, ad blocker mutando `<head>` o `<body>`.
+
+**Validación pedida a Cowork antes de seguir parcheando ciegamente:**
+1. Reabrir `/es/login` en **Incognito** con extensiones desactivadas (Chrome Incognito por defecto las desactiva).
+2. Si el cascade desaparece → confirmado: extensión. No hay fix de código posible.
+3. Si persiste → con sourcemaps activos en el próximo deploy, el primer error #418 abrirá su `.tsx:line` en DevTools Sources con un click. Pegar el frame y hacemos el fix.
+
+### Stripe FK paralelo
+
+Ya resuelto en Round 5:
+- **Auth gate aplicado en:** `app/[locale]/patient/request/page.tsx` (mount → `router.replace(/login?next=...)` si anónimo)
+- **API route protegida:** `app/api/stripe/checkout/route.ts` ya devolvía 401 para anónimos; en Round 5 se le añadió `code: 'unauthorized'` para que el frontend pueda redirigir explícitamente
+- **Live test bloqueado por:** falta de deploy. Pendiente de autorización para `git push`.
+
+### Build local Round 6
+
+```
+tsc --noEmit                                    → clean
+next build                                      → 31 routes prerender, 14 dynamic, 0 warnings
+layout chunk nuevo                              → layout-ecd1ab00f6d2c073.js
+bundle audit (localStorage|window\.|document\.cookie) → 0 matches
+sourcemaps emitidos                             → 57 .map files
+```
+
+### Archivos tocados (Round 6)
+
+```
+M next.config.js                          (productionBrowserSourceMaps: true)
+M components/referral-card.tsx            (mounted-gate canShareNative)
+M app/[locale]/(auth)/login/page.tsx      (callbackUrl IIFE → lazy fn)
+M stores/auth.store.ts                    (preventive SSR-noop storage)
+M CODE_LOG.md                             (este bloque)
+```
+
+### Lo que falta para cerrar Round 6 según Cowork
+
+1. **Commit + push** de Round 5 + Round 6 → autorización Tei.
+2. **Deploy verificado:** primer audit con sourcemaps disponibles.
+3. **Retest Cowork en Incognito** para validar/falsar la hipótesis "extensión del navegador".
+4. Si los #418 persisten en Incognito → next iteration tiene el stack frame real (sourcemap-resolved) y el fix es trivial.
+
+### Commits pendientes (Round 5 + Round 6)
+
+Sin pushear todavía. Diff total ~700 LOC:
+
+```
+A components/cookie-consent-loader.tsx       (Round 5)
+M app/[locale]/layout.tsx                    (Round 5)
+M app/[locale]/patient/request/page.tsx      (Round 5)
+M app/api/stripe/checkout/route.ts           (Round 5)
+M messages/es.json                           (Round 5)
+M messages/en.json                           (Round 5)
+M next.config.js                             (Round 6)
+M components/referral-card.tsx               (Round 6)
+M app/[locale]/(auth)/login/page.tsx         (Round 6)
+M stores/auth.store.ts                       (Round 6)
+M CODE_LOG.md                                (Round 5+6)
+```

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,16 @@ interface ReferralCardProps {
 
 export function ReferralCard({ referralCode }: ReferralCardProps) {
   const [copied, setCopied] = useState(false)
+  // Round 6 (2026-04-25) — `'share' in navigator` is a CSR-only signal.
+  // Reading it in JSX produced different SSR (false → no button) vs CSR
+  // (true → button) markup → hydration mismatch (#418 risk on
+  // /es/patient/dashboard). Mounted-gate keeps SSR / first-CSR identical
+  // (both render no button), then the post-mount effect flips the flag
+  // and the button appears.
+  const [canShareNative, setCanShareNative] = useState(false)
+  useEffect(() => {
+    setCanShareNative(typeof navigator !== 'undefined' && 'share' in navigator)
+  }, [])
   const t = useTranslations('referral')
   const locale = useLocale()
 
@@ -84,7 +94,7 @@ export function ReferralCard({ referralCode }: ReferralCardProps) {
           >
             {t('shareWhatsApp')}
           </Button>
-          {typeof navigator !== 'undefined' && 'share' in navigator && (
+          {canShareNative && (
             <Button
               variant="outline"
               onClick={shareOther}
