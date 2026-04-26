@@ -1435,5 +1435,219 @@
     "continueBtn": "Continue",
     "mandatoryError": "You must accept the required consents to continue.",
     "saveError": "Could not save your consent. Please try again."
+  },
+  "pro": {
+    "meta": {
+      "title": "Join OnCall Clinic as a Doctor | Earn on Your Schedule",
+      "description": "Join OnCall Clinic: set your own price, choose your hours, get paid in 2 days. Licensed doctors across Spain earn €675-4,050/month with home visits. No exclusivity. 10% commission all-inclusive."
+    },
+    "nav": {
+      "benefits": "Benefits",
+      "income": "Income",
+      "process": "Process",
+      "faq": "FAQ",
+      "register": "Sign up",
+      "patients": "For patients"
+    },
+    "hero": {
+      "badge": "Recruiting in 10 cities",
+      "title": "Your expertise. Your schedule. Your patients.",
+      "subtitle": "Join the network of licensed doctors providing home visits across Spain. Set your own price, choose when you work, get paid in 2 days.",
+      "ctaPrimary": "Start application",
+      "ctaSecondary": "How it works",
+      "trustNote": "Licensed physicians with up-to-date professional liability insurance only."
+    },
+    "stats": {
+      "cities": {
+        "value": "10",
+        "label": "Cities launching"
+      },
+      "tourists": {
+        "value": "96.8 M",
+        "label": "Tourists/year in Spain"
+      },
+      "booking": {
+        "value": "2 min",
+        "label": "Patient booking"
+      },
+      "payout": {
+        "value": "2 days",
+        "label": "Paid after the visit"
+      }
+    },
+    "benefits": {
+      "overline": "Benefits",
+      "title": "Built for doctors who decide",
+      "subtitle": "No assigned shifts. No monthly fees. You control your calendar and your rates.",
+      "items": [
+        {
+          "title": "Your price",
+          "desc": "You set the home-visit fee. OnCall only handles payment and logistics."
+        },
+        {
+          "title": "Your schedule",
+          "desc": "Toggle availability anytime. You only receive requests while you're online."
+        },
+        {
+          "title": "Paid in 2 days",
+          "desc": "Stripe Connect transfers your share directly to your bank account after each completed visit."
+        },
+        {
+          "title": "International patients",
+          "desc": "Hotel and villa visits — higher tickets and patients used to digital payment."
+        },
+        {
+          "title": "Zero exclusivity",
+          "desc": "Keep working wherever you want: public health, private practice, another platform. No minimum dedication required."
+        },
+        {
+          "title": "We handle the rest",
+          "desc": "Patient acquisition, payments, receipts, support and compliance. You focus on the medicine."
+        }
+      ]
+    },
+    "income": {
+      "overline": "Income",
+      "title": "You set the price. We collect.",
+      "subtitle": "Example with a €150 visit fee. Adjust by specialty and area.",
+      "rowConsultation": "Home consultation",
+      "rowCommission": "OnCall commission (10% year 1 — all-inclusive)",
+      "commissionNote": "Includes VAT and Stripe fees. You pay nothing else.",
+      "rowNet": "Your net pay per visit",
+      "yearTwo": "Year 2 onwards: 15% commission all-inclusive (€127.50 net per visit).",
+      "monthlyTitle": "Estimated monthly range",
+      "monthlyRange": "€675 – €4,050 / month",
+      "monthlyNote": "5 to 30 visits/month depending on availability. The Ibiza network averages 12 visits/month in high season.",
+      "ctaText": "Calculate with my actual rate"
+    },
+    "process": {
+      "overline": "Process",
+      "title": "From sign-up to first consultation in under a week",
+      "subtitle": "5 simple steps. Licensure verification is on us.",
+      "steps": [
+        {
+          "title": "Create your account",
+          "desc": "Email + license number. Automatic verification with COMIB / your local medical board.",
+          "time": "5 min"
+        },
+        {
+          "title": "Complete your profile",
+          "desc": "Bio, specialty, languages, photo and consultation price. Patients see this before choosing.",
+          "time": "5 min"
+        },
+        {
+          "title": "Professional verification",
+          "desc": "We confirm your license, professional liability insurance and self-employed registration. Email when active.",
+          "time": "3 – 5 days"
+        },
+        {
+          "title": "Connect Stripe",
+          "desc": "Link your bank account via Stripe Connect. Standard KYC — IBAN + ID.",
+          "time": "10 min"
+        },
+        {
+          "title": "Go live",
+          "desc": "Tap “Available now” when you can take visits. First request arrives instantly.",
+          "time": "10 min"
+        }
+      ]
+    },
+    "requirements": {
+      "overline": "Requirements",
+      "title": "What you need to start",
+      "subtitle": "If you already practice private medicine in Spain, you most likely have everything.",
+      "items": [
+        {
+          "title": "Active medical license",
+          "desc": "Active license number with any official medical board in Spain."
+        },
+        {
+          "title": "Professional Liability Insurance",
+          "desc": "Up-to-date professional liability policy. We can help if you need to get one."
+        },
+        {
+          "title": "Self-employed status (RETA) or company",
+          "desc": "Registered as autónomo or working through a medical company. Required for invoicing."
+        },
+        {
+          "title": "Smartphone with data",
+          "desc": "iPhone or Android to receive requests and share location during the visit."
+        },
+        {
+          "title": "Bilingual ES/EN",
+          "desc": "Ability to provide care in English (tourists) plus Spanish. Other languages are a plus."
+        },
+        {
+          "title": "Basic medical bag",
+          "desc": "Sphygmomanometer, stethoscope, otoscope and exam supplies. No heavy equipment."
+        }
+      ]
+    },
+    "cities": {
+      "overline": "Coverage",
+      "title": "Recruiting in these 10 cities",
+      "subtitle": "Ibiza is live. We launch each new city as we complete its doctor network.",
+      "active": "Live",
+      "recruiting": "Recruiting"
+    },
+    "faq": {
+      "overline": "FAQ",
+      "title": "Frequently asked questions",
+      "questions": [
+        {
+          "q": "What is OnCall's commission per visit?",
+          "a": "10% during your first year after activation, 15% from year 2 onwards. The commission is all-inclusive — it covers VAT and Stripe fees. You pay nothing else. On a €150 visit you net €135 to your bank in year 1 (€127.50 from year 2)."
+        },
+        {
+          "q": "When do I get paid?",
+          "a": "Stripe Connect automatically transfers your share (visit total minus commission) to your IBAN within 24-48 hours after you mark the visit as completed. No monthly aggregation, no retention on our side."
+        },
+        {
+          "q": "Do I have to accept every request?",
+          "a": "No. You only receive requests when “Available now” is on. The patient picks you before paying — if you don't want to go out, you don't appear. Once you accept, the visit can't be cancelled without cost except for legitimate cause."
+        },
+        {
+          "q": "Is there exclusivity?",
+          "a": "None. Keep working in the public system, in another private clinic, on another platform — wherever you want. OnCall doesn't require minimum dedication or stop you from seeing patients off-app."
+        },
+        {
+          "q": "Who is responsible for clinical care?",
+          "a": "You, as the licensed doctor, are the independent data controller for clinical treatment during the visit (Art. 9.2.h GDPR). OnCall Clinic is a technology intermediary — it doesn't handle health data or interfere with clinical decisions."
+        },
+        {
+          "q": "What's the geographic coverage?",
+          "a": "Ibiza is live. We're recruiting in Madrid, Barcelona, Valencia, Sevilla, Málaga, Bilbao, Palma, Alicante, San Sebastián and Tenerife (10 cities total). Each city goes live when we reach a critical mass of doctors."
+        },
+        {
+          "q": "What if there's an emergency or complication during the visit?",
+          "a": "As in any private medical act, you follow standard clinical protocols and, if needed, escalate to 112 / hospital emergency. Your professional liability insurance covers the medical act. OnCall doesn't interfere with clinical decisions."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Start receiving patients this week",
+      "subtitle": "Register in 5 minutes. License verification in 3-5 days. Zero onboarding cost.",
+      "button": "Create my doctor account",
+      "secondaryButton": "Talk to the team",
+      "trust": {
+        "rgpd": "GDPR compliant",
+        "comib": "Licensed doctors",
+        "stripe": "Powered by Stripe",
+        "company": "Ibiza Care S.L."
+      }
+    },
+    "footer": {
+      "company": "OnCall Clinic — Ibiza Care S.L.",
+      "intermediary": "OnCall Clinic is a technology intermediary. It does not provide medical services directly.",
+      "rights": "All rights reserved.",
+      "links": {
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "cookies": "Cookies",
+        "legal": "Legal notice",
+        "contact": "Contact",
+        "patients": "For patients"
+      }
+    }
   }
 }

@@ -1435,5 +1435,219 @@
     "continueBtn": "Continuar",
     "mandatoryError": "Debes aceptar los consentimientos obligatorios para continuar.",
     "saveError": "No se pudo guardar tu consentimiento. Inténtalo de nuevo."
+  },
+  "pro": {
+    "meta": {
+      "title": "Únete a OnCall Clinic como Médico | Gana a tu Ritmo",
+      "description": "Únete a OnCall Clinic: pon tu precio, elige tu horario, cobra en 2 días. Médicos colegiados en toda España ganan €675-4.050/mes con visitas a domicilio. Sin exclusividad. Comisión 10% todo incluido."
+    },
+    "nav": {
+      "benefits": "Ventajas",
+      "income": "Ingresos",
+      "process": "Proceso",
+      "faq": "FAQ",
+      "register": "Regístrate",
+      "patients": "Para pacientes"
+    },
+    "hero": {
+      "badge": "Reclutando en 10 ciudades",
+      "title": "Tu experiencia. Tu horario. Tus pacientes.",
+      "subtitle": "Únete a la red de médicos colegiados que atienden en domicilio en España. Pon tu precio, elige cuándo trabajas y cobra en 2 días.",
+      "ctaPrimary": "Empezar registro",
+      "ctaSecondary": "Cómo funciona",
+      "trustNote": "Solo médicos colegiados con seguro RC al día."
+    },
+    "stats": {
+      "cities": {
+        "value": "10",
+        "label": "Ciudades en lanzamiento"
+      },
+      "tourists": {
+        "value": "96,8 M",
+        "label": "Turistas/año en España"
+      },
+      "booking": {
+        "value": "2 min",
+        "label": "Reserva del paciente"
+      },
+      "payout": {
+        "value": "2 días",
+        "label": "Cobro tras la visita"
+      }
+    },
+    "benefits": {
+      "overline": "Ventajas",
+      "title": "Diseñado para médicos que deciden",
+      "subtitle": "Sin guardias asignadas. Sin cuotas mensuales. Tú controlas tu agenda y tus tarifas.",
+      "items": [
+        {
+          "title": "Tu precio",
+          "desc": "Tú fijas el coste de la consulta a domicilio. OnCall solo gestiona el cobro y la logística."
+        },
+        {
+          "title": "Tu horario",
+          "desc": "Activa o desactiva tu disponibilidad cuando quieras. Solo recibes consultas cuando estás conectado."
+        },
+        {
+          "title": "Cobro en 2 días",
+          "desc": "Stripe Connect transfiere tu parte directamente a tu cuenta tras cada visita completada."
+        },
+        {
+          "title": "Pacientes internacionales",
+          "desc": "Visitas en hoteles y villas — tickets más altos y pacientes preparados para pago digital."
+        },
+        {
+          "title": "Cero exclusividad",
+          "desc": "Sigues trabajando donde quieras: público, privado, otra plataforma. OnCall no exige dedicación mínima."
+        },
+        {
+          "title": "Nosotros gestionamos el resto",
+          "desc": "Captación de pacientes, pagos, recibos, soporte y cumplimiento. Tú te concentras en la medicina."
+        }
+      ]
+    },
+    "income": {
+      "overline": "Ingresos",
+      "title": "Tú pones el precio. Nosotros cobramos.",
+      "subtitle": "Ejemplo con tarifa de €150 por visita. Cambia el precio según tu especialidad y zona.",
+      "rowConsultation": "Consulta a domicilio",
+      "rowCommission": "Comisión OnCall (10% año 1 — todo incluido)",
+      "commissionNote": "Incluye IVA y comisión Stripe. No pagas nada más.",
+      "rowNet": "Tu cobro neto por visita",
+      "yearTwo": "Año 2 en adelante: comisión 15% todo incluido (€127,50 neto por visita).",
+      "monthlyTitle": "Rango mensual estimado",
+      "monthlyRange": "€675 – €4.050 / mes",
+      "monthlyNote": "5 a 30 visitas/mes según tu disponibilidad. La media de la red en Ibiza son 12 visitas/mes en alta temporada.",
+      "ctaText": "Calculé con mi tarifa real"
+    },
+    "process": {
+      "overline": "Proceso",
+      "title": "Del registro a la primera consulta en menos de 1 semana",
+      "subtitle": "5 pasos simples. La verificación colegial la hacemos nosotros.",
+      "steps": [
+        {
+          "title": "Crea tu cuenta",
+          "desc": "Email + número de colegiado. Verificación automática con el COMIB / colegio correspondiente.",
+          "time": "5 min"
+        },
+        {
+          "title": "Completa tu perfil",
+          "desc": "Bio, especialidad, idiomas, foto y precio por consulta. Lo ven los pacientes antes de elegirte.",
+          "time": "5 min"
+        },
+        {
+          "title": "Verificación profesional",
+          "desc": "Confirmamos tu colegiación, seguro RC y alta en RETA. Te avisamos por email cuando estés activo.",
+          "time": "3 – 5 días"
+        },
+        {
+          "title": "Conecta Stripe",
+          "desc": "Vincula tu cuenta bancaria con Stripe Connect. Verificación KYC estándar — IBAN + DNI.",
+          "time": "10 min"
+        },
+        {
+          "title": "Activa disponibilidad",
+          "desc": "Pulsa “Disponible ahora” cuando puedas atender. Recibes la primera solicitud al instante.",
+          "time": "10 min"
+        }
+      ]
+    },
+    "requirements": {
+      "overline": "Requisitos",
+      "title": "Lo que necesitas para empezar",
+      "subtitle": "Si ya ejerces medicina privada en España, lo más probable es que tengas todo.",
+      "items": [
+        {
+          "title": "Colegiación vigente",
+          "desc": "Número de colegiado activo en cualquier colegio oficial de médicos de España."
+        },
+        {
+          "title": "Seguro de Responsabilidad Civil",
+          "desc": "Póliza RC profesional al día. Te ayudamos si necesitas contratarla."
+        },
+        {
+          "title": "Alta en RETA o sociedad",
+          "desc": "Alta como autónomo o trabajando vía sociedad médica. Necesario para facturación."
+        },
+        {
+          "title": "Smartphone con datos",
+          "desc": "iPhone o Android para recibir solicitudes y compartir ubicación durante la visita."
+        },
+        {
+          "title": "Bilingüe ES/EN",
+          "desc": "Capacidad de atender en inglés (turistas) además de español. Otros idiomas son un plus."
+        },
+        {
+          "title": "Maletín médico básico",
+          "desc": "Tensiómetro, fonendo, otoscopio y material de exploración. Sin equipos pesados."
+        }
+      ]
+    },
+    "cities": {
+      "overline": "Cobertura",
+      "title": "Reclutando en estas 10 ciudades",
+      "subtitle": "Ibiza ya está activa. Lanzamos el resto a medida que completamos red de médicos.",
+      "active": "Activo",
+      "recruiting": "Reclutando"
+    },
+    "faq": {
+      "overline": "FAQ",
+      "title": "Preguntas frecuentes",
+      "questions": [
+        {
+          "q": "¿Cuánto cobra OnCall por consulta?",
+          "a": "10% durante el primer año desde tu activación, 15% del segundo año en adelante. La comisión es todo incluido — incluye IVA y la comisión de Stripe. No pagas nada más. Sobre una consulta de €150, recibes €135 netos en tu cuenta el año 1 (€127,50 a partir del año 2)."
+        },
+        {
+          "q": "¿Cuándo cobro?",
+          "a": "Stripe Connect transfiere automáticamente tu parte (el total de la consulta menos la comisión) a tu IBAN entre 24 y 48 horas después de marcar la visita como completada. No hay agregaciones mensuales ni retenciones por nuestra parte."
+        },
+        {
+          "q": "¿Tengo que aceptar todas las consultas que me llegan?",
+          "a": "No. Solo recibes solicitudes cuando activas “Disponible ahora”. El paciente te elige antes de pagar — si no quieres salir, no apareces. Una vez aceptada, no se puede cancelar sin coste salvo causa justificada."
+        },
+        {
+          "q": "¿Hay exclusividad?",
+          "a": "Cero. Puedes seguir trabajando en la pública, en otra clínica privada, en otra plataforma o donde quieras. OnCall no exige dedicación mínima ni te impide atender a pacientes fuera de la app."
+        },
+        {
+          "q": "¿Quién es responsable de la atención clínica?",
+          "a": "Tú, como médico colegiado, eres el responsable independiente del tratamiento clínico durante la visita (Art. 9.2.h RGPD). OnCall Clinic es un intermediario tecnológico — no recoge datos de salud ni interviene en la decisión clínica."
+        },
+        {
+          "q": "¿Qué cobertura geográfica tiene OnCall?",
+          "a": "Ibiza está operativa. Estamos reclutando en Madrid, Barcelona, Valencia, Sevilla, Málaga, Bilbao, Palma, Valencia, Alicante, San Sebastián y Tenerife (10 ciudades). Activamos cada ciudad cuando alcanzamos masa crítica de médicos."
+        },
+        {
+          "q": "¿Qué pasa si tengo una urgencia o complicación durante la visita?",
+          "a": "Como en cualquier acto médico privado, sigues los protocolos clínicos habituales y, si procede, derivas al 112 / urgencias hospitalarias. Tu seguro de RC profesional cubre el acto médico. OnCall no interfiere en la decisión clínica."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Empieza a recibir pacientes esta semana",
+      "subtitle": "Registro en 5 minutos. Verificación colegial en 3-5 días. Cero coste de alta.",
+      "button": "Crear mi cuenta de médico",
+      "secondaryButton": "Hablar con el equipo",
+      "trust": {
+        "rgpd": "RGPD compliant",
+        "comib": "Médicos colegiados",
+        "stripe": "Pagos por Stripe",
+        "company": "Ibiza Care S.L."
+      }
+    },
+    "footer": {
+      "company": "OnCall Clinic — Ibiza Care S.L.",
+      "intermediary": "OnCall Clinic es un intermediario tecnológico. No presta servicios médicos directamente.",
+      "rights": "Todos los derechos reservados.",
+      "links": {
+        "privacy": "Privacidad",
+        "terms": "Términos",
+        "cookies": "Cookies",
+        "legal": "Aviso legal",
+        "contact": "Contacto",
+        "patients": "Para pacientes"
+      }
+    }
   }
 }

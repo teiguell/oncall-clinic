@@ -23,6 +23,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const paths: Entry[] = [
     { path: '',                    priority: 1.0, changeFrequency: 'weekly' },
+    // Round 10 — /pro is the doctor-acquisition landing. High priority
+    // because doctor recruitment is the current bottleneck, and Spanish
+    // is the primary target market (x-default → /es/pro).
+    { path: '/pro',                priority: 0.9, changeFrequency: 'weekly' },
     { path: '/login',              priority: 0.5, changeFrequency: 'monthly' },
     { path: '/register',           priority: 0.6, changeFrequency: 'monthly' },
     { path: '/patient/request',    priority: 0.9, changeFrequency: 'weekly' },

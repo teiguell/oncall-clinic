@@ -49,6 +49,19 @@ const config: Config = {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        // Round 10 — /pro doctor-acquisition landing palette.
+        // teal-* / amber-* / green-* / slate-* already exist in Tailwind
+        // and match the spec exactly (teal-600=#0D9488, teal-100=#CCFBF1,
+        // teal-700=#0F766E, green-600=#16A34A, amber-600=#D97706).
+        // Only the brand navy needs registering.
+        navy: {
+          DEFAULT: "#1B3A5C",
+          50: "#EBF1F7",
+          100: "#D2DEE9",
+          500: "#1B3A5C",
+          600: "#16304D",
+          700: "#11253B",
+        },
       },
       fontFamily: {
         // Inter for body; Inter Tight for display (tighter letter-spacing
