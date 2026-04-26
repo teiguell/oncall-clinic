@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { BottomTabBarWrapper } from '@/components/shared/bottom-tab-bar-wrapper'
 
 /**
  * DoctorLayout — server-side gate for every route under /[locale]/doctor/*.
@@ -51,5 +52,11 @@ export default async function DoctorLayout({
     redirect(`/${locale}`)
   }
 
-  return <>{children}</>
+  // Round 7 M7: BottomTabBar mobile nav under all /doctor/* routes.
+  return (
+    <>
+      {children}
+      <BottomTabBarWrapper />
+    </>
+  )
 }

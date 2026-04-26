@@ -13,6 +13,7 @@ import {
 } from '@/lib/utils'
 import { ArrowLeft, Phone, Star, MapPin, Clock, CheckCircle2, AlertCircle, PhoneCall } from 'lucide-react'
 import { APIProvider, Map, AdvancedMarker, Pin, useMap } from '@vis.gl/react-google-maps'
+import { ServiceTimeline } from '@/components/shared/service-timeline'
 import { useTranslations, useLocale } from 'next-intl'
 import { StarRating } from '@/components/star-rating'
 import type { Consultation } from '@/types'
@@ -298,6 +299,15 @@ export default function TrackingPage() {
           </div>
         )}
       </header>
+
+      {/* Round 7 M8: ServiceTimeline summary at top of tracking. Maps the
+          4-state consultation status to the 6-step shared timeline. Hidden
+          on cancelled (currentStep = -1). */}
+      {!isCancelled && (
+        <div className="bg-white border-b px-4 py-3 md:py-4">
+          <ServiceTimeline currentStep={currentStep} />
+        </div>
+      )}
 
       {/* Real-time tracking map */}
       {GOOGLE_MAPS_API_KEY ? (

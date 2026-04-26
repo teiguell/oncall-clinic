@@ -8,7 +8,9 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { MedicalOrganizationJsonLd, FAQPageJsonLd } from '@/components/seo/json-ld'
 import { CrispChat } from '@/components/crisp-chat'
-import { MobileNav } from '@/components/mobile-nav'
+// Round 7 M7: MobileNav superseded by BottomTabBarWrapper, now wired into
+// patient/layout.tsx and doctor/layout.tsx (the only segments that need it).
+// Removing the import here avoids a double tab bar.
 import { TestModeBanner } from '@/components/test-mode-banner'
 import { CookieConsentLoader } from '@/components/cookie-consent-loader'
 import { VersionBadge } from '@/components/version-badge'
@@ -150,7 +152,6 @@ export default async function LocaleLayout({
           <VersionBadge />
           {children}
           <Toaster />
-          <MobileNav />
           <CrispChat />
           <CookieConsentLoader />
         </NextIntlClientProvider>

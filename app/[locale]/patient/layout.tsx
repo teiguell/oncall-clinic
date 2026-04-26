@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { BottomTabBarWrapper } from '@/components/shared/bottom-tab-bar-wrapper'
 
 /**
  * PatientLayout — server-side auth gate for every /[locale]/patient/*.
@@ -52,5 +53,14 @@ export default async function PatientLayout({
     redirect(`/${locale}/login?next=${encodedNext}`)
   }
 
-  return <>{children}</>
+  // Round 7 M7: BottomTabBar mobile nav. The wrapper has its own hide
+  // logic for tracking/chat/booking-success so we don't have to gate here.
+  // pb-20 on a sub-wrapper would override consumer page's own padding;
+  // instead each consuming page already has safe-area or tab-bar buffer.
+  return (
+    <>
+      {children}
+      <BottomTabBarWrapper />
+    </>
+  )
 }

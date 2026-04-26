@@ -9,6 +9,7 @@ import { LanguageSwitcher } from '@/components/shared/language-switcher'
 import { TrustBadges } from '@/components/trust-badges'
 import { IntermediaryDisclaimer } from '@/components/intermediary-disclaimer'
 import { ServiceScope } from '@/components/shared/service-scope'
+import { ServiceTimeline } from '@/components/shared/service-timeline'
 import { MobileStickyCta } from '@/components/landing/MobileStickyCta'
 import {
   Stethoscope, MapPin, Clock, Shield, ArrowRight,
@@ -337,6 +338,17 @@ export default function LandingPage() {
                 )
               })}
             </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════
+             SERVICE TIMELINE — Round 7 M8 (extended explainer between
+             "Cómo funciona" 3-step summary and the Scope section).
+             Explainer mode (no currentStep) → all greyed.
+           ═══════════════════════════════════════════════════════ */}
+        <section className="section-animate py-11 md:py-16 bg-background">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <ServiceTimeline />
           </div>
         </section>
 
