@@ -208,15 +208,20 @@ function RequestConsultationPage() {
       ? new Date(`${data.scheduledDate}T${data.scheduledTime}`).toISOString()
       : null
 
+    // Round 9 Fix B — symptoms ya no se recogen. lastSubmission queda
+    // sin el campo (el shape del store se actualiza en commit B siguiente).
     useBookingStore.getState().setLastSubmission({
       serviceType: selectedService,
       type,
       address: data.address,
-      symptoms: data.symptoms,
+      symptoms: '',
       submittedAt: new Date().toISOString(),
     })
 
     try {
+      // Round 9 Fix G — defensive POST + explicit toast on every failure
+      // path so the user never gets a silent button. Logs to console for
+      // Director debugging when something doesn't redirect.
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -224,8 +229,8 @@ function RequestConsultationPage() {
           serviceType: selectedService,
           type,
           address: data.address,
-          symptoms: data.symptoms,
-          notes: data.notes || null,
+          // Round 9 Fix B — symptoms/notes ya no se recogen ni envían.
+          // El payload se mantiene minimal: tipo + dirección + médico + geo.
           scheduledAt,
           lat: userLocation?.lat || 38.9067,
           lng: userLocation?.lng || 1.4206,
@@ -233,42 +238,77 @@ function RequestConsultationPage() {
           preferredDoctorId: selectedDoctorId,
         }),
       })
-      const result = await res.json()
 
-      if (result.testMode) {
-        toast({
-          title: '✅ Pago simulado',
-          description: 'Modo prueba — redirigiendo al seguimiento...',
-          variant: 'success',
-        })
-        router.push(result.redirectUrl)
-      } else if (result.sessionUrl) {
-        window.location.href = result.sessionUrl
-      } else {
-        // Round 5 Fix C — surface the real backend error.message instead
-        // of the generic "Algo fue mal" title. Some codes have specific
-        // recovery actions (e.g. consent_required → redirect to consent).
+      // Parse JSON defensively — some 5xx may return HTML.
+      let result: {
+        testMode?: boolean
+        redirectUrl?: string
+        sessionUrl?: string
+        url?: string
+        error?: string
+        code?: string
+      } = {}
+      try {
+        result = await res.json()
+      } catch {
+        result = { error: `HTTP ${res.status}: respuesta no JSON` }
+      }
+
+      if (!res.ok) {
+        console.error('[checkout] non-OK response', res.status, result)
         if (result.code === 'consent_required') {
+          // Round 9 Fix C — debería ya no dispararse (consent gate eliminado),
+          // pero queda defensivo por si quedan rows legacy en DB.
           toast({
             title: t('request.consentRequiredTitle'),
             description: t('request.consentRequiredDesc'),
             variant: 'destructive',
           })
           router.push(`/${locale}/patient/privacy?next=${encodeURIComponent(`/${locale}/patient/request?step=3`)}`)
-        } else if (result.code === 'unauthorized') {
-          // Defensive: gate at mount should already prevent this, but if
-          // the session expired between mount and submit, push them to login.
-          router.replace(`/${locale}/login?next=${encodeURIComponent(`/${locale}/patient/request?step=3`)}`)
-        } else {
+          return
+        }
+        if (result.code === 'unauthorized' || res.status === 401) {
           toast({
-            title: result.error || t('request.errorCreating'),
-            description: result.code ? `[${result.code}]` : undefined,
+            title: t('request.authTitle'),
+            description: t('request.authDesc'),
             variant: 'destructive',
           })
+          router.replace(`/${locale}/login?next=${encodeURIComponent(`/${locale}/patient/request?step=3`)}`)
+          return
         }
+        toast({
+          title: result.error || t('request.errorCreating'),
+          description: result.code ? `[${result.code}] HTTP ${res.status}` : `HTTP ${res.status}`,
+          variant: 'destructive',
+        })
+        return
       }
+
+      if (result.testMode && result.redirectUrl) {
+        toast({
+          title: '✅ Pago simulado',
+          description: 'Modo prueba — redirigiendo al seguimiento...',
+          variant: 'success',
+        })
+        router.push(result.redirectUrl)
+        return
+      }
+
+      // Accept both `url` (canonical) and `sessionUrl` (legacy back-compat).
+      const checkoutUrl = result.url || result.sessionUrl
+      if (!checkoutUrl) {
+        console.error('[checkout] response missing url/sessionUrl', result)
+        toast({
+          title: t('request.errorCreating'),
+          description: 'Stripe no devolvió URL — contacta soporte.',
+          variant: 'destructive',
+        })
+        return
+      }
+      window.location.href = checkoutUrl
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('request.errorCreating')
+      console.error('[checkout] network/unexpected error', err)
       toast({
         title: msg,
         variant: 'destructive',

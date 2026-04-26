@@ -381,6 +381,7 @@
       "date": "Fecha",
       "time": "Hora",
       "authTitle": "Inicia sesión para confirmar",
+      "authDesc": "Tu sesión expiró. Te llevamos de vuelta al login.",
       "authSubtitle": "Tu información está segura. No te redirigiremos fuera del pedido.",
       "authEmail": "Correo electrónico",
       "authPassword": "Contraseña",

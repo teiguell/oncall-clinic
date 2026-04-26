@@ -381,6 +381,7 @@
       "date": "Date",
       "time": "Time",
       "authTitle": "Sign in to confirm",
+      "authDesc": "Your session expired. Taking you back to login.",
       "authSubtitle": "Your information is secure. You won't be redirected away from your order.",
       "authEmail": "Email address",
       "authPassword": "Password",

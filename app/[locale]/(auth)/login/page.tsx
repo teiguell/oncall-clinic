@@ -43,6 +43,12 @@ function LoginInner() {
   const searchParams = useSearchParams()
   const nextParam = sanitizeNext(searchParams.get('next'))
 
+  // Round 9 Fix F — surface OAuth callback errors. The /api/auth/callback
+  // route now redirects back here with `?error=oauth_exchange_failed&detail=...`
+  // when the OAuth code exchange fails. Display the human-readable detail.
+  const oauthError = searchParams.get('error')
+  const oauthDetail = searchParams.get('detail')
+
   // Round 6 (2026-04-25) — derive callbackUrl lazily inside the event
   // handlers instead of during render. The previous IIFE read
   // `typeof window` in the render path, which produced a different value
@@ -60,7 +66,18 @@ function LoginInner() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    // Initialize from OAuth callback redirect if present.
+    oauthError === 'oauth_exchange_failed' && oauthDetail
+      ? `Google sign-in failed: ${decodeURIComponent(oauthDetail)}`
+      : oauthError === 'oauth_no_user'
+        ? 'Authentication completed but no user — please retry.'
+        : oauthError === 'oauth_missing_code'
+          ? 'Invalid callback URL — please retry sign-in.'
+          : oauthError === 'oauth_error'
+            ? 'Sign-in failed. Please try again.'
+            : null,
+  )
 
   const sendMagicLink = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -119,6 +136,14 @@ function LoginInner() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl p-6 space-y-5">
+          {/* Round 9 Fix F — show OAuth error from callback redirect at top.
+              The magic-link inline error block remains below the form. */}
+          {error && oauthError && (
+            <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           {/* Google Sign In */}
           <button
             onClick={signInGoogle}
