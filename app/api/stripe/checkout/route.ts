@@ -23,7 +23,17 @@ export async function POST(request: Request) {
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
+
+  // Round 9 Fix H — auth bypass for Cowork audit. When NEXT_PUBLIC_AUTH_BYPASS=true,
+  // a synthetic demo-patient identity is accepted in lieu of a real session.
+  // The seed UUID must exist in auth.users + profiles (Director-managed seed).
+  // See lib/auth-bypass.ts for the rationale and removal plan.
+  const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS === 'true'
+  const BYPASS_USER_ID = '00000000-0000-0000-0000-000000000001'
+  const BYPASS_EMAIL = 'demo-patient@oncall.clinic'
+
+  const effectiveUser = user ?? (AUTH_BYPASS ? { id: BYPASS_USER_ID, email: BYPASS_EMAIL } : null)
+  if (!effectiveUser) return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
 
   // Round 9 Fix C: Art.9 RGPD consent gate REMOVED. OnCall is now a pure
   // intermediary (LSSI-CE) — no special-category data processing happens
@@ -89,7 +99,7 @@ export async function POST(request: Request) {
     const { data: consultation, error } = await supabase
       .from('consultations')
       .insert({
-        patient_id: user.id,
+        patient_id: effectiveUser.id,
         // Preferred-doctor preassignment: if the patient picked one in step 3,
         // skip the broadcast and go straight to the doctor's inbox.
         doctor_id: preferredDoctorId || null,
@@ -148,7 +158,7 @@ export async function POST(request: Request) {
   const { data: consultation, error: insertError } = await supabase
     .from('consultations')
     .insert({
-      patient_id: user.id,
+      patient_id: effectiveUser.id,
       doctor_id: preferredDoctorId || null,
       type,
       status: 'pending',
@@ -209,10 +219,10 @@ export async function POST(request: Request) {
     }],
     success_url: `${baseUrl}/${locale}/patient/consultation/${consultation.id}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/${locale}/patient/request?step=2&cancelled=1`,
-    customer_email: user.email,
+    customer_email: effectiveUser.email,
     metadata: {
       consultation_id: consultation.id,
-      patient_id: user.id,
+      patient_id: effectiveUser.id,
       doctor_id: preferredDoctorId || '',
       service_type: serviceType,
       type,

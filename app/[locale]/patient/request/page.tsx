@@ -13,6 +13,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { useBookingStore } from '@/stores/booking-store'
+import { AUTH_BYPASS, BYPASS_USER } from '@/lib/auth-bypass'
 
 // Sub-components — Round 9 pivot: 3 steps (was 4). Step2Details deleted.
 import { BookingStepper } from '@/components/booking/BookingStepper'
@@ -110,6 +111,14 @@ function RequestConsultationPage() {
      * Step3Confirm knows whether to show the inline auth widget or jump
      * straight to the order summary.
      */
+    // Round 9 Fix H — short-circuit auth resolution when bypass is on so
+    // Cowork audit gets straight to the order summary without a real
+    // session. Bypass is gated by NEXT_PUBLIC_AUTH_BYPASS=true.
+    if (AUTH_BYPASS) {
+      setAuthUser(BYPASS_USER as unknown as User)
+      setAuthChecking(false)
+      return
+    }
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       setAuthUser(user)

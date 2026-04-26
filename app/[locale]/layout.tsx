@@ -12,6 +12,7 @@ import { CrispChat } from '@/components/crisp-chat'
 // patient/layout.tsx and doctor/layout.tsx (the only segments that need it).
 // Removing the import here avoids a double tab bar.
 import { TestModeBanner } from '@/components/test-mode-banner'
+import { AuthBypassBanner } from '@/components/auth-bypass-banner'
 import { CookieConsentLoader } from '@/components/cookie-consent-loader'
 import { VersionBadge } from '@/components/version-badge'
 
@@ -156,6 +157,7 @@ export default async function LocaleLayout({
         <FAQPageJsonLd />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <TestModeBanner />
+          <AuthBypassBanner />
           <VersionBadge />
           {children}
           <Toaster />

@@ -1,0 +1,21 @@
+/**
+ * AuthBypassBanner — Round 9 Fix H.
+ *
+ * Visible only when NEXT_PUBLIC_AUTH_BYPASS=true. Sits below TestModeBanner
+ * and above page content. Purple to be loudly distinct from the amber
+ * MODO PRUEBA banner so an auditor can see at a glance that bypass is on.
+ *
+ * Reads the env var directly (it's NEXT_PUBLIC_*, inlined at build time).
+ * Server component — no client JS shipped.
+ */
+export function AuthBypassBanner() {
+  if (process.env.NEXT_PUBLIC_AUTH_BYPASS !== 'true') return null
+  return (
+    <div
+      role="status"
+      className="bg-purple-600 text-white text-center text-xs sm:text-sm py-1.5 px-4 sticky top-0 z-[60]"
+    >
+      🔓 AUTH BYPASS ACTIVO — sesión simulada como demo-patient. Solo para audit live.
+    </div>
+  )
+}
