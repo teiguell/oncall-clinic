@@ -1314,6 +1314,14 @@
     "retry": "Retry",
     "verified": "Verified",
     "selected": "Doctor selected",
+    "expandDetails": "Show doctor details",
+    "collapseDetails": "Hide details",
+    "expanded": {
+      "fromYou": "from your location",
+      "eta": "estimated time of arrival",
+      "reviews": "reviews",
+      "languages": "Languages"
+    },
     "filter": {
       "all": "All",
       "available": "Available",

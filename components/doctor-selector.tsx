@@ -6,8 +6,10 @@ import { createClient } from '@/lib/supabase/client'
 import { DoctorCardSkeleton } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/shared/error-state'
 import { useBookingStore } from '@/stores/booking-store'
-import { Star, Check, Clock } from 'lucide-react'
+import { Star, Check, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { estimatedEta } from '@/lib/eta'
+import { DistanceBadge } from '@/components/shared/distance-badge'
 
 type FilterKey = 'all' | 'available' | 'top' | 'nearest'
 
@@ -48,6 +50,8 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
   // Used only in the "data loaded" branch but React requires the same
   // hook count on every render of the same component instance.
   const [isNightHour, setIsNightHour] = useState(false)
+  // Round 7 P1-E: only one card may be expanded at a time. null = none.
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const selectedDoctorId = useBookingStore(s => s.selectedDoctorId)
   const setSelectedDoctor = useBookingStore(s => s.setSelectedDoctor)
 
@@ -206,9 +210,10 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
     { key: 'nearest',   label: t('filter.nearest') },
   ]
 
-  // Approximate ETA: 1.5 min per km (city avg) + 10 min base; rounded to 5.
-  const etaFromDistance = (km?: number) =>
-    typeof km === 'number' ? Math.max(5, Math.round((10 + km * 1.5) / 5) * 5) : null
+  // Round 7 Fix A (M1, M3): switched from local etaFromDistance to shared
+  // `lib/eta.ts` helper so the same model is used by all surfaces. The new
+  // model is 30 km/h avg — empirically closer to Ibiza traffic than the
+  // previous "10 min base + 1.5 min/km" formula on long trips.
 
   // Note: isNightHour state + its useEffect now live at the top of the
   // component (pre early-returns) to comply with Rules of Hooks.
@@ -244,8 +249,9 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
 
       {sortedDoctors.map(d => {
         const isSelected = selectedDoctorId === d.id
+        const isExpanded = expandedId === d.id
         const initials = d.full_name.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase()
-        const eta = etaFromDistance(d.distance_km)
+        const eta = estimatedEta(d.distance_km)
         // Night price support (ITEM 13): if current Ibiza hour is in night
         // window (22:00–07:59) and doctor has night_price, use it.
         const dAny = d as unknown as { night_price?: number | null }
@@ -255,21 +261,32 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
         // We store whatever price the doctor will actually be charged so the
         // booking store stays consistent with the render (step 2 summary + step 3 order).
         const storedPriceCents = displayPriceCents
+        const handleSelect = () => {
+          setSelectedDoctor(d.id, d.full_name, storedPriceCents, d.specialty)
+          onSelect?.(d)
+        }
+        // Round 7 P1-E: card root is now <div role="button"> so we can nest
+        // the real <button> chevron. Enter / Space mirror click for keyboard.
         return (
-          <button
+          <div
             key={d.id}
-            type="button"
-            onClick={() => {
-              setSelectedDoctor(d.id, d.full_name, storedPriceCents, d.specialty)
-              onSelect?.(d)
+            role="button"
+            tabIndex={0}
+            onClick={handleSelect}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleSelect()
+              }
             }}
             className={cn(
-              'w-full rounded-card border p-3.5 text-left transition-all min-h-[44px]',
+              'w-full rounded-card border p-3.5 text-left transition-all min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
               isSelected
                 ? 'border-primary ring-2 ring-primary/20 bg-primary/5 shadow-card'
                 : 'border-border bg-card card-hover hover:border-primary/40',
             )}
             aria-pressed={isSelected}
+            aria-expanded={isExpanded}
           >
             <div className="flex items-start gap-3.5">
               {/* Avatar 54px with verified badge (prototype §step2) */}
@@ -297,22 +314,42 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
                       {d.specialty?.replace('_', ' ')}{d.city ? ` · ${d.city}` : ''}
                     </p>
                   </div>
-                  {typeof displayPriceCents === 'number' && (
-                    <div className="text-right flex-shrink-0">
-                      {/* Precio: 15px / 700 / -0.2px */}
-                      <div className="font-bold text-[15px] tracking-[-0.2px]">
-                        €{(displayPriceCents / 100).toFixed(0)}
-                      </div>
-                      {isNightHour && typeof dAny.night_price === 'number' && (
-                        <div className="text-[9.5px] font-semibold text-amber-600 tracking-wide uppercase mt-0.5">
-                          Noche
+                  <div className="flex items-start gap-1.5 flex-shrink-0">
+                    {typeof displayPriceCents === 'number' && (
+                      <div className="text-right">
+                        {/* Precio: 15px / 700 / -0.2px */}
+                        <div className="font-bold text-[15px] tracking-[-0.2px]">
+                          €{(displayPriceCents / 100).toFixed(0)}
                         </div>
-                      )}
-                    </div>
-                  )}
+                        {isNightHour && typeof dAny.night_price === 'number' && (
+                          <div className="text-[9.5px] font-semibold text-amber-600 tracking-wide uppercase mt-0.5">
+                            Noche
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {/* Round 7 P1-E: chevron-expand button. stopPropagation
+                        so it doesn't trigger the card's select handler. */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setExpandedId(isExpanded ? null : d.id)
+                      }}
+                      className="h-7 w-7 -mr-1 -mt-0.5 rounded-full hover:bg-muted/60 flex items-center justify-center text-muted-foreground transition-transform"
+                      aria-label={isExpanded ? t('collapseDetails') : t('expandDetails')}
+                      aria-expanded={isExpanded}
+                    >
+                      <ChevronDown
+                        className={cn('h-4 w-4 transition-transform', isExpanded && 'rotate-180')}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mt-2 flex items-center gap-2.5">
+                {/* Round 7 Fix A (M1, M3): rating + DistanceBadge (km + ETA) */}
+                <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
                   {typeof d.rating === 'number' && d.rating > 0 && (
                     <span className="inline-flex items-center gap-1 text-[12px]">
                       <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
@@ -322,13 +359,14 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
                       )}
                     </span>
                   )}
-                  {eta !== null && (
+                  {(typeof d.distance_km === 'number' || typeof eta === 'number') && (
                     <>
                       <span className="text-muted-foreground/50" aria-hidden="true">·</span>
-                      <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-600">
-                        <Clock className="h-3 w-3" aria-hidden="true" />
-                        ~{eta} min
-                      </span>
+                      <DistanceBadge
+                        distanceKm={d.distance_km}
+                        etaMinutes={eta}
+                        variant="solid"
+                      />
                     </>
                   )}
                 </div>
@@ -345,11 +383,52 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
               </div>
             </div>
 
-            {/* 2C: Expanding mini confirmation bar when selected */}
+            {/* Round 7 P1-E: expanded panel — bio, reviews count, distance/eta */}
             <div
               className={cn(
                 'overflow-hidden transition-[max-height,opacity,margin] duration-200',
-                isSelected ? 'max-h-[44px] opacity-100 mt-2.5' : 'max-h-0 opacity-0 mt-0',
+                isExpanded ? 'max-h-[280px] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0',
+              )}
+              aria-hidden={!isExpanded}
+            >
+              <div className="border-t border-border pt-3 space-y-2.5 text-[12.5px]">
+                {d.bio && (
+                  <p className="text-muted-foreground leading-relaxed line-clamp-3">{d.bio}</p>
+                )}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-muted-foreground">
+                  {typeof d.distance_km === 'number' && (
+                    <span>
+                      <span className="font-medium text-foreground">{d.distance_km.toFixed(1)} km</span>
+                      {' '}{t('expanded.fromYou')}
+                    </span>
+                  )}
+                  {typeof eta === 'number' && (
+                    <span>
+                      <span className="font-medium text-foreground">~{eta} min</span>
+                      {' '}{t('expanded.eta')}
+                    </span>
+                  )}
+                  {typeof d.total_reviews === 'number' && d.total_reviews > 0 && (
+                    <span>
+                      <span className="font-medium text-foreground">{d.total_reviews}</span>
+                      {' '}{t('expanded.reviews')}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <span className="text-[10.5px] uppercase tracking-wide text-muted-foreground/70 font-semibold">
+                    {t('expanded.languages')}:
+                  </span>
+                  <span className="text-[11.5px] font-medium">Español, English</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2C: Expanding mini confirmation bar when selected (kept) */}
+            <div
+              className={cn(
+                'overflow-hidden transition-[max-height,opacity,margin] duration-200',
+                isSelected && !isExpanded ? 'max-h-[44px] opacity-100 mt-2.5' : 'max-h-0 opacity-0 mt-0',
               )}
             >
               <div className="bg-primary/5 rounded-[10px] px-3 py-2.5 flex items-center gap-2">
@@ -361,7 +440,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
                 </span>
               </div>
             </div>
-          </button>
+          </div>
         )
       })}
     </div>
