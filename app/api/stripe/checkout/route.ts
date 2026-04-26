@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { SERVICES, type ServiceType } from '@/types'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { getBypassUser } from '@/lib/auth-bypass'
 
 function sanitizeText(value: unknown, maxLength = 500): string {
   if (typeof value !== 'string') return ''
@@ -24,18 +25,14 @@ export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Round 9 Fix H — auth bypass for Cowork audit. When NEXT_PUBLIC_AUTH_BYPASS=true,
-  // a synthetic demo-patient identity is accepted in lieu of a real session.
-  // The seed UUID must exist in auth.users + profiles (Director-managed seed).
-  // See lib/auth-bypass.ts for the rationale and removal plan.
-  const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS === 'true'
-  // Director note (2026-04-26): switched to existing demo-patient row
-  // 3d23f1d6-... (which already exists in auth.users + profiles).
-  // The previous 00000000-... seed UUID never existed.
-  const BYPASS_USER_ID = '3d23f1d6-0bfe-4bf5-90ff-e63919cd0b6f'
-  const BYPASS_EMAIL = 'demo-patient@oncall.clinic'
-
-  const effectiveUser = user ?? (AUTH_BYPASS ? { id: BYPASS_USER_ID, email: BYPASS_EMAIL } : null)
+  // Round 9 Fix H + Round 11 Fix A — auth bypass for Cowork audit.
+  // When NEXT_PUBLIC_AUTH_BYPASS=true the helper returns a synthetic user
+  // matching the role configured by NEXT_PUBLIC_AUTH_BYPASS_ROLE. For
+  // /api/stripe/checkout the patient role is the natural caller, but we
+  // accept any bypass role — the booking endpoint just needs a stable
+  // patient_id + email. See lib/auth-bypass.ts for the rationale.
+  const bypassUser = getBypassUser()
+  const effectiveUser = user ?? bypassUser
   if (!effectiveUser) return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
 
   // Round 9 Fix C: Art.9 RGPD consent gate REMOVED. OnCall is now a pure

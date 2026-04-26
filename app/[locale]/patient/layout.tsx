@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { BottomTabBarWrapper } from '@/components/shared/bottom-tab-bar-wrapper'
+import { AUTH_BYPASS, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
 
 /**
  * PatientLayout — server-side auth gate for every /[locale]/patient/*.
@@ -46,11 +47,15 @@ export default async function PatientLayout({
     return <>{children}</>
   }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    const encodedNext = encodeURIComponent(pathname || `/${locale}/patient/dashboard`)
-    redirect(`/${locale}/login?next=${encodedNext}`)
+  // Round 11 Fix A — bypass server gate when auditor is impersonating
+  // the demo patient. Same exemption as the doctor layout.
+  if (!(AUTH_BYPASS && AUTH_BYPASS_ROLE === 'patient')) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      const encodedNext = encodeURIComponent(pathname || `/${locale}/patient/dashboard`)
+      redirect(`/${locale}/login?next=${encodedNext}`)
+    }
   }
 
   // Round 7 M7: BottomTabBar mobile nav. The wrapper has its own hide

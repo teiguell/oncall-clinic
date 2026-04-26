@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { getStatusLabel, formatCurrencyFromEuros, formatRelativeDate, getService, calculateDistance, estimateArrivalTime } from '@/lib/utils'
 import { Zap, MapPin, Clock, TrendingUp, Star, CheckCircle, XCircle, Navigation, MessageCircle, ChevronRight } from 'lucide-react'
 import type { Profile, DoctorProfile, Consultation } from '@/types'
+import { AUTH_BYPASS, AUTH_BYPASS_ROLE, BYPASS_USER_ID } from '@/lib/auth-bypass'
 
 export default function DoctorDashboard() {
   const router = useRouter()
@@ -39,11 +40,14 @@ export default function DoctorDashboard() {
   const fetchData = useCallback(async () => {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push(`/${locale}/login`); return }
+    // Round 11 Fix A — bypass: when AUTH_BYPASS_ROLE=doctor, use the
+    // seeded demo-doctor row instead of redirecting to /login.
+    const userId = user?.id ?? (AUTH_BYPASS && AUTH_BYPASS_ROLE === 'doctor' ? BYPASS_USER_ID : null)
+    if (!userId) { router.push(`/${locale}/login`); return }
 
     const [profileRes, doctorRes] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).single(),
-      supabase.from('doctor_profiles').select('*').eq('user_id', user.id).single(),
+      supabase.from('profiles').select('*').eq('id', userId).single(),
+      supabase.from('doctor_profiles').select('*').eq('user_id', userId).single(),
     ])
 
     if (!profileRes.data || profileRes.data.role !== 'doctor') {

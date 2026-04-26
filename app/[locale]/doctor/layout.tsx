@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { BottomTabBarWrapper } from '@/components/shared/bottom-tab-bar-wrapper'
+import { AUTH_BYPASS, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
 
 /**
  * DoctorLayout — server-side gate for every route under /[locale]/doctor/*.
@@ -29,27 +30,33 @@ export default async function DoctorLayout({
   const hdrs = await headers()
   const pathname = hdrs.get('x-pathname') || `/${locale}/doctor/dashboard`
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect(`/${locale}/login?next=${encodeURIComponent(pathname)}`)
-  }
+  // Round 11 Fix A — bypass server gate when auditor is impersonating
+  // the demo doctor. We skip both the auth and the role check; the seed
+  // doctor row (profile.role='doctor') exists in DB so any downstream
+  // query that joins on the bypass UUID still works.
+  if (!(AUTH_BYPASS && AUTH_BYPASS_ROLE === 'doctor')) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      redirect(`/${locale}/login?next=${encodeURIComponent(pathname)}`)
+    }
 
-  // Role check: block patients / admins from seeing the doctor UI
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .maybeSingle()
+    // Role check: block patients / admins from seeing the doctor UI
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
 
-  if (!profile) {
-    // User exists in auth.users but no profiles row — force login flow to
-    // trigger the profile creation path (OAuth callback creates it).
-    redirect(`/${locale}/login?next=${encodeURIComponent(pathname)}`)
-  }
+    if (!profile) {
+      // User exists in auth.users but no profiles row — force login flow to
+      // trigger the profile creation path (OAuth callback creates it).
+      redirect(`/${locale}/login?next=${encodeURIComponent(pathname)}`)
+    }
 
-  if (profile.role !== 'doctor') {
-    redirect(`/${locale}`)
+    if (profile.role !== 'doctor') {
+      redirect(`/${locale}`)
+    }
   }
 
   // Round 7 M7: BottomTabBar mobile nav under all /doctor/* routes.
