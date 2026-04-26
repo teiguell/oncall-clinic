@@ -302,6 +302,22 @@ export default function DoctorRegisterPage() {
         contract_version: '1.0',
         verification_status: 'pending',
       }).eq('id', doctorProfileId)
+
+      // Round 11 Fix C — kick off the activation flow:
+      // generate the email-confirm token + send welcome / activation /
+      // admin emails. Best-effort: failures here don't roll back the
+      // contract acceptance (the doctor row is already saved). The
+      // dashboard exposes a "resend activation email" button if needed.
+      try {
+        await fetch('/api/doctor/onboarding-complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ locale }),
+        })
+      } catch (e) {
+        console.warn('[onboarding] activation kickoff failed:', e)
+      }
+
       setStep(4)
     } catch {
       toast({ title: t('onboarding.error'), variant: 'destructive' })
