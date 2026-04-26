@@ -143,8 +143,10 @@ export default async function ProPage({
       <ProCTA locale={locale} />
 
       {/* Footer — Round 10 acquisition page footer (lighter than the main
-          site footer; legal links + intermediary disclaimer + copyright). */}
-      <footer className="bg-slate-900 text-white">
+          site footer; legal links + intermediary disclaimer + copyright).
+          Round 11: pb-20 md:pb-0 keeps the sticky mobile registration CTA
+          from covering the legal links on the last scroll. */}
+      <footer className="bg-slate-900 text-white pb-20 md:pb-0">
         <div className="container mx-auto px-4 py-10 max-w-5xl">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="text-sm text-white/80">

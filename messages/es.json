@@ -1454,29 +1454,29 @@
       "patients": "Para pacientes"
     },
     "hero": {
-      "badge": "Reclutando en 10 ciudades",
+      "badge": "Reclutando médicos en Ibiza",
       "title": "Tu experiencia. Tu horario. Tus pacientes.",
       "subtitle": "Únete a la red de médicos colegiados que atienden en domicilio en España. Pon tu precio, elige cuándo trabajas y cobra en 2 días.",
-      "ctaPrimary": "Empezar registro",
+      "ctaPrimary": "Empezar registro · 5 min",
       "ctaSecondary": "Cómo funciona",
-      "trustNote": "Solo médicos colegiados con seguro RC al día."
+      "trustNote": "⭐ 50+ médicos · Pago al instante · Sin permanencia"
     },
     "stats": {
       "cities": {
-        "value": "10",
-        "label": "Ciudades en lanzamiento"
+        "value": "850+",
+        "label": "Visitas/mes en Ibiza"
       },
       "tourists": {
-        "value": "96,8 M",
-        "label": "Turistas/año en España"
+        "value": "€132",
+        "label": "Neto medio por visita"
       },
       "booking": {
-        "value": "2 min",
-        "label": "Reserva del paciente"
+        "value": "94 %",
+        "label": "Médicos vuelven a aceptar"
       },
       "payout": {
-        "value": "2 días",
-        "label": "Cobro tras la visita"
+        "value": "< 1 sem",
+        "label": "Del registro a la primera visita"
       }
     },
     "benefits": {
@@ -1512,17 +1512,19 @@
     },
     "income": {
       "overline": "Ingresos",
-      "title": "Tú pones el precio. Nosotros cobramos.",
-      "subtitle": "Ejemplo con tarifa de €150 por visita. Cambia el precio según tu especialidad y zona.",
+      "title": "Calcula cuánto ganarías al mes",
+      "subtitle": "Mueve el deslizador y ajusta tu nivel de actividad. Tarifa base €150/visita, comisión OnCall 10% el primer año (todo incluido: IVA + Stripe).",
       "rowConsultation": "Consulta a domicilio",
       "rowCommission": "Comisión OnCall (10% año 1 — todo incluido)",
       "commissionNote": "Incluye IVA y comisión Stripe. No pagas nada más.",
       "rowNet": "Tu cobro neto por visita",
       "yearTwo": "Año 2 en adelante: comisión 15% todo incluido (€127,50 neto por visita).",
-      "monthlyTitle": "Rango mensual estimado",
-      "monthlyRange": "€675 – €4.050 / mes",
-      "monthlyNote": "5 a 30 visitas/mes según tu disponibilidad. La media de la red en Ibiza son 12 visitas/mes en alta temporada.",
-      "ctaText": "Calculé con mi tarifa real"
+      "monthlyTitle": "Tus ganancias estimadas",
+      "monthlyRange": "€{amount}",
+      "monthlyNote": "Trabajas tú las horas que decides. Sin objetivos. Sin retención.",
+      "ctaText": "Quiero empezar el registro",
+      "sliderLabel": "Visitas al mes",
+      "sliderHint": "Desliza para ver tu ingreso mensual."
     },
     "process": {
       "overline": "Proceso",
@@ -1589,10 +1591,11 @@
     },
     "cities": {
       "overline": "Cobertura",
-      "title": "Reclutando en estas 10 ciudades",
-      "subtitle": "Ibiza ya está activa. Lanzamos el resto a medida que completamos red de médicos.",
+      "title": "Dónde estamos lanzando",
+      "subtitle": "Ibiza ya está activa. Mallorca, Madrid y Barcelona en cola para 2026. 6 ciudades más en 2027.",
       "active": "Activo",
-      "recruiting": "Reclutando"
+      "recruiting": "Próximamente",
+      "soon2027": "+ 6 ciudades más en 2027"
     },
     "faq": {
       "overline": "FAQ",
@@ -1625,6 +1628,10 @@
         {
           "q": "¿Qué pasa si tengo una urgencia o complicación durante la visita?",
           "a": "Como en cualquier acto médico privado, sigues los protocolos clínicos habituales y, si procede, derivas al 112 / urgencias hospitalarias. Tu seguro de RC profesional cubre el acto médico. OnCall no interfiere en la decisión clínica."
+        },
+        {
+          "q": "¿Cómo bloqueáis horarios cuando estoy en otra consulta?",
+          "a": "Mientras tu disponibilidad está activa y aún no marcas una visita como completada, OnCall no te asigna automáticamente una segunda. Puedes desactivar manualmente la disponibilidad desde el dashboard si necesitas un descanso entre consultas. La asignación es siempre confirmación explícita por tu parte — no auto-acepta."
         }
       ]
     },

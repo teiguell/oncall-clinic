@@ -1454,29 +1454,29 @@
       "patients": "For patients"
     },
     "hero": {
-      "badge": "Recruiting in 10 cities",
+      "badge": "Now recruiting doctors in Ibiza",
       "title": "Your expertise. Your schedule. Your patients.",
       "subtitle": "Join the network of licensed doctors providing home visits across Spain. Set your own price, choose when you work, get paid in 2 days.",
-      "ctaPrimary": "Start application",
+      "ctaPrimary": "Start application · 5 min",
       "ctaSecondary": "How it works",
-      "trustNote": "Licensed physicians with up-to-date professional liability insurance only."
+      "trustNote": "⭐ 50+ doctors · Instant payout · No commitment"
     },
     "stats": {
       "cities": {
-        "value": "10",
-        "label": "Cities launching"
+        "value": "850+",
+        "label": "Visits/month in Ibiza"
       },
       "tourists": {
-        "value": "96.8 M",
-        "label": "Tourists/year in Spain"
+        "value": "€132",
+        "label": "Net average per visit"
       },
       "booking": {
-        "value": "2 min",
-        "label": "Patient booking"
+        "value": "94%",
+        "label": "Doctors who keep accepting"
       },
       "payout": {
-        "value": "2 days",
-        "label": "Paid after the visit"
+        "value": "< 1 wk",
+        "label": "From signup to first visit"
       }
     },
     "benefits": {
@@ -1512,17 +1512,19 @@
     },
     "income": {
       "overline": "Income",
-      "title": "You set the price. We collect.",
-      "subtitle": "Example with a €150 visit fee. Adjust by specialty and area.",
+      "title": "Estimate your monthly earnings",
+      "subtitle": "Drag the slider to set your activity level. Base fee €150/visit, OnCall commission 10% in year 1 (all-inclusive: VAT + Stripe).",
       "rowConsultation": "Home consultation",
       "rowCommission": "OnCall commission (10% year 1 — all-inclusive)",
       "commissionNote": "Includes VAT and Stripe fees. You pay nothing else.",
       "rowNet": "Your net pay per visit",
       "yearTwo": "Year 2 onwards: 15% commission all-inclusive (€127.50 net per visit).",
-      "monthlyTitle": "Estimated monthly range",
-      "monthlyRange": "€675 – €4,050 / month",
-      "monthlyNote": "5 to 30 visits/month depending on availability. The Ibiza network averages 12 visits/month in high season.",
-      "ctaText": "Calculate with my actual rate"
+      "monthlyTitle": "Your estimated earnings",
+      "monthlyRange": "€{amount}",
+      "monthlyNote": "Work the hours you choose. No targets. No retention.",
+      "ctaText": "Start my application",
+      "sliderLabel": "Visits per month",
+      "sliderHint": "Drag to see your monthly income."
     },
     "process": {
       "overline": "Process",
@@ -1589,10 +1591,11 @@
     },
     "cities": {
       "overline": "Coverage",
-      "title": "Recruiting in these 10 cities",
-      "subtitle": "Ibiza is live. We launch each new city as we complete its doctor network.",
+      "title": "Where we're launching",
+      "subtitle": "Ibiza is live. Mallorca, Madrid and Barcelona queued for 2026. 6 more cities in 2027.",
       "active": "Live",
-      "recruiting": "Recruiting"
+      "recruiting": "Coming soon",
+      "soon2027": "+ 6 more cities in 2027"
     },
     "faq": {
       "overline": "FAQ",
@@ -1625,6 +1628,10 @@
         {
           "q": "What if there's an emergency or complication during the visit?",
           "a": "As in any private medical act, you follow standard clinical protocols and, if needed, escalate to 112 / hospital emergency. Your professional liability insurance covers the medical act. OnCall doesn't interfere with clinical decisions."
+        },
+        {
+          "q": "How do you block my schedule while I'm on another consultation?",
+          "a": "While your availability is on and you haven't marked a visit as completed, OnCall does not auto-assign a second consultation to you. You can also toggle availability off manually from the dashboard if you need a break between visits. Assignment is always explicit confirmation on your side — never auto-accept."
         }
       ]
     },

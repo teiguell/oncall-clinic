@@ -2,17 +2,18 @@ import { useTranslations } from 'next-intl'
 import { ChevronDown } from 'lucide-react'
 
 /**
- * /pro FAQ — 7 native <details>/<summary> accordions.
+ * /pro FAQ — 8 native <details>/<summary> accordions (Round 11 Fix F.7).
  *
  * Implementation note: native <details> is server-renderable, accessible
  * by default (keyboard, screen reader), no JS required. Multiple can be
  * open at once. This matches the pattern already used in `BookingFaq`.
  *
- * The mega-prompt mentioned a client-component variant with useState; the
- * server-side <details> approach is functionally equivalent for the user
- * (toggle on click) without shipping a JS chunk for the FAQ section.
+ * Round 11 ask: top 3 questions open by default so users see the most
+ * common answers without clicking. We use `defaultOpen` per item; native
+ * `open` attribute on first 3 details.
  */
-const QUESTION_COUNT = 7
+const QUESTION_COUNT = 8
+const OPEN_BY_DEFAULT = 3
 
 export function ProFAQ() {
   const t = useTranslations('pro.faq')
@@ -32,6 +33,7 @@ export function ProFAQ() {
           {Array.from({ length: QUESTION_COUNT }, (_, i) => (
             <details
               key={i}
+              {...(i < OPEN_BY_DEFAULT ? { open: true } : {})}
               className="group rounded-xl border border-slate-200 bg-white open:border-teal-200 open:shadow-card transition-shadow"
             >
               <summary className="flex items-center justify-between gap-4 cursor-pointer list-none p-5 [&::-webkit-details-marker]:hidden">
