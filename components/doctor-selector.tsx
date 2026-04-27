@@ -75,7 +75,8 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
       }))
     }
 
-    // Fallback: plain query
+    // Fallback: plain query.
+    // activation_status filter (Round 14 follow-up, migration 021/024).
     let query = supabase
       .from('doctor_profiles')
       .select(`
@@ -85,6 +86,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
       `)
       .eq('is_available', true)
       .eq('verification_status', 'verified')
+      .eq('activation_status', 'active')
 
     if (candidateIds.length > 0) {
       query = query.in('id', candidateIds.map(c => c.id))

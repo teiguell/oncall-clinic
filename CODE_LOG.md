@@ -4618,4 +4618,122 @@ NO CHANGE (4 — already-applied DDL needs no follow-up):
   `SMS_PROVIDER=twilio`. Without them the provider stays in stub mode (now logging fully to `notifications_log` instead of fail-open silent).
 - Twilio trial → production upgrade ($20).
 
+---
+
+### [2026-04-27 20:30] — Round 14 follow-up #2 — find_nearest_doctors RPC realigned + dead column fix in /api/doctors
+
+**Estado:** ✅ OK
+**Trigger:** Migration 021 explicit comment said "/api/doctors and find_nearest_doctors should filter activation_status='active'". Audit revealed the gap was bigger than expected.
+**Outbox:** `.claude/cowork-outbox/2026-04-27-2030-rpc-realignment.md`
+
+#### Audit findings (one filter task → two real bugs)
+
+**Filter gap (expected):** Three doctor-list queries lacked the `activation_status='active'` filter:
+1. The `find_nearest_doctors` RPC (migration 020 file, but see below).
+2. `app/api/doctors/route.ts` fallback query.
+3. `app/api/consultations/assign/route.ts` fallback query.
+4. `components/doctor-selector.tsx` client fallback.
+
+**RPC drift (unexpected):** Migration 020 file in the repo had **never been applied** to the live DB:
+- Its `(dp::jsonb->>'night_price')::int` cast is invalid — Postgres rejects row-to-jsonb without `to_jsonb(dp.*)`.
+- It selects a `night_price` column that does not exist on `doctor_profiles` (only `consultation_price` and `price_adjustment`).
+
+The live `find_nearest_doctors` was a different, older PL/pgSQL implementation:
+```sql
+find_nearest_doctors(patient_lat, patient_lng, radius_km DEFAULT 50, specialty_filter DEFAULT NULL)
+RETURNS TABLE(doctor_id, user_id, full_name, specialty, rating, distance_km)
+```
+
+But the actual callers pass `{ lat_in, lng_in, radius_km }`:
+- `app/api/doctors/route.ts` line 28
+- `components/doctor-selector.tsx` line 64
+
+So **the RPC has been silently failing for parameter-name mismatch**. Both callers fell through to their fallback queries. The components worked because their fallback was correct. But:
+
+**Dead column in /api/doctors (parallel bug):** The fallback in `app/api/doctors/route.ts` had `night_price` in its SELECT. Since that column doesn't exist, **the fallback was also failing** → the route returned `[]` for every call. Live verification:
+```
+$ curl -s 'https://oncall.clinic/api/doctors?near=38.9067,1.4206'
+[]
+```
+
+The route is luckily not on the booking critical path (the patient flow uses `components/doctor-selector.tsx` directly, not this API). But it's been broken since `night_price` was either dropped or never created.
+
+#### Migration 024 — RPC realignment + activation_status filter
+
+Replaces the live PL/pgSQL function with a SQL function matching the callers' actual parameter names + a return shape free of `night_price`:
+
+```sql
+DROP FUNCTION IF EXISTS find_nearest_doctors(double precision, double precision, double precision, text);
+DROP FUNCTION IF EXISTS find_nearest_doctors(double precision, double precision, double precision);
+
+CREATE FUNCTION find_nearest_doctors(
+  lat_in DOUBLE PRECISION, lng_in DOUBLE PRECISION, radius_km DOUBLE PRECISION DEFAULT 25
+)
+RETURNS TABLE (
+  id UUID, user_id UUID, specialty TEXT, bio TEXT, rating NUMERIC,
+  total_reviews INTEGER, city TEXT, consultation_price INTEGER,
+  current_lat DOUBLE PRECISION, current_lng DOUBLE PRECISION,
+  distance_km DOUBLE PRECISION
+)
+LANGUAGE sql STABLE SECURITY INVOKER
+AS $$ ... Haversine ...
+WHERE dp.is_available = true
+  AND dp.verification_status = 'verified'
+  AND dp.activation_status = 'active'         -- NEW
+  AND dp.current_lat IS NOT NULL
+  AND dp.current_lng IS NOT NULL
+... ORDER BY distance_km ASC LIMIT 20; $$;
+```
+
+**Verification:** RPC against Ibiza coordinates returns **9 doctors** (was previously failing with parameter mismatch). All 9 currently in DB are eligible (available + verified + active). The seed demo-doctor (`628856ea-...`, used by Round 11 doctor-bypass) is at distance 0 km (exact Ibiza coordinates).
+
+#### Code patches
+
+```ts
+// app/api/doctors/route.ts (FIX 2: remove dead night_price column)
+// Before: .select('id, ..., night_price, ...')   → returned [] forever
+// After:  .select('id, ..., consultation_price, ...')   → returns rows
++ .eq('activation_status', 'active')
+
+// app/api/consultations/assign/route.ts (filter)
++ .eq('activation_status', 'active')
+
+// components/doctor-selector.tsx (filter)
++ .eq('activation_status', 'active')
+```
+
+#### Files
+
+```
+NEW (1):
+  supabase/migrations/024_find_nearest_doctors_activation_filter.sql
+    (replaces live PL/pgSQL function with SQL-language function matching
+     actual caller signatures + activation_status filter)
+
+MODIFIED (3):
+  app/api/doctors/route.ts                     (drop dead night_price + activation_status filter)
+  app/api/consultations/assign/route.ts        (activation_status filter)
+  components/doctor-selector.tsx               (activation_status filter)
+
+LEGACY ARTIFACT (1, no change):
+  supabase/migrations/020_find_nearest_doctors_rpc.sql
+    Never successfully applied (broken jsonb cast + non-existent night_price
+    column). Kept in repo as historical reference. 024 supersedes it.
+```
+
+#### Build
+
+`tsc --noEmit` — 0 errors.
+
+#### Decisions flagged for Director
+
+1. **Migration 020 deletion?** Now that 024 supersedes it and 020 has never been live, deleting the file would be cleaner. Kept it in place because:
+   - Removing files from `supabase/migrations/` after they've been committed can confuse `supabase db push` tracking.
+   - The file's commit history is useful evidence of when the broken column was introduced.
+   - Adding a `-- SUPERSEDED BY 024 — DO NOT APPLY` header would be an alternative if you want it documented in-file.
+
+2. **`night_price` archaeology.** No schema migration ever created a `night_price` column. It must have been a half-implementation that was reverted before adding the column. The route's SELECT clause was a stale leftover. If you want a night surcharge, that's a NEW feature — not the recovery of an old one.
+
+3. **/api/doctors public usability.** Now that the route returns real data, it's effectively a public, unauthenticated `GET` of doctor data filtered by location. Confirm that's intended — if it should be auth-gated, it's a separate change. Currently it leaks all 9 active doctors' lat/lng + specialty + price + rating to anyone who requests it.
+
 

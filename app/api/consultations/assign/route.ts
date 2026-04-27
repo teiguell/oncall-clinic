@@ -59,11 +59,14 @@ export async function POST(request: Request) {
   }
 
   if (candidates.length === 0) {
+    // activation_status filter (Round 14 follow-up): hide doctors who
+    // haven't finished email + SMS + admin review.
     const { data: fallback } = await supabase
       .from('doctor_profiles')
       .select('id, user_id')
       .eq('verification_status', 'verified')
       .eq('is_available', true)
+      .eq('activation_status', 'active')
       .limit(10)
     candidates = (fallback || []) as typeof candidates
   }

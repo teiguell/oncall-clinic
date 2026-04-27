@@ -35,7 +35,14 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Fallback: plain availability query, joined with profile for display
+  // Fallback: plain availability query, joined with profile for display.
+  // activation_status filter (Round 14 follow-up, migration 021/024): hide
+  // doctors who haven't finished email + SMS + admin review.
+  // Round 14 follow-up: removed `night_price` from SELECT — that column
+  // does not exist on doctor_profiles (only `consultation_price` and
+  // `price_adjustment`). With `night_price` in the SELECT this fallback
+  // had been silently returning [] for every call since the column was
+  // dropped (or never existed).
   const { data: rows } = await supabase
     .from('doctor_profiles')
     .select(`
@@ -46,7 +53,6 @@ export async function GET(req: NextRequest) {
       rating,
       total_reviews,
       consultation_price,
-      night_price,
       current_lat,
       current_lng,
       city,
@@ -56,6 +62,7 @@ export async function GET(req: NextRequest) {
     `)
     .eq('is_available', true)
     .eq('verification_status', 'verified')
+    .eq('activation_status', 'active')
     .limit(10)
 
   return NextResponse.json(rows || [])
