@@ -53,8 +53,77 @@ export default async function LandingPage({
   const { locale } = await params
   setRequestLocale(locale)
 
+  // Round 20A-9: Service JSON-LD per consultation type. Each surface as
+  // a distinct schema.org/Service object so search engines can match
+  // long-tail queries like "médico urgente Ibiza" or "doctor visit
+  // scheduled tomorrow Ibiza".
+  const isEn = locale === 'en'
+  const serviceTypes = [
+    {
+      key: 'urgent',
+      name: isEn ? 'Urgent home doctor visit (within 1 hour)' : 'Visita médica a domicilio urgente (en 1 h)',
+      desc: isEn
+        ? 'Same-hour home doctor visit in Ibiza for non-life-threatening urgent care.'
+        : 'Visita médica a domicilio en menos de 1 hora en Ibiza para urgencias no vitales.',
+    },
+    {
+      key: 'today',
+      name: isEn ? 'Same-day home doctor visit' : 'Visita médica a domicilio mismo día',
+      desc: isEn
+        ? 'Schedule a doctor home visit for any time today in Ibiza.'
+        : 'Programa una visita médica a domicilio para hoy en Ibiza.',
+    },
+    {
+      key: 'tomorrow',
+      name: isEn ? 'Next-day home doctor visit' : 'Visita médica a domicilio mañana',
+      desc: isEn
+        ? 'Book a home doctor visit for tomorrow in Ibiza.'
+        : 'Reserva una visita médica a domicilio para mañana en Ibiza.',
+    },
+    {
+      key: 'scheduled',
+      name: isEn ? 'Scheduled home doctor visit' : 'Visita médica a domicilio programada',
+      desc: isEn
+        ? 'Pick a date and time for your home doctor visit in Ibiza.'
+        : 'Elige fecha y hora para tu visita médica a domicilio en Ibiza.',
+    },
+  ]
+  const servicesSchema = serviceTypes.map((s) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: s.name,
+    description: s.desc,
+    provider: {
+      '@type': 'MedicalBusiness',
+      name: 'OnCall Clinic',
+      url: `https://oncall.clinic/${locale}`,
+    },
+    areaServed: {
+      '@type': 'City',
+      name: 'Ibiza',
+      address: { '@type': 'PostalAddress', addressCountry: 'ES' },
+    },
+    serviceType: 'GeneralPractice',
+    audience: {
+      '@type': 'PeopleAudience',
+      audienceType: isEn ? 'Tourists and residents in Ibiza' : 'Turistas y residentes en Ibiza',
+    },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'EUR',
+      priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'EUR', price: '150', valueAddedTaxIncluded: true },
+    },
+  }))
+
   return (
     <main className="min-h-screen bg-[#FAFBFC] text-[#0B1220]">
+      {servicesSchema.map((s, i) => (
+        <script
+          key={`svc-${i}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+        />
+      ))}
       <LandingNavV3 locale={locale} />
       <HeroV3 locale={locale} />
       <HowItWorksV3 />

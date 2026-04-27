@@ -21,14 +21,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
   }
 
+  // Round 20A-1: dropped /login + /register (auth surfaces, no SEO value
+  // and they redirect for authed users). Added /clinica (Round 15A B2B
+  // landing — high priority for clinic recruitment).
   const paths: Entry[] = [
     { path: '',                    priority: 1.0, changeFrequency: 'weekly' },
-    // Round 10 — /pro is the doctor-acquisition landing. High priority
-    // because doctor recruitment is the current bottleneck, and Spanish
-    // is the primary target market (x-default → /es/pro).
+    // /pro is the doctor-acquisition landing (Round 13 v3). High
+    // priority because doctor recruitment is the current bottleneck.
     { path: '/pro',                priority: 0.9, changeFrequency: 'weekly' },
-    { path: '/login',              priority: 0.5, changeFrequency: 'monthly' },
-    { path: '/register',           priority: 0.6, changeFrequency: 'monthly' },
+    // Round 15A: /clinica is the B2B clinic-acquisition landing.
+    // x-default → /es/clinica (clinics are Spanish businesses).
+    { path: '/clinica',            priority: 0.9, changeFrequency: 'weekly' },
     { path: '/patient/request',    priority: 0.9, changeFrequency: 'weekly' },
     { path: '/contact',            priority: 0.7, changeFrequency: 'monthly' },
     { path: '/about',              priority: 0.6, changeFrequency: 'monthly' },

@@ -12,6 +12,7 @@ import { RequirementsGrid } from '@/components/pro/RequirementsGrid'
 import { CitiesGrid } from '@/components/pro/CitiesGrid'
 import { ProFAQ } from '@/components/pro/ProFAQ'
 import { ProCTA } from '@/components/pro/ProCTA'
+import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
 const FAQ_COUNT_FOR_JSONLD = 5 // first 5 questions go into FAQPage schema
@@ -141,6 +142,12 @@ export default async function ProPage({
     })),
   }
 
+  // Round 20A-6: BreadcrumbList for richer SERP snippets.
+  const breadcrumbs = breadcrumbsSchema([
+    { name: locale === 'en' ? 'Home' : 'Inicio', url: `${BASE_URL}/${locale}` },
+    { name: locale === 'en' ? 'For doctors' : 'Para médicos', url },
+  ])
+
   return (
     <main className="min-h-screen bg-[#FAFBFC] text-[#0B1220]">
       <script
@@ -150,6 +157,10 @@ export default async function ProPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
 
       <ProNav locale={locale} />

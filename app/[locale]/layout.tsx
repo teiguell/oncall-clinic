@@ -52,12 +52,11 @@ export async function generateMetadata(
     description: isEn
       ? 'Home doctor in Ibiza from 1 hour. General medicine house calls at your hotel, villa or home. Pay by card.'
       : 'Médico a domicilio en Ibiza desde 1 hora. Consultas de medicina general en tu hotel, villa o domicilio. Paga con tarjeta.',
-    keywords: [
-      'médico a domicilio Ibiza', 'home doctor Ibiza', 'doctor on demand Ibiza',
-      'médico urgencias Ibiza', 'pediatra domicilio Ibiza', 'English doctor Ibiza',
-      'IV drip Ibiza', 'doctor at hotel Ibiza', 'médico hotel Ibiza',
-      'teleconsulta Ibiza', 'médico villa Ibiza', 'visita médica domicilio Baleares',
-    ],
+    // Round 20A-2: <meta name="keywords"> removed.
+    // Google has explicitly ignored it since 2009 (Matt Cutts WebmasterCentral
+    // blog post); Bing dropped support 2014. Keeping it has zero SEO value
+    // and the keyword list is now structured into the body content +
+    // page-specific Service / MedicalBusiness JSON-LD blocks instead.
     openGraph: {
       type: 'website',
       locale: isEn ? 'en_GB' : 'es_ES',

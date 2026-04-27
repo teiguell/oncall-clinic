@@ -8,6 +8,7 @@ import { ClinicaHero } from '@/components/clinica/ClinicaHero'
 import { ClinicaTopSections } from '@/components/clinica/ClinicaTopSections'
 import { ClinicaMidSections } from '@/components/clinica/ClinicaMidSections'
 import { ClinicaBottomSections } from '@/components/clinica/ClinicaBottomSections'
+import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
 
@@ -125,6 +126,35 @@ export default async function ClinicaPage({
     })),
   }
 
+  // Round 20A-6: BreadcrumbList — gives search engines a hierarchical
+  // anchor for SERP rich-snippets and reduces orphan-page weight.
+  const breadcrumbs = breadcrumbsSchema([
+    { name: locale === 'en' ? 'Home' : 'Inicio', url: `${BASE_URL}/${locale}` },
+    { name: locale === 'en' ? 'Partner clinics' : 'Clínicas asociadas', url },
+  ])
+
+  // Round 20A-10: MedicalBusiness JSON-LD specific to /clinica
+  // — describes the platform's role as a partner-clinic intermediary.
+  // Reuses the same operational hours + city the patient-facing schema
+  // emits on /[locale] root.
+  const medicalBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalBusiness',
+    name: 'OnCall Clinic — ' + (locale === 'en' ? 'Partner clinics' : 'Clínicas asociadas'),
+    description: tMeta('description'),
+    url,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Ibiza',
+      addressRegion: 'Illes Balears',
+      addressCountry: 'ES',
+    },
+    areaServed: ['Ibiza', 'Mallorca', 'Madrid', 'Barcelona'],
+    medicalSpecialty: 'GeneralPractice',
+    paymentAccepted: ['Credit Card', 'Stripe'],
+    priceRange: '€€',
+  }
+
   return (
     <main className="min-h-screen bg-[#FAFBFC] text-[#0B1220]">
       <script
@@ -134,6 +164,14 @@ export default async function ClinicaPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalBusinessSchema) }}
       />
 
       <ClinicaNav locale={locale} />
