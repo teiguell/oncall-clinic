@@ -898,7 +898,8 @@
     "magicLinkSentTo": "Hemos enviado un enlace de acceso a:",
     "useDifferentEmail": "Usar otro email",
     "continueWith": "Continuar con",
-    "continueWithDoctor": "Continuar con Dr. {name}"
+    "continueWithDoctor": "Continuar con Dr. {name}",
+    "payoutDisclaimer": "ⓘ Tu pago se realiza al confirmar. El médico recibe sus fondos al completar la visita. Si el médico no completa el alta de cobros en 90 días, se te reembolsa el importe completo automáticamente."
   },
   "doctorCard": {
     "verified_comib": "Colegiado verificado",
@@ -972,8 +973,7 @@
     "verifiedDoctor": "Médico colegiado verificado",
     "consultation": "Consulta",
     "platformFee": "Comisión plataforma",
-    "total": "Total",
-    "payoutDisclaimer": "ⓘ Tu pago se realiza al confirmar. El médico recibe sus fondos al completar la visita. Si el médico no completa el alta de cobros en 90 días, se te reembolsa el importe completo automáticamente."
+    "total": "Total"
   },
   "gdpr": {
     "consent": "Al registrarte aceptas nuestros términos y política de privacidad."

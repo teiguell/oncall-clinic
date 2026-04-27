@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service'
 import { SERVICES, type ServiceType } from '@/types'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
-import { getBypassUser } from '@/lib/auth-bypass'
+import { getBypassUser, AUTH_BYPASS } from '@/lib/auth-bypass'
 
 function sanitizeText(value: unknown, maxLength = 500): string {
   if (typeof value !== 'string') return ''
@@ -22,18 +23,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Too many requests', code: 'rate_limited' }, { status: 429 })
   }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // Round 14F-3: keep the cookie-bound client to read the real session
+  // (auth.getUser uses the cookie). For DB writes that hit RLS we
+  // switch to the service-role client below when in bypass mode —
+  // bypass user has no real Supabase session, so RLS would reject the
+  // INSERT (auth.uid() = null does not match any patient_id).
+  const cookieSupabase = await createClient()
+  const { data: { user } } = await cookieSupabase.auth.getUser()
 
   // Round 9 Fix H + Round 11 Fix A — auth bypass for Cowork audit.
   // When NEXT_PUBLIC_AUTH_BYPASS=true the helper returns a synthetic user
-  // matching the role configured by NEXT_PUBLIC_AUTH_BYPASS_ROLE. For
-  // /api/stripe/checkout the patient role is the natural caller, but we
-  // accept any bypass role — the booking endpoint just needs a stable
-  // patient_id + email. See lib/auth-bypass.ts for the rationale.
+  // matching the role configured by NEXT_PUBLIC_AUTH_BYPASS_ROLE.
   const bypassUser = getBypassUser()
   const effectiveUser = user ?? bypassUser
   if (!effectiveUser) return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
+
+  // Round 14F-3: pick the right client for downstream queries.
+  // - Real session: cookieSupabase (RLS via auth.uid() works)
+  // - Bypass: service-role (RLS is bypassed; safe because AUTH_BYPASS is
+  //   only true on Vercel preview/audit envs, never production)
+  const supabase = !user && AUTH_BYPASS && bypassUser
+    ? createServiceRoleClient()
+    : cookieSupabase
 
   // Round 9 Fix C: Art.9 RGPD consent gate REMOVED. OnCall is now a pure
   // intermediary (LSSI-CE) — no special-category data processing happens

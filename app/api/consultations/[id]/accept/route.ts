@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { getBypassUser, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
+import { createServiceRoleClient } from '@/lib/supabase/service'
+import { getBypassUser, AUTH_BYPASS_ROLE, AUTH_BYPASS } from '@/lib/auth-bypass'
 import { sendSms } from '@/lib/notifications/sms'
 import { logNotification, isRateLimited } from '@/lib/notifications/log'
 
@@ -33,10 +34,15 @@ export async function POST(
     return NextResponse.json({ error: 'missing_id', code: 'bad_request' }, { status: 400 })
   }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // Round 14F-3: cookieSupabase to resolve session; switch to service-role
+  // for DB writes when in bypass mode (no real auth.uid() to satisfy RLS).
+  const cookieSupabase = await createClient()
+  const { data: { user } } = await cookieSupabase.auth.getUser()
   const bypass = getBypassUser()
   const userId = user?.id ?? (bypass && AUTH_BYPASS_ROLE === 'doctor' ? bypass.id : null)
+  const supabase = !user && AUTH_BYPASS && bypass
+    ? createServiceRoleClient()
+    : cookieSupabase
   if (!userId) {
     return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
   }

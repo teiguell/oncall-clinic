@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getBypassUser, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
+import { createServiceRoleClient } from '@/lib/supabase/service'
+import { getBypassUser, AUTH_BYPASS_ROLE, AUTH_BYPASS } from '@/lib/auth-bypass'
 import { stripe } from '@/lib/stripe'
 
 export const dynamic = 'force-dynamic'
@@ -29,12 +30,17 @@ export const dynamic = 'force-dynamic'
  * window.location to it.
  */
 export async function POST(request: Request) {
-  const supabase = await createClient()
+  // Round 14F-3: cookieSupabase for session; service-role for the
+  // doctor_profiles UPDATE when running in bypass mode.
+  const cookieSupabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await cookieSupabase.auth.getUser()
   const bypass = getBypassUser()
   const userId = user?.id ?? (bypass && AUTH_BYPASS_ROLE === 'doctor' ? bypass.id : null)
+  const supabase = !user && AUTH_BYPASS && bypass
+    ? createServiceRoleClient()
+    : cookieSupabase
   if (!userId) {
     return NextResponse.json({ error: 'unauthorized', code: 'unauthorized' }, { status: 401 })
   }

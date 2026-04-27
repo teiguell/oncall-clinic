@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service'
+import { getBypassUser, AUTH_BYPASS, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,11 +67,14 @@ export async function POST(request: Request) {
     )
   }
 
-  const supabase = await createClient()
+  // Round 14F-3: cookieSupabase for session; service-role for INSERT in bypass.
+  const cookieSupabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
+  } = await cookieSupabase.auth.getUser()
+  const bypass = getBypassUser()
+  const effectiveUserId = user?.id ?? (bypass && AUTH_BYPASS_ROLE === 'clinic' ? bypass.id : null)
+  if (!effectiveUserId) {
     return NextResponse.json(
       {
         error: 'unauthorized',
@@ -79,12 +84,15 @@ export async function POST(request: Request) {
       { status: 401 },
     )
   }
+  const supabase = !user && AUTH_BYPASS && bypass
+    ? createServiceRoleClient()
+    : cookieSupabase
 
   // Check if this user already has a clinic row.
   const { data: existing } = await supabase
     .from('clinics')
     .select('id, verification_status')
-    .eq('user_id', user.id)
+    .eq('user_id', effectiveUserId)
     .maybeSingle()
   if (existing) {
     return NextResponse.json(
@@ -102,7 +110,7 @@ export async function POST(request: Request) {
   const { data: clinic, error: insertErr } = await supabase
     .from('clinics')
     .insert({
-      user_id: user.id,
+      user_id: effectiveUserId,
       name: body.name!.trim(),
       legal_name: body.legalName!.trim(),
       cif: body.cif!.trim().toUpperCase(),
@@ -139,7 +147,7 @@ export async function POST(request: Request) {
   await supabase
     .from('profiles')
     .update({ role: 'clinic' })
-    .eq('id', user.id)
+    .eq('id', effectiveUserId)
 
   return NextResponse.json({ ok: true, clinicId: clinic.id, status: 'pending' })
 }
