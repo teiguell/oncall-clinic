@@ -96,6 +96,7 @@ Sistema híbrido:
 Bash(git *), Bash(npm *), Bash(curl *), Read, Write, Edit, Grep, Glob
 
 ## Versión
-Última actualización: 2026-04-26 (post-Round-9). Owner: Tei (Cowork Director).
+Última actualización: 2026-04-26 (post-Round-11). Owner: Tei (Cowork Director).
 Pivot vigente: intermediario puro (R7). Booking flow: 3 steps (Tipo+Dirección / Médico / Confirmar+Pagar).
-Auth bypass: `lib/auth-bypass.ts` + `components/auth-bypass-banner.tsx` — TEMPORAL alpha audit, env var `NEXT_PUBLIC_AUTH_BYPASS=true`. A eliminar tras alpha launch.
+Auth bypass: `lib/auth-bypass.ts` + `components/auth-bypass-banner.tsx` — TEMPORAL alpha audit, env var `NEXT_PUBLIC_AUTH_BYPASS=true` + `NEXT_PUBLIC_AUTH_BYPASS_ROLE=patient|doctor|admin`. A eliminar tras alpha launch.
+Notifications: `lib/notifications/*` (dispatcher + Resend email + SMS stub). Activación post-onboarding via `/api/doctor/onboarding-complete` + `/api/auth/confirm-doctor` + `/api/notifications/sms-otp/verify`. Migration `021_doctor_profiles_activation.sql` aporta las columnas (activation_status, email_verified_at, phone_verified_at, activation_email_token, phone_otp_code, sms_notifications_enabled).

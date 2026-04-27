@@ -4052,3 +4052,138 @@ MODIFIED:
 - **Director** (P0-C infra): confirmar Supabase SMTP + URL Configuration + Google Cloud OAuth redirect URIs. Round 9 Fix F surface ahora cualquier fallo del callback con detalle.
 - **Director** (Fix H activación): tras confirmar login real funciona, setear `NEXT_PUBLIC_AUTH_BYPASS=true` en Vercel para audit Cowork.
 - **Sprint dedicado posterior**: añadir columna `consultations.phone_at_booking` para persistir el teléfono que ahora va solo en Stripe metadata.
+
+---
+
+## Round 11 — Pro flow completo (bypass doctor + notifications + activation + dashboard polling + landing polish) — [2026-04-26]
+
+> Director Tei pidió cubrir el flow profesional **completo**: landing /pro → registro → activación email/SMS → dashboard → primera consulta. 7 fixes (A-G) en 6 commits temáticos.
+
+### Commits
+
+| Fix | SHA | Scope |
+|---|---|---|
+| A | `66ace71` | Role-aware auth bypass (patient \| doctor \| admin) |
+| B | `c7c0328` | Notifications dispatcher (Resend email + SMS stub + 2 API routes) |
+| C | `fc3d1c6` | Activation flow + migration 021 + email confirm route |
+| D | `2d6125d` | Doctor dashboard 30s polling + SMS pref toggle |
+| F+G | `c5a9119` | /pro visual upgrade + copy polish |
+
+### Verificación R2 + R3 post-deploy
+
+```
+$ git rev-parse HEAD
+c5a9119b24bec2be4e5e511a2f45c875a3ce837d
+
+$ curl -s https://oncall.clinic/api/health
+{ "ok": true, ..., "commit": "c5a9119b24bec2be4e5e511a2f45c875a3ce837d" }
+✓ /api/health matches local HEAD
+
+$ curl -s https://oncall.clinic/es/pro | grep -oE 'pro/page-[a-f0-9]{16}\.js' | head -1
+pro/page-257c9adee681e5cd.js (NEW — Round 10 baseline was page-792e40528ff9282d.js)
+```
+
+### Live audit (Playwright + Chrome real, mobile UA, anonymous)
+
+| Check | Resultado |
+|---|---|
+| `/es/pro` HTTP 200 | ✓ |
+| Hero: "Reclutando médicos en Ibiza" badge | ✓ |
+| Hero trust line "⭐ 50+ médicos" | ✓ |
+| CTA "Empezar registro · 5 min" | ✓ |
+| Stats nuevas (850+, €132, 94%, < 1 sem) | ✓ |
+| Income calculator slider visible (default 12) | ✓ |
+| Cities: Ibiza + Mallorca/Madrid/Barcelona Q3-Q4 2026 + 2027 | ✓ |
+| FAQ 8 questions, 3 open by default | ✓ |
+| Sticky mobile CTA al fondo | ✓ |
+| AUTH BYPASS banner visible (con AUTH_BYPASS=true) | ✓ |
+| Console errors | **0** |
+
+### Fix-by-fix detail
+
+#### Fix A — Role-aware bypass
+
+`lib/auth-bypass.ts` ahora lee `NEXT_PUBLIC_AUTH_BYPASS_ROLE`:
+- Default `'patient'` → comportamiento Round 9 mantenido.
+- `'doctor'` → demo-doctor `628856ea-4c70-4bfb-b35d-dfd56d95f951` (Director-seedeado: COMIB 07/12345, RC AXA Demo €600k, verification_status=verified, is_available=true, consultation_price=15000 cents, lat/lng Ibiza centro).
+- `'admin'` → placeholder (no seed; alpha no audita admin).
+
+Banner ahora dice `🔓 AUTH BYPASS ACTIVO (DOCTOR) — sesión simulada como demo-doctor`.
+
+Server gates de `/[locale]/{patient,doctor}/layout.tsx` saltan el check de auth+role cuando bypass+role coinciden. `/api/stripe/checkout` migra de inline UUID a `getBypassUser()`. `/doctor/dashboard` fetchData usa `BYPASS_USER_ID` si no hay sesión real y bypass=doctor.
+
+#### Fix B — Sistema notifications
+
+Stack vendor-agnóstico:
+- **Email**: Resend via REST (`fetch`). No SDK. `RESEND_API_KEY` opcional — sin él, dispatcher loguea warn y devuelve `skipped:true`.
+- **SMS**: stub mode por default (`SMS_PROVIDER=stub`) — loguea body, devuelve `ok:true,skipped:true` para no romper flow audit. Cuando Director set `SMS_PROVIDER=twilio` + creds, la ruta wired a Twilio REST se activa sin más cambios. Twilio cuesta €0,05/SMS — alternative recomendable: WhatsApp Business via 360dialog (~€0,005/msg).
+- **Templates** ES/EN: `doctor.welcome`, `doctor.activation_email`, `doctor.activation_sms`, `doctor.onboarding_complete`, `doctor.consultation_new`, `patient.booking_confirmed`, `admin.doctor_signup`.
+
+API routes:
+- `POST /api/notifications/send`: internal-only, gated por header `x-internal-secret = INTERNAL_NOTIFICATIONS_SECRET`.
+- `POST /api/notifications/sms-otp/verify`: bypass-aware. En `TEST_MODE=true` el código `111111` se acepta (audit unblock).
+
+#### Fix C — Activación + migration 021
+
+Migration **021** (renumerada — el slot 016 estaba ocupado): añade a `doctor_profiles` las columnas `activation_status`, `email_verified_at`, `phone_verified_at`, `activation_email_token` (+ expires), `phone_otp_code` (+ expires), `sms_notifications_enabled`. Default `activation_status='active'` para no romper rows existentes ni el seed demo-doctor.
+
+Flow activación:
+1. Step 4 onboarding (Contract) → `POST /api/doctor/onboarding-complete` → genera token sha256(randomBytes(16)) + expira 24h, set `activation_status='pending_email'`, dispara `notify(doctor.welcome)` + `notify(doctor.activation_email)` + `notify(admin.doctor_signup)` cuando `ADMIN_NOTIFY_EMAIL` set.
+2. Doctor click email link → `GET /api/auth/confirm-doctor?token=...&locale=es` → marca `email_verified_at`, genera OTP 6 dígitos + 10 min, set `pending_sms`, `notify(doctor.activation_sms)`.
+3. Doctor mete OTP en dashboard → `POST /api/notifications/sms-otp/verify` → marca `phone_verified_at`, set `pending_admin_review`.
+4. Admin approve via `/admin/verifications` → `activation_status='active'` → doctor aparece en `/api/doctors?near=...`.
+
+Bypass-aware en cada endpoint para que Cowork pueda walk-through el flow.
+
+#### Fix D — Polling + SMS pref
+
+`/doctor/dashboard`: `setInterval(fetchData, 30s)` además del Realtime channel. Si la WebSocket cae (mobile background, captive portal), el doctor sigue viendo nuevas consultas en <30s. Web Push es post-alpha.
+
+`/doctor/profile`: nueva tarjeta "Notificaciones" con switch emerald que toggle `doctor_profiles.sms_notifications_enabled` (default `true`). Optimistic update con revert en error. Email siempre se envía.
+
+#### Fix F — Pro landing visual upgrade
+
+Cambios resumidos (detalle en commit message `c5a9119`):
+- ProHero: gradient `slate-50 → white → amber-50/30`. CTA primario gradient amber→orange. Trust line con social proof.
+- StatsBar: 4 stats nuevas (850+ visitas/mes, €132 neto medio, 94% retención, <1 sem activación).
+- IncomeCalculator: client component con slider 1-50 visitas, output dinámico Intl-formatted, default 12 visitas (avg Ibiza mid-season). aria-live para screen readers.
+- RegistrationSteps: vertical mobile, 5-col horizontal md+ con connector line.
+- CitiesGrid: 4 cities (Ibiza live + Mallorca Q3 / Madrid + Barcelona Q4 2026) + tile "+6 ciudades 2027". Más honesto que prometer 10 cities sin plan.
+- ProFAQ: 8 questions, primeras 3 abiertas por default vía `<details open>` nativo.
+- ProCTA: section gradient amber-to-orange + sticky mobile CTA bar.
+
+#### Fix G — Copy polish
+
+Audit previo: 0 ocurrencias de "telemedicina", "datos médicos", "datos clínicos", "revolucionario", "innovador". Round 10 ya tenía el copy R7-clean.
+
+Cambios menores: hero badge → "Reclutando médicos en Ibiza", CTA → "Empezar registro · 5 min", nueva FAQ 8 sobre schedule blocking, cities title → "Dónde estamos lanzando".
+
+### Env vars nuevas requeridas (Director añade en Vercel)
+
+| Var | Required | Default | Notes |
+|---|---|---|---|
+| `NEXT_PUBLIC_AUTH_BYPASS_ROLE` | optional | `'patient'` | `'doctor'` para audit Round 12 |
+| `RESEND_API_KEY` | recommended | unset | sin él emails se loguean pero no se envían |
+| `RESEND_FROM` | optional | `OnCall Clinic <noreply@oncall.clinic>` | |
+| `INTERNAL_NOTIFICATIONS_SECRET` | required for `/api/notifications/send` | unset | bloquea endpoint si no se setea |
+| `SMS_PROVIDER` | optional | `'stub'` | `'twilio'` activa SMS real |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | only for `SMS_PROVIDER=twilio` | unset | |
+| `ADMIN_NOTIFY_EMAIL` | optional | unset | recipient para `admin.doctor_signup` |
+
+### Migration aplicación
+
+Migration `021_doctor_profiles_activation.sql` debe aplicarse vía Supabase MCP (`apply_migration`) o `supabase db push` antes de que los endpoints `/api/doctor/onboarding-complete` + `/api/auth/confirm-doctor` + `/api/notifications/sms-otp/verify` puedan escribir. El flow degrada gracefully si la migration no está aplicada (los endpoints devuelven 500 con "column does not exist" en logs Vercel).
+
+### Pendiente para Director
+
+1. **Apply migration 021** vía Supabase MCP / db push.
+2. **Vercel env vars**: setear `NEXT_PUBLIC_AUTH_BYPASS_ROLE=doctor` para audit Round 12. Opcionalmente `RESEND_API_KEY` + `INTERNAL_NOTIFICATIONS_SECRET` + `ADMIN_NOTIFY_EMAIL` si querés ya enviar emails de activación reales.
+3. **SMS provider decisión**: stub funciona para alpha. Cuando quieras SMS real: `SMS_PROVIDER=twilio` + creds. WhatsApp via 360dialog tiene mejor pricing — feliz de adaptar el adapter si decidís.
+
+### Sprint dedicado post-alpha
+
+- Web Push real con `serviceWorker.pushManager.subscribe`.
+- Honor `sms_notifications_enabled` en el dispatcher cuando `kind=doctor.consultation_new` (hoy el flag es solo UI; SMS está en stub).
+- Hash + salt el `phone_otp_code` (alpha lo guarda plain — comentado en migration).
+- Borrado completo de `lib/auth-bypass.ts` + banner + imports una vez cerrado audit.
+- Asset: iPhone mockup en /pro hero (lado derecho desktop) cuando Claude Design v2 lo entregue.
