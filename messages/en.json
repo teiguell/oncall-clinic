@@ -972,7 +972,8 @@
     "verifiedDoctor": "Verified Licensed Doctor",
     "consultation": "Consultation",
     "platformFee": "Platform fee",
-    "total": "Total"
+    "total": "Total",
+    "payoutDisclaimer": "ⓘ Payment is captured when you confirm. The doctor receives their share once the visit is completed. If they don't set up payouts within 90 days, you receive a full automatic refund."
   },
   "gdpr": {
     "consent": "By signing up you agree to our terms and privacy policy."
@@ -2510,6 +2511,13 @@
       "save": "Save changes",
       "saved": "Saved",
       "noClinic": "We can't find your clinic. If you just registered, wait 24-48 h for verification."
+    }
+  },
+  "doctorDashboard": {
+    "stripeBanner": {
+      "title": "You have {amount} waiting on your payout account.",
+      "deadline": "Set up Stripe Connect before {date} to receive it. Otherwise, the patient is refunded.",
+      "cta": "Set up payouts (5 min)"
     }
   }
 }

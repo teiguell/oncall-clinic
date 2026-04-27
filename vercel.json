@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/purge-chat",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/refund-stale-payouts",
+      "schedule": "0 2 * * *"
     }
   ]
 }

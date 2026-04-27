@@ -972,7 +972,8 @@
     "verifiedDoctor": "Médico colegiado verificado",
     "consultation": "Consulta",
     "platformFee": "Comisión plataforma",
-    "total": "Total"
+    "total": "Total",
+    "payoutDisclaimer": "ⓘ Tu pago se realiza al confirmar. El médico recibe sus fondos al completar la visita. Si el médico no completa el alta de cobros en 90 días, se te reembolsa el importe completo automáticamente."
   },
   "gdpr": {
     "consent": "Al registrarte aceptas nuestros términos y política de privacidad."
@@ -2510,6 +2511,13 @@
       "save": "Guardar cambios",
       "saved": "Guardado",
       "noClinic": "No encontramos tu clínica. Si acabas de registrarte, espera 24-48 h a la verificación."
+    }
+  },
+  "doctorDashboard": {
+    "stripeBanner": {
+      "title": "Tienes {amount} esperando tu cuenta de cobros.",
+      "deadline": "Configura Stripe Connect antes del {date} para recibirlos. Sin alta a tiempo, se reembolsan al paciente.",
+      "cta": "Configurar cobros (5 min)"
     }
   }
 }

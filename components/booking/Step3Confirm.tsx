@@ -291,6 +291,16 @@ export function Step3Confirm({
             </span>
           </label>
 
+          {/* Round 18A-8 — patient disclaimer about deferred-payout flow.
+              The new model: patient pays at confirm; doctor receives funds
+              after completing the visit. If the doctor does not configure
+              their payout method within 90 days, the patient receives a
+              full refund. Surfaced here in plain language so there are no
+              surprises if they later see a refund. */}
+          <p className="text-xs text-slate-500 leading-relaxed mt-4 mb-2">
+            {tBooking('payoutDisclaimer')}
+          </p>
+
           <BookingFaq />
 
           {/* Green pay button — emerald prototype palette */}

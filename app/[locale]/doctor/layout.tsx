@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { BottomTabBarWrapper } from '@/components/shared/bottom-tab-bar-wrapper'
 import { AUTH_BYPASS, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
+import { StripeSetupBanner } from '@/components/doctor/StripeSetupBanner'
 
 /**
  * DoctorLayout — server-side gate for every route under /[locale]/doctor/*.
@@ -59,9 +60,20 @@ export default async function DoctorLayout({
     }
   }
 
+  // Round 18A-5: Stripe setup banner at top of /doctor/dashboard.
+  // Pathname gate keeps it dashboard-only (avoid redundant DB hits on
+  // /doctor/consultations etc.). Banner returns null when the doctor
+  // is already onboarded or has no pending payouts.
+  const isDashboard = pathname === `/${locale}/doctor/dashboard`
+
   // Round 7 M7: BottomTabBar mobile nav under all /doctor/* routes.
   return (
     <>
+      {isDashboard && (
+        <div className="max-w-[1200px] mx-auto px-4 pt-4">
+          <StripeSetupBanner locale={locale} />
+        </div>
+      )}
       {children}
       <BottomTabBarWrapper />
     </>

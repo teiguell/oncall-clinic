@@ -227,11 +227,78 @@ async function handleSessionFailed(supabase: SupabaseClient, session: Stripe.Che
 
 async function handleAccountUpdated(supabase: SupabaseClient, account: Stripe.Account) {
   const isOnboarded = account.charges_enabled && account.payouts_enabled
+  const role = account.metadata?.role ?? 'doctor'
 
-  await supabase
+  // Round 18A-4: route by role.
+  // - 'clinic' → flip clinics.stripe_onboarding_complete
+  // - 'doctor' (default) → flip doctor_profiles.stripe_onboarded_at
+  //   AND retroactively transfer all pending_payouts rows.
+  if (role === 'clinic') {
+    await supabase
+      .from('clinics')
+      .update({
+        stripe_onboarding_complete: isOnboarded,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('stripe_account_id', account.id)
+    return
+  }
+
+  // Doctor branch — keep the legacy stripe_onboarded boolean for
+  // backward compat AND set the new stripe_onboarded_at timestamp
+  // used by /api/consultations/[id]/complete (Path A vs B routing).
+  const updates: Record<string, unknown> = { stripe_onboarded: isOnboarded }
+  if (isOnboarded) {
+    updates.stripe_onboarded_at = new Date().toISOString()
+  }
+  const { data: doctor } = await supabase
     .from('doctor_profiles')
-    .update({
-      stripe_onboarded: isOnboarded,
-    })
+    .update(updates)
     .eq('stripe_account_id', account.id)
+    .select('id, stripe_account_id')
+    .maybeSingle()
+
+  if (!isOnboarded || !doctor?.id) return
+
+  // Round 18A-4: retroactive transfer of pending_payouts.
+  // For each row in 'pending_doctor_setup', call stripe.transfers.create
+  // with destination=doctor.stripe_account_id, then flip the row to
+  // 'transferred' (with stripe_transfer_id + transferred_at). Failures
+  // mark the row as 'failed' for manual review.
+  const { data: pendingRows } = await supabase
+    .from('pending_payouts')
+    .select('id, net_cents, consultation_id')
+    .eq('doctor_id', doctor.id)
+    .eq('status', 'pending_doctor_setup')
+
+  if (!pendingRows?.length) return
+
+  for (const p of pendingRows as Array<{ id: string; net_cents: number; consultation_id: string }>) {
+    try {
+      const transfer = await stripe.transfers.create({
+        amount: p.net_cents,
+        currency: 'eur',
+        destination: account.id,
+        transfer_group: `consultation_${p.consultation_id}`,
+        metadata: {
+          payout_id: p.id,
+          retroactive: 'true',
+        },
+      })
+      await supabase
+        .from('pending_payouts')
+        .update({
+          status: 'transferred',
+          transferred_at: new Date().toISOString(),
+          stripe_transfer_id: transfer.id,
+        })
+        .eq('id', p.id)
+    } catch (e) {
+      console.error('[webhook] retroactive transfer failed for payout', p.id, e)
+      await supabase
+        .from('pending_payouts')
+        .update({ status: 'failed' })
+        .eq('id', p.id)
+    }
+  }
 }

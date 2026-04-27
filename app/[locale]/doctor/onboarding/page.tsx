@@ -274,7 +274,12 @@ export default function DoctorRegisterPage() {
       if (retaDocUrl) updateData.reta_document_url = retaDocUrl
 
       await supabase.from('doctor_profiles').update(updateData).eq('id', doctorProfileId)
-      setStep(2)
+      // Round 18A-2: skip the Stripe Connect step (was step=2). The new
+      // Stripe-deferred design jumps straight to Contract (step=3). The
+      // Stripe step markup is left in place as dead UI; Round 18B will
+      // clean it up. The dashboard StripeSetupBanner now nudges the
+      // doctor to onboard Stripe post-first-visit.
+      setStep(3)
     } catch {
       toast({ title: t('onboarding.error'), variant: 'destructive' })
     }
@@ -736,7 +741,9 @@ export default function DoctorRegisterPage() {
                 </label>
 
                 <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setStep(2)} className="flex-1" size="lg">
+                  <Button variant="outline" onClick={() => setStep(1)} className="flex-1" size="lg">
+                    {/* Round 18A-2: was setStep(2) (back to Stripe).
+                        Stripe step is skipped now; back goes to Docs (1). */}
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     {t('onboarding.back')}
                   </Button>
