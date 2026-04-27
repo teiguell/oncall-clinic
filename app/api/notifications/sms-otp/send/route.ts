@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { getBypassUser, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
+import { getBypassUser, AUTH_BYPASS_ROLE, AUTH_BYPASS } from '@/lib/auth-bypass'
 import { sendSms } from '@/lib/notifications/sms'
 import { logNotification, isRateLimited } from '@/lib/notifications/log'
 import { generateOtp } from '@/lib/notifications'
@@ -21,13 +21,22 @@ export const dynamic = 'force-dynamic'
  * Rate limit: 60s/recipient hard floor (notifications_log enforced).
  *
  * Body:
- *   {} (the phone number is read from `profiles.phone` for the user;
- *       a future variant could accept an explicit `phone` for
- *       resend-to-different-number flows).
+ *   {} — phone is read from `profiles.phone` for the user.
+ *   { phone: '+34...' } — Round 14F-2: when AUTH_BYPASS is on, the
+ *     endpoint accepts an explicit `phone` in the body so Cowork can
+ *     smoke-test without a real auth.users row on file. In production
+ *     (AUTH_BYPASS off) the body.phone is IGNORED — security stays
+ *     intact: only the actual signed-in user can target their own
+ *     phone.
  *
  * Returns: { ok, status: 'sent' | 'rate_limited' | 'failed', expiresAt? }
  */
 export async function POST(request: Request) {
+  // Round 14F-2: optionally read body.phone for bypass-mode smoke testing.
+  const reqBody: { phone?: string } = AUTH_BYPASS
+    ? await request.json().catch(() => ({} as { phone?: string }))
+    : ({} as { phone?: string })
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const bypass = getBypassUser()
@@ -42,7 +51,15 @@ export async function POST(request: Request) {
     supabase.from('doctor_profiles').select('id, activation_status').eq('user_id', userId).maybeSingle(),
   ])
 
-  const phone = profileRes.data?.phone
+  // Round 14F-2: phone resolution priority:
+  //   1. body.phone (only when AUTH_BYPASS=true — production never trusts body)
+  //   2. profile.phone from DB
+  // The bypass body.phone path lets Cowork hit this endpoint with any
+  // verified Twilio trial number without seeding the DB row first.
+  const phoneFromBody = AUTH_BYPASS && typeof reqBody.phone === 'string'
+    ? reqBody.phone.trim() || null
+    : null
+  const phone = phoneFromBody ?? profileRes.data?.phone
   const doc = doctorRes.data
 
   if (!phone) {
