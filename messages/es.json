@@ -1440,6 +1440,196 @@
     "mandatoryError": "Debes aceptar los consentimientos obligatorios para continuar.",
     "saveError": "No se pudo guardar tu consentimiento. Inténtalo de nuevo."
   },
+  "landingV3": {
+    "nav": {
+      "howItWorks": "Cómo funciona",
+      "service": "Servicio",
+      "hotels": "Para hoteles",
+      "faq": "FAQ",
+      "ctaPrimary": "Pedir médico"
+    },
+    "hero": {
+      "eyebrow": "Disponible ahora en Ibiza",
+      "title1": "Médico a domicilio",
+      "title2": "en Ibiza.",
+      "subtitle": "Médico colegiado en tu hotel, villa o domicilio. Desde {hours}.",
+      "subtitleHours": "1 hora",
+      "ctaPrimary": "Pedir médico ahora",
+      "phoneCta": "+34 871 18 34 15",
+      "trustRating": "4.8/5",
+      "trustComib": "Médicos colegiados COMIB",
+      "trustStripe": "Pago seguro Stripe",
+      "trust247": "24/7",
+      "floatingDoctor": "Dr. M. Ferrer",
+      "floatingEta": "llega en 38 min",
+      "floatingNearby": "3 médicos cerca",
+      "phone": {
+        "appHeaderLocale": "ES",
+        "addressTitle": "Hotel Riomar, Santa Eulària",
+        "addressDetail": "Habitación 214 · Ibiza",
+        "chipsLabel": "Tipo de visita",
+        "chipUrgent": "Urgente",
+        "chipScheduled": "Programada",
+        "chipToday": "Hoy",
+        "chipTomorrow": "Mañana",
+        "etaLabel": "Llegada estimada",
+        "etaValue": "~ 55 min",
+        "priceLabel": "Total",
+        "priceValue": "129 €",
+        "submit": "Confirmar y pagar"
+      }
+    },
+    "how": {
+      "eyebrow": "Cómo funciona",
+      "title": "Tres pasos. Sin papeleo.",
+      "subtitle": "De la app al diagnóstico en menos de 90 minutos.",
+      "steps": [
+        {
+          "n": "01",
+          "title": "Indica dónde estás",
+          "body": "Hotel, villa, barco o domicilio. Pin en mapa o dirección. Soporte multilingüe ES · EN · DE · FR."
+        },
+        {
+          "n": "02",
+          "title": "Recibe al médico",
+          "body": "Médico colegiado COMIB en tu puerta en 1 hora media. Examen completo, diagnóstico y tratamiento."
+        },
+        {
+          "n": "03",
+          "title": "Receta y seguimiento",
+          "body": "Receta digital, justificante para el seguro y seguimiento por chat. Sin colas. Sin papeleo."
+        }
+      ]
+    },
+    "includes": {
+      "eyebrow": "Servicio",
+      "title": "Qué incluye nuestro servicio",
+      "subtitle": "Transparencia total. Esto sí, esto no.",
+      "yesTitle": "Qué incluye",
+      "noTitle": "Qué NO incluye",
+      "yesItems": [
+        "Visita médica completa a domicilio",
+        "Diagnóstico y tratamiento",
+        "Receta digital al instante",
+        "Justificante de asistencia para tu seguro",
+        "Seguimiento por chat 24h post-visita"
+      ],
+      "noItems": [
+        "Emergencias vitales (infarto, ictus, traumatismos graves)",
+        "Pruebas de imagen (TAC, resonancia)",
+        "Cirugía o ingreso hospitalario"
+      ],
+      "emergencyTitle": "Emergencia vital",
+      "emergencyBody": "llama al {phone} inmediatamente.",
+      "emergencyPhone": "112"
+    },
+    "testimonials": {
+      "eyebrow": "Confianza",
+      "title": "Turistas reales. Vacaciones salvadas.",
+      "subtitle": "4.8/5 sobre 1.247 valoraciones verificadas en 2025.",
+      "ratingShort": "4.8 · 1.247 reseñas",
+      "items": [
+        {
+          "flag": "🇬🇧",
+          "name": "Sarah & Tom",
+          "where": "Hotel Aguas de Ibiza · Santa Eulària",
+          "quote": "Our 4-year-old spiked a fever at 11 pm. Doctor at the hotel in 50 minutes. Calm, kind, spoke perfect English."
+        },
+        {
+          "flag": "🇩🇪",
+          "name": "Markus K.",
+          "where": "Villa privada · San José",
+          "quote": "Booking auf Deutsch, Rezept digital, Rechnung für die Versicherung sofort per Mail. Hervorragend."
+        },
+        {
+          "flag": "🇫🇷",
+          "name": "Camille L.",
+          "where": "Ushuaïa Beach Hotel",
+          "quote": "Otite de mon fils un dimanche soir. Médecin sur place en 45 minutes. Service vraiment rassurant."
+        },
+        {
+          "flag": "🇬🇧",
+          "name": "James R.",
+          "where": "Yate · Marina Botafoch",
+          "quote": "Doc came to the boat. Stomach bug sorted, prescription delivered to pharmacy. Saved our trip."
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "Dudas frecuentes",
+      "title": "Lo que preguntan los huéspedes",
+      "subtitle": "Si no encuentras tu respuesta, escríbenos por WhatsApp 24/7.",
+      "items": [
+        {
+          "q": "¿Cuánto tarda en llegar el médico?",
+          "a": "Tiempo medio en Ibiza: 55 minutos. Garantizamos un máximo de 90 minutos en zona urbana (Ibiza ciudad, Santa Eulària, San Antonio, San José). En zonas rurales puede ser algo más."
+        },
+        {
+          "q": "¿Cuánto cuesta la visita?",
+          "a": "Tarifa estándar 129 € de día (08:00–22:00) y 169 € en horario nocturno o festivos. Incluye visita, diagnóstico, tratamiento básico, receta digital y justificante para el seguro. Pago seguro con Stripe — Visa, Mastercard, Apple Pay y Google Pay."
+        },
+        {
+          "q": "¿En qué idiomas atienden?",
+          "a": "Todos nuestros médicos hablan español e inglés. La mayoría también alemán o francés. Indica tu idioma al reservar y te asignaremos un médico compatible."
+        },
+        {
+          "q": "¿Funciona con mi seguro de viaje?",
+          "a": "Sí. Tras la visita recibirás por email un justificante médico detallado y la factura, válidos para reembolso con la mayoría de seguros de viaje (Allianz, AXA, ERV, Mapfre, etc.)."
+        },
+        {
+          "q": "¿Atienden a niños y bebés?",
+          "a": "Sí. Nuestros médicos están entrenados en pediatría general — fiebre, otitis, gastroenteritis, erupciones. Para urgencias pediátricas graves, llama al 112."
+        },
+        {
+          "q": "¿Cubren toda la isla?",
+          "a": "Sí, toda Ibiza: ciudad, Santa Eulària, San Antonio, San José, Sant Joan, Es Canar, Cala Llonga, Playa d'en Bossa, etc. También villas, barcos y yates en marinas."
+        },
+        {
+          "q": "¿Qué pasa si necesito hospital?",
+          "a": "Si tu caso requiere ingreso, pruebas de imagen o cirugía, el médico te derivará al hospital adecuado (Can Misses, Policlínica Nuestra Señora del Rosario) y coordinará tu traslado."
+        },
+        {
+          "q": "¿Es discreto?",
+          "a": "Sí. Llegamos sin uniforme visible ni vehículo rotulado. Total privacidad — algo que valoran especialmente nuestros huéspedes en villas y yates."
+        }
+      ]
+    },
+    "finalCta": {
+      "badge": "Ahora mismo · 3 médicos disponibles en Ibiza",
+      "title1": "Disfruta de Ibiza.",
+      "title2": "Nosotros del resto.",
+      "subtitle": "Médico colegiado en tu hotel o villa. Desde 1 hora. 24/7.",
+      "ctaPrimary": "Pedir médico ahora",
+      "phoneCta": "+34 871 18 34 15",
+      "trustComib": "Colegiados COMIB",
+      "trustStripe": "Stripe · pago seguro",
+      "trustRating": "4.8 / 1.247 reseñas",
+      "trust247": "24/7 todo el año"
+    },
+    "footer": {
+      "tagline": "Médico a domicilio en Ibiza. Servicio privado, médicos colegiados COMIB. Disponible 24/7 todo el año.",
+      "service": "Servicio",
+      "company": "Empresa",
+      "legal": "Legal",
+      "links": {
+        "howItWorks": "Cómo funciona",
+        "pricing": "Tarifas",
+        "hotels": "Para hoteles",
+        "insurance": "Para seguros",
+        "about": "Sobre nosotros",
+        "contact": "Contacto",
+        "press": "Prensa",
+        "join": "Trabaja con nosotros",
+        "noticeLegal": "Aviso legal",
+        "privacy": "Privacidad",
+        "cookies": "Cookies",
+        "terms": "Condiciones"
+      },
+      "company_line": "© {year} Ibiza Care S.L. · CIF B19973569 · Ibiza, Illes Balears",
+      "emergency": "Emergencia 112",
+      "languages": "ES · EN · DE · FR"
+    }
+  },
   "pro": {
     "meta": {
       "title": "Únete a OnCall Clinic como Médico | Gana a tu Ritmo",
