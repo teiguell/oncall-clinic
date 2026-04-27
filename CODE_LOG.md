@@ -4274,3 +4274,94 @@ MODIFIED:
 - **Testimonial reviews + "4.8 / 1.247 reseñas"**: directional numbers per design source. Replace with real review-system aggregates when production review pipeline lands.
 - **iPhone mock asset**: rendered fully en CSS/SVG (no PNG/screenshot). Pin pulse uses existing `live-dot` keyframes. The design's `step` cycle (setInterval pin animation) was dropped — cosmetic only, no info loss.
 - Old `landing.*` namespace (Round 7 keys) left intact en messages files — unused by v3 but harmless.
+
+---
+
+## Round 13 — /pro Landing v3 (Claude Design B2B handoff) — [2026-04-27]
+
+> Claude Design bundle hash `VU24HxJPWZReIXHasZuw8A`. Replaces the Round 11 `/pro` layout with the new B2B design (Stripe Pro / Doctolib Pro / Uber for Business style): doctor-app iPhone mock with "new consultation" notification, count-up stats on scroll, dual-slider income calculator, 4-step horizontal progress timeline, tag-style requirements (DOC/RC/RETA/MOV/8h/ES), 5-card cities grid (incl. "+6 ciudades 2027"), 8-question +/× FAQ, dark-navy gradient final CTA + sticky mobile bar.
+
+### Commit
+
+```
+d9d81b0  feat(round13): /pro landing v3 (Claude Design B2B handoff)
+```
+
+### Verificación R2 + R3 post-deploy
+
+- `/api/health.commit` = `d9d81b0655a0f94a79e67a58e8f0265129e733af` ✓ matches local HEAD
+- New `/pro` page chunk: `app/[locale]/pro/page-6dc0b067cc013bb8.js`
+- Build: `/[locale]/pro` SSG (●) — 4.69 kB / 118 kB First Load JS (was 3.21 kB / 116 kB Round 11; small bump from dual-slider state)
+
+### Live audit (Playwright + system Chrome desktop 1440×900, both locales)
+
+| Section | Result |
+|---|---|
+| Hero badge "NUEVO · Activo en Ibiza · Mallorca Q3 2026" | ✓ |
+| Hero H1 with gradient on "Tus pacientes." | ✓ |
+| CTA "Empezar registro · 5 min" + "Calcular mis ingresos" | ✓ |
+| Floating "Pago recibido +€135 · Stripe" badge (desktop) | ✓ |
+| iPhone mock — "Hotel Ushuaïa €150 · 12 min" notif | ✓ |
+| StatsBar count-up after scroll: 850+ · €132 · 94 % · <7 días | ✓ |
+| IncomeCalculator: 2 sliders + breakdown (gross / Stripe €2.50 / OnCall 10% / net) + footnote (IRPF / RETA) | ✓ |
+| RegistrationSteps: 4 steps + step-4 dashed "goal" | ✓ |
+| RequirementsGrid: 6 tag-style cards (DOC/RC/RETA/MOV/8h/ES) | 6/6 |
+| CitiesGrid: 5 cards inc "+6 ciudades 2027" | ✓ |
+| ProFAQ: 8 details, 3 [open] by default, +/× rotation toggle | ✓ |
+| Final CTA "Tu primera visita esta semana" dark navy gradient | ✓ |
+| Sticky mobile-only registration bar | ✓ (hidden on desktop) |
+| Console errors | **0** |
+
+### R7 compliance
+
+- iPhone mock patient context: changed from clinical "Adulto, 34a · Fiebre + dolor abdominal" (design source) → **"Adulto · Visita programada"** (logística). OnCall Clinic does not collect or display symptom data per Round 9 R7.
+- All FAQ answers maintain the intermediary positioning (Art. 9.2.h GDPR for the doctor; OnCall is technology intermediary).
+
+### Section composition (Round 13 order)
+
+```
+ProNav            (sticky, client — mobile menu)
+ProHero           (server, 2-col + iPhone mock + Pago badge)
+StatsBar          (client — count-up via IntersectionObserver)
+IncomeCalculator  (client — dual slider + dark output card)
+RegistrationSteps (server — 4 steps + horizontal progress line desktop)
+RequirementsGrid  (server — 3-col + tag-style icons)
+CitiesGrid        (server — 5 cards)
+ProFAQ            (server — native <details> + CSS rotate(45deg))
+ProCTA            (server — dark gradient card + sticky mobile bar)
+Footer            (minimal, server — v3 spec)
+```
+
+### Removed in v3
+
+- **BenefitsGrid**: section dropped from page composition (file `components/pro/BenefitsGrid.tsx` retained but unused). Card content overlapped Stats + Requirements; the v3 design source explicitly drops it.
+- Old `pro.*` namespace mostly unused now but kept intact (still backs `pro.meta.title/description` for SEO via `generateMetadata`).
+
+### Files
+
+```
+NEW:
+  components/pro/PhoneMockPro.tsx   (server, doctor-app notification mock)
+
+REWRITTEN:
+  components/pro/ProNav.tsx         (v3 layout: O wordmark + 4 links + amber Empezar)
+  components/pro/ProHero.tsx        (2-col + iPhone + Pago badge + headline gradient)
+  components/pro/StatsBar.tsx       (client — count-up, new "<7 días" stat)
+  components/pro/IncomeCalculator.tsx (dual slider + dark output card breakdown)
+  components/pro/RegistrationSteps.tsx (4 steps + horizontal progress line)
+  components/pro/RequirementsGrid.tsx (3-col + DOC/RC/RETA/MOV/8h/ES tags)
+  components/pro/CitiesGrid.tsx     (5 cards inc 2027)
+  components/pro/ProFAQ.tsx         (+/× CSS rotate, top 3 open)
+  components/pro/ProCTA.tsx         (dark navy gradient + sticky mobile)
+  app/[locale]/pro/page.tsx         (drop BenefitsGrid, minimal v3 footer)
+
+MODIFIED:
+  messages/es.json   (+proV3.* namespace, ~110 keys)
+  messages/en.json   (+proV3.* namespace, ~110 keys)
+```
+
+### Decisions flagged for Director
+
+- **R7 patient-context swap** (PhoneMockPro): the design source displayed clinical symptom string. Replaced with logística — OnCall never holds symptom data. Confirm if you want different wording.
+- **Stripe €2,50 fee transparency**: surfaced explicitly in IncomeCalculator output (gross / Stripe / OnCall / Net) instead of absorbed into the 10 % all-inclusive commission as in Round 11. The dual-fee breakdown closes the "hidden fees" objection upfront and makes the €132 net average defensible. Single-row revert is possible if you prefer the marketing-friendly absorbed framing.
+- **`pro.*` legacy namespace**: kept because `generateMetadata` still uses `pro.meta.title/description`. Migrate metadata keys + delete in a cleanup commit when nothing else references them.
