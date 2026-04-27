@@ -4365,3 +4365,133 @@ MODIFIED:
 - **R7 patient-context swap** (PhoneMockPro): the design source displayed clinical symptom string. Replaced with logística — OnCall never holds symptom data. Confirm if you want different wording.
 - **Stripe €2,50 fee transparency**: surfaced explicitly in IncomeCalculator output (gross / Stripe / OnCall / Net) instead of absorbed into the 10 % all-inclusive commission as in Round 11. The dual-fee breakdown closes the "hidden fees" objection upfront and makes the €132 net average defensible. Single-row revert is possible if you prefer the marketing-friendly absorbed framing.
 - **`pro.*` legacy namespace**: kept because `generateMetadata` still uses `pro.meta.title/description`. Migrate metadata keys + delete in a cleanup commit when nothing else references them.
+
+---
+
+### [2026-04-27 18:30] — Round 14 — Bypass middleware + /pro alias routes + Twilio SMS production
+**Estado:** ✅ OK (3 commits, 1 deploy)
+**Commits:** `5d930ac` (14-A) → `fb25b2e` (14-B) → `a8f59d6` (14-C)
+**Inbox briefs:**
+- `.claude/cowork-inbox/2026-04-27-1330-URGENT-bypass-middleware-pro-registro.md`
+- `.claude/cowork-inbox/2026-04-27-1330-URGENT-round14-bypass-pro-flow.md`
+- `.claude/cowork-inbox/2026-04-27-1345-decision-pro-registro-OPCION-A.md`
+- `.claude/cowork-inbox/2026-04-27-1400-twilio-env-vars-COMPLETE.md`
+**Outbox:** `.claude/cowork-outbox/2026-04-27-1830-round14-shipped.md`
+
+#### 14-A — middleware bypass coverage gap
+**Problem:** Round 11 patched `/api/stripe/checkout` to honor `getBypassUser()` but middleware was still blocking Cowork audit when `NEXT_PUBLIC_AUTH_BYPASS=true` because the `lib/supabase/middleware.ts` matcher applied to all `/[locale]/(patient|doctor)/*` routes and only resolved the real Supabase session.
+
+**Fix:** patched `lib/supabase/middleware.ts` to fall back to `getBypassUser()` when `realUser` is null. Real session always wins — bypass is only a fallback for unauthenticated requests when the env var is set.
+
+```ts
+const { data: { user: realUser } } = await supabase.auth.getUser()
+const bypassUser = getBypassUser()
+const user = realUser ?? bypassUser
+// auth-routes redirect logic now uses bypassUser.role when no real session
+```
+
+Also patched `app/[locale]/doctor/onboarding/page.tsx` to use the same bypass-aware resolver in its server-side gate (was checking real session only and redirecting bypass users out).
+
+**Build:** `npx tsc --noEmit` 0 errors. Deploy succeeded.
+
+#### 14-B — /pro/{registro,login,dashboard} alias routes
+**Problem:** Round 13 v3 landing's CTAs ("Empezar registro · 5 min", "Login", etc.) pointed to `/pro/registro`, `/pro/login`, `/pro/dashboard` but those routes did not exist (silent 404). Director's brief (decision-pro-registro-OPCION-A.md) confirmed: keep the `/pro/*` aliases for brand coherence, redirect to existing `/doctor/*` flows.
+
+**Fix:** 3 new server-component pages, each ~12 lines:
+
+```tsx
+// app/[locale]/pro/registro/page.tsx
+export default async function ProRegistroEntry({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  redirect(`/${locale}/doctor/onboarding`)
+}
+```
+
+Same pattern for `/pro/login` (→ `/login?role=doctor`) and `/pro/dashboard` (→ `/doctor/dashboard`).
+
+**Note:** Next.js 14 App Router `redirect()` returns HTTP 307 with the redirect target encoded in the RSC payload + `<html id="__next_error__">` HTML body fallback (NOT in a classic `Location:` header). Browsers handle this via the Next.js runtime. Verified with curl that body contains `doctor/onboarding;307` token.
+
+#### 14-C — Twilio SMS production + 3 triggers + notifications_log
+**Problem:** Round 11 shipped `lib/notifications/sms.ts` as a stub. Round 14-C wires the real Twilio REST API via fetch (no SDK — keeps bundle size down), surfaces error codes (21608/21610/30007), and uses `MessagingServiceSid` instead of `From` for resilience.
+
+**Fix:**
+- `lib/notifications/sms.ts` now switches on `SMS_PROVIDER=twilio|stub` (default stub). Twilio path uses `Buffer.from(SID:TOKEN).toString('base64')` for HTTP Basic, and POSTs to `https://api.twilio.com/2010-04-01/Accounts/<sid>/Messages.json` with `MessagingServiceSid` + `To` + `Body`. Errors surface as `{ ok: false, errorCode, error }`.
+- `lib/notifications/log.ts` NEW. `logNotification()` writes a row to `notifications_log`; `isRateLimited(toAddress, 60_000)` prevents duplicate sends inside the 60 s window. Both fail-open on DB error so logging never breaks the actual notification.
+- `supabase/migrations/022_notifications_log.sql` NEW. Audit table with composite index `(to_address, sent_at DESC)` for the rate-limit hot path. RLS: service_role full access; user reads own; admins read all.
+- `messages/{es,en}.json` extended with `notifications.sms.*` (3 templates: doctorActivationOtp, patientDoctorAccepted, patientDoctorEta).
+
+3 trigger endpoints:
+1. `POST /api/notifications/sms-otp/send` — generates 6-digit OTP, persists to `doctor_profiles.phone_otp_code` with 10-min expiry, sends via Twilio. 60 s/phone rate limit. 429 on rate-limit hit.
+2. `POST /api/consultations/[id]/accept` — atomic accept with `or(doctor_id.is.null,doctor_id.eq.<me>)` to prevent races. Returns 409 if another doctor won. On success, fires "Tu médico Dr. X aceptó tu consulta · ETA Y min" SMS.
+3. `POST /api/doctor/eta-update` — only fires SMS when `etaMin <= 10`. Idempotency via 60 s rate limit (TODO: add `consultations.eta_sms_sent_at` for strict once-per-threshold).
+
+**Twilio TRIAL limitation:** Only Director's verified number receives SMS until production upgrade ($20 deposit). Unverified numbers fail with error 21608 (logged + surfaced to caller).
+
+#### R2 verification
+
+```
+$ git rev-parse HEAD
+a8f59d623e8af27716258875ab653f73179b849b
+
+$ curl -s https://oncall.clinic/api/health | jq -r .commit
+a8f59d623e8af27716258875ab653f73179b849b
+```
+
+✅ Local HEAD = deploy commit.
+
+#### R3 live audit
+
+| URL | HTTP | Notes |
+|---|---|---|
+| `/api/health` | 200 | `commit:a8f59d6...` |
+| `/es/pro/registro` | 307 | body → `/es/doctor/onboarding` |
+| `/es/pro/login` | 307 | body → `/es/login?role=doctor` |
+| `/es/pro/dashboard` | 307 | body → `/es/doctor/dashboard` |
+| `/en/pro/registro` | 307 | body → `/en/doctor/onboarding` |
+| `/es/pro` (landing) | 200 | CTAs all point to `/pro/registro` |
+
+Live test of bypass middleware requires env var set in Vercel — it's OFF in production by design. Cowork's audit env (with `NEXT_PUBLIC_AUTH_BYPASS=true`) will verify the fix end-to-end.
+
+#### R7 compliance
+
+✅ No clinical data added. All 3 SMS templates are logística/auth (doctor activation OTP, patient "doctor accepted", patient "doctor arriving in ~10 min"). The /pro alias redirects are pure URL forwarding — no payload, no PII.
+
+#### Files
+
+```
+NEW (10):
+  app/[locale]/pro/registro/page.tsx                            (R14-B redirect)
+  app/[locale]/pro/login/page.tsx                               (R14-B redirect)
+  app/[locale]/pro/dashboard/page.tsx                           (R14-B redirect)
+  app/api/notifications/sms-otp/send/route.ts                   (R14-C trigger #1)
+  app/api/consultations/[id]/accept/route.ts                    (R14-C trigger #2)
+  app/api/doctor/eta-update/route.ts                            (R14-C trigger #3)
+  lib/notifications/log.ts                                      (R14-C audit + rate limit)
+  supabase/migrations/022_notifications_log.sql                 (R14-C migration)
+
+MODIFIED (5):
+  lib/supabase/middleware.ts                                    (R14-A bypass-aware)
+  app/[locale]/doctor/onboarding/page.tsx                       (R14-A bypass-aware gate)
+  lib/notifications/sms.ts                                      (R14-C Twilio MessagingServiceSid)
+  messages/es.json                                              (R14-C SMS templates)
+  messages/en.json                                              (R14-C SMS templates)
+```
+
+#### Pending (not blocking deploy)
+
+- DB push for migration `021_doctor_profiles_activation.sql` (Round 11 follow-up) + `022_notifications_log.sql` (this round). Both endpoints fail-open if tables don't exist.
+- Vercel env vars: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_MESSAGING_SERVICE_SID`, `SMS_PROVIDER=twilio` — without these the provider stays in stub mode (no actual SMS sent, but logs still work).
+- Twilio trial → production upgrade ($20 deposit, Director's call).
+
+#### Decisions flagged for Director
+
+1. **307 vs 308 on alias redirects.** Currently 307 because `redirect()` from `next/navigation` defaults to it. The brand-stable `/pro/*` aliases are arguably permanent, so `permanentRedirect()` (308) might be SEO-cleaner. Defer until launch.
+2. **`consultations.eta_sms_sent_at` column.** The 60-s rate limit gives soft idempotency for the ETA-arriving SMS. For strict once-per-threshold semantics we'd need this column. Punted to a follow-up so Round 14-C ships without a schema change.
+3. **Twilio trial limitation:** documented in code comments + outbox. First real patient SMS will fail with error 21608 until upgrade.
+
+#### Next round candidates
+
+- E2E Playwright for /pro funnel (landing → /pro/registro → /doctor/onboarding step 1 with bypass)
+- Cleanup `pro.*` legacy i18n namespace (post-Round-13 follow-up)
+- DB push + Twilio go-live smoke test
+
