@@ -77,17 +77,32 @@ export async function updateSession(request: NextRequest) {
   ]
   const protectedDoctorRoutes = ['/doctor']
   const protectedAdminRoutes = ['/admin']
+  // Round 15: /clinic/* is the B2B authenticated surface. The /clinic/login +
+  // /clinic/register pages stay public — they live in the (auth) route group
+  // under (auth)/clinic/* and are NOT prefixed with these protected paths.
+  const protectedClinicRoutes = [
+    '/clinic/dashboard',
+    '/clinic/doctors',
+    '/clinic/consultations',
+    '/clinic/settings',
+    '/clinic/profile',
+  ]
   const authRoutes = ['/login', '/register']
 
   // Redirect to locale-prefixed login if not authenticated on protected route
   if (!user && (
     protectedPatientRoutes.some(r => path.startsWith(r)) ||
     protectedDoctorRoutes.some(r => path.startsWith(r)) ||
-    protectedAdminRoutes.some(r => path.startsWith(r))
+    protectedAdminRoutes.some(r => path.startsWith(r)) ||
+    protectedClinicRoutes.some(r => path.startsWith(r))
   )) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = `/${locale}/login`
-    // Use `next` param (aligned with login page + /api/auth/callback)
+    // Round 15: clinic routes redirect to /clinic/login so role context
+    // is preserved (the unified login reads ?role=clinic and adapts copy).
+    const isClinicRoute = protectedClinicRoutes.some(r => path.startsWith(r))
+    redirectUrl.pathname = isClinicRoute
+      ? `/${locale}/clinic/login`
+      : `/${locale}/login`
     redirectUrl.searchParams.set('next', fullPath)
     return NextResponse.redirect(redirectUrl)
   }
@@ -116,6 +131,9 @@ export async function updateSession(request: NextRequest) {
       redirectUrl.pathname = `/${locale}/doctor/dashboard`
     } else if (role === 'admin') {
       redirectUrl.pathname = `/${locale}/admin/dashboard`
+    } else if (role === 'clinic') {
+      // Round 15
+      redirectUrl.pathname = `/${locale}/clinic/dashboard`
     } else {
       redirectUrl.pathname = `/${locale}/patient/dashboard`
     }

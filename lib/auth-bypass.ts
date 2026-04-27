@@ -14,6 +14,7 @@
  *   `NEXT_PUBLIC_AUTH_BYPASS_ROLE=patient` → bypass user is the demo patient (default)
  *   `NEXT_PUBLIC_AUTH_BYPASS_ROLE=doctor`  → bypass user is the demo doctor
  *   `NEXT_PUBLIC_AUTH_BYPASS_ROLE=admin`   → bypass user is the demo admin (no seed yet)
+ *   `NEXT_PUBLIC_AUTH_BYPASS_ROLE=clinic`  → bypass user is the demo clinic owner (Round 15)
  *
  * Off (the default + when the env var is anything else): zero behaviour
  * change. The flags are public envs so the client bundle can read them
@@ -35,11 +36,13 @@
 
 export const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS === 'true'
 
-export type BypassRole = 'patient' | 'doctor' | 'admin'
+export type BypassRole = 'patient' | 'doctor' | 'admin' | 'clinic'
 
 const RAW_ROLE = process.env.NEXT_PUBLIC_AUTH_BYPASS_ROLE
 export const AUTH_BYPASS_ROLE: BypassRole =
-  RAW_ROLE === 'doctor' || RAW_ROLE === 'admin' ? RAW_ROLE : 'patient'
+  RAW_ROLE === 'doctor' || RAW_ROLE === 'admin' || RAW_ROLE === 'clinic'
+    ? RAW_ROLE
+    : 'patient'
 
 /**
  * Existing seed users in `auth.users` (verified via Supabase MCP):
@@ -73,6 +76,18 @@ const BYPASS_USERS: Record<BypassRole, BypassUserShape> = {
     email: 'demo-admin@oncall.clinic',
     user_metadata: { full_name: 'Demo Admin', role: 'admin' },
     role: 'admin',
+  },
+  clinic: {
+    // Round 15 placeholder — Director seeds an actual clinic owner row
+    // (auth.users + clinics) when ready to audit the B2B funnel.
+    // Until then, the bypass cannot read real clinic data via RLS, but
+    // the UI + middleware will route the demo user to /clinic/dashboard
+    // correctly. The dashboard handles "no clinic row yet" by showing
+    // the verification-pending banner.
+    id: '00000000-0000-0000-0000-000000000c01',
+    email: 'demo-clinic@oncall.clinic',
+    user_metadata: { full_name: 'Demo Clinic Owner', role: 'clinic' },
+    role: 'clinic',
   },
 }
 

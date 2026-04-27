@@ -761,10 +761,17 @@
     "error": "Tu pago no se pudo procesar. Inténtalo con otra tarjeta o contacta con soporte."
   },
   "errors": {
-    "noDoctor": "No hay médicos disponibles en este momento. Te avisamos en cuanto uno esté libre, o prueba la teleconsulta.",
-    "generic": "Algo fue mal. Por favor, inténtalo de nuevo.",
-    "unauthorized": "No tienes permisos para esto.",
-    "sessionExpired": "Tu sesión ha expirado. Por favor, inicia sesión de nuevo."
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "La página que buscas no existe o ha sido movida.",
+      "backHome": "Volver al inicio"
+    },
+    "generic": {
+      "title": "Algo salió mal",
+      "description": "Ha ocurrido un error inesperado. Inténtalo de nuevo.",
+      "retry": "Reintentar",
+      "home": "Inicio"
+    }
   },
   "cookies": {
     "message": "Usamos cookies para mejorar tu experiencia.",
@@ -952,14 +959,13 @@
     "readPolicy": "Leer política de cookies"
   },
   "referral": {
-    "title": "Invita amigos",
-    "incentive": "Comparte tu código y ambos recibís €10 de descuento en la próxima consulta",
-    "shareTitle": "¡Gracias por tu valoración!",
-    "shareDesc": "Comparte OnCall Clinic con amigos y ambos recibís €10",
+    "title": "Recomienda OnCall Clinic",
+    "subtitle": "Comparte tu código y ayuda a otros a encontrar médicos en Ibiza",
+    "copyCode": "Copiar código",
+    "copied": "¡Copiado!",
     "shareWhatsApp": "Compartir por WhatsApp",
-    "copyLink": "Copiar enlace",
-    "copy": "Copiar",
-    "copied": "¡Copiado!"
+    "shareOther": "Compartir",
+    "yourCode": "Tu código de referido"
   },
   "booking": {
     "stripeTrust": "Seguro con Stripe Connect",
@@ -1015,22 +1021,14 @@
     "read": "Leído",
     "delivered": "Entregado"
   },
-  "referral": {
-    "title": "Recomienda OnCall Clinic",
-    "subtitle": "Comparte tu código y ayuda a otros a encontrar médicos en Ibiza",
-    "copyCode": "Copiar código",
-    "copied": "¡Copiado!",
-    "shareWhatsApp": "Compartir por WhatsApp",
-    "shareOther": "Compartir",
-    "yourCode": "Tu código de referido"
-  },
   "review": {
-    "title": "Valora tu consulta",
-    "comment": "Deja un comentario (opcional)",
-    "commentPlaceholder": "¿Cómo fue tu experiencia?",
+    "rateDoctor": "Valora a tu médico",
+    "rateDoctorDesc": "Tu opinión ayuda a otros pacientes",
+    "commentPlaceholder": "Cuenta brevemente tu experiencia (opcional)",
+    "makePublic": "Hacer pública mi reseña",
     "submit": "Enviar valoración",
-    "thankYou": "¡Gracias por tu valoración!",
-    "reviews": "valoraciones"
+    "thanks": "¡Gracias por tu valoración!",
+    "errorSubmit": "No se pudo enviar la valoración. Inténtalo de nuevo."
   },
   "legal": {
     "breadcrumb": "Legal",
@@ -1307,19 +1305,6 @@
     "noConsultations": "No tienes consultas",
     "noConsultationsDesc": "Las solicitudes aparecerán aquí cuando los pacientes reserven."
   },
-  "errors": {
-    "notFound": {
-      "title": "Página no encontrada",
-      "description": "La página que buscas no existe o ha sido movida.",
-      "backHome": "Volver al inicio"
-    },
-    "generic": {
-      "title": "Algo salió mal",
-      "description": "Ha ocurrido un error inesperado. Inténtalo de nuevo.",
-      "retry": "Reintentar",
-      "home": "Inicio"
-    }
-  },
   "doctorSelector": {
     "searching": "Buscando médicos disponibles cerca de ti...",
     "found": "{count, plural, =1 {1 médico disponible} other {# médicos disponibles}}",
@@ -1400,15 +1385,6 @@
     "finishConsultation": "Finalizar consulta",
     "finishConfirmTitle": "¿Finalizar consulta?",
     "finishConfirmDesc": "El paciente recibirá el informe y podrá valorar."
-  },
-  "review": {
-    "rateDoctor": "Valora a tu médico",
-    "rateDoctorDesc": "Tu opinión ayuda a otros pacientes",
-    "commentPlaceholder": "Cuenta brevemente tu experiencia (opcional)",
-    "makePublic": "Hacer pública mi reseña",
-    "submit": "Enviar valoración",
-    "thanks": "¡Gracias por tu valoración!",
-    "errorSubmit": "No se pudo enviar la valoración. Inténtalo de nuevo."
   },
   "about": {
     "kicker": "Sobre nosotros",
@@ -1688,15 +1664,36 @@
       "upcomingTime": "16:00",
       "upcomingTitle2": "Villa Es Cubells · Programada",
       "upcomingMeta": "8,2 km · Confirmada · €165",
-      "tabs": ["Inicio", "Agenda", "Ingresos", "Perfil"]
+      "tabs": [
+        "Inicio",
+        "Agenda",
+        "Ingresos",
+        "Perfil"
+      ]
     },
     "stats": {
       "kicker": "Datos · 01",
       "items": [
-        { "value": "850+", "label": "visitas/mes", "sub": "Ibiza, abril 2026" },
-        { "value": "€132", "label": "neto medio por visita", "sub": "tras Stripe + comisión" },
-        { "value": "94 %", "label": "médicos repiten mes a mes", "sub": "retención últimos 90 días" },
-        { "value": "<7 días", "label": "al primer ingreso", "sub": "desde el alta verificada" }
+        {
+          "value": "850+",
+          "label": "visitas/mes",
+          "sub": "Ibiza, abril 2026"
+        },
+        {
+          "value": "€132",
+          "label": "neto medio por visita",
+          "sub": "tras Stripe + comisión"
+        },
+        {
+          "value": "94 %",
+          "label": "médicos repiten mes a mes",
+          "sub": "retención últimos 90 días"
+        },
+        {
+          "value": "<7 días",
+          "label": "al primer ingreso",
+          "sub": "desde el alta verificada"
+        }
       ]
     },
     "income": {
@@ -1723,33 +1720,102 @@
       "kicker": "Cómo empezar · 03",
       "title": "De cero a tu primera visita en menos de 7 días.",
       "steps": [
-        { "n": "01", "title": "Te registras", "desc": "Email + datos básicos.", "time": "5 min" },
-        { "n": "02", "title": "Subes documentos", "desc": "Colegiación COMIB, RC profesional, alta RETA.", "time": "10 min" },
-        { "n": "03", "title": "Verificación", "desc": "Validamos colegiación y documentos.", "time": "24–48 h" },
-        { "n": "04", "title": "Acepta tu primera visita", "desc": "Empieza a recibir solicitudes.", "time": "Inmediato" }
+        {
+          "n": "01",
+          "title": "Te registras",
+          "desc": "Email + datos básicos.",
+          "time": "5 min"
+        },
+        {
+          "n": "02",
+          "title": "Subes documentos",
+          "desc": "Colegiación COMIB, RC profesional, alta RETA.",
+          "time": "10 min"
+        },
+        {
+          "n": "03",
+          "title": "Verificación",
+          "desc": "Validamos colegiación y documentos.",
+          "time": "24–48 h"
+        },
+        {
+          "n": "04",
+          "title": "Acepta tu primera visita",
+          "desc": "Empieza a recibir solicitudes.",
+          "time": "Inmediato"
+        }
       ]
     },
     "requirements": {
       "kicker": "Requisitos · 04",
       "title": "Seis requisitos. Sin letra pequeña.",
       "items": [
-        { "tag": "DOC", "title": "Colegiación COMIB", "desc": "Colegiado en activo en Illes Balears, sin sanciones vigentes." },
-        { "tag": "RC", "title": "RC profesional ≥ €600 k", "desc": "Seguro de responsabilidad civil profesional al día." },
-        { "tag": "RETA", "title": "Alta en RETA", "desc": "Autónomo o sociedad. Facturas se emiten desde tu actividad." },
-        { "tag": "MOV", "title": "Móvil + transporte", "desc": "Smartphone iOS 16+/Android 10+ y vehículo propio." },
-        { "tag": "8h", "title": "Disponibilidad 8 h+/semana", "desc": "Mínimo recomendado para mantener perfil activo." },
-        { "tag": "ES", "title": "Español obligatorio", "desc": "Inglés y alemán suman bonus de €5–€10 por visita." }
+        {
+          "tag": "DOC",
+          "title": "Colegiación COMIB",
+          "desc": "Colegiado en activo en Illes Balears, sin sanciones vigentes."
+        },
+        {
+          "tag": "RC",
+          "title": "RC profesional ≥ €600 k",
+          "desc": "Seguro de responsabilidad civil profesional al día."
+        },
+        {
+          "tag": "RETA",
+          "title": "Alta en RETA",
+          "desc": "Autónomo o sociedad. Facturas se emiten desde tu actividad."
+        },
+        {
+          "tag": "MOV",
+          "title": "Móvil + transporte",
+          "desc": "Smartphone iOS 16+/Android 10+ y vehículo propio."
+        },
+        {
+          "tag": "8h",
+          "title": "Disponibilidad 8 h+/semana",
+          "desc": "Mínimo recomendado para mantener perfil activo."
+        },
+        {
+          "tag": "ES",
+          "title": "Español obligatorio",
+          "desc": "Inglés y alemán suman bonus de €5–€10 por visita."
+        }
       ]
     },
     "cities": {
       "kicker": "Ciudades · 05",
       "title": "Empezamos en Ibiza. Llegamos a toda España.",
       "items": [
-        { "name": "Ibiza", "status": "active", "label": "Activo", "note": "850+ visitas/mes" },
-        { "name": "Mallorca", "status": "soon", "label": "Q3 2026", "note": "Lista de espera abierta" },
-        { "name": "Madrid", "status": "soon", "label": "Q4 2026", "note": "Pre-registro disponible" },
-        { "name": "Barcelona", "status": "soon", "label": "Q4 2026", "note": "Pre-registro disponible" },
-        { "name": "+6 ciudades", "status": "future", "label": "2027", "note": "Valencia, Sevilla, Málaga…" }
+        {
+          "name": "Ibiza",
+          "status": "active",
+          "label": "Activo",
+          "note": "850+ visitas/mes"
+        },
+        {
+          "name": "Mallorca",
+          "status": "soon",
+          "label": "Q3 2026",
+          "note": "Lista de espera abierta"
+        },
+        {
+          "name": "Madrid",
+          "status": "soon",
+          "label": "Q4 2026",
+          "note": "Pre-registro disponible"
+        },
+        {
+          "name": "Barcelona",
+          "status": "soon",
+          "label": "Q4 2026",
+          "note": "Pre-registro disponible"
+        },
+        {
+          "name": "+6 ciudades",
+          "status": "future",
+          "label": "2027",
+          "note": "Valencia, Sevilla, Málaga…"
+        }
       ]
     },
     "faq": {
@@ -2028,6 +2094,348 @@
         "contact": "Contacto",
         "patients": "Para pacientes"
       }
+    }
+  },
+  "clinicLanding": {
+    "meta": {
+      "title": "Clínicas Asociadas — OnCall Clinic",
+      "description": "Programa de clínicas asociadas: 8% comisión todo incluido, pacientes internacionales, panel de gestión, cobro automático. Asocia tu clínica hoy."
+    },
+    "nav": {
+      "associate": "Asociar mi clínica",
+      "howItWorks": "Cómo funciona",
+      "benefits": "Beneficios",
+      "faq": "FAQ",
+      "login": "Iniciar sesión",
+      "ctaPrimary": "Asociar mi clínica"
+    },
+    "hero": {
+      "badge": "PROGRAMA CLÍNICAS ASOCIADAS",
+      "title1": "Tus médicos.",
+      "title2": "Nuestros pacientes.",
+      "title3": "Más ingresos.",
+      "subtitle": "Conecta tu clínica con miles de pacientes locales e internacionales que buscan atención médica a domicilio. 8% de comisión todo incluido. Sin cuotas mensuales. Sin exclusividad.",
+      "ctaPrimary": "Asociar mi clínica",
+      "ctaSecondary": "Ver cómo funciona"
+    },
+    "stats": {
+      "commission": {
+        "value": "8%",
+        "label": "comisión todo incluido"
+      },
+      "tourists": {
+        "value": "96,8 M",
+        "label": "turistas/año en España"
+      },
+      "fee": {
+        "value": "€0",
+        "label": "cuota mensual"
+      },
+      "payout": {
+        "value": "2 días",
+        "label": "cobro automático Stripe"
+      }
+    },
+    "problem": {
+      "title": "El reto de las clínicas que ya hacen domiciliario",
+      "subtitle": "Sin OnCall vs con OnCall — la diferencia operativa.",
+      "without": {
+        "title": "Sin OnCall",
+        "items": [
+          "Los pacientes internacionales no te encuentran fuera de Google Maps.",
+          "Recepción cerrada por la noche y los fines de semana.",
+          "Cobros manuales: Bizum, transferencia, efectivo. Imposible escalar.",
+          "Médicos infrautilizados entre visita y visita."
+        ]
+      },
+      "with": {
+        "title": "Con OnCall",
+        "items": [
+          "SEO bilingüe ES/EN: 18 keywords activas, 12k impresiones/mes en Ibiza.",
+          "Booking 24/7 con asignación automática por zona.",
+          "Pago automático en tarjeta + Stripe Connect, comisión transparente.",
+          "Panel de métricas en tiempo real para optimizar utilización."
+        ]
+      }
+    },
+    "benefits": {
+      "title": "Diseñado para clínicas que ya hacen domiciliario",
+      "subtitle": "Seis ventajas concretas, sin letra pequeña.",
+      "items": [
+        {
+          "title": "Pacientes internacionales",
+          "body": "Turistas que buscan «English doctor», «Arzt», «médecin» y nos pagan en su tarjeta de crédito sin fricción."
+        },
+        {
+          "title": "8% todo incluido",
+          "body": "IVA, comisión Stripe, mantenimiento de plataforma. Sin sorpresas en la liquidación mensual."
+        },
+        {
+          "title": "Tu marca visible",
+          "body": "Cada perfil de médico muestra «Dr. García — Clínica Marina». Tus pacientes te encuentran y vuelven."
+        },
+        {
+          "title": "Panel de gestión",
+          "body": "Métricas por médico, consultas por zona, tendencias mensuales. Decisiones con datos."
+        },
+        {
+          "title": "Cero exclusividad",
+          "body": "Tus médicos siguen viendo pacientes propios. OnCall solo aporta volumen incremental."
+        },
+        {
+          "title": "Cobro automático",
+          "body": "Stripe Connect ingresa el neto en la cuenta de tu clínica en 48 h, después de cada consulta."
+        }
+      ]
+    },
+    "calculator": {
+      "title": "Calcula tus ingresos",
+      "subtitle": "Ejemplo con consulta media de €150.",
+      "rows": {
+        "gross": "Bruto consulta",
+        "commission": "Comisión OnCall (8%)",
+        "net": "Neto clínica"
+      },
+      "month": "Rango mensual estimado",
+      "monthRange": "€1.380 – €5.520",
+      "monthBody": "10–40 consultas/mes según zona y temporada.",
+      "year": "Rango anual",
+      "yearRange": "€16.560 – €66.240",
+      "footnote": "Sujeto a IVA, IRPF y RETA según régimen fiscal de la clínica. OnCall solo retiene la comisión: el resto se liquida con Hacienda según corresponda."
+    },
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "subtitle": "Asociación operativa en menos de 7 días.",
+      "steps": [
+        {
+          "title": "Registra tu clínica",
+          "body": "Datos fiscales, CIF, RC empresarial, zonas de cobertura. 5 minutos."
+        },
+        {
+          "title": "Verificamos",
+          "body": "Revisamos RC vigente, CIF activo y compatibilidad con la red. 24–48 h."
+        },
+        {
+          "title": "Recibes pacientes",
+          "body": "Tus médicos aparecen en el booking del paciente con tu marca. Asignación automática por zona."
+        },
+        {
+          "title": "Cobras automático",
+          "body": "Stripe Connect liquida el neto en la cuenta empresa en 2 días."
+        }
+      ]
+    },
+    "comparison": {
+      "title": "Tu clínica sola vs Con OnCall",
+      "headers": {
+        "alone": "Tu clínica sola",
+        "withUs": "Con OnCall"
+      },
+      "rows": [
+        {
+          "label": "Pacientes internacionales",
+          "alone": "Solo Google Maps",
+          "withUs": "SEO bilingüe + 96,8 M turistas/año"
+        },
+        {
+          "label": "Booking 24/7",
+          "alone": "Recepción horario laboral",
+          "withUs": "Asignación automática 24/7"
+        },
+        {
+          "label": "Cobro tarjeta",
+          "alone": "TPV + Bizum manual",
+          "withUs": "Stripe + cobro automático"
+        },
+        {
+          "label": "Branding propio",
+          "alone": "Solo en tu web",
+          "withUs": "Visible en cada consulta OnCall"
+        },
+        {
+          "label": "Panel métricas",
+          "alone": "Excel manual",
+          "withUs": "Dashboard tiempo real"
+        },
+        {
+          "label": "Comisión todo incluido",
+          "alone": "Comisiones + Stripe + IVA",
+          "withUs": "8% único, sin sorpresas"
+        }
+      ]
+    },
+    "requirements": {
+      "title": "Requisitos",
+      "subtitle": "Documentación mínima para empezar.",
+      "items": [
+        "CIF activo y clínica dada de alta en actividad sanitaria.",
+        "RC empresarial vigente con cobertura de domiciliario.",
+        "Al menos un médico con licencia colegial (COMIB o equivalente).",
+        "Zona de cobertura definida (ciudad/es y radio km).",
+        "Cuenta bancaria de empresa para Stripe Connect.",
+        "Aceptación del contrato de intermediación tecnológica."
+      ]
+    },
+    "cities": {
+      "title": "Ciudades",
+      "subtitle": "Activo en estas ciudades. Más en 2027.",
+      "items": [
+        {
+          "name": "Ibiza",
+          "status": "active"
+        },
+        {
+          "name": "Mallorca",
+          "status": "recruiting"
+        },
+        {
+          "name": "Madrid",
+          "status": "recruiting"
+        },
+        {
+          "name": "Barcelona",
+          "status": "recruiting"
+        },
+        {
+          "name": "Valencia",
+          "status": "soon"
+        },
+        {
+          "name": "Sevilla",
+          "status": "soon"
+        },
+        {
+          "name": "Málaga",
+          "status": "soon"
+        },
+        {
+          "name": "Bilbao",
+          "status": "soon"
+        },
+        {
+          "name": "Tenerife",
+          "status": "soon"
+        },
+        {
+          "name": "Las Palmas",
+          "status": "soon"
+        }
+      ],
+      "labels": {
+        "active": "Activo",
+        "recruiting": "Reclutando clínicas",
+        "soon": "Próximamente 2027"
+      }
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿OnCall recoge datos clínicos de mis pacientes?",
+          "a": "No. OnCall es un intermediario tecnológico (LSSI-CE). El acto médico, la historia clínica y el tratamiento son responsabilidad exclusiva del médico que realiza la visita y de tu clínica como empleadora. OnCall solo procesa los datos logísticos necesarios para que el paciente y el médico se conecten (nombre, contacto, dirección, hora)."
+        },
+        {
+          "q": "¿Mis médicos pueden seguir viendo pacientes propios?",
+          "a": "Sí, totalmente. La asociación con OnCall es no exclusiva. Tus médicos siguen atendiendo a tu base de pacientes habitual; OnCall solo aporta volumen incremental cuando un paciente reserva por nuestra plataforma."
+        },
+        {
+          "q": "¿Cuándo cobramos?",
+          "a": "Después de cada consulta. Stripe Connect liquida el neto (precio − 8% comisión) en la cuenta bancaria de tu clínica en 48 horas hábiles. No hay periodo mínimo ni retenciones más allá de las exigidas por Hacienda."
+        },
+        {
+          "q": "¿Qué pasa si un médico se va de la clínica?",
+          "a": "Le retiras la asociación desde tu panel y deja de aparecer bajo tu marca. Si se queda en OnCall como independiente, su tarifa cambia automáticamente a la del régimen de médico individual (10/15%)."
+        },
+        {
+          "q": "¿Es compatible con mi seguro de RC actual?",
+          "a": "Generalmente sí, siempre que tu RC cubra domiciliario en las zonas de cobertura declaradas. Te pediremos copia del condicionado en la verificación. Si tu aseguradora exige una nota adicional, te facilitamos plantilla."
+        },
+        {
+          "q": "¿Cuántas consultas puedo recibir al mes?",
+          "a": "Depende de la zona y la temporada. En Ibiza en temporada alta una clínica con 4 médicos puede gestionar 80–120 consultas/mes vía OnCall. En zonas no turísticas el rango es 20–40/mes/clínica."
+        }
+      ]
+    },
+    "ctaFinal": {
+      "title": "Asocia tu clínica hoy",
+      "subtitle": "Verificación en 24–48 h. Primer paciente en menos de 7 días.",
+      "ctaPrimary": "Asociar mi clínica",
+      "ctaSecondary": "Ya tengo cuenta",
+      "trust": [
+        "RGPD",
+        "LSSI-CE",
+        "Stripe Connect",
+        "ISO-27001 hosting"
+      ]
+    },
+    "footer": {
+      "tagline": "Intermediario tecnológico LSSI-CE. La responsabilidad clínica recae en el médico que realiza la visita.",
+      "links": {
+        "privacy": "Privacidad",
+        "terms": "Términos",
+        "legal": "Aviso legal",
+        "support": "clinicas@oncall.clinic"
+      },
+      "year": "© {year} OnCall Clinic"
+    }
+  },
+  "clinicAuth": {
+    "login": {
+      "title": "Acceso clínicas asociadas",
+      "subtitle": "Inicia sesión con tu cuenta de empresa.",
+      "back": "Volver al inicio"
+    },
+    "register": {
+      "title": "Registro clínica",
+      "subtitle": "Verificación en 24–48 h. Tu primer paciente en menos de 7 días.",
+      "step1Title": "Datos de la empresa",
+      "step2Title": "Cobertura y RC",
+      "next": "Siguiente",
+      "back": "Atrás",
+      "submit": "Enviar para verificación",
+      "fields": {
+        "name": "Nombre comercial",
+        "legalName": "Razón social",
+        "cif": "CIF",
+        "email": "Email de contacto",
+        "phone": "Teléfono",
+        "address": "Dirección",
+        "city": "Ciudad",
+        "province": "Provincia",
+        "coverageZones": "Zonas de cobertura (separadas por coma)",
+        "coverageRadius": "Radio de cobertura (km)",
+        "rcConfirmed": "Confirmo que mi clínica tiene RC empresarial vigente"
+      },
+      "successTitle": "Solicitud recibida",
+      "successBody": "Verificaremos los datos en 24–48 h y te enviaremos un email para activar tu panel."
+    }
+  },
+  "clinicDashboard": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "doctors": "Mis médicos",
+      "consultations": "Consultas",
+      "settings": "Configuración"
+    },
+    "header": {
+      "verificationPending": "Verificación pendiente — revisaremos tus datos en 24–48 h.",
+      "verificationRejected": "Verificación rechazada. Revisa el email que te hemos enviado.",
+      "verificationSuspended": "Cuenta suspendida. Contacta con soporte."
+    },
+    "kpis": {
+      "consultationsThisMonth": "Consultas este mes",
+      "revenueThisMonth": "Ingresos este mes",
+      "activeDoctors": "Médicos activos",
+      "avgRating": "Rating medio"
+    },
+    "empty": {
+      "title": "Aún no tienes datos",
+      "body": "Cuando recibas tu primera consulta verás aquí las métricas en tiempo real."
+    },
+    "stripe": {
+      "notReady": "Stripe Connect aún no configurado",
+      "ready": "Stripe Connect activo",
+      "setupCta": "Configurar Stripe Connect"
     }
   }
 }
