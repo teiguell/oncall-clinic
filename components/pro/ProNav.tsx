@@ -71,13 +71,13 @@ export function ProNav({ locale }: { locale: string }) {
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher />
             <Link
-              href={`/${locale}/login`}
+              href={`/${locale}/pro/login`}
               className="text-[14px] font-medium text-[#374151] hover:text-[#0B1220] transition-colors mr-1"
             >
               {t('login')}
             </Link>
             <Link
-              href={`/${locale}/doctor/register`}
+              href={`/${locale}/pro/registro`}
               className="inline-flex items-center justify-center text-white font-semibold"
               style={{
                 padding: '11px 18px',
@@ -142,7 +142,7 @@ export function ProNav({ locale }: { locale: string }) {
               {t('faq')}
             </a>
             <Link
-              href={`/${locale}/login`}
+              href={`/${locale}/pro/login`}
               onClick={() => setOpen(false)}
               className="text-sm py-3 min-h-[44px] flex items-center text-slate-700"
             >
@@ -151,7 +151,7 @@ export function ProNav({ locale }: { locale: string }) {
             <div className="flex items-center justify-between gap-3 pt-2 border-t border-[#EEF1F5]">
               <LanguageSwitcher />
               <Link
-                href={`/${locale}/doctor/register`}
+                href={`/${locale}/pro/registro`}
                 onClick={() => setOpen(false)}
                 className="inline-flex items-center justify-center text-white font-semibold"
                 style={{

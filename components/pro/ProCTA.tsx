@@ -86,7 +86,7 @@ export function ProCTA({ locale }: { locale: string }) {
             </p>
             <div className="flex flex-wrap gap-3 mt-7">
               <Link
-                href={`/${locale}/doctor/register`}
+                href={`/${locale}/pro/registro`}
                 className="inline-flex items-center justify-center text-white font-semibold"
                 style={{
                   padding: '14px 22px',
@@ -127,7 +127,7 @@ export function ProCTA({ locale }: { locale: string }) {
         style={{ padding: 14 }}
       >
         <Link
-          href={`/${locale}/doctor/register`}
+          href={`/${locale}/pro/registro`}
           className="inline-flex items-center justify-center gap-2 w-full text-white font-semibold"
           style={{
             padding: '16px 0',

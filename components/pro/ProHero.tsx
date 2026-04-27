@@ -107,7 +107,7 @@ export function ProHero({ locale }: { locale: string }) {
 
             <div className="flex flex-wrap gap-3 mb-5">
               <Link
-                href={`/${locale}/doctor/register`}
+                href={`/${locale}/pro/registro`}
                 className="inline-flex items-center justify-center text-white font-semibold"
                 style={{
                   padding: '14px 22px',
