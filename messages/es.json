@@ -1327,7 +1327,8 @@
       "available": "Disponibles",
       "top": "Mejor valorados",
       "nearest": "Más cercanos"
-    }
+    },
+    "clinicVerified": "Clínica verificada"
   },
   "demo": {
     "banner": "MODO SIMULACIÓN",
@@ -2436,6 +2437,79 @@
       "notReady": "Stripe Connect aún no configurado",
       "ready": "Stripe Connect activo",
       "setupCta": "Configurar Stripe Connect"
+    },
+    "doctors": {
+      "invite": "Invitar médico",
+      "remove": "Quitar",
+      "removeConfirm": "¿Seguro que quieres desasociar este médico de la clínica?",
+      "emptyState": "Aún no has añadido médicos. Pulsa «Invitar médico» para empezar.",
+      "listHeader": {
+        "name": "Nombre",
+        "specialty": "Especialidad",
+        "rating": "Rating",
+        "status": "Estado"
+      },
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "pending": "Pendiente"
+      },
+      "inviteModal": {
+        "title": "Invitar médico",
+        "subtitle": "El médico debe estar registrado en OnCall Clínicas como profesional. Indica su email y le enviaremos un enlace de aceptación.",
+        "cancel": "Cancelar",
+        "submit": "Enviar invitación"
+      }
+    },
+    "consultations": {
+      "filters": {
+        "from": "Desde",
+        "to": "Hasta",
+        "status": "Estado",
+        "allStatuses": "Todos",
+        "completed": "Completada",
+        "pending": "Pendiente",
+        "cancelled": "Cancelada",
+        "apply": "Aplicar filtros"
+      },
+      "columns": {
+        "date": "Fecha",
+        "patient": "Paciente",
+        "doctor": "Médico",
+        "zone": "Zona",
+        "gross": "Bruto",
+        "commission": "Comisión",
+        "net": "Neto"
+      },
+      "emptyState": "No hay consultas en el periodo seleccionado.",
+      "exportCsv": "Exportar CSV"
+    },
+    "settings": {
+      "sections": {
+        "profile": "Perfil de la clínica",
+        "stripe": "Cobros (Stripe Connect)",
+        "billing": "Facturación"
+      },
+      "profileSubtitle": "Estos datos se muestran en el booking del paciente y en facturas. CIF, razón social y email no se editan aquí (cambian solo desde admin).",
+      "stripeSubtitle": "Configura una cuenta Stripe Connect Standard para recibir tus liquidaciones de forma automática en 48 h.",
+      "billingComingSoon": "Próximamente: descarga tus facturas mensuales de comisión.",
+      "fields": {
+        "name": "Nombre comercial",
+        "legalName": "Razón social",
+        "cif": "CIF",
+        "email": "Email",
+        "phone": "Teléfono",
+        "address": "Dirección",
+        "city": "Ciudad",
+        "province": "Provincia",
+        "coverageZones": "Zonas (separadas por coma)",
+        "coverageRadiusKm": "Radio (km)",
+        "description": "Descripción pública",
+        "website": "Web"
+      },
+      "save": "Guardar cambios",
+      "saved": "Guardado",
+      "noClinic": "No encontramos tu clínica. Si acabas de registrarte, espera 24-48 h a la verificación."
     }
   }
 }

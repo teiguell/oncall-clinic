@@ -1327,7 +1327,8 @@
       "available": "Available",
       "top": "Top rated",
       "nearest": "Nearest"
-    }
+    },
+    "clinicVerified": "Verified clinic"
   },
   "demo": {
     "banner": "SIMULATION MODE",
@@ -2436,6 +2437,79 @@
       "notReady": "Stripe Connect not yet set up",
       "ready": "Stripe Connect active",
       "setupCta": "Set up Stripe Connect"
+    },
+    "doctors": {
+      "invite": "Invite doctor",
+      "remove": "Remove",
+      "removeConfirm": "Are you sure you want to disassociate this doctor from the clinic?",
+      "emptyState": "No doctors yet. Press «Invite doctor» to get started.",
+      "listHeader": {
+        "name": "Name",
+        "specialty": "Specialty",
+        "rating": "Rating",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "pending": "Pending"
+      },
+      "inviteModal": {
+        "title": "Invite doctor",
+        "subtitle": "The doctor must be registered on OnCall Clinics as a professional. Enter their email and we'll send an acceptance link.",
+        "cancel": "Cancel",
+        "submit": "Send invitation"
+      }
+    },
+    "consultations": {
+      "filters": {
+        "from": "From",
+        "to": "To",
+        "status": "Status",
+        "allStatuses": "All",
+        "completed": "Completed",
+        "pending": "Pending",
+        "cancelled": "Cancelled",
+        "apply": "Apply filters"
+      },
+      "columns": {
+        "date": "Date",
+        "patient": "Patient",
+        "doctor": "Doctor",
+        "zone": "Zone",
+        "gross": "Gross",
+        "commission": "Commission",
+        "net": "Net"
+      },
+      "emptyState": "No consultations in the selected period.",
+      "exportCsv": "Export CSV"
+    },
+    "settings": {
+      "sections": {
+        "profile": "Clinic profile",
+        "stripe": "Payouts (Stripe Connect)",
+        "billing": "Billing"
+      },
+      "profileSubtitle": "These details appear in patient booking and invoices. CIF, legal name and email are admin-edited only.",
+      "stripeSubtitle": "Set up a Stripe Connect Standard account to receive automatic payouts within 48 h.",
+      "billingComingSoon": "Coming soon: download monthly commission invoices.",
+      "fields": {
+        "name": "Trade name",
+        "legalName": "Legal name",
+        "cif": "CIF (Spanish tax ID)",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "city": "City",
+        "province": "Province",
+        "coverageZones": "Zones (comma-separated)",
+        "coverageRadiusKm": "Radius (km)",
+        "description": "Public description",
+        "website": "Website"
+      },
+      "save": "Save changes",
+      "saved": "Saved",
+      "noClinic": "We can't find your clinic. If you just registered, wait 24-48 h for verification."
     }
   }
 }

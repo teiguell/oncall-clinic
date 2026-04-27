@@ -27,6 +27,10 @@ interface Doctor {
   current_lng: number | null
   avatar_url: string | null
   distance_km?: number
+  // Round 15B-3: clinic branding ("Dr. X — Clínica Y" + verified badge)
+  clinic_id?: string | null
+  clinic_name?: string | null
+  is_clinic_priority?: boolean
 }
 
 interface DoctorSelectorProps {
@@ -60,18 +64,29 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
     setError(null)
     const supabase = createClient()
 
-    // Try RPC first
+    // Try RPC first. Round 15B-3: RPC now returns clinic_id + clinic_name +
+    // is_clinic_priority columns we surface in the card UI.
     const rpcRes = await supabase.rpc('find_nearest_doctors', {
       lat_in: patientLat,
       lng_in: patientLng,
       radius_km: 50,
     }).then(r => r, () => null)
 
-    let candidateIds: Array<{ id: string; distance_km?: number }> = []
+    type RpcRow = {
+      id: string
+      distance_km?: number
+      clinic_id?: string | null
+      clinic_name?: string | null
+      is_clinic_priority?: boolean
+    }
+    let candidateIds: Array<{ id: string; distance_km?: number; clinic_id?: string | null; clinic_name?: string | null; is_clinic_priority?: boolean }> = []
     if (rpcRes && !rpcRes.error && Array.isArray(rpcRes.data)) {
-      candidateIds = rpcRes.data.map((r: { id: string; distance_km?: number }) => ({
+      candidateIds = (rpcRes.data as RpcRow[]).map((r) => ({
         id: r.id,
         distance_km: r.distance_km,
+        clinic_id: r.clinic_id,
+        clinic_name: r.clinic_name,
+        is_clinic_priority: r.is_clinic_priority,
       }))
     }
 
@@ -121,6 +136,7 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
 
     const mapped: Doctor[] = rows.map(r => {
       const p = getProfile(r)
+      const rpcMatch = candidateIds.find(c => c.id === r.id)
       return {
         id: r.id,
         user_id: r.user_id,
@@ -134,7 +150,11 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
         current_lat: r.current_lat,
         current_lng: r.current_lng,
         avatar_url: p?.avatar_url || null,
-        distance_km: candidateIds.find(c => c.id === r.id)?.distance_km,
+        distance_km: rpcMatch?.distance_km,
+        // Round 15B-3: clinic branding
+        clinic_id: rpcMatch?.clinic_id ?? null,
+        clinic_name: rpcMatch?.clinic_name ?? null,
+        is_clinic_priority: rpcMatch?.is_clinic_priority ?? false,
       }
     })
 
@@ -307,14 +327,27 @@ export function DoctorSelector({ patientLat, patientLng, onSelect }: DoctorSelec
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    {/* Nombre: 15px / 600 / -0.2px */}
+                    {/* Nombre: 15px / 600 / -0.2px. Round 15B-3: include clinic name when present. */}
                     <p className="font-semibold text-[15px] tracking-[-0.2px] truncate">
                       {d.full_name}
+                      {d.clinic_name && (
+                        <span className="text-indigo-600 font-medium"> — {d.clinic_name}</span>
+                      )}
                     </p>
-                    {/* Especialidad: 12.5px */}
-                    <p className="text-[12.5px] text-muted-foreground mt-0.5 truncate leading-snug">
-                      {d.specialty?.replace('_', ' ')}{d.city ? ` · ${d.city}` : ''}
-                    </p>
+                    {/* Especialidad + verified-clinic badge */}
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-[12.5px] text-muted-foreground truncate leading-snug">
+                        {d.specialty?.replace('_', ' ')}{d.city ? ` · ${d.city}` : ''}
+                      </p>
+                      {d.is_clinic_priority && (
+                        <span
+                          className="inline-flex items-center bg-indigo-50 text-indigo-700 text-[10px] font-semibold tracking-[0.3px] px-[6px] py-[2px] rounded-[6px] flex-shrink-0"
+                          title={t('clinicVerified')}
+                        >
+                          {t('clinicVerified')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-start gap-1.5 flex-shrink-0">
                     {typeof displayPriceCents === 'number' && (

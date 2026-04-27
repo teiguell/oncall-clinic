@@ -1,13 +1,12 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server'
+import { ClinicDoctorsClient } from '@/components/clinic/ClinicDoctorsClient'
 
 /**
- * /[locale]/clinic/doctors — Round 15A skeleton.
+ * /[locale]/clinic/doctors — Round 15B-5.
  *
- * Phase 1: empty-state placeholder. Phase 2 (Round 15B):
- *   - List doctors from clinic_doctors join doctor_profiles
- *   - Per-doctor: name, specialty, rating, consultations this month, status
- *   - Invite doctor button + toggle activate/deactivate
- *   - Delete association
+ * Real page: lists clinic_doctors via /api/clinic/doctors, with status
+ * badges (active/inactive/pending), invite-by-email modal, and per-row
+ * disassociate action (DELETE /api/clinic/doctors/[id]).
  */
 export default async function ClinicDoctorsPage({
   params,
@@ -22,12 +21,7 @@ export default async function ClinicDoctorsPage({
       <h1 className="font-bold text-[#0B1220] mb-6" style={{ fontSize: 28, letterSpacing: '-0.02em' }}>
         {t('nav.doctors')}
       </h1>
-      <div
-        className="bg-white border border-dashed border-slate-300 text-center"
-        style={{ padding: '48px 28px', borderRadius: 14 }}
-      >
-        <p className="text-slate-500 text-[14.5px]">Próximamente — Phase 2 (Round 15B)</p>
-      </div>
+      <ClinicDoctorsClient />
     </div>
   )
 }

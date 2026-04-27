@@ -1,13 +1,13 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server'
+import { ClinicSettingsClient } from '@/components/clinic/ClinicSettingsClient'
 
 /**
- * /[locale]/clinic/settings — Round 15A skeleton.
+ * /[locale]/clinic/settings — Round 15B-5.
  *
- * Phase 1: empty-state placeholder. Phase 2 (Round 15B):
- *   - Edit clinic profile (name, phone, coverage zones, logo upload)
- *   - Stripe Connect status + setup CTA
- *   - Monthly invoice download (commission liquidation)
- *   - Account deletion / suspension flow
+ * Sections:
+ *   1. Profile (edit name, phone, address, coverage zones, radius, description)
+ *   2. Stripe Connect (status + setup CTA)
+ *   3. Billing (placeholder — Round 15C will add monthly invoices)
  */
 export default async function ClinicSettingsPage({
   params,
@@ -18,16 +18,11 @@ export default async function ClinicSettingsPage({
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'clinicDashboard' })
   return (
-    <div className="max-w-[1100px]">
+    <div className="max-w-[800px]">
       <h1 className="font-bold text-[#0B1220] mb-6" style={{ fontSize: 28, letterSpacing: '-0.02em' }}>
         {t('nav.settings')}
       </h1>
-      <div
-        className="bg-white border border-dashed border-slate-300 text-center"
-        style={{ padding: '48px 28px', borderRadius: 14 }}
-      >
-        <p className="text-slate-500 text-[14.5px]">Próximamente — Phase 2 (Round 15B)</p>
-      </div>
+      <ClinicSettingsClient />
     </div>
   )
 }

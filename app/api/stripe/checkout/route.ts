@@ -62,11 +62,17 @@ export async function POST(request: Request) {
   // STS 805/2020 Glovo). If the patient picked a specific doctor, query
   // `consultation_price` + optional `night_price` from `doctor_profiles`.
   // Ibiza night window: 22:00–07:59 local time → use night_price if set.
+  // Round 15B-2: also pull `clinic_id` so we can route the commission via
+  // the clinic's rate (8%) when applicable, instead of the default
+  // individual doctor rate (10/15%).
   let priceCents = Math.round(service.basePrice * 100)
+  let clinicIdForConsultation: string | null = null
+  let clinicCommissionRate: number | null = null
+
   if (preferredDoctorId) {
     const { data: doctor } = await supabase
       .from('doctor_profiles')
-      .select('consultation_price, night_price')
+      .select('consultation_price, night_price, clinic_id')
       .eq('id', preferredDoctorId)
       .maybeSingle()
     if (doctor?.consultation_price && typeof doctor.consultation_price === 'number') {
@@ -86,9 +92,32 @@ export async function POST(request: Request) {
         priceCents = dAny.night_price
       }
     }
+
+    // Round 15B-2: clinic commission routing.
+    // If the doctor belongs to a verified clinic with stripe_onboarding_complete,
+    // use the clinic's commission_rate (8%) instead of individual default (10/15%).
+    // Cleaner than refunding post-payment (would require chargebacks
+    // and patient confusion); pre-calculate at checkout init.
+    if (doctor?.clinic_id) {
+      const { data: clinic } = await supabase
+        .from('clinics')
+        .select('id, commission_rate, verification_status, stripe_onboarding_complete')
+        .eq('id', doctor.clinic_id)
+        .maybeSingle()
+      if (
+        clinic?.verification_status === 'verified' &&
+        typeof clinic.commission_rate === 'number'
+      ) {
+        clinicIdForConsultation = clinic.id
+        clinicCommissionRate = clinic.commission_rate / 100 // 8.00 → 0.08
+      }
+    }
   }
 
-  const commissionRate = parseFloat(process.env.NEXT_PUBLIC_COMMISSION_RATE || '0.15')
+  // Round 15B-2: prefer clinic rate when available; else env default (10%).
+  const commissionRate =
+    clinicCommissionRate ??
+    parseFloat(process.env.NEXT_PUBLIC_COMMISSION_RATE || '0.15')
   const commission = Math.round(priceCents * commissionRate)
   const doctorAmount = priceCents - commission
 
@@ -103,6 +132,10 @@ export async function POST(request: Request) {
         // Preferred-doctor preassignment: if the patient picked one in step 3,
         // skip the broadcast and go straight to the doctor's inbox.
         doctor_id: preferredDoctorId || null,
+        // Round 15B-2: tag the consultation with the clinic when applicable
+        // so reports + webhook can route the application_fee through the
+        // clinic's commission_rate.
+        clinic_id: clinicIdForConsultation,
         type,
         status: 'pending',
         service_type: serviceType,
@@ -160,6 +193,8 @@ export async function POST(request: Request) {
     .insert({
       patient_id: effectiveUser.id,
       doctor_id: preferredDoctorId || null,
+      // Round 15B-2: see TEST MODE branch above for rationale
+      clinic_id: clinicIdForConsultation,
       type,
       status: 'pending',
       payment_status: 'pending',
@@ -224,11 +259,14 @@ export async function POST(request: Request) {
       consultation_id: consultation.id,
       patient_id: effectiveUser.id,
       doctor_id: preferredDoctorId || '',
+      // Round 15B-2: clinic id in metadata for webhook routing
+      clinic_id: clinicIdForConsultation || '',
       service_type: serviceType,
       type,
       locale: locale || 'es',
       price: String(priceCents),
       commission: String(commission),
+      commission_rate: String(commissionRate), // 0.08 for clinic, 0.10/0.15 for individual
       doctor_amount: String(doctorAmount),
       // Round 9: phone visible en Stripe dashboard para soporte (no en DB todavía).
       ...(phone ? { contact_phone: phone } : {}),
