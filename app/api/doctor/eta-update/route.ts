@@ -14,11 +14,15 @@ export const dynamic = 'force-dynamic'
  * the ETA at ≤ 10 min from the patient's address. Fires a one-time SMS
  * to the patient ("OnCall: tu médico llega en ~10 min al {address}").
  *
- * Idempotency: the rate-limit check (60s/recipient) prevents duplicate
- * "arriving" SMS from a chatty location stream. For the strict "fire
- * once when crossing the 10 min threshold" semantics, an additional
- * `consultations.eta_sms_sent_at` column would be ideal — left as a
- * follow-up so this commit can ship without a DB schema change.
+ * Idempotency: TWO layers.
+ *   1. Hard floor: `consultations.eta_sms_sent_at` (migration 023). If
+ *      set, short-circuit immediately — the 10-min SMS already fired
+ *      for this visit. This handles the "chatty location stream
+ *      hovering around 10 min" case where the recipient-level rate
+ *      limit alone can let a duplicate slip through.
+ *   2. Soft floor: 60-s rate limit on notifications_log. Catches
+ *      cross-consultation collisions (same patient phone, two visits
+ *      stacked within a minute) without pulling the column for those.
  *
  * Body:
  *   {
@@ -76,7 +80,7 @@ export async function POST(request: Request) {
 
   const { data: consultation } = await supabase
     .from('consultations')
-    .select('id, patient_id, doctor_id, address, status')
+    .select('id, patient_id, doctor_id, address, status, eta_sms_sent_at')
     .eq('id', consultationId)
     .maybeSingle()
   if (!consultation || consultation.doctor_id !== doctorProfile.id) {
@@ -85,6 +89,13 @@ export async function POST(request: Request) {
 
   // Skip if the visit is already completed/cancelled.
   if (consultation.status === 'completed' || consultation.status === 'cancelled') {
+    return NextResponse.json({ ok: true, sent: false, status: 'skipped' })
+  }
+
+  // Migration 023 hard floor: if the 10-min SMS already fired for this
+  // consultation, short-circuit. The doctor crossing back above 10 min
+  // and then below again does not re-fire a second SMS to the patient.
+  if (consultation.eta_sms_sent_at) {
     return NextResponse.json({ ok: true, sent: false, status: 'skipped' })
   }
 
@@ -136,6 +147,16 @@ export async function POST(request: Request) {
     errorCode: result.errorCode ?? null,
     errorMessage: result.error ?? null,
   })
+
+  // Migration 023 hard floor: only stamp eta_sms_sent_at on a real send.
+  // Failures + provider-stub-skipped do not lock the door — a retry
+  // path can still fire successfully on the next location update.
+  if (result.ok && !result.skipped) {
+    await supabase
+      .from('consultations')
+      .update({ eta_sms_sent_at: new Date().toISOString() })
+      .eq('id', consultationId)
+  }
 
   return NextResponse.json({
     ok: true,

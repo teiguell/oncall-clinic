@@ -4495,3 +4495,127 @@ MODIFIED (5):
 - Cleanup `pro.*` legacy i18n namespace (post-Round-13 follow-up)
 - DB push + Twilio go-live smoke test
 
+---
+
+### [2026-04-27 19:30] — Round 14 follow-up — Migration push (021 + 022 + 023) via Supabase MCP
+
+**Estado:** ✅ OK
+**Trigger:** Post-Round-14 cleanup, Director's "adelante"
+**Outbox:** `.claude/cowork-outbox/2026-04-27-1930-migrations-applied.md`
+
+#### Audit finding: 6 local migrations not in DB tracking
+
+`mcp__supabase__list_migrations` showed only 12 migrations applied in DB (001–012, 016, 017, 018, 019 + 2 column renames), but local `supabase/migrations/` has 21 files (013 → 023). Investigation:
+
+| File | DB tracking | Schema present? | Verdict |
+|---|---|---|---|
+| `013_pricing.sql` | ❌ | ✅ `activated_at`, `price_adjustment` exist | Already applied via direct DDL |
+| `014_doctor_free_pricing.sql` | ❌ | ✅ `consultation_price` exists | Already applied via direct DDL |
+| `015_user_consents.sql` | ❌ | ✅ `user_consents` table exists (13 cols, plus 2 column renames in tracking) | Already applied via direct DDL |
+| `020_find_nearest_doctors_rpc.sql` | ❌ | ✅ `find_nearest_doctors` proc exists | Already applied via direct DDL |
+| `021_doctor_profiles_activation.sql` | ❌ | ❌ activation_status, phone_otp_code etc. missing | **Pending** |
+| `022_notifications_log.sql` | ❌ | ❌ table missing | **Pending** |
+
+So 4 of the 6 were already in the schema but missing from migration tracking — applied by Director out-of-band. Only **021 and 022** were truly pending.
+
+I applied **021 + 022 + new 023** via `mcp__supabase__apply_migration`. The MCP records them in `supabase_migrations.schema_migrations` so future `db push` won't re-apply.
+
+#### Migration 021 — doctor activation columns (Round 11 Fix C)
+
+```sql
+ALTER TABLE doctor_profiles
+  ADD COLUMN IF NOT EXISTS activation_status TEXT NOT NULL DEFAULT 'active'
+    CHECK (activation_status IN ('pending_email','pending_sms','pending_admin_review','active','suspended')),
+  ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS phone_verified_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS activation_email_token TEXT,
+  ADD COLUMN IF NOT EXISTS activation_email_token_expires TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS phone_otp_code TEXT,
+  ADD COLUMN IF NOT EXISTS phone_otp_expires_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS sms_notifications_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+-- + partial unique index on activation_email_token WHERE NOT NULL
+-- + 4 column comments
+```
+
+**Verification:**
+- All 8 columns present on `doctor_profiles`
+- 9 existing doctors all backfilled to `activation_status='active'` (default keeps them visible to patients — correct, they pre-date the activation flow)
+
+#### Migration 022 — notifications_log audit table (Round 14-C)
+
+```sql
+CREATE TABLE IF NOT EXISTS notifications_log (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  channel TEXT CHECK IN ('email','sms','push'),
+  provider TEXT,                    -- 'resend','twilio','stub','twilio-stub'
+  to_address TEXT,                  -- email or E.164 phone
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  template_key TEXT,                -- 'doctor.activation_sms', 'patient.doctor_eta', ...
+  locale TEXT CHECK IN ('es','en'),
+  status TEXT CHECK IN ('sent','failed','skipped','rate_limited'),
+  provider_message_id TEXT,         -- Twilio msg.sid / Resend id
+  error_code TEXT, error_message TEXT,
+  sent_at TIMESTAMPTZ
+);
+-- + 3 indexes (rate-limit hot path, per-user history, status diagnostic)
+-- + 3 RLS policies (service role full, admin SELECT, self SELECT)
+```
+
+**Verification:** 12 cols ✓, 4 indexes (1 PK + 3 named) ✓, 3 RLS policies ✓, RLS enabled ✓.
+
+The Round 14-C SMS triggers (`/api/notifications/sms-otp/send`, `/api/consultations/[id]/accept`, `/api/doctor/eta-update`) now write real audit rows + can enforce the 60-s rate limit. Previously they were fail-open silently — every send showed `status='sent'` to the caller but the row was never persisted.
+
+#### Migration 023 — consultations.eta_sms_sent_at (NEW, follow-up)
+
+The Round 14 outbox flagged "strict once-per-threshold" idempotency for the doctor-arriving SMS as a punted follow-up. Implemented now:
+
+```sql
+ALTER TABLE consultations
+  ADD COLUMN IF NOT EXISTS eta_sms_sent_at TIMESTAMPTZ;
+```
+
+**Code change in `app/api/doctor/eta-update/route.ts`:**
+
+1. Select `eta_sms_sent_at` along with the consultation row.
+2. Short-circuit early-return `status='skipped'` if it's already set (the chatty-stream case where doctor crosses 10 → 11 → 9 → 11 within the rate-limit window no longer slips a duplicate through).
+3. After a successful send (`result.ok && !result.skipped`), `UPDATE consultations SET eta_sms_sent_at = NOW()`. Failures + stub-skipped do NOT lock the door — a retry can still fire.
+
+This closes the decision flagged in `2026-04-27-1830-round14-shipped.md` ("eta_sms_sent_at column") with a 1-column schema change + 8 lines of route code. No tradeoff: the 60-s rate-limit on `notifications_log` still catches cross-consultation collisions for the same patient phone.
+
+#### R2 verification
+
+```
+Migrations now in DB tracking:
+  20260427115146  021_doctor_profiles_activation
+  20260427115152  022_notifications_log
+  20260427115317  023_consultations_eta_sms_sent_at
+```
+
+#### Files
+
+```
+NEW (1):
+  supabase/migrations/023_consultations_eta_sms_sent_at.sql
+
+MODIFIED (1):
+  app/api/doctor/eta-update/route.ts   (eta_sms_sent_at hard-floor + stamp on success)
+
+NO CHANGE (4 — already-applied DDL needs no follow-up):
+  supabase/migrations/013_pricing.sql                  (already in schema)
+  supabase/migrations/014_doctor_free_pricing.sql      (already in schema)
+  supabase/migrations/015_user_consents.sql            (already in schema)
+  supabase/migrations/020_find_nearest_doctors_rpc.sql (already in schema)
+```
+
+#### Build
+
+`tsc --noEmit` — 0 errors.
+
+#### Pending for Director
+
+- Vercel env vars for Twilio (still required for go-live):
+  `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_MESSAGING_SERVICE_SID`,
+  `SMS_PROVIDER=twilio`. Without them the provider stays in stub mode (now logging fully to `notifications_log` instead of fail-open silent).
+- Twilio trial → production upgrade ($20).
+
+
