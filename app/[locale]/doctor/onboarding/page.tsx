@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { AUTH_BYPASS, AUTH_BYPASS_ROLE, BYPASS_USER_ID } from '@/lib/auth-bypass'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -83,10 +84,13 @@ export default function DoctorRegisterPage() {
   const loadProfile = useCallback(async () => {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push(`/${locale}/login`); return }
+    // Round 14 P0 #1 — bypass: when AUTH_BYPASS_ROLE=doctor, fall back
+    // to the seeded demo-doctor UUID so Cowork audits load the page.
+    const userId = user?.id ?? (AUTH_BYPASS && AUTH_BYPASS_ROLE === 'doctor' ? BYPASS_USER_ID : null)
+    if (!userId) { router.push(`/${locale}/login`); return }
 
     const { data: profile } = await supabase
-      .from('profiles').select('*').eq('id', user.id).single()
+      .from('profiles').select('*').eq('id', userId).single()
 
     if (profile) {
       setFormData(prev => ({
@@ -98,7 +102,7 @@ export default function DoctorRegisterPage() {
     }
 
     const { data: doctorProfile } = await supabase
-      .from('doctor_profiles').select('*').eq('user_id', user.id).single()
+      .from('doctor_profiles').select('*').eq('user_id', userId).single()
 
     if (doctorProfile) {
       setDoctorProfileId(doctorProfile.id)
@@ -184,13 +188,14 @@ export default function DoctorRegisterPage() {
     try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push(`/${locale}/login`); return }
+      const userId = user?.id ?? (AUTH_BYPASS && AUTH_BYPASS_ROLE === 'doctor' ? BYPASS_USER_ID : null)
+      if (!userId) { router.push(`/${locale}/login`); return }
 
       // Update profile name/phone
       await supabase.from('profiles').update({
         full_name: formData.fullName,
         phone: formData.phone,
-      }).eq('id', user.id)
+      }).eq('id', userId)
 
       // Upsert doctor_profiles
       if (doctorProfileId) {
@@ -201,7 +206,7 @@ export default function DoctorRegisterPage() {
         }).eq('id', doctorProfileId)
       } else {
         const { data: newDoc } = await supabase.from('doctor_profiles').insert({
-          user_id: user.id,
+          user_id: userId,
           specialty: formData.specialty,
           languages: formData.languages,
           years_experience: formData.yearsExperience ? parseInt(formData.yearsExperience) : null,

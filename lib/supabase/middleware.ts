@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getBypassUser } from '@/lib/auth-bypass'
 
 // Extract locale from path (e.g., /es/patient/dashboard → es)
 function getLocaleFromPath(path: string): string {
@@ -41,7 +42,16 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Round 14 P0 #1 — bypass-aware route guard. When NEXT_PUBLIC_AUTH_BYPASS=true
+  // and a real session is absent, fall back to the synthetic bypass user
+  // (role-aware: patient | doctor | admin per AUTH_BYPASS_ROLE). Real
+  // sessions ALWAYS win — the bypass is only a fallback. Without this,
+  // the middleware blocked Cowork audits even though the banner showed
+  // (DOCTOR) and the API endpoint accepted the bypass — the layout/route
+  // guards were rejecting first.
+  const { data: { user: realUser } } = await supabase.auth.getUser()
+  const bypassUser = getBypassUser()
+  const user = realUser ?? bypassUser
 
   const fullPath = request.nextUrl.pathname
   const locale = getLocaleFromPath(fullPath)
@@ -82,18 +92,29 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect authenticated users away from auth pages to their dashboard
+  // Redirect authenticated users away from auth pages to their dashboard.
+  // Round 14: when the user is the bypass user (no real session), the
+  // role comes from `bypassUser.role` (set at build time by env var) —
+  // we cannot query `profiles` for the bypass id without an extra RLS
+  // round-trip, and the bypass UUID always has the right role row in DB
+  // anyway. Real users continue to use the live profiles lookup.
   if (user && authRoutes.some(r => path.startsWith(r))) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+    let role: string | null | undefined
+    if (realUser) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', realUser.id)
+        .single()
+      role = profile?.role
+    } else if (bypassUser) {
+      role = bypassUser.role
+    }
 
     const redirectUrl = request.nextUrl.clone()
-    if (profile?.role === 'doctor') {
+    if (role === 'doctor') {
       redirectUrl.pathname = `/${locale}/doctor/dashboard`
-    } else if (profile?.role === 'admin') {
+    } else if (role === 'admin') {
       redirectUrl.pathname = `/${locale}/admin/dashboard`
     } else {
       redirectUrl.pathname = `/${locale}/patient/dashboard`
