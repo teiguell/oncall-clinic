@@ -1,32 +1,43 @@
 /**
- * SMS adapter — Round 11 Fix B.
+ * SMS adapter — Round 14 (Twilio production via fetch + Messaging Service).
  *
- * Strategy for alpha: log-only stub. The Round 11 prompt asks the
- * Director to choose between Twilio (€0.05/msg, official) and a
- * cheaper alternative (WhatsApp via 360dialog ~€0.005/msg, or
- * email-only). Until that decision lands, sendSms() logs to the
- * server console and returns `{ ok: true, skipped: true }` so callers
- * can pretend it succeeded for end-to-end audit purposes.
+ * Director decision (2026-04-27):
+ *   - Provider: Twilio España, Messaging Service alphanumeric sender
+ *     "OnCall" (no purchased number — trial account uses the
+ *     Service-SID for sender selection).
+ *   - The 3 critical SMS triggers are: doctor activation OTP,
+ *     "doctor accepted your visit" (patient), "doctor arriving in
+ *     ~10 min" (patient). All other comms stay on email.
  *
- * When Director picks a provider, replace the body of `sendViaProvider`
- * with the corresponding REST call (Twilio or 360dialog both have
- * fetch-friendly APIs — no SDK needed).
+ * Env contract:
+ *   SMS_PROVIDER                  'twilio' | 'stub' (default 'stub')
+ *   TWILIO_ACCOUNT_SID            ACxxxx... (server-only)
+ *   TWILIO_AUTH_TOKEN             32-hex (server-only)
+ *   TWILIO_MESSAGING_SERVICE_SID  MGxxxx... (server-only)
  *
- * Env contract for Twilio (when activated):
- *   TWILIO_ACCOUNT_SID
- *   TWILIO_AUTH_TOKEN
- *   TWILIO_FROM_NUMBER  e.g. "+34911234567"
+ * The Twilio REST endpoint accepts `MessagingServiceSid` as a body field
+ * INSTEAD of `From` — the Messaging Service then resolves the sender
+ * (alphanumeric "OnCall" for ES). NOT setting `From` is mandatory when
+ * using the Messaging Service path.
+ *
+ * Trial-account caveat: until Tei upgrades, only verified caller IDs
+ * receive messages (others return Twilio error 21608). The smoke-test
+ * recipient is the Director's verified phone (see Round 14 inbox).
  */
 
 export interface SendSmsInput {
   to: string
   body: string
+  /** Forwarded into the notifications_log row by callers; not used by Twilio. */
+  templateKey?: string
 }
 
 export interface SendSmsResult {
   ok: boolean
   providerId?: string
   error?: string
+  /** Provider error code (Twilio numeric, when present). Useful for audit logs. */
+  errorCode?: string
   skipped?: boolean
 }
 
@@ -35,8 +46,9 @@ const TWILIO_BASE = 'https://api.twilio.com/2010-04-01/Accounts'
 async function sendViaTwilio(input: SendSmsInput): Promise<SendSmsResult> {
   const sid = process.env.TWILIO_ACCOUNT_SID
   const token = process.env.TWILIO_AUTH_TOKEN
-  const from = process.env.TWILIO_FROM_NUMBER
-  if (!sid || !token || !from) {
+  const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID
+
+  if (!sid || !token || !messagingServiceSid) {
     return { ok: false, skipped: true, error: 'twilio_not_configured' }
   }
 
@@ -48,17 +60,37 @@ async function sendViaTwilio(input: SendSmsInput): Promise<SendSmsResult> {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
+        // Round 14 — Messaging Service path (NOT `From`). The service
+        // resolves the alphanumeric "OnCall" sender for ES destinations.
+        MessagingServiceSid: messagingServiceSid,
         To: input.to,
-        From: from,
         Body: input.body,
       }).toString(),
     })
 
     if (!res.ok) {
       const detail = await res.text().catch(() => '')
-      console.error('[notifications/sms] Twilio error', res.status, detail.slice(0, 300))
-      return { ok: false, error: `twilio_${res.status}` }
+      // Try to surface Twilio's numeric error code from the JSON body.
+      let twilioCode: string | undefined
+      try {
+        const parsed = JSON.parse(detail) as { code?: number; message?: string }
+        if (typeof parsed.code === 'number') twilioCode = String(parsed.code)
+      } catch {
+        // not JSON; ignore
+      }
+      console.error(
+        '[notifications/sms] Twilio error',
+        res.status,
+        twilioCode ?? '',
+        detail.slice(0, 300),
+      )
+      return {
+        ok: false,
+        error: `twilio_${res.status}`,
+        errorCode: twilioCode,
+      }
     }
+
     const json = (await res.json().catch(() => null)) as { sid?: string } | null
     return { ok: true, providerId: json?.sid }
   } catch (err) {
@@ -75,8 +107,8 @@ export async function sendSms(input: SendSmsInput): Promise<SendSmsResult> {
     return sendViaTwilio(input)
   }
 
-  // Stub: log and pretend success. Useful for alpha audit so callers can
-  // walk the activation flow without paying €0.05 per SMS.
+  // Stub: log and pretend success. Useful for previews / local dev so
+  // callers can walk the flow without spending €0.07 per SMS.
   console.warn(
     '[notifications/sms] STUB MODE — would send SMS:\n' +
       `  to:   ${input.to}\n` +

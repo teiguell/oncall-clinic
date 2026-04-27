@@ -1440,6 +1440,13 @@
     "mandatoryError": "Debes aceptar los consentimientos obligatorios para continuar.",
     "saveError": "No se pudo guardar tu consentimiento. Inténtalo de nuevo."
   },
+  "notifications": {
+    "sms": {
+      "doctorActivationOtp": "OnCall: tu código de activación es {code}. Caduca en 10 min.",
+      "patientDoctorAccepted": "OnCall: Dr. {name} ha aceptado tu consulta. Llegada estimada {eta} min.",
+      "patientDoctorEta": "OnCall: tu médico llega en ~{eta} min al {address}."
+    }
+  },
   "landingV3": {
     "nav": {
       "howItWorks": "Cómo funciona",

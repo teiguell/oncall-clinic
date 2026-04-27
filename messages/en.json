@@ -1440,6 +1440,13 @@
     "mandatoryError": "You must accept the required consents to continue.",
     "saveError": "Could not save your consent. Please try again."
   },
+  "notifications": {
+    "sms": {
+      "doctorActivationOtp": "OnCall: your activation code is {code}. Expires in 10 min.",
+      "patientDoctorAccepted": "OnCall: Dr. {name} accepted your consultation. ETA {eta} min.",
+      "patientDoctorEta": "OnCall: your doctor arrives in ~{eta} min at {address}."
+    }
+  },
   "landingV3": {
     "nav": {
       "howItWorks": "How it works",
