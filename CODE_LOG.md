@@ -4187,3 +4187,90 @@ Migration `021_doctor_profiles_activation.sql` debe aplicarse vía Supabase MCP 
 - Hash + salt el `phone_otp_code` (alpha lo guarda plain — comentado en migration).
 - Borrado completo de `lib/auth-bypass.ts` + banner + imports una vez cerrado audit.
 - Asset: iPhone mockup en /pro hero (lado derecho desktop) cuando Claude Design v2 lo entregue.
+
+---
+
+## Round 12 — Patient Landing v3 (Claude Design handoff) — [2026-04-27]
+
+> Director Tei envió un handoff de Claude Design para el landing del paciente: nueva paleta Mediterránea (azul + ámbar), iPhone mock real con booking screen, dual cards "incluye / no incluye" + 112 pill, 4 testimonios turistas (UK/DE/FR), 8 FAQ accordion, CTA final amber→orange. URL bundle: `https://api.anthropic.com/v1/design/h/FnU-7fXWOF6sTCUITDB7gw`.
+
+### Commit
+
+```
+7768e6a  feat(round12): patient landing v3 (Claude Design handoff)
+```
+
+### Verificación R2 + R3 post-deploy
+
+- `/api/health.commit` → `7768e6a044cc9c2757654dcf17fa5a2d04965c32` ✓ matches local HEAD
+- New page chunk: `app/[locale]/page-c0c550742626526e.js`
+- `/[locale]` SSG (●) — **First Load JS down de 11.3 kB → 4.87 kB** (-57 %), porque el landing pasa de client component (Round 7) a server composition con un solo client island para el mobile menu
+
+### Live audit (Playwright + system Chrome, both locales)
+
+| Sección | Mobile (iPhone UA) | Desktop (1440px) |
+|---|---|---|
+| Hero — eyebrow / H1 / CTA "Pedir médico ahora" | ✓ | ✓ |
+| Floating badge "Dr. M. Ferrer · llega en 38 min" | hidden (correct, desktop-only) | ✓ |
+| Floating badge "3 médicos cerca" | hidden (correct) | ✓ |
+| iPhone mock — address chip + Type-of-visit chips + "Confirmar y pagar" | ✓ | ✓ |
+| Cómo funciona — 3 steps 01/02/03 | ✓ | ✓ |
+| Includes — Qué incluye / Qué NO incluye + Emergency 112 pill | ✓ | ✓ |
+| ServiceTimeline (preserved) | ✓ | ✓ |
+| Testimonials — Sarah/Markus/Camille/James | ✓ (4/4) | ✓ |
+| FAQ `<details>` count / `[open]` | 8 / 3 | 8 / 3 |
+| Final CTA "Disfruta de Ibiza · Nosotros del resto" | ✓ | ✓ |
+| IntermediaryDisclaimer (preserved) | ✓ | ✓ |
+| Footer — Ibiza Care S.L. CIF B19973569 | ✓ | ✓ |
+| MODO PRUEBA banner (LocaleLayout, preserved) | ✓ | ✓ |
+| AUTH BYPASS banner (LocaleLayout, preserved when env active) | ✓ | ✓ |
+| Console errors | **0** | **0** |
+
+### R7 compliance
+
+- iPhone mock chips renamed from "Motivo de consulta · Fiebre/Dolor/Garganta/Otitis" (clinical) to **"Tipo de visita · Urgente/Programada/Hoy/Mañana"** (logística no clínica). Coincide con lo que el booking flow real recoge (Round 9 pivot).
+- Cero referencias a síntomas, anamnesis, datos clínicos, Art.9 RGPD en todo el copy.
+- CTAs apuntan a `/[locale]/patient/request` que es el funnel de 3 steps R7-clean.
+
+### Preservación de wrappers (Round 12 Director brief)
+
+| Wrapper | Estado |
+|---|---|
+| AuthBypassBanner | preserved (LocaleLayout) |
+| TestModeBanner (MODO PRUEBA) | preserved (LocaleLayout) |
+| CookieConsentLoader | preserved (LocaleLayout) |
+| CrispChat | preserved (LocaleLayout) |
+| MedicalOrgJsonLd / FAQPageJsonLd | preserved (LocaleLayout) |
+| ServiceTimeline | preserved (embedded after IncludesV3) |
+| IntermediaryDisclaimer | preserved (slim above FooterV3) |
+| BottomTabBarWrapper | unchanged (wired in patient/doctor layouts, not landing) |
+| Auth gate /es/patient/request | unchanged (Round 9 P0-A still in effect) |
+
+### Files (12 new + 3 modified)
+
+```
+NEW:
+  components/landing/v3/LogoMark.tsx
+  components/landing/v3/LandingNavV3.tsx              (client island — mobile menu)
+  components/landing/v3/IPhoneMock.tsx                (server, R7 chips)
+  components/landing/v3/HeroV3.tsx                    (server)
+  components/landing/v3/SectionHeader.tsx             (reusable)
+  components/landing/v3/HowItWorksV3.tsx              (server)
+  components/landing/v3/IncludesV3.tsx                (server)
+  components/landing/v3/TestimonialsV3.tsx            (server)
+  components/landing/v3/FaqV3.tsx                     (server, native <details>)
+  components/landing/v3/FinalCtaV3.tsx                (server)
+  components/landing/v3/FooterV3.tsx                  (server)
+
+MODIFIED:
+  app/[locale]/page.tsx            (rewritten as async server component)
+  messages/es.json                 (+landingV3.* namespace, ~70 keys)
+  messages/en.json                 (+landingV3.* namespace, ~70 keys)
+```
+
+### Flagged for Director
+
+- **Phone number**: copy uses `+34 871 18 34 15` (real OnCall phone from existing translations). Design source had placeholder `+34 971 00 00 00` — replaced.
+- **Testimonial reviews + "4.8 / 1.247 reseñas"**: directional numbers per design source. Replace with real review-system aggregates when production review pipeline lands.
+- **iPhone mock asset**: rendered fully en CSS/SVG (no PNG/screenshot). Pin pulse uses existing `live-dot` keyframes. The design's `step` cycle (setInterval pin animation) was dropped — cosmetic only, no info loss.
+- Old `landing.*` namespace (Round 7 keys) left intact en messages files — unused by v3 but harmless.
