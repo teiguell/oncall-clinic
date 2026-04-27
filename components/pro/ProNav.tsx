@@ -3,82 +3,169 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { Stethoscope, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
 
 /**
- * Sticky nav for the /pro doctor-acquisition landing.
- * Client component (mobile menu state). Anchor links use the same ids
- * as the corresponding section components (#benefits, #income, etc.).
+ * Sticky nav for /pro — Round 13 v3 design.
+ *
+ * Client component (mobile menu state). Layout:
+ *   Logo "O" gradient + "OnCall Pro" wordmark | desktop nav | login + amber Empezar btn
+ *
+ * Anchor links match the new section ids:
+ *   #how-it-works, #income-calculator, #requirements, #faq
+ *
+ * Background: rgba(white,.78) with backdrop-blur(14px) — matches design.
  */
 export function ProNav({ locale }: { locale: string }) {
-  const t = useTranslations('pro.nav')
+  const t = useTranslations('proV3.nav')
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-      <nav className="container mx-auto flex h-16 items-center justify-between px-4" aria-label="Pro navigation">
-        <Link href={`/${locale}`} className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-600">
-            <Stethoscope className="h-4 w-4 text-white" aria-hidden="true" />
+    <header
+      className="sticky top-0 z-30 border-b border-[#EEF1F5] backdrop-blur"
+      style={{ background: 'rgba(255,255,255,0.78)' }}
+    >
+      <nav
+        className="flex h-16 items-center justify-between"
+        aria-label="Pro navigation"
+        style={{ padding: '0 clamp(18px, 4vw, 56px)' }}
+      >
+        <Link href={`/${locale}`} className="flex items-center gap-2.5">
+          <div
+            className="grid place-items-center text-white font-bold"
+            aria-hidden="true"
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
+              fontSize: 15,
+              letterSpacing: '-0.4px',
+            }}
+          >
+            O
           </div>
-          <span className="font-display text-[15px] text-navy" style={{ fontWeight: 620 }}>
-            OnCall Clinic
+          <span className="text-[16px] font-semibold tracking-[-0.4px] text-[#0B1220]">
+            OnCall <span className="text-slate-500 font-medium">Pro</span>
           </span>
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-6">
-          <a href="#benefits" className="text-sm text-slate-600 hover:text-navy transition-colors">{t('benefits')}</a>
-          <a href="#income" className="text-sm text-slate-600 hover:text-navy transition-colors">{t('income')}</a>
-          <a href="#process" className="text-sm text-slate-600 hover:text-navy transition-colors">{t('process')}</a>
-          <a href="#faq" className="text-sm text-slate-600 hover:text-navy transition-colors">{t('faq')}</a>
+        <div className="hidden md:flex items-center gap-7 text-[14px] font-medium text-[#374151]">
+          <a href="#how-it-works" className="hover:text-[#0B1220] transition-colors">
+            {t('howItWorks')}
+          </a>
+          <a href="#income-calculator" className="hover:text-[#0B1220] transition-colors">
+            {t('income')}
+          </a>
+          <a href="#requirements" className="hover:text-[#0B1220] transition-colors">
+            {t('requirements')}
+          </a>
+          <a href="#faq" className="hover:text-[#0B1220] transition-colors">
+            {t('faq')}
+          </a>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher />
             <Link
-              href={`/${locale}`}
-              className="text-sm text-slate-600 hover:text-navy transition-colors"
+              href={`/${locale}/login`}
+              className="text-[14px] font-medium text-[#374151] hover:text-[#0B1220] transition-colors mr-1"
             >
-              {t('patients')}
+              {t('login')}
             </Link>
             <Link
               href={`/${locale}/doctor/register`}
-              className="inline-flex items-center justify-center h-9 px-4 rounded-full bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors min-h-[36px]"
+              className="inline-flex items-center justify-center text-white font-semibold"
+              style={{
+                padding: '11px 18px',
+                borderRadius: 12,
+                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                fontSize: 14,
+                letterSpacing: '-0.2px',
+                boxShadow:
+                  '0 6px 18px -6px rgba(245,158,11,0.55), 0 1px 0 rgba(255,255,255,0.2) inset',
+                minHeight: 36,
+              }}
             >
-              {t('register')}
+              {t('ctaPrimary')}
             </Link>
           </div>
           <button
             type="button"
-            onClick={() => setOpen(v => !v)}
-            className="md:hidden flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg hover:bg-slate-100 transition-colors"
+            onClick={() => setOpen((v) => !v)}
+            className="md:hidden flex items-center justify-center hover:bg-slate-100 transition-colors"
+            style={{ minHeight: 44, minWidth: 44, borderRadius: 8 }}
             aria-label="Toggle menu"
             aria-expanded={open}
           >
-            {open ? <X className="h-5 w-5 text-navy" /> : <Menu className="h-5 w-5 text-navy" />}
+            {open ? (
+              <X className="h-5 w-5 text-[#0B1220]" />
+            ) : (
+              <Menu className="h-5 w-5 text-[#0B1220]" />
+            )}
           </button>
         </div>
       </nav>
 
       {open && (
-        <div className="md:hidden border-t border-slate-200 bg-white">
-          <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
-            <a href="#benefits" onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">{t('benefits')}</a>
-            <a href="#income" onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">{t('income')}</a>
-            <a href="#process" onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">{t('process')}</a>
-            <a href="#faq" onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">{t('faq')}</a>
-            <Link href={`/${locale}`} onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">{t('patients')}</Link>
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+        <div className="md:hidden border-t border-[#EEF1F5] bg-white">
+          <div className="px-5 py-4 flex flex-col gap-2">
+            <a
+              href="#how-it-works"
+              onClick={() => setOpen(false)}
+              className="text-sm py-3 min-h-[44px] flex items-center text-slate-700"
+            >
+              {t('howItWorks')}
+            </a>
+            <a
+              href="#income-calculator"
+              onClick={() => setOpen(false)}
+              className="text-sm py-3 min-h-[44px] flex items-center text-slate-700"
+            >
+              {t('income')}
+            </a>
+            <a
+              href="#requirements"
+              onClick={() => setOpen(false)}
+              className="text-sm py-3 min-h-[44px] flex items-center text-slate-700"
+            >
+              {t('requirements')}
+            </a>
+            <a
+              href="#faq"
+              onClick={() => setOpen(false)}
+              className="text-sm py-3 min-h-[44px] flex items-center text-slate-700"
+            >
+              {t('faq')}
+            </a>
+            <Link
+              href={`/${locale}/login`}
+              onClick={() => setOpen(false)}
+              className="text-sm py-3 min-h-[44px] flex items-center text-slate-700"
+            >
+              {t('login')}
+            </Link>
+            <div className="flex items-center justify-between gap-3 pt-2 border-t border-[#EEF1F5]">
               <LanguageSwitcher />
               <Link
                 href={`/${locale}/doctor/register`}
                 onClick={() => setOpen(false)}
-                className="inline-flex items-center justify-center h-10 px-5 rounded-full bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors min-h-[40px]"
+                className="inline-flex items-center justify-center text-white font-semibold"
+                style={{
+                  padding: '12px 20px',
+                  borderRadius: 12,
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  fontSize: 14,
+                  letterSpacing: '-0.2px',
+                  boxShadow:
+                    '0 6px 18px -6px rgba(245,158,11,0.55), 0 1px 0 rgba(255,255,255,0.2) inset',
+                  minHeight: 40,
+                }}
               >
-                {t('register')}
+                {t('ctaPrimary')}
               </Link>
             </div>
           </div>

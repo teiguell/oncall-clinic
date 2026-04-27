@@ -1630,6 +1630,178 @@
       "languages": "ES · EN · DE · FR"
     }
   },
+  "proV3": {
+    "nav": {
+      "howItWorks": "Cómo funciona",
+      "income": "Ingresos",
+      "requirements": "Requisitos",
+      "faq": "FAQ",
+      "login": "Iniciar sesión",
+      "ctaPrimary": "Empezar"
+    },
+    "hero": {
+      "badgeNew": "NUEVO",
+      "badgeText": "Activo en Ibiza · Mallorca Q3 2026",
+      "titleLine1": "Tu experiencia.",
+      "titleLine2": "Tu horario.",
+      "titleLine3": "Tus pacientes.",
+      "subtitle": "OnCall conecta médicos colegiados con pacientes en Ibiza. Tú eliges el precio, el horario y las consultas que aceptas.",
+      "ctaPrimary": "Empezar registro · 5 min",
+      "ctaSecondary": "Calcular mis ingresos",
+      "trustItems": [
+        "Pago al instante",
+        "Sin permanencia",
+        "Tú decides"
+      ],
+      "floatingPagoLabel": "Pago recibido",
+      "floatingPagoValue": "+€135,00 · Stripe"
+    },
+    "phone": {
+      "appName": "OnCall Pro",
+      "online": "En línea · Ibiza",
+      "todayLabel": "Hoy",
+      "todaySummary": "€264 / 2 visitas",
+      "newRequest": "Nueva solicitud",
+      "patientLocation": "Hotel Ushuaïa · Hab. 412",
+      "patientContext": "Adulto · Visita programada",
+      "priceFigure": "€150",
+      "netLabel": "+€135 neto",
+      "metaDistanceLabel": "Distancia",
+      "metaDistanceValue": "12 min",
+      "metaDistanceSub": "3,4 km",
+      "metaTypeLabel": "Tipo",
+      "metaTypeValue": "Adulto",
+      "metaTypeSub": "Programada",
+      "metaPaymentLabel": "Pago",
+      "metaPaymentValue": "Confirmado",
+      "metaPaymentSub": "Tarjeta",
+      "skipBtn": "Pasar",
+      "acceptBtn": "Aceptar visita",
+      "upcomingTitle": "Próximas",
+      "upcomingTime": "16:00",
+      "upcomingTitle2": "Villa Es Cubells · Programada",
+      "upcomingMeta": "8,2 km · Confirmada · €165",
+      "tabs": ["Inicio", "Agenda", "Ingresos", "Perfil"]
+    },
+    "stats": {
+      "kicker": "Datos · 01",
+      "items": [
+        { "value": "850+", "label": "visitas/mes", "sub": "Ibiza, abril 2026" },
+        { "value": "€132", "label": "neto medio por visita", "sub": "tras Stripe + comisión" },
+        { "value": "94 %", "label": "médicos repiten mes a mes", "sub": "retención últimos 90 días" },
+        { "value": "<7 días", "label": "al primer ingreso", "sub": "desde el alta verificada" }
+      ]
+    },
+    "income": {
+      "kicker": "Calculadora · 02",
+      "title": "Calcula tu ingreso mensual real.",
+      "subtitle": "Tarifas reales: Stripe cobra €2,50 por cobro. OnCall retiene un 10 % de comisión. Sin cuotas mensuales ni costes ocultos.",
+      "visitsLabel": "Visitas al mes",
+      "priceLabel": "Precio por visita",
+      "presets": {
+        "partTime": "Part-time",
+        "side": "Side income",
+        "fullTime": "Full-time",
+        "perMonth": "/mes"
+      },
+      "outputUpTo": "Hasta",
+      "outputUnit": "neto / mes",
+      "rowGross": "Bruto",
+      "rowStripe": "Stripe (€2,50 × {visits})",
+      "rowCommission": "Comisión OnCall (10 %)",
+      "rowNet": "Neto",
+      "footnote": "Estimación basada en visitas completadas. No incluye IRPF ni cuota RETA."
+    },
+    "process": {
+      "kicker": "Cómo empezar · 03",
+      "title": "De cero a tu primera visita en menos de 7 días.",
+      "steps": [
+        { "n": "01", "title": "Te registras", "desc": "Email + datos básicos.", "time": "5 min" },
+        { "n": "02", "title": "Subes documentos", "desc": "Colegiación COMIB, RC profesional, alta RETA.", "time": "10 min" },
+        { "n": "03", "title": "Verificación", "desc": "Validamos colegiación y documentos.", "time": "24–48 h" },
+        { "n": "04", "title": "Acepta tu primera visita", "desc": "Empieza a recibir solicitudes.", "time": "Inmediato" }
+      ]
+    },
+    "requirements": {
+      "kicker": "Requisitos · 04",
+      "title": "Seis requisitos. Sin letra pequeña.",
+      "items": [
+        { "tag": "DOC", "title": "Colegiación COMIB", "desc": "Colegiado en activo en Illes Balears, sin sanciones vigentes." },
+        { "tag": "RC", "title": "RC profesional ≥ €600 k", "desc": "Seguro de responsabilidad civil profesional al día." },
+        { "tag": "RETA", "title": "Alta en RETA", "desc": "Autónomo o sociedad. Facturas se emiten desde tu actividad." },
+        { "tag": "MOV", "title": "Móvil + transporte", "desc": "Smartphone iOS 16+/Android 10+ y vehículo propio." },
+        { "tag": "8h", "title": "Disponibilidad 8 h+/semana", "desc": "Mínimo recomendado para mantener perfil activo." },
+        { "tag": "ES", "title": "Español obligatorio", "desc": "Inglés y alemán suman bonus de €5–€10 por visita." }
+      ]
+    },
+    "cities": {
+      "kicker": "Ciudades · 05",
+      "title": "Empezamos en Ibiza. Llegamos a toda España.",
+      "items": [
+        { "name": "Ibiza", "status": "active", "label": "Activo", "note": "850+ visitas/mes" },
+        { "name": "Mallorca", "status": "soon", "label": "Q3 2026", "note": "Lista de espera abierta" },
+        { "name": "Madrid", "status": "soon", "label": "Q4 2026", "note": "Pre-registro disponible" },
+        { "name": "Barcelona", "status": "soon", "label": "Q4 2026", "note": "Pre-registro disponible" },
+        { "name": "+6 ciudades", "status": "future", "label": "2027", "note": "Valencia, Sevilla, Málaga…" }
+      ]
+    },
+    "faq": {
+      "kicker": "FAQ · 06",
+      "title": "Lo que preguntan los médicos antes de empezar.",
+      "items": [
+        {
+          "q": "¿Cuánto cobro por visita?",
+          "a": "Tú decides. La media en Ibiza está en €150 por visita estándar; especialidades y horario nocturno suben hasta €220. Tras Stripe (€2,50) y comisión OnCall (10 %), el neto medio es €132."
+        },
+        {
+          "q": "¿Cuándo recibo el dinero?",
+          "a": "Stripe Connect transfiere a tu cuenta el mismo día de la visita o al día siguiente hábil, según tu banco. No hay periodos de retención por defecto."
+        },
+        {
+          "q": "¿Qué pasa con las cancelaciones?",
+          "a": "Si el paciente cancela con menos de 2 h, se te abona el 50 % de la visita. Si cancelas tú con motivo justificado (urgencia, baja médica), no afecta a tu rating. Sin justificación, una penalización del 5 % en visibilidad durante 7 días."
+        },
+        {
+          "q": "¿Quién es responsable del acto médico?",
+          "a": "Tú, como médico colegiado, eres el responsable independiente del tratamiento clínico durante la visita (Art. 9.2.h RGPD). OnCall Clinic es un intermediario tecnológico — no recoge datos de salud ni interfiere en la decisión clínica. Tu seguro de RC profesional cubre el acto médico."
+        },
+        {
+          "q": "Stripe Connect: ¿qué datos necesitan?",
+          "a": "Stripe verifica tu identidad y la cuenta bancaria donde recibirás los pagos. Necesita IBAN + DNI/NIE + datos fiscales (RETA o sociedad). El proceso es estándar KYC, suele tardar 5–10 minutos. OnCall no almacena ni accede a esos datos."
+        },
+        {
+          "q": "¿Atiendo urgencias o solo visitas programadas?",
+          "a": "Tú eliges. Puedes activar disponibilidad sólo para Programadas, sólo para Urgentes, o ambas. Cambia esta configuración cuando quieras desde el dashboard."
+        },
+        {
+          "q": "¿OnCall guarda datos clínicos?",
+          "a": "No. OnCall es un intermediario tecnológico (LSSI-CE) — no recogemos síntomas, anamnesis ni historia clínica. Tú, como médico colegiado, eres el responsable del tratamiento clínico durante la visita presencial."
+        },
+        {
+          "q": "¿Puedo bloquear horarios o vacaciones?",
+          "a": "Sí. Activa o desactiva tu disponibilidad cuando quieras desde el dashboard. Puedes programar bloqueos por días, semanas o periodos largos. No recibes solicitudes mientras tu disponibilidad está off."
+        }
+      ]
+    },
+    "finalCta": {
+      "eyebrow": "Únete a OnCall",
+      "title": "Tu primera visita esta semana.",
+      "subtitle": "Registro en 5 minutos. Verificación en 24–48 horas. Sin permanencia, sin cuotas, sin sorpresas.",
+      "ctaPrimary": "Empezar registro · 5 min",
+      "ctaSecondary": "Hablar con el equipo →"
+    },
+    "stickyMobile": "Únete a OnCall · Empezar registro",
+    "footer": {
+      "company": "OnCall Pro",
+      "year": "© {year}",
+      "links": {
+        "privacy": "Privacidad",
+        "terms": "Términos",
+        "legal": "Aviso legal",
+        "support": "soporte@oncall.clinic"
+      }
+    }
+  },
   "pro": {
     "meta": {
       "title": "Únete a OnCall Clinic como Médico | Gana a tu Ritmo",

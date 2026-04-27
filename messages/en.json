@@ -1630,6 +1630,178 @@
       "languages": "ES · EN · DE · FR"
     }
   },
+  "proV3": {
+    "nav": {
+      "howItWorks": "How it works",
+      "income": "Income",
+      "requirements": "Requirements",
+      "faq": "FAQ",
+      "login": "Sign in",
+      "ctaPrimary": "Start"
+    },
+    "hero": {
+      "badgeNew": "NEW",
+      "badgeText": "Live in Ibiza · Mallorca Q3 2026",
+      "titleLine1": "Your expertise.",
+      "titleLine2": "Your schedule.",
+      "titleLine3": "Your patients.",
+      "subtitle": "OnCall connects licensed doctors with patients in Ibiza. You set the price, the schedule and the visits you accept.",
+      "ctaPrimary": "Start application · 5 min",
+      "ctaSecondary": "Calculate my income",
+      "trustItems": [
+        "Instant payout",
+        "No commitment",
+        "You decide"
+      ],
+      "floatingPagoLabel": "Payment received",
+      "floatingPagoValue": "+€135.00 · Stripe"
+    },
+    "phone": {
+      "appName": "OnCall Pro",
+      "online": "Online · Ibiza",
+      "todayLabel": "Today",
+      "todaySummary": "€264 / 2 visits",
+      "newRequest": "New request",
+      "patientLocation": "Hotel Ushuaïa · Room 412",
+      "patientContext": "Adult · Scheduled visit",
+      "priceFigure": "€150",
+      "netLabel": "+€135 net",
+      "metaDistanceLabel": "Distance",
+      "metaDistanceValue": "12 min",
+      "metaDistanceSub": "3.4 km",
+      "metaTypeLabel": "Type",
+      "metaTypeValue": "Adult",
+      "metaTypeSub": "Scheduled",
+      "metaPaymentLabel": "Payment",
+      "metaPaymentValue": "Confirmed",
+      "metaPaymentSub": "Card",
+      "skipBtn": "Skip",
+      "acceptBtn": "Accept visit",
+      "upcomingTitle": "Upcoming",
+      "upcomingTime": "16:00",
+      "upcomingTitle2": "Villa Es Cubells · Scheduled",
+      "upcomingMeta": "8.2 km · Confirmed · €165",
+      "tabs": ["Home", "Schedule", "Earnings", "Profile"]
+    },
+    "stats": {
+      "kicker": "Data · 01",
+      "items": [
+        { "value": "850+", "label": "visits/month", "sub": "Ibiza, April 2026" },
+        { "value": "€132", "label": "net average per visit", "sub": "after Stripe + commission" },
+        { "value": "94%", "label": "doctors keep accepting month over month", "sub": "last 90-day retention" },
+        { "value": "<7 days", "label": "to first earnings", "sub": "from verified onboarding" }
+      ]
+    },
+    "income": {
+      "kicker": "Calculator · 02",
+      "title": "Estimate your real monthly income.",
+      "subtitle": "Real fees: Stripe charges €2.50 per payment. OnCall keeps a 10% commission. No monthly fees. No hidden costs.",
+      "visitsLabel": "Visits per month",
+      "priceLabel": "Price per visit",
+      "presets": {
+        "partTime": "Part-time",
+        "side": "Side income",
+        "fullTime": "Full-time",
+        "perMonth": "/month"
+      },
+      "outputUpTo": "Up to",
+      "outputUnit": "net / month",
+      "rowGross": "Gross",
+      "rowStripe": "Stripe (€2.50 × {visits})",
+      "rowCommission": "OnCall commission (10%)",
+      "rowNet": "Net",
+      "footnote": "Estimate based on completed visits. Does not include Spanish income tax (IRPF) or self-employed contributions (RETA)."
+    },
+    "process": {
+      "kicker": "How to start · 03",
+      "title": "From zero to your first visit in under 7 days.",
+      "steps": [
+        { "n": "01", "title": "Sign up", "desc": "Email + basic data.", "time": "5 min" },
+        { "n": "02", "title": "Upload documents", "desc": "COMIB license, RC insurance, RETA registration.", "time": "10 min" },
+        { "n": "03", "title": "Verification", "desc": "We validate your license and documents.", "time": "24–48 h" },
+        { "n": "04", "title": "Accept your first visit", "desc": "Start receiving requests.", "time": "Instant" }
+      ]
+    },
+    "requirements": {
+      "kicker": "Requirements · 04",
+      "title": "Six requirements. No fine print.",
+      "items": [
+        { "tag": "DOC", "title": "COMIB license", "desc": "Active license in Illes Balears, no current sanctions." },
+        { "tag": "RC", "title": "Liability insurance ≥ €600k", "desc": "Up-to-date professional liability insurance." },
+        { "tag": "RETA", "title": "RETA registration", "desc": "Self-employed or company. Invoices issued from your activity." },
+        { "tag": "MOV", "title": "Phone + transport", "desc": "Smartphone iOS 16+/Android 10+ and own vehicle." },
+        { "tag": "8h", "title": "8h+/week availability", "desc": "Recommended minimum to keep the profile active." },
+        { "tag": "ES", "title": "Spanish required", "desc": "English and German add a €5–€10 bonus per visit." }
+      ]
+    },
+    "cities": {
+      "kicker": "Cities · 05",
+      "title": "Starting in Ibiza. Reaching all of Spain.",
+      "items": [
+        { "name": "Ibiza", "status": "active", "label": "Live", "note": "850+ visits/month" },
+        { "name": "Mallorca", "status": "soon", "label": "Q3 2026", "note": "Waitlist open" },
+        { "name": "Madrid", "status": "soon", "label": "Q4 2026", "note": "Pre-registration available" },
+        { "name": "Barcelona", "status": "soon", "label": "Q4 2026", "note": "Pre-registration available" },
+        { "name": "+6 cities", "status": "future", "label": "2027", "note": "Valencia, Sevilla, Málaga…" }
+      ]
+    },
+    "faq": {
+      "kicker": "FAQ · 06",
+      "title": "What doctors ask before starting.",
+      "items": [
+        {
+          "q": "How much do I charge per visit?",
+          "a": "You decide. The Ibiza average is €150 for a standard visit; specialties and night-time go up to €220. After Stripe (€2.50) and OnCall commission (10%), the average net is €132."
+        },
+        {
+          "q": "When do I receive the money?",
+          "a": "Stripe Connect transfers to your account the same day of the visit or the next business day, depending on your bank. There are no default retention periods."
+        },
+        {
+          "q": "What about cancellations?",
+          "a": "If the patient cancels with less than 2h notice, you're paid 50% of the visit. If you cancel with justified cause (emergency, sick leave) it doesn't affect your rating. Without justification, a 5% visibility penalty for 7 days."
+        },
+        {
+          "q": "Who is responsible for the medical act?",
+          "a": "You, as the licensed doctor, are the independent data controller for clinical treatment during the visit (Art. 9.2.h GDPR). OnCall Clinic is a technology intermediary — it doesn't handle health data or interfere with clinical decisions. Your professional liability insurance covers the medical act."
+        },
+        {
+          "q": "Stripe Connect: what data do they need?",
+          "a": "Stripe verifies your identity and the bank account that will receive payments. It needs IBAN + national ID + tax data (RETA or company). Standard KYC, usually 5–10 minutes. OnCall does not store or access that data."
+        },
+        {
+          "q": "Do I take urgent or only scheduled visits?",
+          "a": "You choose. You can enable availability for Scheduled only, Urgent only, or both. Change this from the dashboard at any time."
+        },
+        {
+          "q": "Does OnCall store clinical data?",
+          "a": "No. OnCall is a technology intermediary (LSSI-CE / e-Commerce Directive) — we do not collect symptoms, anamnesis or clinical history. You, as the licensed doctor, are responsible for clinical treatment during the in-person visit."
+        },
+        {
+          "q": "Can I block schedules or holidays?",
+          "a": "Yes. Toggle availability from the dashboard at any time. You can schedule blocks for days, weeks or longer periods. You don't receive requests while your availability is off."
+        }
+      ]
+    },
+    "finalCta": {
+      "eyebrow": "Join OnCall",
+      "title": "Your first visit this week.",
+      "subtitle": "Sign up in 5 minutes. Verification in 24–48 hours. No commitment, no fees, no surprises.",
+      "ctaPrimary": "Start application · 5 min",
+      "ctaSecondary": "Talk to the team →"
+    },
+    "stickyMobile": "Join OnCall · Start application",
+    "footer": {
+      "company": "OnCall Pro",
+      "year": "© {year}",
+      "links": {
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "legal": "Legal notice",
+        "support": "support@oncall.clinic"
+      }
+    }
+  },
   "pro": {
     "meta": {
       "title": "Join OnCall Clinic as a Doctor | Earn on Your Schedule",

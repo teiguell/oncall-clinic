@@ -6,7 +6,6 @@ import { routing } from '@/i18n/routing'
 import { ProNav } from '@/components/pro/ProNav'
 import { ProHero } from '@/components/pro/ProHero'
 import { StatsBar } from '@/components/pro/StatsBar'
-import { BenefitsGrid } from '@/components/pro/BenefitsGrid'
 import { IncomeCalculator } from '@/components/pro/IncomeCalculator'
 import { RegistrationSteps } from '@/components/pro/RegistrationSteps'
 import { RequirementsGrid } from '@/components/pro/RequirementsGrid'
@@ -20,15 +19,37 @@ const FAQ_COUNT_FOR_JSONLD = 5 // first 5 questions go into FAQPage schema
 /**
  * /[locale]/pro — doctor acquisition landing.
  *
- * Strategic intent: Spanish-speaking licensed doctors in Spain are the
+ * Round 13 v3 design (Claude Design handoff): premium B2B layout in the
+ * Stripe Pro / Doctolib Pro / Uber for Business style. Server component
+ * throughout except IncomeCalculator (sliders), StatsBar (count-up
+ * IntersectionObserver), and ProNav (mobile menu).
+ *
+ * Strategic intent: Spanish-speaking COMIB-licensed doctors are the
  * primary target. Therefore:
  *   - x-default points to /es/pro (NOT /en/pro)
  *   - SEO keywords prioritise Spanish vocabulary
  *   - English version is the secondary surface for international staff
  *     and Ibiza expat doctors
  *
- * SSG via generateStaticParams. Server component throughout except the
- * sticky nav (mobile menu state).
+ * Section order (Round 13):
+ *   1. ProNav            (sticky)
+ *   2. ProHero           (h1 gradient on "Tus pacientes" + iPhone mock)
+ *   3. StatsBar          (4 stats with count-up on scroll-into-view)
+ *   4. IncomeCalculator  (dual slider + dark-card breakdown)
+ *   5. RegistrationSteps (4 steps + horizontal progress line desktop)
+ *   6. RequirementsGrid  (6 cards 3-col + DOC/RC/RETA/MOV/8h/ES tags)
+ *   7. CitiesGrid        (5 cards inc "+6 ciudades" 2027)
+ *   8. ProFAQ            (8 questions, top 3 open, +/× rotation toggle)
+ *   9. ProCTA            (dark-navy gradient card + sticky mobile CTA)
+ *  10. Footer            (minimal — Round 13 v3 spec)
+ *
+ * Removed in v3 (was in Round 11): BenefitsGrid section. The 6-card
+ * "Diseñado para médicos que deciden" overlap with Requirements + the
+ * stats bar; the design source explicitly drops it.
+ *
+ * R7 compliance: zero clinical data anywhere. The doctor-app PhoneMock
+ * shows "Adulto · Visita programada" (logística) instead of the design
+ * source's "Fiebre + dolor abdominal" (clinical) — see PhoneMockPro.tsx.
  */
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -83,12 +104,12 @@ export default async function ProPage({
   const { locale } = await params
   setRequestLocale(locale)
 
-  // Pre-fetch FAQ + meta for the JSON-LD schemas (server-side only — they
-  // never reach the client bundle).
-  const [tMeta, tFaq, tFooter] = await Promise.all([
+  // Pre-fetch FAQ + meta + footer for SEO + final markup. JSON-LD lives
+  // server-side only — never reaches the client bundle.
+  const [tMeta, tFaq, tFooterV3] = await Promise.all([
     getTranslations({ locale, namespace: 'pro.meta' }),
-    getTranslations({ locale, namespace: 'pro.faq' }),
-    getTranslations({ locale, namespace: 'pro.footer' }),
+    getTranslations({ locale, namespace: 'proV3.faq' }),
+    getTranslations({ locale, namespace: 'proV3.footer' }),
   ])
 
   const url = `${BASE_URL}/${locale}/pro`
@@ -112,16 +133,16 @@ export default async function ProPage({
     '@type': 'FAQPage',
     mainEntity: Array.from({ length: FAQ_COUNT_FOR_JSONLD }, (_, i) => ({
       '@type': 'Question',
-      name: tFaq(`questions.${i}.q`),
+      name: tFaq(`items.${i}.q`),
       acceptedAnswer: {
         '@type': 'Answer',
-        text: tFaq(`questions.${i}.a`),
+        text: tFaq(`items.${i}.a`),
       },
     })),
   }
 
   return (
-    <main className="min-h-screen bg-white text-slate-900">
+    <main className="min-h-screen bg-[#FAFBFC] text-[#0B1220]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
@@ -134,7 +155,6 @@ export default async function ProPage({
       <ProNav locale={locale} />
       <ProHero locale={locale} />
       <StatsBar />
-      <BenefitsGrid />
       <IncomeCalculator locale={locale} />
       <RegistrationSteps />
       <RequirementsGrid />
@@ -142,31 +162,49 @@ export default async function ProPage({
       <ProFAQ />
       <ProCTA locale={locale} />
 
-      {/* Footer — Round 10 acquisition page footer (lighter than the main
-          site footer; legal links + intermediary disclaimer + copyright).
-          Round 11: pb-20 md:pb-0 keeps the sticky mobile registration CTA
-          from covering the legal links on the last scroll. */}
-      <footer className="bg-slate-900 text-white pb-20 md:pb-0">
-        <div className="container mx-auto px-4 py-10 max-w-5xl">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="text-sm text-white/80">
-              <p className="font-semibold text-white">{tFooter('company')}</p>
-              <p className="mt-1 text-[12.5px] text-white/60 max-w-md leading-relaxed">
-                {tFooter('intermediary')}
-              </p>
+      {/* Round 13 v3 footer — minimal one-line. Legal links + support email
+          per the design spec. The richer 4-column footer was Round 10. */}
+      <footer
+        className="bg-white border-t border-[#EEF1F5] text-slate-500"
+        style={{
+          padding: 'clamp(24px, 3vw, 36px) clamp(18px, 4vw, 56px) clamp(88px, 10vw, 36px)',
+          fontSize: 13,
+        }}
+      >
+        <div
+          className="max-w-[1240px] mx-auto flex flex-wrap gap-4 justify-between items-center"
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className="grid place-items-center text-white font-bold"
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 6,
+                background: 'linear-gradient(135deg,#3B82F6,#1D4ED8)',
+                fontSize: 11,
+              }}
+              aria-hidden="true"
+            >
+              O
             </div>
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-white/70">
-              <li><Link href={`/${locale}/legal/privacy`} className="hover:text-white">{tFooter('links.privacy')}</Link></li>
-              <li><Link href={`/${locale}/legal/terms`} className="hover:text-white">{tFooter('links.terms')}</Link></li>
-              <li><Link href={`/${locale}/legal/cookies`} className="hover:text-white">{tFooter('links.cookies')}</Link></li>
-              <li><Link href={`/${locale}/legal/aviso-legal`} className="hover:text-white">{tFooter('links.legal')}</Link></li>
-              <li><Link href={`/${locale}/contact`} className="hover:text-white">{tFooter('links.contact')}</Link></li>
-              <li><Link href={`/${locale}`} className="hover:text-white">{tFooter('links.patients')}</Link></li>
-            </ul>
+            <span className="text-[#0B1220] font-medium">{tFooterV3('company')}</span>
+            <span>· {tFooterV3('year', { year: new Date().getFullYear() })}</span>
           </div>
-          <p className="mt-8 pt-6 border-t border-white/10 text-[12px] text-white/50">
-            © {new Date().getFullYear()} {tFooter('company')}. {tFooter('rights')}
-          </p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href={`/${locale}/legal/privacy`} className="hover:text-[#0B1220]">
+              {tFooterV3('links.privacy')}
+            </Link>
+            <Link href={`/${locale}/legal/terms`} className="hover:text-[#0B1220]">
+              {tFooterV3('links.terms')}
+            </Link>
+            <Link href={`/${locale}/legal/aviso-legal`} className="hover:text-[#0B1220]">
+              {tFooterV3('links.legal')}
+            </Link>
+            <a href={`mailto:${tFooterV3('links.support')}`} className="hover:text-[#0B1220]">
+              {tFooterV3('links.support')}
+            </a>
+          </div>
         </div>
       </footer>
     </main>
