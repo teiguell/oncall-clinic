@@ -3,8 +3,9 @@ import type { Metadata } from 'next'
 import { Mail, Shield, Phone, MapPin, MessageCircle } from 'lucide-react'
 import { ONCALL_PHONE_DISPLAY, ONCALL_PHONE_TEL, ONCALL_WA } from '@/lib/format/phone'
 
+// Round 22-5 (Q4-11): plain title — layout template appends "| OnCall Clinic".
 export const metadata: Metadata = {
-  title: 'Contacto | Contact',
+  title: 'Contacto',
   description:
     'Contacta con OnCall Clinic: email general, DPO, teléfono, dirección y WhatsApp.',
 }

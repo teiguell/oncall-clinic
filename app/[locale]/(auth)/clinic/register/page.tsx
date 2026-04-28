@@ -9,8 +9,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'clinicAuth.register' })
+  // Round 22-5 (Q4-11): drop manual "— OnCall Clinic" suffix; layout
+  // template appends "| OnCall Clinic" automatically.
   return {
-    title: `${t('title')} — OnCall Clinic`,
+    title: t('title'),
     description: t('subtitle'),
     robots: { index: false, follow: false },
   }

@@ -2007,8 +2007,8 @@
   },
   "pro": {
     "meta": {
-      "title": "Únete a OnCall Clinic como Médico | Gana a tu Ritmo",
-      "description": "Únete a OnCall Clinic: pon tu precio, elige tu horario, cobra en 2 días. Médicos colegiados en toda España ganan €675-4.050/mes con visitas a domicilio. Sin exclusividad. Comisión 10% todo incluido."
+      "title": "Únete como médico — Gana a tu ritmo",
+      "description": "Únete a OnCall: pon tu precio, elige tu horario, cobra en 2 días. Médicos colegiados con visitas a domicilio en Ibiza."
     },
     "nav": {
       "benefits": "Ventajas",
@@ -2228,8 +2228,8 @@
   },
   "clinicLanding": {
     "meta": {
-      "title": "Clínicas Asociadas — OnCall Clinic",
-      "description": "Programa de clínicas asociadas: 8% comisión todo incluido, pacientes internacionales, panel de gestión, cobro automático. Asocia tu clínica hoy."
+      "title": "Clínicas asociadas",
+      "description": "Programa de clínicas asociadas: 8% comisión todo incluido, pacientes internacionales, panel de gestión, cobro automático."
     },
     "nav": {
       "associate": "Asociar mi clínica",
@@ -2657,7 +2657,7 @@
   },
   "doctorsListing": {
     "meta": {
-      "title": "Médicos colegiados a domicilio en Ibiza · OnCall Clinic",
+      "title": "Médicos colegiados a domicilio en Ibiza",
       "description": "Conoce a nuestros médicos colegiados COMIB en Ibiza. Atención a domicilio 24/7. ES, EN, DE, FR, IT."
     },
     "stats": {

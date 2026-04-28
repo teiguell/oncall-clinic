@@ -2007,8 +2007,8 @@
   },
   "pro": {
     "meta": {
-      "title": "Join OnCall Clinic as a Doctor | Earn on Your Schedule",
-      "description": "Join OnCall Clinic: set your own price, choose your hours, get paid in 2 days. Licensed doctors across Spain earn €675-4,050/month with home visits. No exclusivity. 10% commission all-inclusive."
+      "title": "Join as a doctor — Earn on your schedule",
+      "description": "Join OnCall: set your own price, choose your hours, get paid in 2 days. Licensed doctors with home visits in Ibiza."
     },
     "nav": {
       "benefits": "Benefits",
@@ -2228,8 +2228,8 @@
   },
   "clinicLanding": {
     "meta": {
-      "title": "Partner Clinics — OnCall Clinic",
-      "description": "Partner clinic program: 8% all-in commission, international patients, management dashboard, automatic payouts. Partner with us today."
+      "title": "Partner clinics",
+      "description": "Partner clinic program: 8% all-in commission, international patients, management dashboard, automatic payouts."
     },
     "nav": {
       "associate": "Partner with us",
@@ -2657,7 +2657,7 @@
   },
   "doctorsListing": {
     "meta": {
-      "title": "Licensed home-call doctors in Ibiza · OnCall Clinic",
+      "title": "Licensed home-call doctors in Ibiza",
       "description": "Meet our COMIB-licensed doctors in Ibiza. 24/7 home visits. ES, EN, DE, FR, IT."
     },
     "stats": {

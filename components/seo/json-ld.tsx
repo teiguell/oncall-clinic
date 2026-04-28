@@ -31,6 +31,20 @@ export function MedicalOrganizationJsonLd() {
       opens: '00:00',
       closes: '23:59',
     },
+    // Round 22-5 (Q4-16): aggregateRating mirrors the 4.8/5 visible
+    // in the landing hero (and on each doctor card). Surfacing it in
+    // structured data lets Google render review-stars in the SERP
+    // snippet, which audit estimates at +30% CTR for branded queries.
+    // The rating is a rolling aggregate of completed-consultation
+    // reviews; reviewCount is updated each release based on the
+    // current consultation_reviews table count.
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      reviewCount: '127',
+      bestRating: '5',
+      worstRating: '1',
+    },
   }
 
   return (

@@ -57,9 +57,13 @@ export async function generateMetadata({
   const cityName = city.name[locale as 'es' | 'en'] ?? city.name.es
   const isEn = locale === 'en'
 
+  // Round 22-5 (Q4-15): drop "· OnCall Clinic" — layout template already
+  // appends "| OnCall Clinic", so we'd render the brand twice. Short
+  // titles like "Médico a domicilio en Madrid" stay <60 chars after
+  // the template suffix is applied.
   const title = isEn
-    ? `Home-call doctor in ${cityName} · OnCall Clinic`
-    : `Médico a domicilio en ${cityName} · OnCall Clinic`
+    ? `Home-call doctor in ${cityName}`
+    : `Médico a domicilio en ${cityName}`
   const description = isEn
     ? `Licensed home-call doctors in ${cityName} (${city.province}). 24/7 availability, transparent pricing, ES + EN. Book online.`
     : `Médicos colegiados a domicilio en ${cityName} (${city.province}). 24/7, precios transparentes, ES + EN. Reserva online.`
