@@ -2,10 +2,11 @@
 
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
 import { useTranslations, useLocale } from 'next-intl'
-import { Zap, Calendar, ShieldCheck, CheckCircle, MapPin, ChevronRight } from 'lucide-react'
+import { Zap, Calendar, ShieldCheck, CheckCircle, ChevronRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { AddressMap } from '@/components/shared/address-map'
+import { PlacesAutocomplete } from '@/components/booking/PlacesAutocomplete'
 import type { ConsultationType } from '@/types'
 
 type StepFormData = {
@@ -35,6 +36,7 @@ export function Step0Type({
   detecting,
   detectLocation,
   onNext,
+  onAddressLocation,
 }: {
   type: ConsultationType
   setType: (next: ConsultationType) => void
@@ -45,6 +47,10 @@ export function Step0Type({
   detecting: boolean
   detectLocation: () => void
   onNext: () => void
+  // Round 16-A: PlacesAutocomplete reports back real lat/lng when the
+  // user picks a hotel suggestion or geolocates. Parent stores it in
+  // userLocation so checkout can submit accurate coords.
+  onAddressLocation?: (lat: number, lng: number) => void
 }) {
   const t = useTranslations('patient')
   const tCommon = useTranslations('common')
@@ -176,41 +182,80 @@ export function Step0Type({
         </div>
       )}
 
-      {/* Address section — Round 9 Fix A: moved up from old Step 2 */}
+      {/* Address section — Round 16-A: Google Places Autocomplete with
+          Ibiza bounds replaces the plain text input. Tourists typing
+          "Ushuaïa" / "Hard Rock" / "Pacha" get hotel suggestions with
+          real lat/lng coords. Falls back to plain text if Places script
+          fails to load (no NEXT_PUBLIC_GOOGLE_PLACES_KEY in env). */}
       <div className="pt-2 space-y-3">
         <h3 className="font-semibold text-[16px] tracking-[-0.2px] text-foreground">
           {t('request.where')}
         </h3>
 
-        <div className="relative">
-          <Input
-            placeholder={locale === 'en' ? "Hotel Ushuaïa, Platja d'en Bossa..." : "Hotel Ushuaïa, Platja d'en Bossa..."}
-            icon={<MapPin className="h-4 w-4" />}
-            error={errors.address?.message}
-            {...register('address')}
-          />
-          <button
-            type="button"
-            onClick={detectLocation}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-600 font-medium"
-          >
-            {detecting ? '...' : t('request.myLocation')}
-          </button>
-        </div>
+        {/* react-hook-form binding: hidden mirror so the form state stays
+            in sync with the autocomplete value. The autocomplete drives
+            the visible UI and reports back to react-hook-form via
+            setValue + onAddressLocation. */}
+        <input type="hidden" {...register('address')} />
+
+        <PlacesAutocomplete
+          locale={locale === 'en' ? 'en' : 'es'}
+          defaultValue={addressValue}
+          placeholder={locale === 'en' ? "Hotel Ushuaïa, Platja d'en Bossa..." : "Hotel Ushuaïa, Platja d'en Bossa..."}
+          onChange={(v) => setValue('address', v, { shouldValidate: true, shouldDirty: true })}
+          onSelect={({ address, lat, lng }) => {
+            setValue('address', address, { shouldValidate: true, shouldDirty: true })
+            onAddressLocation?.(lat, lng)
+          }}
+          onGeolocate={({ address, lat, lng }) => {
+            setValue('address', address, { shouldValidate: true, shouldDirty: true })
+            onAddressLocation?.(lat, lng)
+          }}
+        />
+
+        {errors.address?.message && (
+          <p className="text-xs text-red-600 mt-1">{errors.address.message as string}</p>
+        )}
+
+        {/* Legacy detectLocation kept as fallback — most users won't see
+            it because PlacesAutocomplete has its own "Mi ubicación" button.
+            Hidden when Places is the primary input. */}
+        <button
+          type="button"
+          onClick={detectLocation}
+          className="hidden"
+          aria-hidden="true"
+        >
+          {detecting ? '...' : t('request.myLocation')}
+        </button>
 
         <AddressMap
           onChange={(lat, lng) => {
-            // Optional: future iteration could reverse-geocode the new pin
-            // into the address input. For now we just move the pin.
-            void setValue
-            void lat
-            void lng
+            // Round 16-A: when user drags the map pin, propagate coords
+            // to the parent so checkout submits accurate coordinates.
+            onAddressLocation?.(lat, lng)
           }}
         />
       </div>
 
+      {/* Round 16-E — price preview before user reaches Step 2.
+          Tourists know what to expect; reduces "surprise pricing"
+          drop-off in Step 2. */}
+      <div
+        className="mt-4 bg-slate-50 border border-slate-200"
+        style={{ padding: '12px 14px', borderRadius: 12 }}
+      >
+        <div className="text-[11.5px] uppercase tracking-wider text-slate-500 mb-1.5 font-semibold">
+          {t('request.pricePreview.title')}
+        </div>
+        <ul className="text-[13.5px] text-slate-700 space-y-0.5">
+          <li>{t('request.pricePreview.base')}</li>
+          <li className="text-slate-500">{t('request.pricePreview.night')}</li>
+        </ul>
+      </div>
+
       {/* Trust strip */}
-      <div className="mt-4 p-3 px-3.5 bg-card rounded-xl border border-border flex items-center gap-2.5">
+      <div className="mt-3 p-3 px-3.5 bg-card rounded-xl border border-border flex items-center gap-2.5">
         <ShieldCheck className="h-[18px] w-[18px] text-emerald-600 flex-shrink-0" aria-hidden="true" />
         <p className="text-xs text-muted-foreground leading-relaxed">
           {locale === 'en'

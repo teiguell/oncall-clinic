@@ -291,6 +291,30 @@ export function Step3Confirm({
             </span>
           </label>
 
+          {/* Round 16-D — trust signals grid. Four pill-style badges
+              answering the four highest-anxiety questions a tourist
+              has BEFORE pressing pay: licensure, invoice, refund
+              policy, payment security. Visible above the disclaimer
+              + FAQ so the eye lands on it before the pay button. */}
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <TrustBadge
+              icon={<ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />}
+              label={tBooking('trust.licensed')}
+            />
+            <TrustBadge
+              icon={<Award className="h-3.5 w-3.5" aria-hidden="true" />}
+              label={tBooking('trust.invoice')}
+            />
+            <TrustBadge
+              icon={<Stethoscope className="h-3.5 w-3.5" aria-hidden="true" />}
+              label={tBooking('trust.refund90d')}
+            />
+            <TrustBadge
+              icon={<Lock className="h-3.5 w-3.5" aria-hidden="true" />}
+              label={tBooking('trust.gdpr')}
+            />
+          </div>
+
           {/* Round 18A-8 — patient disclaimer about deferred-payout flow.
               The new model: patient pays at confirm; doctor receives funds
               after completing the visit. If the doctor does not configure
@@ -329,6 +353,22 @@ export function Step3Confirm({
           </form>
         </>
       )}
+    </div>
+  )
+}
+
+/**
+ * Round 16-D — small reusable pill for the trust grid above pay button.
+ * Pure presentational; copy comes from i18n via parent.
+ */
+function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div
+      className="flex items-start gap-2 bg-white border border-slate-200 rounded-xl"
+      style={{ padding: '8px 10px' }}
+    >
+      <span className="text-emerald-600 flex-shrink-0 mt-0.5">{icon}</span>
+      <span className="text-[12px] leading-snug text-slate-700">{label}</span>
     </div>
   )
 }

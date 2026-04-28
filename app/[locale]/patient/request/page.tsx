@@ -381,6 +381,10 @@ function RequestConsultationPage() {
             detecting={detecting}
             detectLocation={detectLocation}
             onNext={nextStep}
+            // Round 16-A: capture lat/lng from Places Autocomplete /
+            // geolocate / map drag → checkout uses real coords instead
+            // of the Ibiza-centroid fallback.
+            onAddressLocation={(lat, lng) => setUserLocation({ lat, lng })}
           />
         )}
 

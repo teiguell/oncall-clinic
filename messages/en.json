@@ -412,7 +412,12 @@
       "privacyLink": "View privacy policy",
       "payNow": "Confirm and pay",
       "noDoctorSelected": "Select a doctor to continue",
-      "doctorLocked": "Chosen doctor"
+      "doctorLocked": "Chosen doctor",
+      "pricePreview": {
+        "title": "Indicative pricing",
+        "base": "Standard daytime visit: from €150",
+        "night": "Night surcharge (22:00–08:00): +€30"
+      }
     },
     "bookingSuccess": {
       "title": "Booking Confirmed!",
@@ -899,7 +904,13 @@
     "useDifferentEmail": "Use a different email",
     "continueWith": "Continue with",
     "continueWithDoctor": "Continue with Dr. {name}",
-    "payoutDisclaimer": "ⓘ Payment is captured when you confirm. The doctor receives their share once the visit is completed. If they don't set up payouts within 90 days, you receive a full automatic refund."
+    "payoutDisclaimer": "ⓘ Payment is captured when you confirm. The doctor receives their share once the visit is completed. If they don't set up payouts within 90 days, you receive a full automatic refund.",
+    "trust": {
+      "licensed": "Licensed COMIB doctor (verified)",
+      "invoice": "Legal invoice auto-emailed",
+      "refund90d": "Full refund if doctor does not complete within 90 days",
+      "gdpr": "Secure payment · Encrypted data"
+    }
   },
   "doctorCard": {
     "verified_comib": "Licence verified",

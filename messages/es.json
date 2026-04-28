@@ -412,7 +412,12 @@
       "privacyLink": "Ver política de privacidad",
       "payNow": "Confirmar y pagar",
       "noDoctorSelected": "Selecciona un médico para continuar",
-      "doctorLocked": "Médico elegido"
+      "doctorLocked": "Médico elegido",
+      "pricePreview": {
+        "title": "Precio orientativo",
+        "base": "Visita estándar diurna: desde 150 €",
+        "night": "Recargo nocturno (22:00–08:00): +30 €"
+      }
     },
     "bookingSuccess": {
       "title": "¡Reserva confirmada!",
@@ -899,7 +904,13 @@
     "useDifferentEmail": "Usar otro email",
     "continueWith": "Continuar con",
     "continueWithDoctor": "Continuar con Dr. {name}",
-    "payoutDisclaimer": "ⓘ Tu pago se realiza al confirmar. El médico recibe sus fondos al completar la visita. Si el médico no completa el alta de cobros en 90 días, se te reembolsa el importe completo automáticamente."
+    "payoutDisclaimer": "ⓘ Tu pago se realiza al confirmar. El médico recibe sus fondos al completar la visita. Si el médico no completa el alta de cobros en 90 días, se te reembolsa el importe completo automáticamente.",
+    "trust": {
+      "licensed": "Médico colegiado COMIB verificado",
+      "invoice": "Factura legal por email automática",
+      "refund90d": "Reembolso completo si médico no completa en 90 días",
+      "gdpr": "Pago seguro · Datos cifrados"
+    }
   },
   "doctorCard": {
     "verified_comib": "Colegiado verificado",
