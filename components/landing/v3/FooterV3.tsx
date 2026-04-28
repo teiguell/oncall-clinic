@@ -17,7 +17,9 @@ export function FooterV3({ locale }: { locale: string }) {
       links: [
         { labelKey: 'links.howItWorks', href: '#como-funciona' },
         { labelKey: 'links.pricing', href: '#servicio' },
-        { labelKey: 'links.hotels', href: `/${locale}/contact` },
+        // Audit B1 (2026-04-28): hoteles link removed (was misleading
+        // — pointed to /contact but suggested partnership info that
+        // doesn't exist yet). Recreate when hotel partner program ships.
         { labelKey: 'links.insurance', href: `/${locale}/contact` },
       ],
     },

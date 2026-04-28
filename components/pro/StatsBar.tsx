@@ -75,13 +75,23 @@ function StatNumber({ raw, started }: { raw: string; started: boolean }) {
   const { prefix, number, suffix } = parseValue(raw)
   const v = useCountUp(number, started)
   // Round to integer for the visible animation; final `started` snap goes to the parsed value.
-  const display = started ? Math.round(v) : 0
+  // Audit B2/B3 (2026-04-28): clamp display ≥ 0 (never render negatives even
+  // mid-animation due to floating-point noise), and HIDE the prefix until
+  // the animation has completed. The prefix "<" on values like "<7 días"
+  // would otherwise render "<0 días" mid-animation, which is meaningless
+  // ("less than zero days"). On completion we restore it so "<7 días"
+  // shows correctly. Same pattern works for "+", "€", etc. — those just
+  // render slightly later during the count-up but the final state is
+  // identical.
+  const display = started ? Math.max(0, Math.round(v)) : 0
+  const animationComplete = started && display >= Math.round(number)
+  const visiblePrefix = animationComplete ? prefix : ''
   return (
     <span
       className="font-bold tracking-[-1.2px] text-[#0B1220] tabular-nums"
       style={{ fontSize: 'clamp(28px, 3vw, 34px)' }}
     >
-      {prefix}
+      {visiblePrefix}
       {display.toLocaleString('es-ES')}
       {suffix}
     </span>

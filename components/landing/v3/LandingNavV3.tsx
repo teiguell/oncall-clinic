@@ -43,9 +43,10 @@ export function LandingNavV3({ locale }: { locale: string }) {
           <a href="#servicio" className="hover:text-[#0B1220] transition-colors">
             {t('service')}
           </a>
-          <Link href={`/${locale}/pro`} className="hover:text-[#0B1220] transition-colors">
-            {t('hotels')}
-          </Link>
+          {/* Audit B1 (2026-04-28): "Para hoteles" link removed.
+              It pointed to /pro (doctor recruitment) which was misleading
+              ("hoteles" suggests partnership info, not pro signup).
+              Director: recreate when hotel partner program launches. */}
           <a href="#faq" className="hover:text-[#0B1220] transition-colors">
             {t('faq')}
           </a>
@@ -98,9 +99,7 @@ export function LandingNavV3({ locale }: { locale: string }) {
             <a href="#servicio" onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">
               {t('service')}
             </a>
-            <Link href={`/${locale}/pro`} onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">
-              {t('hotels')}
-            </Link>
+            {/* Audit B1: hoteles link removed — see desktop comment above */}
             <a href="#faq" onClick={() => setOpen(false)} className="text-sm py-3 min-h-[44px] flex items-center text-slate-700">
               {t('faq')}
             </a>
