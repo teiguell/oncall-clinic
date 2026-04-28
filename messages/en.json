@@ -2239,10 +2239,10 @@
     },
     "hero": {
       "badge": "PARTNER CLINIC PROGRAM",
-      "title1": "Your doctors.",
-      "title2": "Our patients.",
-      "title3": "More revenue.",
-      "subtitle": "Connect your clinic with thousands of local and international patients seeking home medical care. 8% all-in commission. No monthly fee. No exclusivity.",
+      "title1": "Your clinic + OnCall.",
+      "title2": "Incremental volume.",
+      "title3": "No exclusivity.",
+      "subtitle": "Share collaborating doctors with OnCall. 8% commission all-in. No monthly fees. No exclusivity.",
       "ctaPrimary": "Partner with us",
       "ctaSecondary": "How it works",
       "seoSuffix": "Partner your clinic with OnCall — house-call doctor service in Ibiza, Mallorca, Madrid, Barcelona and Valencia."
@@ -2253,8 +2253,8 @@
         "label": "all-in commission"
       },
       "tourists": {
-        "value": "96.8M",
-        "label": "tourists/year in Spain"
+        "value": "9",
+        "label": "COMIB-licensed doctors in Ibiza"
       },
       "fee": {
         "value": "€0",

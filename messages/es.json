@@ -2239,10 +2239,10 @@
     },
     "hero": {
       "badge": "PROGRAMA CLÍNICAS ASOCIADAS",
-      "title1": "Tus médicos.",
-      "title2": "Nuestros pacientes.",
-      "title3": "Más ingresos.",
-      "subtitle": "Conecta tu clínica con miles de pacientes locales e internacionales que buscan atención médica a domicilio. 8% de comisión todo incluido. Sin cuotas mensuales. Sin exclusividad.",
+      "title1": "Tu clínica + OnCall.",
+      "title2": "Volumen incremental.",
+      "title3": "Sin exclusividad.",
+      "subtitle": "Comparte médicos colaboradores con OnCall. 8% comisión todo incluido. Sin cuotas mensuales. Sin exclusividad.",
       "ctaPrimary": "Asociar mi clínica",
       "ctaSecondary": "Ver cómo funciona",
       "seoSuffix": "Asocia tu clínica con OnCall — médico a domicilio en Ibiza, Mallorca, Madrid, Barcelona y Valencia."
@@ -2253,8 +2253,8 @@
         "label": "comisión todo incluido"
       },
       "tourists": {
-        "value": "96,8 M",
-        "label": "turistas/año en España"
+        "value": "9",
+        "label": "médicos COMIB activos en Ibiza"
       },
       "fee": {
         "value": "€0",
