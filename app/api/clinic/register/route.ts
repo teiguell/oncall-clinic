@@ -6,29 +6,29 @@ import { getBypassUser, AUTH_BYPASS, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
 export const dynamic = 'force-dynamic'
 
 /**
- * POST /api/clinic/register — Round 15 Block 6 (essential subset).
+ * POST /api/clinic/register — Round 18-C (anonymous flow).
  *
- * Creates a clinic row tied to the current authenticated user. If
- * there's no session, returns 401 — the form should send the user to
- * login first (the unified login page can stash the form data and
- * resubmit post-OAuth in Round 15B; for Phase 1, register requires
- * an existing session).
+ * Two paths:
+ *
+ *   PATH 1 (auth'd): user has a real cookie session OR is the clinic
+ *     bypass. We INSERT clinics + UPDATE profiles.role='clinic' tied
+ *     to that user. Same as the original Round 15A flow.
+ *
+ *   PATH 2 (anonymous): no session. We use the service-role client to
+ *     call supabase.auth.admin.inviteUserByEmail(email) — Supabase
+ *     creates the auth.users row + sends a magic-link email. Then
+ *     INSERT profiles + clinics + UPDATE role='clinic' tied to the
+ *     newly-minted user.
+ *     The clinic owner clicks the magic-link → lands authenticated
+ *     on /clinic/dashboard with the verification banner.
  *
  * Request body: {
  *   name, legalName, cif, email, phone?, address?, city, province?,
- *   coverageZones: string[], coverageRadiusKm: number, rcConfirmed: boolean
+ *   coverageZones: string[], coverageRadiusKm: number, rcConfirmed: boolean,
+ *   stripeAccountId?: string  // optional, populated from Stripe Connect step
  * }
  *
- * Response: { ok, clinicId } on success, { error, code } on failure.
- *
- * Side effect: writes a row to `clinics` with verification_status='pending'.
- * Admin verifies the RC + CIF manually for alpha (Round 15B will add
- * automated CIF lookup via VIES + RC document upload).
- *
- * Note: an unauthenticated register (create user + clinic in one shot)
- * is deferred to Round 15B — the existing /signup flow + redirect would
- * lose the form data. For now, the user must login first (or use the
- * pro/doctor signup) and then visit /clinic/register.
+ * Response: { ok, clinicId, magicLinkSent? } on success, { error, code } on failure.
  */
 export async function POST(request: Request) {
   let body: {
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
     coverageZones?: string[]
     coverageRadiusKm?: number
     rcConfirmed?: boolean
+    stripeAccountId?: string
   }
   try {
     body = await request.json()
@@ -50,8 +51,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_json', code: 'bad_request' }, { status: 400 })
   }
 
-  // Required-fields check (server has CHECK constraints too, but
-  // catching here keeps error messages user-friendly).
+  // Required fields
   const missing: string[] = []
   if (!body.name?.trim()) missing.push('name')
   if (!body.legalName?.trim()) missing.push('legalName')
@@ -67,54 +67,125 @@ export async function POST(request: Request) {
     )
   }
 
-  // Round 14F-3: cookieSupabase for session; service-role for INSERT in bypass.
+  const trimmedEmail = body.email!.trim().toLowerCase()
+
+  // Resolve session (Path 1) or fall through to anonymous (Path 2).
   const cookieSupabase = await createClient()
   const {
     data: { user },
   } = await cookieSupabase.auth.getUser()
   const bypass = getBypassUser()
-  const effectiveUserId = user?.id ?? (bypass && AUTH_BYPASS_ROLE === 'clinic' ? bypass.id : null)
-  if (!effectiveUserId) {
-    return NextResponse.json(
-      {
-        error: 'unauthorized',
-        code: 'unauthorized',
-        hint: 'Sign in or sign up first, then visit /clinic/register.',
-      },
-      { status: 401 },
-    )
-  }
-  const supabase = !user && AUTH_BYPASS && bypass
-    ? createServiceRoleClient()
-    : cookieSupabase
+  const sessionUserId =
+    user?.id ?? (bypass && AUTH_BYPASS_ROLE === 'clinic' ? bypass.id : null)
 
-  // Check if this user already has a clinic row.
-  const { data: existing } = await supabase
-    .from('clinics')
-    .select('id, verification_status')
-    .eq('user_id', effectiveUserId)
-    .maybeSingle()
-  if (existing) {
-    return NextResponse.json(
-      {
-        error: 'clinic_already_exists',
-        code: 'conflict',
-        clinicId: existing.id,
-        verificationStatus: existing.verification_status,
-      },
-      { status: 409 },
+  // Service-role client for ALL writes — RLS would block the anonymous
+  // path, and the auth'd path benefits from the same uniformity. We've
+  // already verified the user identity via the cookie session above
+  // for Path 1.
+  const adminClient = createServiceRoleClient()
+
+  let effectiveUserId: string
+  let magicLinkSent = false
+
+  if (sessionUserId) {
+    // PATH 1: authenticated — register tied to the existing user.
+    effectiveUserId = sessionUserId
+
+    // Check if this user already has a clinic.
+    const { data: existing } = await adminClient
+      .from('clinics')
+      .select('id, verification_status')
+      .eq('user_id', effectiveUserId)
+      .maybeSingle()
+    if (existing) {
+      return NextResponse.json(
+        {
+          error: 'clinic_already_exists',
+          code: 'conflict',
+          clinicId: existing.id,
+          verificationStatus: existing.verification_status,
+        },
+        { status: 409 },
+      )
+    }
+  } else {
+    // PATH 2: anonymous — invite a new user via magic link.
+    if (AUTH_BYPASS) {
+      // Bypass envs without a clinic role + no real session: refuse so
+      // we don't accidentally seed multiple test clinics.
+      return NextResponse.json(
+        { error: 'bypass_session_required', code: 'unauthorized' },
+        { status: 401 },
+      )
+    }
+
+    // Check if a profile with this email already exists — if yes, the
+    // anonymous register would collide.
+    const { data: existingProfile } = await adminClient
+      .from('profiles')
+      .select('id, role')
+      .eq('email', trimmedEmail)
+      .maybeSingle()
+
+    if (existingProfile) {
+      return NextResponse.json(
+        {
+          error: 'email_already_registered',
+          code: 'conflict',
+          hint: 'Inicia sesión con este email y vuelve a /clinic/register para continuar.',
+        },
+        { status: 409 },
+      )
+    }
+
+    // Mint a new auth.users row + send magic-link email.
+    type InviteAuth = {
+      auth: {
+        admin: {
+          inviteUserByEmail: (
+            email: string,
+            options?: { redirectTo?: string },
+          ) => Promise<{
+            data: { user: { id: string } | null }
+            error: { message: string } | null
+          }>
+        }
+      }
+    }
+    const baseUrl = new URL(request.url).origin
+    const invite = await (adminClient as unknown as InviteAuth).auth.admin.inviteUserByEmail(
+      trimmedEmail,
+      { redirectTo: `${baseUrl}/es/clinic/dashboard` },
     )
+    if (invite.error || !invite.data?.user?.id) {
+      console.error('[clinic/register] inviteUserByEmail error:', invite.error)
+      return NextResponse.json(
+        { error: invite.error?.message ?? 'invite_failed', code: 'invite_failed' },
+        { status: 500 },
+      )
+    }
+    effectiveUserId = invite.data.user.id
+    magicLinkSent = true
+
+    // Insert profile shell so middleware / role gates see role='clinic'.
+    await adminClient.from('profiles').insert({
+      id: effectiveUserId,
+      email: trimmedEmail,
+      full_name: body.name!.trim(),
+      role: 'clinic',
+      phone: body.phone?.trim() || null,
+    })
   }
 
-  // Insert the clinic row.
-  const { data: clinic, error: insertErr } = await supabase
+  // Insert clinic row (both paths).
+  const { data: clinic, error: insertErr } = await adminClient
     .from('clinics')
     .insert({
       user_id: effectiveUserId,
       name: body.name!.trim(),
       legal_name: body.legalName!.trim(),
       cif: body.cif!.trim().toUpperCase(),
-      email: body.email!.trim().toLowerCase(),
+      email: trimmedEmail,
       phone: body.phone?.trim() || null,
       address: body.address?.trim() || null,
       city: body.city!.trim(),
@@ -122,14 +193,13 @@ export async function POST(request: Request) {
       coverage_zones: body.coverageZones!,
       coverage_radius_km: Math.max(1, Math.min(200, Math.round(body.coverageRadiusKm ?? 25))),
       verification_status: 'pending',
-      // commission_rate, rc_insurance_verified, etc. all use migration defaults
+      stripe_account_id: body.stripeAccountId ?? null,
     })
     .select('id')
     .single()
 
   if (insertErr) {
     console.error('[clinic/register] insert error:', insertErr)
-    // Pretty error if CIF unique violates
     if (insertErr.code === '23505') {
       return NextResponse.json(
         { error: 'cif_already_registered', code: 'conflict' },
@@ -142,12 +212,22 @@ export async function POST(request: Request) {
     )
   }
 
-  // Update the user's profile.role → 'clinic' so middleware routes work.
-  // Best-effort; failure here doesn't block the flow.
-  await supabase
+  // Best-effort: align profile.role for the auth'd path (Path 1)
+  await adminClient
     .from('profiles')
     .update({ role: 'clinic' })
     .eq('id', effectiveUserId)
 
-  return NextResponse.json({ ok: true, clinicId: clinic.id, status: 'pending' })
+  // TODO: send admin notification email ("Nueva clínica pendiente
+  // de verificación: {name} CIF {cif}"). The admin contact lives in
+  // ADMIN_NOTIFY_EMAIL env var; sendEmail is in lib/notifications.
+  // Deferred to follow-up — the dashboard banner already surfaces
+  // pending verification on the clinic side.
+
+  return NextResponse.json({
+    ok: true,
+    clinicId: clinic.id,
+    status: 'pending',
+    magicLinkSent,
+  })
 }

@@ -307,10 +307,15 @@ export default function DoctorRegisterPage() {
       // contract acceptance (the doctor row is already saved). The
       // dashboard exposes a "resend activation email" button if needed.
       try {
+        // Round 18-C: pass through ?inviteToken= from the URL so the
+        // completion route can link the doctor to the inviting clinic.
+        const urlParams =
+          typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+        const inviteToken = urlParams?.get('inviteToken') ?? undefined
         await fetch('/api/doctor/onboarding-complete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ locale }),
+          body: JSON.stringify({ locale, inviteToken }),
         })
       } catch (e) {
         console.warn('[onboarding] activation kickoff failed:', e)

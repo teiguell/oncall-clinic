@@ -31,13 +31,19 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://oncall.clinic'
  * Returns: { ok: boolean, activationStatus: string }
  */
 export async function POST(request: Request) {
-  let body: { locale?: string }
+  let body: { locale?: string; inviteToken?: string }
   try {
     body = await request.json()
   } catch {
     body = {}
   }
   const locale = body.locale === 'en' ? 'en' : 'es'
+  // Round 18-C: doctor may be onboarding from a clinic-issued invite
+  // link (/doctor/onboarding?inviteToken=<UUID>). The client passes the
+  // token through to this completion endpoint.
+  const inviteToken = typeof body.inviteToken === 'string' && body.inviteToken.trim()
+    ? body.inviteToken.trim()
+    : null
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -137,5 +143,63 @@ export async function POST(request: Request) {
     console.warn('[onboarding-complete] ADMIN_NOTIFY_EMAIL unset — skipping admin notification')
   }
 
-  return NextResponse.json({ ok: true, activationStatus: 'pending_email' })
+  // Round 18-C: if the doctor onboarded via a clinic invite, link them
+  // to the clinic + mark the invite accepted. Best-effort; failures
+  // don't roll back the onboarding (clinic owner can retry the
+  // association from the dashboard).
+  let clinicLink: { clinicId: string; linkId: string } | null = null
+  if (inviteToken) {
+    try {
+      const { data: invite } = await supabase
+        .from('clinic_doctor_invites')
+        .select('id, clinic_id, expires_at, status')
+        .eq('invite_token', inviteToken)
+        .maybeSingle()
+
+      if (
+        invite &&
+        invite.status === 'pending' &&
+        new Date(invite.expires_at) > new Date()
+      ) {
+        // Insert clinic_doctors link with status='active'.
+        const { data: linkRow, error: linkErr } = await supabase
+          .from('clinic_doctors')
+          .insert({
+            clinic_id: invite.clinic_id,
+            doctor_id: doc.id,
+            status: 'active',
+          })
+          .select('id')
+          .single()
+
+        if (!linkErr && linkRow) {
+          clinicLink = { clinicId: invite.clinic_id, linkId: linkRow.id }
+          // Also stamp doctor_profiles.clinic_id as the doctor's
+          // primary clinic (booking-Step-2 branding source).
+          await supabase
+            .from('doctor_profiles')
+            .update({ clinic_id: invite.clinic_id })
+            .eq('id', doc.id)
+        }
+
+        // Mark invite accepted regardless of link insert outcome —
+        // the invite is consumed.
+        await supabase
+          .from('clinic_doctor_invites')
+          .update({
+            status: 'accepted',
+            accepted_at: new Date().toISOString(),
+          })
+          .eq('id', invite.id)
+      }
+    } catch (e) {
+      console.warn('[onboarding-complete] clinic invite link error:', e)
+    }
+  }
+
+  return NextResponse.json({
+    ok: true,
+    activationStatus: 'pending_email',
+    clinicLink,
+  })
 }

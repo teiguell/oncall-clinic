@@ -195,8 +195,18 @@ function StatusBadge({ status, t }: { status: string; t: (k: string) => string }
 function InviteModal({ onClose, onInvited }: { onClose: () => void; onInvited: () => void }) {
   const t = useTranslations('clinicDashboard.doctors.inviteModal')
   const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Round 18-C: invite returns either { path: 'registered' } (existing
+  // doctor) or { path: 'invited_anonymous', inviteUrl } (unregistered).
+  // For the latter, we display the URL so the clinic owner can paste
+  // it manually until production email lands.
+  const [inviteResult, setInviteResult] = useState<{
+    path: 'registered' | 'invited_anonymous' | 'invite_resent'
+    inviteUrl?: string
+  } | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const submit = async () => {
     if (!email.trim() || submitting) return
@@ -206,7 +216,7 @@ function InviteModal({ onClose, onInvited }: { onClose: () => void; onInvited: (
       const res = await fetch('/api/clinic/doctors/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), name: name.trim() || undefined }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -214,57 +224,127 @@ function InviteModal({ onClose, onInvited }: { onClose: () => void; onInvited: (
         setSubmitting(false)
         return
       }
-      onInvited()
+      // If the response includes an inviteUrl (anonymous path), keep
+      // the modal open so the user can copy it. Otherwise close.
+      if (data.inviteUrl) {
+        setInviteResult({ path: data.path, inviteUrl: data.inviteUrl })
+        setSubmitting(false)
+      } else {
+        onInvited()
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'network_error')
       setSubmitting(false)
     }
   }
 
+  const copyUrl = async () => {
+    if (!inviteResult?.inviteUrl) return
+    try {
+      await navigator.clipboard.writeText(inviteResult.inviteUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // ignore
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-bold text-[#0B1220] mb-3">{t('title')}</h3>
-        <p className="text-slate-600 text-[13.5px] mb-4">{t('subtitle')}</p>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="medico@email.com"
-          className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[14.5px] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
-        />
-        {error && (
-          <div className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 text-[13px]">
-            {error}
-          </div>
+        {!inviteResult ? (
+          <>
+            <h3 className="text-lg font-bold text-[#0B1220] mb-3">{t('title')}</h3>
+            <p className="text-slate-600 text-[13.5px] mb-4">{t('subtitle')}</p>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="medico@email.com"
+              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[14.5px] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+            />
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nombre (opcional)"
+              className="w-full mt-2 bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[14.5px] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+            />
+            {error && (
+              <div className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 text-[13px]">
+                {error}
+              </div>
+            )}
+            <div className="flex gap-3 mt-5 justify-end">
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-slate-700 font-medium border border-slate-200 hover:bg-slate-50 transition-colors"
+                style={{ padding: '10px 16px', borderRadius: 10, fontSize: 13.5, minHeight: 38 }}
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={submit}
+                disabled={!email.trim() || submitting}
+                className="text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #1E1B4B 100%)',
+                  fontSize: 13.5,
+                  letterSpacing: '-0.2px',
+                  minHeight: 38,
+                }}
+              >
+                {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {t('submit')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className="text-lg font-bold text-[#0B1220] mb-2">
+              ✉️ Enlace de invitación generado
+            </h3>
+            <p className="text-slate-600 text-[13.5px] mb-3">
+              El médico aún no está registrado en OnCall. Comparte este enlace
+              (válido 14 días) — al abrirlo se completará el onboarding y
+              quedará vinculado a tu clínica automáticamente.
+            </p>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-[12px] font-mono break-all text-slate-700">
+              {inviteResult.inviteUrl}
+            </div>
+            <div className="flex gap-3 mt-4 justify-end">
+              <button
+                type="button"
+                onClick={() => { setInviteResult(null); onInvited() }}
+                className="text-slate-700 font-medium border border-slate-200 hover:bg-slate-50 transition-colors"
+                style={{ padding: '10px 16px', borderRadius: 10, fontSize: 13.5, minHeight: 38 }}
+              >
+                Cerrar
+              </button>
+              <button
+                type="button"
+                onClick={copyUrl}
+                className="text-white font-semibold inline-flex items-center justify-center"
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: 10,
+                  background: copied
+                    ? 'linear-gradient(135deg, #16A34A, #15803D)'
+                    : 'linear-gradient(135deg, #4F46E5 0%, #1E1B4B 100%)',
+                  fontSize: 13.5,
+                  letterSpacing: '-0.2px',
+                  minHeight: 38,
+                }}
+              >
+                {copied ? '✓ Copiado' : 'Copiar enlace'}
+              </button>
+            </div>
+          </>
         )}
-        <div className="flex gap-3 mt-5 justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-700 font-medium border border-slate-200 hover:bg-slate-50 transition-colors"
-            style={{ padding: '10px 16px', borderRadius: 10, fontSize: 13.5, minHeight: 38 }}
-          >
-            {t('cancel')}
-          </button>
-          <button
-            type="button"
-            onClick={submit}
-            disabled={!email.trim() || submitting}
-            className="text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
-            style={{
-              padding: '10px 16px',
-              borderRadius: 10,
-              background: 'linear-gradient(135deg, #4F46E5 0%, #1E1B4B 100%)',
-              fontSize: 13.5,
-              letterSpacing: '-0.2px',
-              minHeight: 38,
-            }}
-          >
-            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {t('submit')}
-          </button>
-        </div>
       </div>
     </div>
   )
