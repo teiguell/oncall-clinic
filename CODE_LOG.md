@@ -5070,4 +5070,93 @@ $ Migration 029 applied via Supabase MCP   ✓
 
 4. **R16/R17 remainder is multi-hour work**: 7-8h total across 7 sub-tasks. Recommend splitting into 2-3 focused sessions rather than 1 mega-commit.
 
+---
+
+### [2026-04-28 PM] — MEGA-PRIORITIES Q1 (cont) — 5 more commits
+
+**Estado:** ✅ R16 fully complete (8/8). R17 5/6 complete (B/C/D/E shipped + A from prior; F deferred — needs VAPID env vars).
+**Outbox:** `.claude/cowork-outbox/2026-04-28-PM-r16-r17-batch2-shipped.md`
+
+#### Commit ladder
+
+| # | Hash | Round | What |
+|---|---|---|---|
+| 1 | `62bc84d` | R16-F+G+H | /api/doctors/count + skeleton-already-done + humanizeError helper |
+| 2 | `20fffa2` | R17-B | check-in/checkout endpoints + migration 030 + 3-panel UI |
+| 3 | `1241925` | R17-C | reviews + internal notes + migration 031 + review submit page |
+| 4 | `91ade5d` | R17-D | availability + coverage editors + migration 032 |
+| 5 | `743bb97` | R17-E | doctor live geo-position watcher + migration 033 |
+
+#### R16-F+G+H
+
+- `/api/doctors/count` public GET that piggybacks on `find_nearest_doctors` RPC → `{count, etaRange}`. Step1 shows green strip after address pick. Verified live: 9 doctors / 15-75 min ETA.
+- R16-G: `DoctorCardSkeleton` already used in DoctorSelector loading state — no work needed.
+- R16-H: NEW `lib/errors/humanize.ts` with 12-key catalog + regex-based mapping. 13 i18n keys per language under `errors.humanized.*`.
+
+#### R17-B (P0)
+
+- Migration 030: `consultations.{checkin_at, checkin_lat, checkin_lng, checkout_at}` + partial index.
+- POST `/api/consultations/[id]/checkin`: ownership + status='accepted' gate, Haversine proximity check < 300m, fires `patient.doctor_arrived` SMS.
+- POST `/api/consultations/[id]/checkout`: status='in_progress' gate, server-to-server fetch /complete for Stripe Path A/B routing, fires review-request SMS with `/[locale]/review/[id]` URL.
+- `/[locale]/doctor/consultation/[id]/page.tsx`: status-routed CheckIn/CheckOut/Receipt panels with live distance display, elapsed-time counter, 300m proximity gate.
+- ~30 i18n keys + 2 SMS templates (patientDoctorArrived, patientReviewRequest).
+
+#### R17-C (P0)
+
+- Migration 031: extends `consultation_reviews` (existed from migration 006) with review_token + submitted_at; NEW `consultation_internal_notes` table + 2 indexes + 2 RLS policies.
+- POST `/api/reviews/submit`: public unauth (token = SMS-link possession). Token can be review_token UUID or consultation_id UUID. Service-role bypasses RLS for INSERT.
+- POST `/api/consultations/[id]/internal-note`: doctor session/bypass + R7 enforcement (regex blocks síntoma/diagnóstico/prescrib*/dolor/mg-ml-dosage). Soft block.
+- `/[locale]/review/[token]/page.tsx` + ReviewSubmitForm client island: 5-star picker + 500-char comment + duplicate detection.
+
+#### R17-D (P1)
+
+- Migration 032: `doctor_profiles.{availability_schedule JSONB, coverage_lat/lng, coverage_radius_km, coverage_zones}`.
+- GET+PUT `/api/doctor/availability`: validates 7-day shape with [HH:MM, HH:MM] slot tuples.
+- GET+PUT `/api/doctor/coverage`: `{lat, lng, radiusKm, zones}` with whitelist of 6 Ibiza zones.
+- `/[locale]/doctor/availability` + `/coverage`: client editors with sticky save bars, native time inputs, PlacesAutocomplete (reused from R16-A) + radius slider + zone checkboxes.
+- ~32 i18n keys per language.
+
+#### R17-E (P2)
+
+- Migration 033: `consultations.doctor_position_lat/lng/at`.
+- POST `/api/consultations/[id]/location`: ownership + status gate (only updates while accepted/in_progress).
+- `DoctorPositionWatcher.tsx`: client island uses `watchPosition` with 25s throttle + inFlight guard. Mounted in CheckOutPanel only (R7 minimization).
+
+#### R17-F deferred
+
+Web Push needs VAPID env vars (Director task: `npx web-push generate-vapid-keys` + add to Vercel as `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT`). After that, ~1h Code work.
+
+#### R3 verification
+
+```
+$ git log --oneline -5
+743bb97 feat(round17-E): doctor live geo-position watcher
+91ade5d feat(round17-D): availability + coverage editors
+1241925 feat(round17-C): reviews + internal notes + review submit page
+20fffa2 feat(round17-B): check-in/check-out endpoints + UI screens
+62bc84d feat(round16-F,G,H): doctors count + skeleton + humanized errors
+
+$ curl -s https://oncall.clinic/api/health | jq -r .commit
+91ade5d... (R17-E pending Vercel rebuild ~2 min)
+
+$ curl -s 'https://oncall.clinic/api/doctors/count?lat=38.9067&lng=1.4206&radius_km=25'
+{"count":9,"etaRange":"15-75 min"}   ✓ R16-F live
+```
+
+#### R7 compliance
+
+✅ All 5 commits zero clinical data:
+- R16-F counts only
+- R17-B SMS = arrival logistics; checkin GPS = operational
+- R17-C reviews are rating + 500-char operational comment; internal-notes regex blocks clinical hints
+- R17-D availability + coverage are scheduling/geographic
+- R17-E position scoped to active consultation lifecycle
+
+#### Decisions flagged for Director (in outbox)
+
+1. R17-F Web Push needs VAPID env vars (Director task)
+2. Internal-notes R7 regex may have false positives on `dolor` — currently shipping permissive
+3. R17-E watcher mount narrow (CheckOutPanel only) — could expand to CheckIn pre-arrival
+4. Public doctor profile `/[locale]/medicos/[slug]` with reviews display — separate small piece, defer to next session OR R20-B
+
 
