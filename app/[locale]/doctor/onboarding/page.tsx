@@ -8,7 +8,7 @@ import { AUTH_BYPASS, AUTH_BYPASS_ROLE, BYPASS_USER_ID } from '@/lib/auth-bypass
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+// Round 15C-1: Badge import removed (only used in the deleted Stripe step block).
 import { useToast } from '@/components/ui/use-toast'
 import { SERVICES } from '@/types'
 import {
@@ -58,7 +58,9 @@ export default function DoctorRegisterPage() {
 
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [stripeConnected, setStripeConnected] = useState(false)
+  // Round 15C-1: stripeConnected state removed. Stripe Connect is no
+  // longer part of the wizard (Round 18A deferred design); the dashboard
+  // StripeSetupBanner handles post-onboarding setup.
   const [doctorProfileId, setDoctorProfileId] = useState<string | null>(null)
   const [rcFile, setRcFile] = useState<File | null>(null)
   const [retaFile, setRetaFile] = useState<File | null>(null)
@@ -106,7 +108,7 @@ export default function DoctorRegisterPage() {
 
     if (doctorProfile) {
       setDoctorProfileId(doctorProfile.id)
-      setStripeConnected(!!doctorProfile.stripe_onboarded)
+      // Round 15C-1: removed setStripeConnected — Stripe is handled post-onboarding
       setFormData(prev => ({
         ...prev,
         specialty: doctorProfile.specialty || prev.specialty,
@@ -274,33 +276,19 @@ export default function DoctorRegisterPage() {
       if (retaDocUrl) updateData.reta_document_url = retaDocUrl
 
       await supabase.from('doctor_profiles').update(updateData).eq('id', doctorProfileId)
-      // Round 18A-2: skip the Stripe Connect step (was step=2). The new
-      // Stripe-deferred design jumps straight to Contract (step=3). The
-      // Stripe step markup is left in place as dead UI; Round 18B will
-      // clean it up. The dashboard StripeSetupBanner now nudges the
-      // doctor to onboard Stripe post-first-visit.
-      setStep(3)
+      // Round 15C-1: wizard renumbered to 4 steps (Personal/Docs/Contract/Success).
+      // Documentation completes → Contract (step=2). Stripe is no longer in the
+      // wizard — the dashboard StripeSetupBanner nudges the doctor post-onboarding.
+      setStep(2)
     } catch {
       toast({ title: t('onboarding.error'), variant: 'destructive' })
     }
     setLoading(false)
   }
 
-  const handleStripeConnect = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/stripe/connect', { method: 'POST' })
-      const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        toast({ title: t('onboarding.error'), description: data.error, variant: 'destructive' })
-      }
-    } catch {
-      toast({ title: t('onboarding.error'), variant: 'destructive' })
-    }
-    setLoading(false)
-  }
+  // Round 15C-1: handleStripeConnect removed. The pre-Round-18A wizard
+  // called /api/stripe/connect inline; now Stripe onboarding lives at
+  // /api/doctor/stripe-connect/init triggered from the dashboard banner.
 
   const saveStep4 = async () => {
     if (!formData.contractAccepted || !doctorProfileId) return
@@ -328,18 +316,21 @@ export default function DoctorRegisterPage() {
         console.warn('[onboarding] activation kickoff failed:', e)
       }
 
-      setStep(4)
+      // Round 15C-1: was setStep(4) when Stripe was step 2.
+      setStep(3)
     } catch {
       toast({ title: t('onboarding.error'), variant: 'destructive' })
     }
     setLoading(false)
   }
 
-  const TOTAL_STEPS = 5
+  // Round 15C-1: 4 steps (Personal/Docs/Contract/Success).
+  // i18n keys step1/step2/step4/step5 are reused as-is to avoid touching
+  // every locale file; step3 (Stripe) entry is dropped from the array.
+  const TOTAL_STEPS = 4
   const stepLabels = [
     t('onboarding.step1'),
     t('onboarding.step2'),
-    t('onboarding.step3'),
     t('onboarding.step4'),
     t('onboarding.step5'),
   ]
@@ -641,66 +632,13 @@ export default function DoctorRegisterPage() {
             </>
           )}
 
-          {/* ========== STEP 3 — Stripe Connect ========== */}
+          {/* Round 15C-1: STEP 3 — Stripe Connect block REMOVED.
+              Stripe onboarding moved post-first-visit (Round 18A design).
+              The dashboard StripeSetupBanner handles activation from
+              /doctor/dashboard once the doctor has earned funds. */}
+
+          {/* ========== STEP 3 — Contract ========== */}
           {step === 2 && (
-            <>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  {t('onboarding.stripeConnect')}
-                </CardTitle>
-                <CardDescription>{t('onboarding.stripeConnectDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-gray-50 rounded-2xl p-6 text-center">
-                  <div className="h-16 w-16 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4">
-                    <CreditCard className="h-8 w-8 text-indigo-600" />
-                  </div>
-
-                  {stripeConnected ? (
-                    <div className="space-y-3">
-                      <Badge variant="success" className="text-sm px-3 py-1">
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        {t('onboarding.stripeConnected')}
-                      </Badge>
-                      <p className="text-sm text-gray-600">{t('onboarding.stripeConnectDesc')}</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <Badge variant="warning" className="text-sm px-3 py-1">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {t('onboarding.stripeNotConnected')}
-                      </Badge>
-                      <p className="text-sm text-gray-600">{t('onboarding.stripeConnectDesc')}</p>
-                      <Button
-                        onClick={handleStripeConnect}
-                        size="lg"
-                        className="mt-2"
-                        loading={loading}
-                      >
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        {t('onboarding.stripeConnectButton')}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setStep(1)} className="flex-1" size="lg">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    {t('onboarding.back')}
-                  </Button>
-                  <Button onClick={() => setStep(3)} className="flex-1" size="lg">
-                    {t('onboarding.next')}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
-              </CardContent>
-            </>
-          )}
-
-          {/* ========== STEP 4 — Contract ========== */}
-          {step === 3 && (
             <>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -742,8 +680,7 @@ export default function DoctorRegisterPage() {
 
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setStep(1)} className="flex-1" size="lg">
-                    {/* Round 18A-2: was setStep(2) (back to Stripe).
-                        Stripe step is skipped now; back goes to Docs (1). */}
+                    {/* Round 15C-1: Contract is now step 2; back → Docs (1). */}
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     {t('onboarding.back')}
                   </Button>
@@ -762,8 +699,8 @@ export default function DoctorRegisterPage() {
             </>
           )}
 
-          {/* ========== STEP 5 — Confirmation ========== */}
-          {step === 4 && (
+          {/* ========== STEP 4 — Confirmation ========== */}
+          {step === 3 && (
             <CardContent className="py-10 text-center">
               <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="h-10 w-10 text-green-600" />
@@ -781,7 +718,7 @@ export default function DoctorRegisterPage() {
                   {[
                     { done: !!formData.fullName, label: t('onboarding.step1') },
                     { done: !!formData.comibLicense, label: t('onboarding.step2') },
-                    { done: stripeConnected, label: t('onboarding.step3') },
+                    // Round 15C-1: step3 (Stripe) entry removed; Stripe is post-onboarding.
                     { done: formData.contractAccepted, label: t('onboarding.step4') },
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm">
