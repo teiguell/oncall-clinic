@@ -53,11 +53,11 @@
     "hero": {
       "eyebrow": "IBIZA · BALEARES",
       "title": "Médico a domicilio\nen Ibiza.",
-      "subtitle": "Consultas de medicina general en tu hotel, villa o domicilio. Desde 1 hora.",
+      "subtitle": "Consultas de medicina general en tu hotel, villa o domicilio. Menos de 60 min.",
       "ctaPrimary": "Pedir médico",
       "ctaSecondary": "Soy médico, unirme",
-      "ctaSub": "Respuesta en ~12 min",
-      "priceHint": "Desde 1 hora · Paga con tarjeta",
+      "ctaSub": "Llegada en menos de 60 min",
+      "priceHint": "Menos de 60 min · Paga con tarjeta",
       "trust1": "Sin cargo hasta que un médico acepte",
       "trust2": "Médicos colegiados y verificados",
       "trust3": "Seguimiento GPS en tiempo real",
@@ -81,7 +81,7 @@
     "howItWorks": {
       "kicker": "Cómo funciona",
       "title": "Tres pasos. Sin papeleo.",
-      "subtitle": "Del síntoma a la atención médica en menos de una hora.",
+      "subtitle": "Del síntoma a la atención médica en menos de 60 minutos.",
       "step1Title": "Cuéntanos dónde estás",
       "step1Desc": "Tu hotel, villa o domicilio. Detectamos tu ubicación o escríbela a mano.",
       "step2Title": "Elige el tipo de consulta",
@@ -109,7 +109,7 @@
       "kicker": "Por qué OnCall",
       "title": "Todo lo que necesitas",
       "urgentTitle": "Atención rápida",
-      "urgentDesc": "Solicita una consulta y un médico llegará a tu alojamiento desde 1 hora",
+      "urgentDesc": "Solicita una consulta y un médico llegará a tu alojamiento en menos de 60 min",
       "scheduledTitle": "Citas programadas",
       "scheduledDesc": "Agenda tu consulta con antelación. Elige el día y la hora que mejor te venga",
       "trackingTitle": "Seguimiento en tiempo real",
@@ -281,7 +281,7 @@
       "greetingAfternoon": "Buenas tardes",
       "subtitle": "¿Cómo podemos ayudarte hoy?",
       "emergencyNow": "Urgencia ahora",
-      "emergencyDesc": "Médico desde 1 hora",
+      "emergencyDesc": "Médico en menos de 60 min",
       "scheduleVisit": "Programar cita",
       "scheduleDesc": "Elige día y hora",
       "ivDrips": "IV Drips & Wellness",
@@ -328,9 +328,9 @@
       "urgent": {
         "title": "Urgente",
         "badge": "Disponible ahora",
-        "subtitle": "Llegada en 30-90 minutos"
+        "subtitle": "Llegada en 30-60 minutos"
       },
-      "urgentDesc": "Médico en tu puerta en 1-3 horas según tráfico de Ibiza",
+      "urgentDesc": "Médico en tu puerta en menos de 60 min en zona urbana de Ibiza",
       "urgentBadgeShort": "Respuesta <20 min",
       "scheduled": "Programada",
       "scheduledDesc": "Elige tu día y hora preferidos",
@@ -945,7 +945,7 @@
     "title": "Preguntas frecuentes",
     "subtitle": "Respuestas a lo que los pacientes preguntan más",
     "q1": "¿Cuánto tarda en llegar el médico?",
-    "a1": "Desde 1 hora tras la confirmación, dependiendo de la disponibilidad y la ubicación. El tiempo exacto se muestra cuando un médico acepta tu solicitud.",
+    "a1": "En menos de 60 min en zona urbana de Ibiza. Hasta 90 min en zonas rurales (Es Cubells, Sant Joan, Es Vedrà). Recibirás un SMS con el ETA exacto cuando un médico acepte tu solicitud.",
     "q2": "¿Qué servicios ofrecéis?",
     "a2": "Actualmente consultas de medicina general a domicilio. Próximamente: pediatría, fisioterapia y enfermería.",
     "q3": "¿Cómo pago la consulta?",
@@ -966,7 +966,7 @@
     "insuranceShort": "Seguro RC profesional incluido",
     "rgpdShort": "Datos protegidos RGPD",
     "stripeSecure": "Pago seguro con Stripe",
-    "heroLine": "Médicos colegiados verificados · Seguro RC incluido · Desde 1 hora"
+    "heroLine": "Médicos colegiados verificados · Seguro RC incluido · Menos de 60 min"
   },
   "booking2": {
     "loading_doctors": "Buscando médicos disponibles cerca de ti...",
@@ -1556,8 +1556,8 @@
       "eyebrow": "Disponible ahora en Ibiza",
       "title1": "Médico a domicilio",
       "title2": "en Ibiza.",
-      "subtitle": "Médico colegiado en tu hotel, villa o domicilio. Desde {hours}.",
-      "subtitleHours": "1 hora",
+      "subtitle": "Médico colegiado en tu hotel, villa o domicilio. {hours}.",
+      "subtitleHours": "Menos de 60 min",
       "ctaPrimary": "Pedir médico ahora",
       "phoneCta": "+34 871 18 34 15",
       "trustRating": "4.8/5",
@@ -1577,7 +1577,7 @@
         "chipToday": "Hoy",
         "chipTomorrow": "Mañana",
         "etaLabel": "Llegada estimada",
-        "etaValue": "~ 55 min",
+        "etaValue": "~ 45 min",
         "priceLabel": "Total",
         "priceValue": "129 €",
         "submit": "Confirmar y pagar"
@@ -1586,7 +1586,7 @@
     "how": {
       "eyebrow": "Cómo funciona",
       "title": "Tres pasos. Sin papeleo.",
-      "subtitle": "De la app al diagnóstico en menos de 90 minutos.",
+      "subtitle": "De la app al diagnóstico en menos de 60 minutos.",
       "steps": [
         {
           "n": "01",
@@ -1702,7 +1702,7 @@
       "badge": "Ahora mismo · 3 médicos disponibles en Ibiza",
       "title1": "Disfruta de Ibiza.",
       "title2": "Nosotros del resto.",
-      "subtitle": "Médico colegiado en tu hotel o villa. Desde 1 hora. 24/7.",
+      "subtitle": "Médico colegiado en tu hotel o villa. Menos de 60 min. 24/7.",
       "ctaPrimary": "Pedir médico ahora",
       "phoneCta": "+34 871 18 34 15",
       "trustComib": "Colegiados COMIB",

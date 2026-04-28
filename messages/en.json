@@ -53,11 +53,11 @@
     "hero": {
       "eyebrow": "IBIZA · BALEARIC ISLANDS",
       "title": "Doctor to your door\nin Ibiza.",
-      "subtitle": "General medicine house calls at your hotel, villa or home. From 1 hour.",
+      "subtitle": "General medicine consultations at your hotel, villa or home. Under 60 min.",
       "ctaPrimary": "Request a doctor",
       "ctaSecondary": "I'm a doctor, join",
-      "ctaSub": "Reply in ~12 min",
-      "priceHint": "From 1 hour · Pay by card",
+      "ctaSub": "Arrives in under 60 min",
+      "priceHint": "Under 60 min · Card payment",
       "trust1": "No charge until a doctor accepts",
       "trust2": "Licensed, verified doctors",
       "trust3": "Real-time GPS tracking",
@@ -81,7 +81,7 @@
     "howItWorks": {
       "kicker": "How it works",
       "title": "Three steps. No paperwork.",
-      "subtitle": "From symptom to medical care in under an hour.",
+      "subtitle": "From symptom to medical care in under 60 minutes.",
       "step1Title": "Tell us where you are",
       "step1Desc": "Your hotel, villa or address. We detect your location or you type it.",
       "step2Title": "Choose your consultation",
@@ -109,7 +109,7 @@
       "kicker": "Why OnCall",
       "title": "Everything you need",
       "urgentTitle": "Fast response",
-      "urgentDesc": "Request a consultation and a doctor arrives at your accommodation from 1 hour",
+      "urgentDesc": "Request a consultation and a doctor arrives at your accommodation in under 60 min",
       "scheduledTitle": "Scheduled appointments",
       "scheduledDesc": "Book in advance. Choose the day and time that suits you best",
       "trackingTitle": "Real-time tracking",
@@ -281,7 +281,7 @@
       "greetingAfternoon": "Good afternoon",
       "subtitle": "How can we help you today?",
       "emergencyNow": "Emergency now",
-      "emergencyDesc": "Doctor from 1 hour",
+      "emergencyDesc": "Doctor in under 60 min",
       "scheduleVisit": "Schedule visit",
       "scheduleDesc": "Choose day and time",
       "ivDrips": "IV Drips & Wellness",
@@ -328,9 +328,9 @@
       "urgent": {
         "title": "Urgent",
         "badge": "Available now",
-        "subtitle": "Arrival in 30-90 min"
+        "subtitle": "Arrival in 30-60 minutes"
       },
-      "urgentDesc": "Doctor at your door in 1–3 hours depending on Ibiza traffic",
+      "urgentDesc": "Doctor at your door in under 60 min in urban Ibiza",
       "urgentBadgeShort": "Reply <20 min",
       "scheduled": "Scheduled",
       "scheduledDesc": "Choose your preferred day and time",
@@ -945,7 +945,7 @@
     "title": "Frequently asked questions",
     "subtitle": "Answers to what patients ask most",
     "q1": "How long does it take for the doctor to arrive?",
-    "a1": "From 1 hour after confirmation, depending on availability and location. The exact time is shown when a doctor accepts your request.",
+    "a1": "Under 60 min in urban Ibiza. Up to 90 min in rural zones (Es Cubells, Sant Joan, Es Vedrà). You receive an SMS with the exact ETA once a doctor accepts your request.",
     "q2": "What services do you offer?",
     "a2": "Currently home-visit general medicine consultations. Coming soon: paediatrics, physiotherapy and nursing.",
     "q3": "How do I pay?",
@@ -966,7 +966,7 @@
     "insuranceShort": "Professional liability insurance included",
     "rgpdShort": "GDPR-protected data",
     "stripeSecure": "Secure payment with Stripe",
-    "heroLine": "Verified licensed doctors · Malpractice insurance · From 1 hour"
+    "heroLine": "Verified licensed doctors · RC insurance included · Under 60 min"
   },
   "booking2": {
     "loading_doctors": "Finding available doctors near you...",
@@ -1556,8 +1556,8 @@
       "eyebrow": "Available now in Ibiza",
       "title1": "House-call doctor",
       "title2": "in Ibiza.",
-      "subtitle": "Licensed doctor at your hotel, villa or home. From {hours}.",
-      "subtitleHours": "1 hour",
+      "subtitle": "Licensed doctor at your hotel, villa or home. {hours}.",
+      "subtitleHours": "Under 60 min",
       "ctaPrimary": "Request a doctor",
       "phoneCta": "+34 871 18 34 15",
       "trustRating": "4.8/5",
@@ -1577,7 +1577,7 @@
         "chipToday": "Today",
         "chipTomorrow": "Tomorrow",
         "etaLabel": "Estimated arrival",
-        "etaValue": "~ 55 min",
+        "etaValue": "~ 45 min",
         "priceLabel": "Total",
         "priceValue": "€129",
         "submit": "Confirm and pay"
@@ -1586,7 +1586,7 @@
     "how": {
       "eyebrow": "How it works",
       "title": "Three steps. No paperwork.",
-      "subtitle": "From booking to diagnosis in under 90 minutes.",
+      "subtitle": "From the app to diagnosis in under 60 minutes.",
       "steps": [
         {
           "n": "01",
@@ -1702,7 +1702,7 @@
       "badge": "Right now · 3 doctors available in Ibiza",
       "title1": "Enjoy Ibiza.",
       "title2": "We handle the rest.",
-      "subtitle": "Licensed doctor at your hotel or villa. From 1 hour. 24/7.",
+      "subtitle": "Licensed doctor at your hotel or villa. Under 60 min. 24/7.",
       "ctaPrimary": "Request a doctor",
       "phoneCta": "+34 871 18 34 15",
       "trustComib": "COMIB-licensed",
