@@ -4954,4 +4954,120 @@ MODIFIED (4):
 - Block 6: 8 more clinic API routes (profile GET/PATCH, doctors list/invite/remove, consultations, metrics)
 - Webhook update: detect `consultation.clinic_id IS NOT NULL` and use `clinic.commission_rate` (8%) for `application_fee_amount`
 
+---
+
+### [2026-04-28] — MEGA-PRIORITIES Q1 — 5 commits sequential (R14F-5/7 + R20A-FIX + R18-D + R16-A/D/E + R17-A)
+
+**Estado:** ✅ 5 of ~9 roadmap items shipped, 4 deferred to next session
+**Trigger:** `2026-04-28-1330-MEGA-PRIORITIES-Q1.md` (P0+P1 cola priorizada)
+**Outbox:** `.claude/cowork-outbox/2026-04-28-1500-mega-priorities-q1-shipped.md`
+
+#### Commit ladder
+
+| # | Hash | Round | Title |
+|---|---|---|---|
+| 1 | `cc0812d` | R14F-5 + R14F-7 | bypass-aware session helper + SSR pages + login redirect loop fix |
+| 2 | `10bb077` | R20A-FIX | keyword-rich H1 SEO suffix on /clinica + /pro |
+| 3 | `e4770ca` | R18-D | clinic bypass UUID match + banner role + `price` column fix |
+| 4 | `5c26ece` | R16-A/D/E | Google Places + trust badges + price preview |
+| 5 | `1c64bb4` | R17-A | doctor welcome wizard (5-card tour) + migration 029 |
+
+#### R14F-5 — bypass-aware SSR + R14F-7 loop fix (P0)
+
+NEW `lib/supabase/auto-client.ts` exports `getEffectiveSession(expectRole)`:
+- Single call returns `{ userId, supabase, isBypass }`
+- Real cookie session always wins (RLS via auth.uid())
+- AUTH_BYPASS=true + role match → service-role client + bypass UUID
+- Avoids double `auth.getUser()` DB roundtrip
+- `expectRole` defends bypass=clinic from rendering patient data
+
+Loop root cause: `/es/login` → middleware redirects to /dashboard (bypass user is non-null) → dashboard.page.tsx called `getUser()` → null → `if (!user) redirect('/es/login')` → loop. Fix: dashboard now uses `getEffectiveSession('patient')` so bypass returns the demo UUID and the redirect doesn't fire.
+
+Patched: `/[locale]/patient/dashboard/page.tsx` + `/[locale]/patient/consultation/[id]/success/page.tsx`. Client-side pages (tracking, doctor/dashboard) deferred — they need a thin server proxy endpoint (R14F-5b follow-up).
+
+#### R20A-FIX — H1 SEO content (P0)
+
+Audit (HEAD 158538f) showed missing-keyword H1s on /clinica + /pro. H1 tags WERE present (Cowork's grep was race-conditioned during a Vercel rebuild) but content lacked keywords. Fix: appended `<span className="sr-only">{seoSuffix}</span>` inside each H1 with locale-specific keyword phrase. Visible marketing copy preserved; Google now sees keyword-rich H1.
+
+Verified live post-deploy:
+- `/es/clinica` H1: "Tus médicos. Nuestros pacientes. Más ingresos. Asocia tu clínica con OnCall — médico a domicilio en Ibiza, Mallorca, Madrid, Barcelona y Valencia."
+- `/es/pro` H1: "Tu experiencia. Tu horario. Tus pacientes. Médico a domicilio en Ibiza, Mallorca y Madrid — únete a OnCall y atiende pacientes locales e internacionales."
+
+#### R18-D — clinic bypass alignment (P1)
+
+- Updated `lib/auth-bypass.ts` clinic seed UUID from placeholder `00000000-0000-0000-0000-000000000c01` → Cowork's seeded `4d34e2e7-b5c3-5f25-9dc7-af3afa295ce7` (real auth.users + clinics + 3 doctors via clinic_doctors, verification_status='verified')
+- `components/auth-bypass-banner.tsx` recognises `'clinic'` role
+- `/clinic/dashboard` now uses `getEffectiveSession('clinic')` so bypass mode reads real seeded KPIs (was returning empty due to RLS)
+- BONUS fix: `consultations.amount_cents` → `price` in dashboard revenue query (the original column doesn't exist; query was silently returning 0)
+
+#### R16-A/D/E — patient funnel UX (P1)
+
+- NEW `components/booking/PlacesAutocomplete.tsx`: Google Places restricted to Ibiza bounds (SW 38.85,1.20 → NE 39.10,1.65), strictBounds, lazy-loads Maps JS once per session, inline geolocate button with reverse-geocode, falls back to plain text if `NEXT_PUBLIC_GOOGLE_PLACES_KEY` missing
+- `Step0Type.tsx` wires PlacesAutocomplete with hidden `<input type="hidden">` mirror so react-hook-form state stays in sync
+- Parent `/patient/request/page.tsx` captures lat/lng via new `onAddressLocation` callback → Stripe checkout submits real coords (was Ibiza centroid fallback)
+- `Step3Confirm.tsx`: 4-pill trust grid above pay button (licensed COMIB, factura, refund 90d, GDPR)
+- `Step0Type.tsx`: pre-Step-2 price preview strip (€150 base + €30 night surcharge)
+- ~14 i18n keys added per language under `booking2.trust.*` + `patient.request.pricePreview.*`
+
+R16-B already inline in PlacesAutocomplete. R16-C (Apple/Google Pay) is Stripe Dashboard config + `.well-known` file — Director's task. R16-F/G/H deferred to follow-up commit (smaller polish).
+
+#### R17-A — doctor welcome wizard (P2)
+
+- NEW `app/[locale]/doctor/welcome/page.tsx`: server gate, auto-redirects to /dashboard if `welcome_completed_at` already set
+- NEW `components/doctor/DoctorWelcomeTour.tsx`: 5-card tour (agenda · zona · tarifa · Stripe info · ready), skip on every step, 5-dot progress indicator
+- NEW `app/api/doctor/welcome-complete/route.ts`: idempotent POST stamps `welcome_completed_at = NOW`
+- NEW migration 029_doctor_welcome_completed.sql (single TIMESTAMPTZ column, applied via Supabase MCP)
+- ~20 i18n keys per language under `doctor.welcome.*`
+
+R17-B (check-in/checkout) + R17-C (reviews) + R17-D/E/F deferred — heavier multi-hour work, separate commits.
+
+#### Deferred to next session
+
+- **R16 batch 2**: R16-F doctors count preview (new /api/doctors/count endpoint), R16-G skeleton loaders Step 2, R16-H humanized error microcopy
+- **R17-B**: check-in / check-out endpoints + 2 pages + migration + SMS hook + payment trigger (~2.5h)
+- **R17-C**: public reviews + internal notes + 2 tables + 2 endpoints + page review (~2h)
+- **R17-D**: availability + coverage pages + maps integration (~1.5h)
+- **R17-E**: live geo-positioning watcher (~0.5h)
+- **R17-F**: Web Push API + service worker + VAPID (~1h)
+
+Total deferred: ~7-8h additional work.
+
+#### R2/R3 verification
+
+```
+$ git log --oneline -5
+1c64bb4 feat(round17-A): doctor welcome wizard
+5c26ece feat(round16-A,D,E): Places + trust + price preview
+e4770ca feat(round18-D): clinic bypass UUID + price column fix
+10bb077 fix(round20A-fix): H1 SEO suffix
+cc0812d fix(round14F-5): bypass session helper + login loop fix
+
+$ curl https://oncall.clinic/api/health | jq -r .commit
+5c26ece9... (R17-A pending Vercel rebuild at audit time)
+
+$ curl https://oncall.clinic/es/clinica | grep -oE 'Asocia tu clínica con OnCall'
+Asocia tu clínica con OnCall   ✓ R20A-FIX live
+
+$ Migration 029 applied via Supabase MCP   ✓
+```
+
+#### R7 compliance
+
+✅ All 5 commits zero clinical data:
+- R14F-5 helper is plumbing only
+- R20A-FIX SEO content is location/service descriptions
+- R18-D clinic bypass is operational metadata
+- R16 patient UX adds payment + trust copy (no health data)
+- R17-A welcome wizard is purely operational onboarding
+
+#### Decisions flagged for Director
+
+1. **Client-side bypass deferred (R14F-5b)**: tracking + doctor dashboard are 'use client' with realtime channels. They need a server proxy endpoint OR a permissive RLS policy on demo seed UUIDs. Neither was done in this commit batch — flagged for spec discussion.
+
+2. **R16-C Apple Pay**: requires Stripe Dashboard "Add domain → oncall.clinic" + Apple Pay verification file at `public/.well-known/apple-developer-merchantid-domain-association`. Director task per the brief — no code change needed, just config.
+
+3. **R17-A welcome auto-redirect**: the page renders correctly when navigated to, but new doctors aren't auto-redirected from /dashboard yet. The dashboard layout would need a 2-line check `if (welcome_completed_at IS NULL && doctor activated) redirect(/welcome)`. Deferred so the wizard can be tested via direct navigation first.
+
+4. **R16/R17 remainder is multi-hour work**: 7-8h total across 7 sub-tasks. Recommend splitting into 2-3 focused sessions rather than 1 mega-commit.
+
 
