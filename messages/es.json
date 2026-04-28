@@ -716,6 +716,24 @@
         "body": "Recibirás SMS cuando un paciente te asigne. Tienes 5 minutos para aceptar.",
         "cta": "Ir al dashboard"
       }
+    },
+    "checkinout": {
+      "checkinTitle": "Marcar llegada",
+      "checkoutTitle": "Visita en curso",
+      "completedTitle": "Visita completada",
+      "distanceLabel": "Distancia al domicilio",
+      "distanceFromAddress": "A {distance} m del paciente",
+      "locating": "Obteniendo ubicación...",
+      "tooFar": "Aún estás a {distance} m. Acércate (máx {max} m).",
+      "moveCloser": "Acércate al domicilio",
+      "cta": "Marcar llegada",
+      "proximityNote": "Marca llegada cuando estés a menos de {max} m del paciente.",
+      "elapsedLabel": "Tiempo transcurrido",
+      "checkoutCta": "Finalizar visita",
+      "checkoutNote": "Al finalizar, el paciente recibirá un SMS para valorar la visita y se procesará el cobro automáticamente.",
+      "completedAt": "Finalizada {time}",
+      "backToDashboard": "Volver al dashboard",
+      "invalidStatus": "Esta consulta tiene un estado inesperado: {status}."
     }
   },
   "admin": {
@@ -1481,7 +1499,9 @@
       "doctorActivationOtp": "OnCall: tu código de activación es {code}. Caduca en 10 min.",
       "patientDoctorAccepted": "OnCall: Dr. {name} ha aceptado tu consulta. Llegada estimada {eta} min.",
       "patientDoctorEta": "OnCall: tu médico llega en ~{eta} min al {address}.",
-      "doctorPayoutPending": "OnCall: tienes {amount} esperando. Configura Stripe Connect en oncall.clinic/doctor antes del {deadline} para recibirlo. Sin alta a tiempo, se reembolsa al paciente."
+      "doctorPayoutPending": "OnCall: tienes {amount} esperando. Configura Stripe Connect en oncall.clinic/doctor antes del {deadline} para recibirlo. Sin alta a tiempo, se reembolsa al paciente.",
+      "patientDoctorArrived": "OnCall: tu médico ha llegado al {address}. Si no le ves, revisa la entrada o llámanos.",
+      "patientReviewRequest": "OnCall: gracias por usar nuestro servicio. Valora tu visita aquí: {url}"
     }
   },
   "landingV3": {

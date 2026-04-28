@@ -716,6 +716,24 @@
         "body": "You'll receive an SMS when a patient is assigned. You have 5 minutes to accept.",
         "cta": "Go to dashboard"
       }
+    },
+    "checkinout": {
+      "checkinTitle": "Mark arrival",
+      "checkoutTitle": "Visit in progress",
+      "completedTitle": "Visit completed",
+      "distanceLabel": "Distance to address",
+      "distanceFromAddress": "{distance} m from patient",
+      "locating": "Getting your location...",
+      "tooFar": "You're still {distance} m away. Move closer (max {max} m).",
+      "moveCloser": "Move closer",
+      "cta": "Mark arrival",
+      "proximityNote": "Mark arrival when you are within {max} m of the patient.",
+      "elapsedLabel": "Elapsed time",
+      "checkoutCta": "Complete visit",
+      "checkoutNote": "On completion, the patient receives a review SMS and the payment is processed automatically.",
+      "completedAt": "Completed {time}",
+      "backToDashboard": "Back to dashboard",
+      "invalidStatus": "This consultation has an unexpected status: {status}."
     }
   },
   "admin": {
@@ -1481,7 +1499,9 @@
       "doctorActivationOtp": "OnCall: your activation code is {code}. Expires in 10 min.",
       "patientDoctorAccepted": "OnCall: Dr. {name} accepted your consultation. ETA {eta} min.",
       "patientDoctorEta": "OnCall: your doctor arrives in ~{eta} min at {address}.",
-      "doctorPayoutPending": "OnCall: you have {amount} waiting. Set up Stripe Connect at oncall.clinic/doctor before {deadline} to receive it. Otherwise it's refunded to the patient."
+      "doctorPayoutPending": "OnCall: you have {amount} waiting. Set up Stripe Connect at oncall.clinic/doctor before {deadline} to receive it. Otherwise it's refunded to the patient.",
+      "patientDoctorArrived": "OnCall: your doctor has arrived at {address}. If you can't see them, check the entrance or call us.",
+      "patientReviewRequest": "OnCall: thanks for using our service. Rate your visit here: {url}"
     }
   },
   "landingV3": {
