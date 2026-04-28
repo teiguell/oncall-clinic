@@ -5407,3 +5407,96 @@ Q3 (5 polish items) confirmed shipped + live from prior session.
 
 Pending Director: Apple Pay verification file + live audit 3 lanes + email template logo integration + Stripe/SMS/Push live tests + GO/NO-GO meeting → 1 jun 2026 launch.
 
+---
+
+### [2026-04-28 23:30] — HOTFIX LOGOS + External audit P0/bug fixes
+
+**Estado:** ✅ 5 commits sequential. HOTFIX live; P0/bug fixes pending Vercel rebuild (~2 min).
+**Triggers:** `2026-04-28-1830-HOTFIX-LOGOS-COLLAPSED.md` + `2026-04-28-1900-EXTERNAL-AUDIT-P0-FIXES.md`
+
+#### Commit ladder
+
+| # | Hash | What |
+|---|---|---|
+| 1 | `3dcd4ed` | HOTFIX: Logo collapse 0x0 → Tailwind `h-8 w-auto md:h-10` + intrinsic SVG dims |
+| 2 | `d0ac2d7` | P0-1: ModoPrueba banner gate by `pk_live_*` detection |
+| 3 | `fe52ac3` | P0-2: Unify patient-facing SLA to "<60 min" (was 1h/55m/90m mixed) |
+| 4 | `934e4e8` | P0-4: /clinica hero rewrite + replace 96.8M vanity stat with "9 médicos COMIB activos" |
+| 5 | `b88a9a2` | Bugs B1-B4: hoteles link removed + StatNumber prefix-during-anim fix |
+
+#### HOTFIX `3dcd4ed` — Logo collapse 0x0
+
+Cowork DOM check on /es/clinica showed `<img>` with naturalWidth=300 + naturalHeight=95 BUT `getBoundingClientRect()={width:0, height:0}`. Root cause: inline `style={{ height: 'auto', width: 'auto', maxHeight }}` doesn't trigger aspect-ratio resolution on viewBox-only SVGs.
+
+Two layers of fix (defense-in-depth):
+- `components/shared/Logo.tsx`: refactored to `className="h-8 w-auto md:h-10"` (Tailwind 32px mobile / 40px desktop, w-auto from intrinsic ratio). Dropped `width`/`height` props from API; added `intrinsicWidth/Height` via `VARIANT_CONFIG` table for `next/image` ratio anchors.
+- `public/brand/logo-{patient,pro,clinic,patient-dark,clinic-dark}.svg`: sed-script added intrinsic `width="X" height="Y"` alongside existing viewBox.
+
+Live verified: `class="h-8 w-auto md:h-10"` present in /es HTML.
+
+#### P0-1 `d0ac2d7` — ModoPrueba banner production gate
+
+`components/test-mode-banner.tsx` adds new top-priority gate: when `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` starts with `pk_live_`, return null. Trumps existing TEST_MODE + SHOW_TEST_BANNER gates. Director can flip to live keys without remembering to flip 2 other env vars too.
+
+#### P0-2 `fe52ac3` — SLA unification
+
+13 i18n keys per language updated. Patient-facing now consistent "<60 min Ibiza urbana" / "Menos de 60 min". FAQ adds rural exception (Es Cubells, Sant Joan, Es Vedrà) up to 90 min. Internal metrics preserved (`timeline.avgResponse "12 minutos"` and `proV3.phone.metaDistanceValue "12 min"`).
+
+#### P0-4 `934e4e8` — /clinica hero + vanity stat
+
+- H1 split: "Tu clínica + OnCall." / "Volumen incremental." / "Sin exclusividad." (gradient on title3)
+- Subtitle: "Comparte médicos colaboradores con OnCall. 8% comisión todo incluido. Sin cuotas mensuales. Sin exclusividad."
+- StatsBar tourists card: "96,8 M turistas/año en España" → "9 médicos COMIB activos en Ibiza"
+- Palette navy + gold preserved per spec
+
+Live verified post-deploy: `/es/clinica` H1 contains "Tu clínica + OnCall. Volumen incremental. Sin exclusividad."
+
+#### Bugs `b88a9a2`
+
+- **B1**: "Para hoteles" link removed from `LandingNavV3` (desktop + mobile) + `FooterV3.tsx`. Was misleading (pointed to /pro recruitment, label suggested partnership info). Recreate when hotel partner program launches.
+- **B2 + B3**: `/pro` StatsBar `StatNumber` now hides the prefix (`<`, `+`, `€`) until animation completes. The "<7 días" stat was rendering "<0 días" mid-animation (meaningless). Display also clamped ≥0 for floating-point defense.
+- **B4**: CTA consistency confirmed — no regression. Kept differentiated by audience: `/es` "Pedir médico ahora", `/pro` "Empezar registro · 5 min", `/clinica` "Asociar mi clínica".
+
+#### R3 audit at end of session
+
+```
+$ git log --oneline -5
+b88a9a2 fix(audit-bugs): /es/hoteles link removed + StatNumber prefix
+934e4e8 fix(audit-p0-4): /clinica hero rewrite + replace 96.8M vanity stat
+fe52ac3 fix(audit-p0-2): unify patient-facing SLA to '<60 min'
+d0ac2d7 fix(audit-p0-1): gate MODO PRUEBA banner by Stripe pk_live detection
+3dcd4ed fix(brand): logos collapse 0x0 — Tailwind h-8 w-auto + intrinsic SVG dims
+
+$ curl -s https://oncall.clinic/api/health | jq -r .commit
+934e4e8... at audit time (P0-4 live; SLA + hotels-removal + B2/B3 rebuild ~2 min)
+
+$ curl -s https://oncall.clinic/es | grep -oE 'h-8 w-auto md:h-10'
+h-8 w-auto md:h-10   ✓ HOTFIX live
+
+$ curl -s https://oncall.clinic/es/clinica | grep -oE 'Tu clínica \+ OnCall'
+Tu clínica + OnCall   ✓ P0-4 live
+```
+
+#### R7 compliance
+
+✅ All 5 commits zero clinical surface — pure UI/copy/branding.
+
+#### Decisions flagged for Director
+
+1. **`landingV3.nav.hotels` i18n key kept orphaned**: removed from rendering but key still in messages/*.json for backward compat. Will clean up in future i18n sweep when hotel partner program launches.
+2. **`timeline.avgResponse` and `proV3.phone.metaDistanceValue` left at "12 min"**: per Director's spec these are internal/operational metrics, not patient-facing claims. The interpretation context (timeline label = "Tiempo medio de respuesta") makes the meaning clear.
+3. **/pro `<7 días` stat behavior**: "<" now appears only at the end of the count-up animation. Sub-pattern: same fix applies cleanly to "+", "€" and any other prefix on the other 3 stats.
+4. **Pricing table + lang switcher claim deferred** (P1 bonus per spec): not shipping in this batch since the 5 P0/bug commits already covered the critical path. Easy follow-up when Director picks priority.
+
+#### Alpha launch readiness
+
+✅ All shipped through MEGA-PRIORITIES Q3 + LOGOS + audit P0/bugs. Vercel rebuilds complete the visible state.
+
+Pending Director:
+1. Apple Pay verification file (Stripe Dashboard task — same as Q2 outbox)
+2. Stripe live keys rollout (will auto-hide ModoPrueba banner)
+3. Live audit 3 lanes after rebuild lands
+4. Email template logo integration (Director priority list)
+5. P1 bonus (pricing table + lang switcher) when ready
+6. GO/NO-GO meeting → 1 jun 2026 launch
+
