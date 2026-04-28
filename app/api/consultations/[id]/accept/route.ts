@@ -5,6 +5,7 @@ import { createServiceRoleClient } from '@/lib/supabase/service'
 import { getBypassUser, AUTH_BYPASS_ROLE, AUTH_BYPASS } from '@/lib/auth-bypass'
 import { sendSms } from '@/lib/notifications/sms'
 import { logNotification, isRateLimited } from '@/lib/notifications/log'
+import { pushToUser } from '@/lib/push'
 
 export const dynamic = 'force-dynamic'
 
@@ -162,6 +163,20 @@ export async function POST(
   } catch (err) {
     console.error('[consultations/accept] SMS dispatch error:', err)
     // Swallow — accept succeeded, SMS failure is logged in catch.
+  }
+
+  // Round 17-F — Web Push to the patient (complementary to SMS).
+  // Best-effort: push failures don't roll back the accept.
+  try {
+    const baseUrl = new URL(request.url).origin
+    await pushToUser(updated.patient_id, {
+      title: 'OnCall Clinic',
+      body: '✅ Tu médico ha aceptado la consulta. En camino.',
+      url: `${baseUrl}/es/patient/tracking/${consultationId}`,
+      tag: `consultation-${consultationId}`,
+    } as Parameters<typeof pushToUser>[1])
+  } catch (e) {
+    console.warn('[consultations/accept] push error (non-fatal):', e)
   }
 
   return NextResponse.json({

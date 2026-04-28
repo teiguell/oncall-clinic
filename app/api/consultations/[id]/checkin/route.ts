@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { getEffectiveSession } from '@/lib/supabase/auto-client'
 import { sendSms } from '@/lib/notifications/sms'
 import { logNotification, isRateLimited } from '@/lib/notifications/log'
+import { pushToUser } from '@/lib/push'
 
 export const dynamic = 'force-dynamic'
 
@@ -185,6 +186,19 @@ export async function POST(
     }
   } catch (e) {
     console.error('[checkin] SMS error:', e)
+  }
+
+  // Round 17-F — Web Push to patient (complementary to SMS)
+  try {
+    const baseUrl = new URL(request.url).origin
+    await pushToUser(consultation.patient_id, {
+      title: 'OnCall Clinic',
+      body: `📍 Tu médico ha llegado a ${(consultation.address ?? '').slice(0, 60)}`,
+      url: `${baseUrl}/es/patient/tracking/${consultationId}`,
+      tag: `consultation-${consultationId}`,
+    })
+  } catch (e) {
+    console.warn('[checkin] push error (non-fatal):', e)
   }
 
   return NextResponse.json({

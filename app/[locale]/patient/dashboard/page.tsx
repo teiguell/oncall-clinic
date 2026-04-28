@@ -12,6 +12,7 @@ import {
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ReferralCard } from '@/components/referral-card'
 import { DashboardGreeting } from '@/components/dashboard-greeting'
+import { PushSubscriber } from '@/components/shared/PushSubscriber'
 import { EmptyState } from '@/components/ui/empty-state'
 import type { Consultation } from '@/types'
 
@@ -135,6 +136,12 @@ export default async function PatientDashboard() {
       <Navbar user={profile} />
 
       <main className="container mx-auto px-4 py-5 max-w-md md:max-w-2xl">
+        {/* Round 17-F — push opt-in CTA. Renders only when permission
+            is 'default' (not yet asked). Hidden once granted/denied. */}
+        <div className="pt-3 px-1 mb-2">
+          <PushSubscriber />
+        </div>
+
         {/* ── 1A. Greeting + Bell ─────────────────── */}
         <div className="pt-3 px-1 mb-6">
           <div className="flex items-center justify-between">

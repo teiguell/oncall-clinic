@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Navbar } from '@/components/shared/navbar'
+import { PushSubscriber } from '@/components/shared/PushSubscriber'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -311,6 +312,10 @@ export default function DoctorDashboard() {
       <Navbar user={profile} />
 
       <main className="container mx-auto px-4 py-6 max-w-2xl">
+        {/* Round 17-F — push opt-in CTA */}
+        <div className="mb-3">
+          <PushSubscriber />
+        </div>
 
         {/* Verification alert */}
         {!isVerified && (
