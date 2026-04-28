@@ -4,6 +4,7 @@ import '../globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale, getTranslations } from 'next-intl/server'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { MedicalOrganizationJsonLd, FAQPageJsonLd } from '@/components/seo/json-ld'
@@ -112,12 +113,39 @@ export async function generateMetadata(
         'max-image-preview': 'large' as const,
       },
     },
-    alternates: {
-      canonical: `https://oncall.clinic/${locale}`,
-      languages: {
-        es: 'https://oncall.clinic/es',
-        en: 'https://oncall.clinic/en',
-      },
+    // Round 22-3 (Q4-7): dynamic hreflang ES↔EN per pathname.
+    // Reads x-pathname header set by lib/supabase/middleware.ts so the
+    // canonical + alternates target the actual page the user is on,
+    // not just the locale root. Pages with their own generateMetadata
+    // (pro, clinica, medicos, medico-domicilio/[city]) override this.
+    alternates: buildAlternates(locale, await readPathname()),
+  }
+}
+
+async function readPathname(): Promise<string> {
+  try {
+    const h = await headers()
+    const fullPath = h.get('x-pathname') ?? ''
+    // Strip the locale prefix so "/es/contact" → "/contact". Result is
+    // empty string for the locale root.
+    const stripped = fullPath.replace(/^\/(es|en)/, '')
+    return stripped
+  } catch {
+    return ''
+  }
+}
+
+function buildAlternates(locale: string, pathSuffix: string) {
+  const path = pathSuffix.startsWith('/') ? pathSuffix : `/${pathSuffix}`
+  const cleanPath = path === '/' ? '' : path
+  return {
+    canonical: `https://oncall.clinic/${locale}${cleanPath}`,
+    languages: {
+      'es-ES': `https://oncall.clinic/es${cleanPath}`,
+      'en-GB': `https://oncall.clinic/en${cleanPath}`,
+      // x-default → ES (primary market). Mirrors the per-page metadata
+      // pattern already used on /pro, /clinica, /medicos.
+      'x-default': `https://oncall.clinic/es${cleanPath}`,
     },
   }
 }
