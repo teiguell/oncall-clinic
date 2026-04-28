@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { MapPin, Loader2, Check, Clock, Navigation, MessageCircle } from 'lucide-react'
+import { DoctorPositionWatcher } from '@/components/doctor/DoctorPositionWatcher'
 
 interface ConsultationData {
   id: string
@@ -269,6 +270,9 @@ function CheckOutPanel({
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+      {/* Round 17-E: live position posted every ~30s while in_progress */}
+      <DoctorPositionWatcher consultationId={consultation.id} enabled />
+
       <div className="max-w-md mx-auto pt-8">
         <div className="bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
           <div
