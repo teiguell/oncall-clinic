@@ -3,6 +3,7 @@
 import { AlertTriangle, WifiOff, ServerCrash, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { ONCALL_PHONE_DISPLAY, ONCALL_PHONE_TEL } from '@/lib/format/phone'
 
 interface ErrorStateProps {
   title: string
@@ -34,11 +35,17 @@ export function ErrorState({
   retryLabel = 'Reintentar',
   showPhone = false,
   phoneLabel = '¿Problemas? Llámanos',
-  phoneNumber = '+34 871 18 34 15',
+  phoneNumber = ONCALL_PHONE_DISPLAY,
   icon = 'alert',
   className,
 }: ErrorStateProps) {
   const Icon = ICONS[icon]
+  // Round 22-4 (Q4-8): use canonical tel: href when the phone matches the
+  // company line; otherwise fall back to the strip-spaces approach so a
+  // caller can still pass a custom number.
+  const telHref = phoneNumber === ONCALL_PHONE_DISPLAY
+    ? ONCALL_PHONE_TEL
+    : `tel:${phoneNumber.replace(/\s/g, '')}`
 
   return (
     <div
@@ -62,7 +69,7 @@ export function ErrorState({
       {showPhone && (
         <p className="mt-4 text-sm text-muted-foreground">
           {phoneLabel}:{' '}
-          <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="text-primary hover:underline font-medium">
+          <a href={telHref} className="text-primary hover:underline font-medium">
             {phoneNumber}
           </a>
         </p>

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BookingFaq } from '@/components/shared/booking-faq'
 import type { ConsultationType } from '@/types'
+import { PLACEHOLDER_PHONE } from '@/lib/format/phone'
 
 type ConfirmFormData = {
   address: string
@@ -264,7 +265,7 @@ export function Step3Confirm({
             <Input
               type="tel"
               autoComplete="tel"
-              placeholder="+34 600 12 34 56"
+              placeholder={PLACEHOLDER_PHONE}
               icon={<Phone className="h-4 w-4" />}
               error={errors.phone?.message}
               {...register('phone')}

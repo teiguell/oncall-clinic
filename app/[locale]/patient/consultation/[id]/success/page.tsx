@@ -4,6 +4,7 @@ import { getEffectiveSession } from '@/lib/supabase/auto-client'
 import Link from 'next/link'
 import { CheckCircle2, Navigation, Phone } from 'lucide-react'
 import { SuccessPoller } from './SuccessPoller'
+import { ONCALL_PHONE_DISPLAY, ONCALL_PHONE_TEL } from '@/lib/format/phone'
 
 export const dynamic = 'force-dynamic'
 
@@ -94,11 +95,11 @@ export default async function ConsultationSuccessPage({
         )}
         <div className="pt-4 border-t border-border/60">
           <a
-            href="tel:+34871183415"
+            href={ONCALL_PHONE_TEL}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <Phone className="h-4 w-4" aria-hidden="true" />
-            +34 871 18 34 15
+            {ONCALL_PHONE_DISPLAY}
           </a>
         </div>
       </div>

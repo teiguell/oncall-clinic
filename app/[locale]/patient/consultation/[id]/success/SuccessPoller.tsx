@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Loader2, Clock, Phone } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { ONCALL_PHONE_TEL } from '@/lib/format/phone'
 
 /**
  * SuccessPoller — client component rendered when the consultation row
@@ -64,7 +65,7 @@ export function SuccessPoller({
       {exhausted && (
         <>
           <a
-            href="tel:+34871183415"
+            href={ONCALL_PHONE_TEL}
             className="inline-flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors min-h-[44px]"
           >
             <Phone className="h-4 w-4" aria-hidden="true" />

@@ -8,6 +8,7 @@ import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 import { LandingNavV3 } from '@/components/landing/v3/LandingNavV3'
 import { FooterV3 } from '@/components/landing/v3/FooterV3'
 import { Check, Phone, Clock, Stethoscope, ArrowRight } from 'lucide-react'
+import { ONCALL_PHONE_TEL } from '@/lib/format/phone'
 
 const BASE_URL = 'https://oncall.clinic'
 const FAQ_COUNT = 6
@@ -229,7 +230,7 @@ export default async function CityPage({
               <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden="true" />
             </Link>
             <a
-              href="tel:+34871183415"
+              href={ONCALL_PHONE_TEL}
               className="inline-flex items-center justify-center font-medium"
               style={{
                 padding: '13px 18px',

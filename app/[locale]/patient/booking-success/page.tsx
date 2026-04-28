@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { CheckCircle2, AlertCircle, Phone } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { useBookingStore } from '@/stores/booking-store'
+import { ONCALL_PHONE_DISPLAY, ONCALL_PHONE_TEL } from '@/lib/format/phone'
 
 export default function BookingSuccessPage() {
   return (
@@ -185,11 +186,11 @@ function BookingSuccessContent() {
                 <p className="text-sm text-amber-900 font-medium">{t('stillSearching')}</p>
                 <p className="text-sm text-amber-800">{t('preferCall')}</p>
                 <a
-                  href="tel:+34871183415"
+                  href={ONCALL_PHONE_TEL}
                   className="inline-flex items-center gap-2 text-primary font-semibold btn-hover mt-1"
                 >
                   <Phone className="h-4 w-4" aria-hidden="true" />
-                  +34 871 18 34 15
+                  {ONCALL_PHONE_DISPLAY}
                 </a>
               </div>
             )}

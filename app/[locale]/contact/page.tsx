@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import type { Metadata } from 'next'
 import { Mail, Shield, Phone, MapPin, MessageCircle } from 'lucide-react'
+import { ONCALL_PHONE_DISPLAY, ONCALL_PHONE_TEL, ONCALL_WA } from '@/lib/format/phone'
 
 export const metadata: Metadata = {
   title: 'Contacto | Contact',
@@ -33,8 +34,8 @@ export default async function ContactPage() {
           <ContactRow
             icon={<Phone className="h-5 w-5 text-primary" aria-hidden="true" />}
             label={t('phone')}
-            value="+34 871 18 34 15"
-            href="tel:+34871183415"
+            value={ONCALL_PHONE_DISPLAY}
+            href={ONCALL_PHONE_TEL}
           />
           <ContactRow
             icon={<MapPin className="h-5 w-5 text-primary" aria-hidden="true" />}
@@ -45,7 +46,7 @@ export default async function ContactPage() {
             icon={<MessageCircle className="h-5 w-5 text-primary" aria-hidden="true" />}
             label={t('whatsapp')}
             value="Chat"
-            href="https://wa.me/34871183415"
+            href={ONCALL_WA}
             external
           />
         </div>

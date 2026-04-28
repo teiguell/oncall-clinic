@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 import { User, Globe, Shield, Lock, Save, ArrowLeft, Trash2 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
+import { PLACEHOLDER_PHONE } from '@/lib/format/phone'
 
 interface Profile {
   id: string
@@ -179,7 +180,7 @@ export default function SettingsPage() {
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+34 600 000 000"
+                placeholder={PLACEHOLDER_PHONE}
                 className="mt-1"
               />
             </div>
