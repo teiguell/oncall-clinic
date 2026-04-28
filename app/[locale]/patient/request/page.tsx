@@ -333,7 +333,38 @@ function RequestConsultationPage() {
     }
   }
 
-  const nextStep = () => setStep(s => Math.min(s + 1, STEPS.length - 1))
+  // Round 22-1 (Q4-13): server-side geocoding fallback. When the user
+  // typed an address but didn't pick a Google Places suggestion (or
+  // Places API failed — see Q4-1 ApiNotActivatedMapError), call our
+  // /api/geocode endpoint to resolve to lat/lng. Falls back to Ibiza
+  // centroid if even that fails. This guarantees that step 2 always
+  // gets a valid lat/lng for the doctor-broadcast RPC.
+  const nextStep = async () => {
+    if (step === 0) {
+      // Only resolve geocode on Step 1 → Step 2 transition.
+      const address = (watch('address') || '').trim()
+      if (address && !userLocation) {
+        try {
+          const params = new URLSearchParams({ address })
+          const res = await fetch(`/api/geocode?${params.toString()}`)
+          if (res.ok) {
+            const data = (await res.json()) as {
+              lat: number
+              lng: number
+              fallback?: boolean
+            }
+            setUserLocation({ lat: data.lat, lng: data.lng })
+            // If fallback (no exact match in Ibiza), the user may want
+            // to refine. We don't block the flow — Step 2 will still
+            // show doctors near the centroid.
+          }
+        } catch (e) {
+          console.warn('[request] geocode fallback failed, using Ibiza centroid:', e)
+        }
+      }
+    }
+    setStep(s => Math.min(s + 1, STEPS.length - 1))
+  }
   const prevStep = () => setStep(s => Math.max(s - 1, 0))
 
   // Round 7 P0-A: removed `if (authChecking) return <Skeleton>` — that early

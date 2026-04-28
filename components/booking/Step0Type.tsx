@@ -47,7 +47,9 @@ export function Step0Type({
   setValue: UseFormSetValue<StepFormData>
   detecting: boolean
   detectLocation: () => void
-  onNext: () => void
+  // Round 22-1: parent (request/page.tsx) made nextStep async to fire
+  // the geocode-fallback before Step 2. Accept both sync + async.
+  onNext: () => void | Promise<void>
   // Round 16-A: PlacesAutocomplete reports back real lat/lng when the
   // user picks a hotel suggestion or geolocates. Parent stores it in
   // userLocation so checkout can submit accurate coords.
