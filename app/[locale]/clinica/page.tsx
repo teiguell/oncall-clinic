@@ -8,6 +8,7 @@ import { ClinicaHero } from '@/components/clinica/ClinicaHero'
 import { ClinicaTopSections } from '@/components/clinica/ClinicaTopSections'
 import { ClinicaMidSections } from '@/components/clinica/ClinicaMidSections'
 import { ClinicaBottomSections } from '@/components/clinica/ClinicaBottomSections'
+import { ClinicaLogos } from '@/components/clinica/ClinicaLogos'
 import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
@@ -176,6 +177,10 @@ export default async function ClinicaPage({
 
       <ClinicaNav locale={locale} />
       <ClinicaHero locale={locale} />
+      {/* Round 20 Q3-2: trusted-by logo cluster (placeholders until
+          real partner clinics sign up). Sits right under the hero so
+          it's the first thing in the scroll path post-fold. */}
+      <ClinicaLogos />
       <ClinicaTopSections />
       <ClinicaMidSections />
       <ClinicaBottomSections locale={locale} />

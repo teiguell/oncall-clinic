@@ -13,6 +13,14 @@
  */
 export function AuthBypassBanner() {
   if (process.env.NEXT_PUBLIC_AUTH_BYPASS !== 'true') return null
+
+  // Round 20 Q3-3: production gate. The banner is for Cowork audit
+  // envs (Vercel preview + local dev). On production we hide it even
+  // if AUTH_BYPASS was accidentally left on so a public visitor never
+  // sees the purple "AUTH BYPASS ACTIVO" banner. (The bypass server
+  // logic is also env-gated; the banner suppression is defense-in-depth.)
+  if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') return null
+
   const rawRole = process.env.NEXT_PUBLIC_AUTH_BYPASS_ROLE
   // Round 18-D: 'clinic' added to the recognised roles list.
   const role =

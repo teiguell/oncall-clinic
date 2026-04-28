@@ -12,7 +12,9 @@ import { RequirementsGrid } from '@/components/pro/RequirementsGrid'
 import { CitiesGrid } from '@/components/pro/CitiesGrid'
 import { ProFAQ } from '@/components/pro/ProFAQ'
 import { ProCTA } from '@/components/pro/ProCTA'
+import { ProTestimonial } from '@/components/pro/ProTestimonial'
 import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
+import { createServiceRoleClient } from '@/lib/supabase/service'
 
 const BASE_URL = 'https://oncall.clinic'
 const FAQ_COUNT_FOR_JSONLD = 5 // first 5 questions go into FAQPage schema
@@ -115,6 +117,23 @@ export default async function ProPage({
 
   const url = `${BASE_URL}/${locale}/pro`
 
+  // Round 20 Q3-5: dynamic count of active doctors for the hero badge.
+  // Service-role client bypasses RLS for this read-only count. Falls
+  // back to 9 (the prior static value) on any error so the badge
+  // always renders.
+  let activeDoctors = 9
+  try {
+    const supabaseAdmin = createServiceRoleClient()
+    const { count } = await supabaseAdmin
+      .from('doctor_profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('activation_status', 'active')
+      .eq('verification_status', 'verified')
+    if (typeof count === 'number' && count > 0) activeDoctors = count
+  } catch (e) {
+    console.warn('[/pro] doctors count fetch failed, using fallback', e)
+  }
+
   const webPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -164,10 +183,12 @@ export default async function ProPage({
       />
 
       <ProNav locale={locale} />
-      <ProHero locale={locale} />
+      <ProHero locale={locale} activeDoctors={activeDoctors} />
       <StatsBar />
       <IncomeCalculator locale={locale} />
       <RegistrationSteps />
+      {/* Round 20 Q3-2: single-doctor testimonial card for social proof */}
+      <ProTestimonial />
       <RequirementsGrid />
       <CitiesGrid />
       <ProFAQ />

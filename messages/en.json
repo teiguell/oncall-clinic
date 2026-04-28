@@ -1745,7 +1745,7 @@
     },
     "hero": {
       "badgeNew": "NEW",
-      "badgeText": "Live in Ibiza · Mallorca Q3 2026",
+      "badgeText": "{count} active doctors in Ibiza · Mallorca Q3 2026",
       "titleLine1": "Your expertise.",
       "titleLine2": "Your schedule.",
       "titleLine3": "Your patients.",
@@ -1995,6 +1995,12 @@
         "legal": "Legal notice",
         "support": "support@oncall.clinic"
       }
+    },
+    "testimonial": {
+      "quote": "OnCall let me choose my own hours. I see patients in Ibiza only in summer and earn more than at my Madrid clinic the rest of the year. The commission is transparent and tourist patients pay without friction.",
+      "author": "Dr. Carlos R.",
+      "role": "General medicine · COMIB 28301",
+      "initials": "CR"
     }
   },
   "pro": {
@@ -2500,6 +2506,12 @@
         "support": "clinicas@oncall.clinic"
       },
       "year": "© {year} OnCall Clinic"
+    },
+    "logos": {
+      "eyebrow": "Trusted by",
+      "slot0": "Your clinic here",
+      "slot1": "Coming soon",
+      "slot2": "Coming soon"
     }
   },
   "clinicAuth": {

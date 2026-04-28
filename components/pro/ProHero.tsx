@@ -14,7 +14,18 @@ import { PhoneMockPro } from './PhoneMockPro'
  * - Soft radial gradient blue (top-right) + amber (bottom-left)
  * - "ctaSecondary" smooth-scrolls to `#income-calculator` via the anchor.
  */
-export function ProHero({ locale }: { locale: string }) {
+export function ProHero({
+  locale,
+  /**
+   * Round 20 Q3-5: dynamic count of active doctors. Defaults to 9 (the
+   * static value previously hardcoded in the badge text key) when the
+   * parent doesn't pass a live count.
+   */
+  activeDoctors = 9,
+}: {
+  locale: string
+  activeDoctors?: number
+}) {
   const t = useTranslations('proV3.hero')
   const trustItems = [t('trustItems.0'), t('trustItems.1'), t('trustItems.2')]
 
@@ -63,7 +74,7 @@ export function ProHero({ locale }: { locale: string }) {
               >
                 {t('badgeNew')}
               </span>
-              {t('badgeText')}
+              {t('badgeText', { count: activeDoctors })}
             </div>
 
             <h1
