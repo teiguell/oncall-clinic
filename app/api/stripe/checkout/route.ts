@@ -254,6 +254,12 @@ export async function POST(request: Request) {
 
   const sessionParams: import('stripe').Stripe.Checkout.SessionCreateParams = {
     mode: 'payment',
+    // Round 16-C: 'card' includes Apple Pay + Google Pay automatically
+    // (Stripe checkout shows the wallet button when the browser/device
+    // supports it AND the domain is verified at Stripe Dashboard →
+    // Settings → Payment methods → Apple Pay → Add domain). The Apple
+    // verification file lives at public/.well-known/apple-developer-
+    // merchantid-domain-association — see public/.well-known/README.md.
     payment_method_types: ['card'],
     line_items: [{
       price_data: {
