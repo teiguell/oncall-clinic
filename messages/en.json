@@ -2640,5 +2640,18 @@
       "deadline": "Set up Stripe Connect before {date} to receive it. Otherwise, the patient is refunded.",
       "cta": "Set up payouts (5 min)"
     }
+  },
+  "doctorsListing": {
+    "meta": {
+      "title": "Licensed home-call doctors in Ibiza · OnCall Clinic",
+      "description": "Meet our COMIB-licensed doctors in Ibiza. 24/7 home visits. ES, EN, DE, FR, IT."
+    },
+    "stats": {
+      "doctors": "{count} active doctors",
+      "247": "Available 24/7",
+      "languages": "ES · EN · DE · FR · IT"
+    },
+    "cta": "Book a home visit",
+    "emptyState": "No doctors available right now. Try again in a few minutes."
   }
 }

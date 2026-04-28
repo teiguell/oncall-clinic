@@ -32,6 +32,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Round 15A: /clinica is the B2B clinic-acquisition landing.
     // x-default → /es/clinica (clinics are Spanish businesses).
     { path: '/clinica',            priority: 0.9, changeFrequency: 'weekly' },
+    // Round 20 Q3-1: public doctor listing (long-tail SEO + booking CTA).
+    { path: '/medicos',            priority: 0.85, changeFrequency: 'daily' },
     { path: '/patient/request',    priority: 0.9, changeFrequency: 'weekly' },
     { path: '/contact',            priority: 0.7, changeFrequency: 'monthly' },
     { path: '/about',              priority: 0.6, changeFrequency: 'monthly' },

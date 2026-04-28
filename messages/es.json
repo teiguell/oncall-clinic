@@ -2640,5 +2640,18 @@
       "deadline": "Configura Stripe Connect antes del {date} para recibirlos. Sin alta a tiempo, se reembolsan al paciente.",
       "cta": "Configurar cobros (5 min)"
     }
+  },
+  "doctorsListing": {
+    "meta": {
+      "title": "Médicos colegiados a domicilio en Ibiza · OnCall Clinic",
+      "description": "Conoce a nuestros médicos colegiados COMIB en Ibiza. Atención a domicilio 24/7. ES, EN, DE, FR, IT."
+    },
+    "stats": {
+      "doctors": "{count} médicos activos",
+      "247": "Disponibles 24/7",
+      "languages": "ES · EN · DE · FR · IT"
+    },
+    "cta": "Reservar consulta a domicilio",
+    "emptyState": "No hay médicos disponibles ahora mismo. Vuelve a intentarlo en unos minutos."
   }
 }
