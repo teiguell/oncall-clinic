@@ -1101,11 +1101,18 @@
   "review": {
     "rateDoctor": "Valora a tu médico",
     "rateDoctorDesc": "Tu opinión ayuda a otros pacientes",
-    "commentPlaceholder": "Cuenta brevemente tu experiencia (opcional)",
+    "commentPlaceholder": "Cuéntanos cómo fue (puntualidad, trato, claridad...).",
     "makePublic": "Hacer pública mi reseña",
     "submit": "Enviar valoración",
-    "thanks": "¡Gracias por tu valoración!",
-    "errorSubmit": "No se pudo enviar la valoración. Inténtalo de nuevo."
+    "thanks": "¡Gracias!",
+    "errorSubmit": "No se pudo enviar la valoración. Inténtalo de nuevo.",
+    "title": "¿Cómo fue la visita con {name}?",
+    "subtitle": "Tu valoración nos ayuda a mantener la calidad del servicio.",
+    "yourDoctor": "tu médico",
+    "ratingLabel": "Tu valoración",
+    "commentLabel": "Comentario (opcional)",
+    "thanksBody": "Tu valoración nos ayuda a mantener la calidad del servicio.",
+    "alreadyDone": "Esta consulta ya tiene una valoración. Gracias."
   },
   "legal": {
     "breadcrumb": "Legal",
