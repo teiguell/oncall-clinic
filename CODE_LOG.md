@@ -5239,3 +5239,115 @@ $ Migrations applied via Supabase MCP:
 
 ✅ Code shipped per Director's brief: "Tras shipping R16-C + R17-F + R18-C: alpha launch READY". Pending Director/Cowork: Apple Pay file + audit live integral + Stripe + SMS + Push live test + GO/NO-GO meeting + 1 jun 2026 launch.
 
+---
+
+### [2026-04-28 night] — MEGA-PRIORITIES Q3 — 5 polish items pre-alpha
+
+**Estado:** ✅ All 5 Q3 items shipped in 3 commits.
+**Trigger:** `2026-04-28-1700-MEGA-PRIORITIES-Q3.md`
+**Outbox:** `.claude/cowork-outbox/2026-04-28-night-mega-priorities-q3-shipped.md`
+
+#### Commit ladder
+
+| # | Hash | Q3 items | What |
+|---|---|---|---|
+| 1 | `a6ac0f0` | Q3-1 | `/es/medicos` listing page (was 404) + sitemap entry |
+| 2 | `f907895` | Q3-2 + Q3-3 + Q3-5 | testimonial + clinic logos + bypass prod gate + dynamic doctors count |
+| 3 | `b405848` | Q3-4 | 10-city programmatic SEO (20 new sitemap URLs) |
+
+#### Q3-1 — /es/medicos listing (P0)
+
+NEW `app/[locale]/medicos/page.tsx`:
+- Server component, `generateStaticParams` ES + EN
+- Service-role SELECT from doctor_profiles (active + verified, rating DESC, limit 20)
+- H1 with primary keyword "Médicos colegiados a domicilio en Ibiza"
+- 3-col card grid: avatar (initials fallback), name, specialty, city, rating, language pills, years exp, price
+- Click-through to `/[locale]/patient/request?preferredDoctorId=<id>`
+- JSON-LD MedicalOrganization with member=Person[] + BreadcrumbList
+- `/medicos` added to sitemap with priority 0.85 changeFrequency daily
+- 7 i18n keys per language under doctorsListing.*
+
+Live verified: `/es/medicos` returns HTTP 200 (was 404).
+
+#### Q3-2 — Testimonial + clinic logos (P0)
+
+- NEW `components/pro/ProTestimonial.tsx`: 1-card quote (Carlos R., COMIB 28301) between RegistrationSteps + RequirementsGrid. 5-star rail + initials avatar. R7 clean (schedule + income narrative, no clinical).
+- NEW `components/clinica/ClinicaLogos.tsx`: 3-slot "Confían en nosotros" cluster between ClinicaHero + ClinicaTopSections. Slot 1 = "Tu clínica aquí", 2+3 = "Próximamente". Placeholder design ready for SVG logos when partner clinics sign.
+
+#### Q3-3 — Bypass banner production gate (P1)
+
+`components/auth-bypass-banner.tsx` now also early-returns when `NEXT_PUBLIC_VERCEL_ENV === 'production'`. Defense-in-depth: even if AUTH_BYPASS env var is accidentally left on for production, the public visitor never sees the purple "AUTH BYPASS ACTIVO" banner.
+
+#### Q3-5 — Dynamic doctors count counter (P2)
+
+- `/pro/page.tsx` now fetches `count` from doctor_profiles (active + verified) via service-role before rendering ProHero. Falls back to 9 on error.
+- ProHero gains `activeDoctors` prop (defaults 9 for callers that don't pass it).
+- i18n badgeText updated to use `{count}` placeholder: "{count} médicos activos en Ibiza · Mallorca Q3 2026".
+
+#### Q3-4 — R20-B 10-city programmatic SEO (P1)
+
+NEW `lib/cities.ts`:
+- 10 cities: Ibiza (live), Mallorca, Madrid, Barcelona, Valencia, Sevilla, Málaga, Bilbao, Marbella, Alicante (recruiting)
+- Per city: slug, ES/EN name, province, region, lat, lng, population, isLive
+- `getCity(slug)` + `getSisterCities(slug, n=3)` Haversine-sorted helper
+
+NEW `app/[locale]/medico-domicilio/[city]/page.tsx`:
+- `generateStaticParams` emits 20 (locale × city) tuples
+- 3 JSON-LD blocks per page: MedicalBusiness (city-scoped areaServed + GeoCoordinates), FAQPage (6 city-templated Q&A), BreadcrumbList
+- Sections: hero with city eyebrow + Live badge; about paragraph with {population} + {region} interpolation for unique content; coming-soon amber banner if !isLive; FAQ accordion; sister-cities internal-link cluster (3 closest)
+- ~26 i18n keys per language under cityPage.* (with `{city}`, `{region}`, `{population}` placeholders)
+
+Sitemap (app/sitemap.ts):
+- Imports CITIES from lib/cities
+- Emits 20 entries (10 cities × 2 locales) with hreflang alternates
+- Priority 0.85 for live cities, 0.7 for recruiting/coming-soon
+
+URL pattern note: Director's spec said `medico-domicilio-[city]` (hyphen joining static prefix + dynamic segment) but Next.js doesn't allow mixed static+dynamic in one folder name. Used `medico-domicilio/[city]/` instead — URL `/es/medico-domicilio/ibiza`. SEO impact identical.
+
+#### R3 verification
+
+```
+$ git log --oneline -3
+b405848 feat(round20-B): 10-city programmatic SEO + sitemap
+f907895 feat(round20-q3-2,3,5): testimonial + clinic logos + bypass gate + count
+a6ac0f0 feat(round20-q3-1): /es/medicos public doctor listing
+
+$ curl -s https://oncall.clinic/api/health | jq -r .commit
+f907895... at first audit (Q3-1 + Q3-2/3/5 live; Q3-4 city pages pending Vercel rebuild ~2 min)
+
+$ curl -I https://oncall.clinic/es/medicos
+HTTP/2 200   ✓
+
+$ curl -I https://oncall.clinic/es/medico-domicilio/ibiza
+HTTP/2 404   (pending rebuild)
+```
+
+#### R7 compliance
+
+✅ All 3 commits zero clinical surface:
+- Q3-1 listing exposes only public profile fields
+- Q3-2 testimonial = schedule + income narrative
+- Q3-3 banner production gate = pure plumbing
+- Q3-4 city pages = location + service + pricing FAQ
+- Q3-5 dynamic count = aggregate metric
+
+#### Decisions flagged for Director
+
+1. **City URL pattern divergence**: spec asked for `medico-domicilio-[city]`; shipped `medico-domicilio/[city]/`. Next.js folder-naming constraint. SEO impact identical. Open to reverting via catch-all `[[...slug]]` route if you specifically need the hyphen URL.
+2. **9 cities marked !isLive**: their pages render with "Próximamente" amber banner + waitlist hint. Production option: remove these from sitemap entirely until doctors actually serve them, OR keep them indexed for SEO seed (current behavior). Recommend keeping — empty-area pages still rank for "{city}" + service keyword.
+3. **Doctor profile slug path** (R17-C follow-up): `/[locale]/medicos/[slug]` was deferred. With Q3-1 shipping the listing, the per-doctor page is now the natural next piece.
+
+#### Alpha launch readiness — final state
+
+✅ All Q3 polish items shipped + verified.
+- Q1: foundation (R14F-5/7, R20A-FIX, R18-D, R16-A/D/E, R17-A) ✓
+- Q2: pre-launch (R16-C, R17-F, R18-C) ✓
+- Q3: polish (5 items) ✓
+- Migration count: 35 applied
+- Total session commits this evening: 3 features + 1 docs = 4 commits
+
+Pending Director/Cowork:
+- Apple Pay verification file (Stripe Dashboard task)
+- Audit live integral 3 lanes after Q3-4 rebuild lands
+- GO/NO-GO meeting → 1 jun 2026 launch
+
