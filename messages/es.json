@@ -417,7 +417,9 @@
         "title": "Precio orientativo",
         "base": "Visita estándar diurna: desde 150 €",
         "night": "Recargo nocturno (22:00–08:00): +30 €"
-      }
+      },
+      "doctorsAvailable": "{count} médicos disponibles cerca",
+      "doctorsAvailableEta": "{count} médicos disponibles cerca · ETA {eta}"
     },
     "bookingSuccess": {
       "title": "¡Reserva confirmada!",
@@ -807,6 +809,20 @@
       "description": "Ha ocurrido un error inesperado. Inténtalo de nuevo.",
       "retry": "Reintentar",
       "home": "Inicio"
+    },
+    "humanized": {
+      "network": "Conexión lenta. Reintentando...",
+      "rateLimited": "Demasiadas peticiones. Espera unos segundos.",
+      "auth": "Tu sesión ha caducado. Inicia sesión de nuevo.",
+      "unauthorized": "Necesitas iniciar sesión para continuar.",
+      "invalidPhone": "Verifica tu número de teléfono (ej. +34 681 123 456).",
+      "invalidAddress": "No reconocemos esta dirección. Prueba con el nombre del hotel o calle.",
+      "invalidEmail": "Verifica tu email.",
+      "serverError": "Algo no funciona en nuestro lado. Estamos en ello.",
+      "dbError": "Hubo un problema guardando tus datos. Inténtalo de nuevo.",
+      "paymentDeclined": "Tu tarjeta fue rechazada. Prueba con otro método de pago.",
+      "rls": "Algo no funciona. Estamos en ello.",
+      "generic": "Algo no salió como esperábamos. Inténtalo de nuevo."
     }
   },
   "cookies": {

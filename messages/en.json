@@ -417,7 +417,9 @@
         "title": "Indicative pricing",
         "base": "Standard daytime visit: from €150",
         "night": "Night surcharge (22:00–08:00): +€30"
-      }
+      },
+      "doctorsAvailable": "{count} doctors available nearby",
+      "doctorsAvailableEta": "{count} doctors available nearby · ETA {eta}"
     },
     "bookingSuccess": {
       "title": "Booking Confirmed!",
@@ -807,6 +809,20 @@
       "description": "An unexpected error occurred. Please try again.",
       "retry": "Retry",
       "home": "Home"
+    },
+    "humanized": {
+      "network": "Slow connection. Retrying...",
+      "rateLimited": "Too many requests. Wait a few seconds.",
+      "auth": "Your session expired. Please sign in again.",
+      "unauthorized": "You need to sign in to continue.",
+      "invalidPhone": "Verify your phone number (e.g. +34 681 123 456).",
+      "invalidAddress": "We don't recognise this address. Try the hotel name or street.",
+      "invalidEmail": "Verify your email.",
+      "serverError": "Something's not working on our end. We're on it.",
+      "dbError": "There was a problem saving your data. Please try again.",
+      "paymentDeclined": "Your card was declined. Try another payment method.",
+      "rls": "Something's not working. We're on it.",
+      "generic": "Something didn't go as expected. Please try again."
     }
   },
   "cookies": {

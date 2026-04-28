@@ -1,8 +1,9 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form'
 import { useTranslations, useLocale } from 'next-intl'
-import { Zap, Calendar, ShieldCheck, CheckCircle, ChevronRight } from 'lucide-react'
+import { Zap, Calendar, ShieldCheck, CheckCircle, ChevronRight, UserCheck } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { AddressMap } from '@/components/shared/address-map'
@@ -58,6 +59,29 @@ export function Step0Type({
 
   const addressValue = watch('address') || ''
   const scheduledDate = watch('scheduledDate')
+
+  // Round 16-F — doctors-count preview after the user picks an address.
+  // Triggers a tiny GET /api/doctors/count call once we have lat/lng
+  // (passed up from PlacesAutocomplete via onAddressLocation). Cached
+  // by `${lat},${lng}` key so dragging the map doesn't refetch the
+  // same coords. Silent fail = no preview shown.
+  const [doctorsCount, setDoctorsCount] = useState<{ count: number; etaRange: string | null } | null>(null)
+  const [lastLocation, setLastLocation] = useState<{ lat: number; lng: number } | null>(null)
+
+  useEffect(() => {
+    if (!lastLocation) return
+    const ctrl = new AbortController()
+    const url = `/api/doctors/count?lat=${lastLocation.lat}&lng=${lastLocation.lng}&radius_km=25`
+    fetch(url, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && typeof data.count === 'number') setDoctorsCount(data)
+      })
+      .catch(() => {
+        // silent: count preview is opportunistic
+      })
+    return () => ctrl.abort()
+  }, [lastLocation])
   const scheduledTime = watch('scheduledTime')
 
   // Round 9: Step 1 advance only allowed when address ≥10 chars and (if
@@ -206,10 +230,12 @@ export function Step0Type({
           onSelect={({ address, lat, lng }) => {
             setValue('address', address, { shouldValidate: true, shouldDirty: true })
             onAddressLocation?.(lat, lng)
+            setLastLocation({ lat, lng })
           }}
           onGeolocate={({ address, lat, lng }) => {
             setValue('address', address, { shouldValidate: true, shouldDirty: true })
             onAddressLocation?.(lat, lng)
+            setLastLocation({ lat, lng })
           }}
         />
 
@@ -234,8 +260,35 @@ export function Step0Type({
             // Round 16-A: when user drags the map pin, propagate coords
             // to the parent so checkout submits accurate coordinates.
             onAddressLocation?.(lat, lng)
+            setLastLocation({ lat, lng })
           }}
         />
+
+        {/* Round 16-F — doctors-count preview. Surfaces only after the
+            user picks an address (or geolocates) AND the count >= 1.
+            Green "ready" signal that doctors are nearby. */}
+        {doctorsCount && doctorsCount.count > 0 && (
+          <div
+            className="flex items-start gap-2 mt-2"
+            role="status"
+            style={{
+              padding: '10px 12px',
+              borderRadius: 10,
+              background: 'rgba(34,197,94,0.08)',
+              border: '1px solid rgba(34,197,94,0.25)',
+            }}
+          >
+            <UserCheck className="h-4 w-4 text-green-700 flex-shrink-0 mt-0.5" aria-hidden="true" />
+            <p className="text-[13px] text-green-800 leading-snug">
+              {doctorsCount.etaRange
+                ? t('request.doctorsAvailableEta', {
+                    count: doctorsCount.count,
+                    eta: doctorsCount.etaRange,
+                  })
+                : t('request.doctorsAvailable', { count: doctorsCount.count })}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Round 16-E — price preview before user reaches Step 2.
