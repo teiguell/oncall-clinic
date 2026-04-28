@@ -683,6 +683,37 @@
         "rejected": "Rejected",
         "suspended": "Suspended"
       }
+    },
+    "welcome": {
+      "title": "Welcome to OnCall",
+      "subtitle": "Five steps to start receiving patients.",
+      "skip": "Skip and set up later",
+      "skipToDashboard": "Go to dashboard",
+      "step1": {
+        "title": "Your schedule",
+        "body": "Activate your availability. Patients are only assigned in your active slots.",
+        "cta": "Set up schedule"
+      },
+      "step2": {
+        "title": "Your zone",
+        "body": "Set the radius (km) and Ibiza zones where you do home visits.",
+        "cta": "Set up zone"
+      },
+      "step3": {
+        "title": "Your fee",
+        "body": "OnCall suggests €150 for a standard visit. You can adjust night and holiday rates.",
+        "cta": "Set up fee"
+      },
+      "step4": {
+        "title": "Your Stripe",
+        "body": "You'll connect your payout account AFTER your first visit (not before). We'll notify you.",
+        "cta": "Got it"
+      },
+      "step5": {
+        "title": "You are ready",
+        "body": "You'll receive an SMS when a patient is assigned. You have 5 minutes to accept.",
+        "cta": "Go to dashboard"
+      }
     }
   },
   "admin": {

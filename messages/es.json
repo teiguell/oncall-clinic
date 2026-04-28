@@ -683,6 +683,37 @@
         "rejected": "Rechazado",
         "suspended": "Suspendido"
       }
+    },
+    "welcome": {
+      "title": "Bienvenido a OnCall",
+      "subtitle": "Cinco pasos para empezar a recibir pacientes.",
+      "skip": "Saltar y configurar después",
+      "skipToDashboard": "Ir al dashboard",
+      "step1": {
+        "title": "Tu agenda",
+        "body": "Activa tu disponibilidad horaria. Los pacientes solo te asignan en tus franjas activas.",
+        "cta": "Configurar agenda"
+      },
+      "step2": {
+        "title": "Tu zona",
+        "body": "Define el radio (km) y áreas de Ibiza donde atiendes a domicilio.",
+        "cta": "Configurar zona"
+      },
+      "step3": {
+        "title": "Tu tarifa",
+        "body": "OnCall sugiere 150 € por visita estándar. Puedes ajustar la nocturna y festivos.",
+        "cta": "Configurar tarifa"
+      },
+      "step4": {
+        "title": "Tu Stripe",
+        "body": "Conectarás tu cuenta de cobro tras tu primera visita (no antes). Te avisaremos.",
+        "cta": "Entendido"
+      },
+      "step5": {
+        "title": "Listo",
+        "body": "Recibirás SMS cuando un paciente te asigne. Tienes 5 minutos para aceptar.",
+        "cta": "Ir al dashboard"
+      }
     }
   },
   "admin": {
