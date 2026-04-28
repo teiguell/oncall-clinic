@@ -36,7 +36,7 @@ export function ProNav({ locale }: { locale: string }) {
           {/* LOGOS brief: brand logo-pro.svg with PRO badge replaces the
               inline gradient O + wordmark. Width matches the prior
               composite (~130px). */}
-          <Logo width={140} height={36} priority variant="pro" />
+          <Logo priority variant="pro" />
         </Link>
 
         {/* Desktop links */}

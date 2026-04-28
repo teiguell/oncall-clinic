@@ -32,7 +32,7 @@ export function ClinicaNav({ locale }: { locale: string }) {
         <Link href={`/${locale}`} aria-label="OnCall Clinic — Clínicas Asociadas" className="flex items-center">
           {/* LOGOS brief: navy + gold logo-clinic.svg replaces the inline
               indigo O + wordmark. Width matches the prior composite. */}
-          <Logo width={150} height={36} priority variant="clinic" />
+          <Logo priority variant="clinic" />
         </Link>
 
         <div className="hidden md:flex items-center gap-7 text-[14px] font-medium text-[#374151]">

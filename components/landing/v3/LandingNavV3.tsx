@@ -32,7 +32,7 @@ export function LandingNavV3({ locale }: { locale: string }) {
           {/* LOGOS brief: audience-aware logo replaces the inline wordmark.
               Patient variant by default; the Logo component auto-switches
               based on usePathname for /pro and /clinica routes. */}
-          <Logo width={130} height={32} priority />
+          <Logo priority />
         </Link>
 
         {/* Desktop links */}
