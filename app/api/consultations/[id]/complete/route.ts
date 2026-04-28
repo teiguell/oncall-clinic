@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/service'
 import { getBypassUser, AUTH_BYPASS_ROLE, AUTH_BYPASS } from '@/lib/auth-bypass'
 import { stripe } from '@/lib/stripe'
+import { sendSms } from '@/lib/notifications/sms'
+import { logNotification, isRateLimited } from '@/lib/notifications/log'
 
 export const dynamic = 'force-dynamic'
 
@@ -152,8 +155,69 @@ export async function POST(
     }
   }
 
-  // TODO: notify doctor (SMS + email) that they have €X waiting + 90-day deadline.
-  // Round 18A scope: pending_payouts row created; banner surfaces it on dashboard.
+  // Round 15C-2: notify the doctor via SMS that they have funds waiting
+  // + 90-day deadline. The dashboard banner already surfaces the
+  // cumulative amount; this push notification ensures they know
+  // immediately rather than only on next dashboard visit. Best-effort:
+  // failure here doesn't break the complete-consultation response.
+  try {
+    const { data: doctorProfile } = await supabase
+      .from('profiles')
+      .select('phone, locale')
+      .eq('id', userId)
+      .maybeSingle()
+    const phone = doctorProfile?.phone as string | undefined
+    if (phone) {
+      const acceptLang = (doctorProfile?.locale as string | undefined) ?? 'es'
+      const locale: 'es' | 'en' = acceptLang.toLowerCase().startsWith('en') ? 'en' : 'es'
+      const provider = process.env.SMS_PROVIDER === 'twilio' ? 'twilio' : 'stub'
+      const amount = `€${(doctorAmount / 100).toFixed(2)}`
+      const deadline = refundDeadline.toLocaleDateString(
+        locale === 'en' ? 'en-GB' : 'es-ES',
+        { day: 'numeric', month: 'long' },
+      )
+
+      // Rate-limit per-phone (60s) to avoid duplicates if the doctor
+      // re-completes (race / retry). The notifications_log row keeps
+      // an audit trail.
+      if (await isRateLimited(phone, 60_000)) {
+        await logNotification({
+          channel: 'sms',
+          provider,
+          toAddress: phone,
+          userId,
+          templateKey: 'doctor.payout_pending',
+          locale,
+          status: 'rate_limited',
+        })
+      } else {
+        const tSms = await getTranslations({ locale, namespace: 'notifications.sms' })
+        const messageBody = tSms('doctorPayoutPending', {
+          amount,
+          deadline,
+        })
+        const result = await sendSms({
+          to: phone,
+          body: messageBody,
+          templateKey: 'doctor.payout_pending',
+        })
+        await logNotification({
+          channel: 'sms',
+          provider,
+          toAddress: phone,
+          userId,
+          templateKey: 'doctor.payout_pending',
+          locale,
+          status: result.ok ? 'sent' : (result.skipped ? 'skipped' : 'failed'),
+          providerMessageId: result.providerId ?? null,
+          errorCode: result.errorCode ?? null,
+          errorMessage: result.error ?? null,
+        })
+      }
+    }
+  } catch (notifErr) {
+    console.error('[consultations/complete] Path B notify error:', notifErr)
+  }
 
   return NextResponse.json({
     ok: true,

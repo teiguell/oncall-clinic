@@ -1422,7 +1422,8 @@
     "sms": {
       "doctorActivationOtp": "OnCall: your activation code is {code}. Expires in 10 min.",
       "patientDoctorAccepted": "OnCall: Dr. {name} accepted your consultation. ETA {eta} min.",
-      "patientDoctorEta": "OnCall: your doctor arrives in ~{eta} min at {address}."
+      "patientDoctorEta": "OnCall: your doctor arrives in ~{eta} min at {address}.",
+      "doctorPayoutPending": "OnCall: you have {amount} waiting. Set up Stripe Connect at oncall.clinic/doctor before {deadline} to receive it. Otherwise it's refunded to the patient."
     }
   },
   "landingV3": {
