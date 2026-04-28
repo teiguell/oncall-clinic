@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { createClient } from '@/lib/supabase/server'
+import { getEffectiveSession } from '@/lib/supabase/auto-client'
 import Link from 'next/link'
 import { CheckCircle2, Navigation, Phone } from 'lucide-react'
 import { SuccessPoller } from './SuccessPoller'
@@ -26,9 +26,9 @@ export default async function ConsultationSuccessPage({
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'consultation.success' })
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
+  // Round 14F-5: bypass-aware session + service-role for RLS-protected SELECT
+  const { userId, supabase } = await getEffectiveSession('patient')
+  if (!userId) {
     redirect(`/${locale}/login?next=${encodeURIComponent(`/${locale}/patient/consultation/${id}/success`)}`)
   }
 
@@ -36,7 +36,7 @@ export default async function ConsultationSuccessPage({
     .from('consultations')
     .select('id, status, payment_status, doctor_id, type, price, paid_at')
     .eq('id', id)
-    .eq('patient_id', user.id)
+    .eq('patient_id', userId)
     .maybeSingle()
 
   if (!consultation) {

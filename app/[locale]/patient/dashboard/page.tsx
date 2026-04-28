@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { getEffectiveSession } from '@/lib/supabase/auto-client'
 import { Navbar } from '@/components/shared/navbar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -37,19 +37,25 @@ const initialsOf = (name: string): string =>
   name.trim().split(/\s+/).slice(0, 2).map(s => s[0] ?? '').join('').toUpperCase() || '—'
 
 export default async function PatientDashboard() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
   const locale = await getLocale()
+  // Round 14F-5 + R14F-7: bypass-aware session resolution. Real cookie
+  // session always wins; if absent and AUTH_BYPASS=true with role
+  // patient, we use the demo-patient seed UUID and a service-role
+  // client so the data queries below see the seeded rows. The previous
+  // `if (!user) redirect('/login')` was the loop source — middleware
+  // sent us here from /login, then this page sent us back.
+  const { userId, supabase, isBypass } = await getEffectiveSession('patient')
 
-  if (!user) redirect(`/${locale}/login`)
+  if (!userId) redirect(`/${locale}/login`)
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
-  if (!profile || profile.role !== 'patient') redirect(`/${locale}/login`)
+  // Real session: enforce role. Bypass: trust the role we resolved.
+  if (!isBypass && (!profile || profile.role !== 'patient')) redirect(`/${locale}/login`)
 
   const t = await getTranslations('patient')
   const tStates = await getTranslations('dashboardStates')
@@ -58,7 +64,7 @@ export default async function PatientDashboard() {
   const { data: activeConsultation } = await supabase
     .from('consultations')
     .select(`*, doctor_profiles(*, profiles(*))`)
-    .eq('patient_id', user.id)
+    .eq('patient_id', userId)
     .in('status', ['pending', 'accepted', 'in_progress', 'arrived', 'en_route'])
     .order('created_at', { ascending: false })
     .limit(1)
@@ -68,7 +74,7 @@ export default async function PatientDashboard() {
   const { data: recentConsultations } = await supabase
     .from('consultations')
     .select(`*, doctor_profiles(*, profiles(*))`)
-    .eq('patient_id', user.id)
+    .eq('patient_id', userId)
     .in('status', ['completed', 'cancelled'])
     .order('created_at', { ascending: false })
     .limit(5)
@@ -78,7 +84,7 @@ export default async function PatientDashboard() {
   const { data: chatConsultations } = await supabase
     .from('consultations')
     .select(`id, completed_at, doctor_profiles(*, profiles(*))`)
-    .eq('patient_id', user.id)
+    .eq('patient_id', userId)
     .eq('status', 'completed')
     .gte('completed_at', fortyEightHoursAgo)
     .order('completed_at', { ascending: false })
