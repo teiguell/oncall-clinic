@@ -14,8 +14,11 @@
 export function AuthBypassBanner() {
   if (process.env.NEXT_PUBLIC_AUTH_BYPASS !== 'true') return null
   const rawRole = process.env.NEXT_PUBLIC_AUTH_BYPASS_ROLE
+  // Round 18-D: 'clinic' added to the recognised roles list.
   const role =
-    rawRole === 'doctor' || rawRole === 'admin' ? rawRole : 'patient'
+    rawRole === 'doctor' || rawRole === 'admin' || rawRole === 'clinic'
+      ? rawRole
+      : 'patient'
   const label = role.toUpperCase()
   return (
     <div

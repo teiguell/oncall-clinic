@@ -78,15 +78,15 @@ const BYPASS_USERS: Record<BypassRole, BypassUserShape> = {
     role: 'admin',
   },
   clinic: {
-    // Round 15 placeholder — Director seeds an actual clinic owner row
-    // (auth.users + clinics) when ready to audit the B2B funnel.
-    // Until then, the bypass cannot read real clinic data via RLS, but
-    // the UI + middleware will route the demo user to /clinic/dashboard
-    // correctly. The dashboard handles "no clinic row yet" by showing
-    // the verification-pending banner.
-    id: '00000000-0000-0000-0000-000000000c01',
+    // Round 18-D: Cowork seeded the demo clinic owner via direct SQL.
+    //   user_id  : 4d34e2e7-b5c3-5f25-9dc7-af3afa295ce7
+    //   clinic_id: 0d40b56a-5593-4e82-8db3-4bef92a2eadd (Clínica Demo Ibiza)
+    //   linked   : 3 doctors via clinic_doctors
+    //   verified : verification_status='verified'
+    // The /clinic/dashboard now reads real seeded KPIs in bypass mode.
+    id: '4d34e2e7-b5c3-5f25-9dc7-af3afa295ce7',
     email: 'demo-clinic@oncall.clinic',
-    user_metadata: { full_name: 'Demo Clinic Owner', role: 'clinic' },
+    user_metadata: { full_name: 'Clínica Demo Ibiza', role: 'clinic' },
     role: 'clinic',
   },
 }

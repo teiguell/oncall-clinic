@@ -1,6 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { createClient } from '@/lib/supabase/server'
-import { getBypassUser, AUTH_BYPASS_ROLE } from '@/lib/auth-bypass'
+import { getEffectiveSession } from '@/lib/supabase/auto-client'
 
 /**
  * /[locale]/clinic/dashboard — Round 15 Block 2.2.
@@ -29,12 +28,11 @@ export default async function ClinicDashboardPage({
   const tEmpty = await getTranslations({ locale, namespace: 'clinicDashboard.empty' })
   const tStripe = await getTranslations({ locale, namespace: 'clinicDashboard.stripe' })
 
-  const supabase = await createClient()
-  const {
-    data: { user: realUser },
-  } = await supabase.auth.getUser()
-  const bypass = getBypassUser()
-  const userId = realUser?.id ?? (bypass && AUTH_BYPASS_ROLE === 'clinic' ? bypass.id : null)
+  // Round 14F-5 + R18-D: bypass-aware session for clinic dashboard.
+  // Real cookie session (production owner) wins; if absent and
+  // AUTH_BYPASS=true with role='clinic', uses Cowork's seeded
+  // demo-clinic UUID (4d34e2e7-...) + service-role client.
+  const { userId, supabase } = await getEffectiveSession('clinic')
 
   // Fetch clinic + KPI counts (best-effort — empty if no real clinic row).
   let clinicId: string | null = null
@@ -70,14 +68,18 @@ export default async function ClinicDashboardPage({
       .gte('created_at', since)
     consultationsThisMonth = consCount ?? 0
 
+    // Round 18-D fix: column is `price` (cents), not `amount_cents`.
+    // The original query was returning 0 for revenue because Supabase
+    // silently dropped the unknown column (no error, just empty data).
     const { data: revRows } = await supabase
       .from('consultations')
-      .select('amount_cents')
+      .select('price')
       .eq('clinic_id', clinicId)
       .gte('created_at', since)
       .eq('status', 'completed')
-    revenueThisMonth = ((revRows ?? []) as Array<{ amount_cents: number | null }>)
-      .reduce((sum, r) => sum + (r.amount_cents ?? 0), 0) / 100
+    revenueThisMonth =
+      ((revRows ?? []) as Array<{ price: number | null }>)
+        .reduce((sum, r) => sum + (r.price ?? 0), 0) / 100
 
     const { count: docCount } = await supabase
       .from('clinic_doctors')
