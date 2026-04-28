@@ -12,9 +12,13 @@ export async function middleware(request: NextRequest) {
   // (audit P1-3: /sitemap.xml and /robots.txt were being intercepted by
   // next-intl and redirected to /<locale>/sitemap.xml → 404. Same issue
   // potentially for favicon/icon/manifest if they ever route-match.)
+  // Round 17-F + R16-C: /sw.js (service worker) + /.well-known/ (Apple Pay
+  // verification + future security.txt) must also pass through verbatim.
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
+    pathname.startsWith('/.well-known/') ||
+    pathname === '/sw.js' ||
     pathname === '/sitemap.xml' ||
     pathname === '/robots.txt' ||
     pathname === '/favicon.ico' ||
