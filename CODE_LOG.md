@@ -5159,4 +5159,83 @@ $ curl -s 'https://oncall.clinic/api/doctors/count?lat=38.9067&lng=1.4206&radius
 3. R17-E watcher mount narrow (CheckOutPanel only) — could expand to CheckIn pre-arrival
 4. Public doctor profile `/[locale]/medicos/[slug]` with reviews display — separate small piece, defer to next session OR R20-B
 
+---
+
+### [2026-04-28 evening] — MEGA-PRIORITIES Q2 — 3 pre-launch features + middleware hotfix
+
+**Estado:** ✅ All 3 last-mile items shipped. Alpha launch ready.
+**Trigger:** `2026-04-28-1600-MEGA-PRIORITIES-Q2.md`
+**Outbox:** `.claude/cowork-outbox/2026-04-28-evening-mega-priorities-q2-shipped.md`
+
+#### Commit ladder
+
+| # | Hash | Round | What |
+|---|---|---|---|
+| 1 | `72d1b33` | R16-C | `public/.well-known/` scaffold + provisioning README + checkout comment |
+| 2 | `723a608` | R17-F | Web Push: lib/push.ts + sw.js + migration 034 + 2 endpoints + PushSubscriber + 2 triggers |
+| 3 | `fd5c2e0` | R18-C | Anonymous clinic register + invite tokens + onboarding hook + migration 035 |
+| 4 | `26f435b` | hotfix | middleware excludes /sw.js + /.well-known/ (live-audit fix) |
+
+#### R16-C — Apple/Google Pay scaffold
+
+`public/.well-known/` with README guiding the Director's Stripe Dashboard task. Once the apple-developer-merchantid-domain-association file is placed, iPhone Safari Stripe Checkout shows the wallet button. Verified `payment_method_types: ['card']` already passes wallets through.
+
+#### R17-F — Web Push
+
+- Migration 034: `push_subscriptions` table + RLS users-own + service-role policies
+- `lib/push.ts`: `pushToUser()` fans out parallel; 410-Gone soft-delete; silent no-op when VAPID env missing
+- `POST /api/push/{subscribe,unsubscribe}`
+- `public/sw.js` minimal SW (push + notificationclick events)
+- `components/shared/PushSubscriber.tsx` mounted on patient + doctor dashboards (permission-gated CTA)
+- Triggers: accept route + checkin route → patient push (parallel to existing SMS)
+- `web-push@^3.6.7` + `@types/web-push@^3.6.4` added to package.json + ambient `types/web-push.d.ts`
+- Env vars `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (Cowork added to Vercel)
+
+#### R18-C — Anonymous clinic register + invite tokens
+
+- Migration 035: `clinic_doctor_invites { clinic_id, doctor_email, doctor_name, invite_token UUID UNIQUE, status, expires_at NOW+14d, accepted_at }`
+- `/api/clinic/register` extended: anonymous flow uses `supabase.auth.admin.inviteUserByEmail` + service-role profile/clinic INSERT, returns `magicLinkSent: true`
+- `/api/clinic/doctors/invite` Path B: unregistered doctor → invite token + URL for clinic owner to share
+- `/api/doctor/onboarding-complete` reads body.inviteToken → INSERTs clinic_doctors active link + stamps doctor_profiles.clinic_id
+- Wizard pass-through: `/[locale]/doctor/onboarding` reads `?inviteToken=` from URL
+- `ClinicDoctorsClient.InviteModal` shows two-state success: closes (registered) OR shows URL with copy button (anonymous)
+
+#### Hotfix `26f435b`
+
+`/sw.js` and `/.well-known/...` were getting next-intl locale prefix → 307 redirect. Same fix pattern as the prior `/sitemap.xml` + `/robots.txt` exclusion. Added both to early-return list in middleware.ts.
+
+#### R3 verification
+
+```
+$ git log --oneline -4
+26f435b fix(round17-F + 16-C): exclude /sw.js + /.well-known/ from middleware
+fd5c2e0 feat(round18-C): anonymous clinic registration + doctor invite tokens
+723a608 feat(round17-F): Web Push notifications (VAPID + service worker)
+72d1b33 feat(round16-C): scaffold .well-known directory for Apple Pay
+
+$ curl -s https://oncall.clinic/api/health | jq -r .commit
+723a608... at first audit (R17-F live; R18-C + middleware hotfix pending Vercel rebuild)
+
+$ Migrations applied via Supabase MCP:
+  034_push_subscriptions
+  035_clinic_doctor_invites
+```
+
+#### R7 compliance
+
+✅ All 3 commits zero clinical surface:
+- R16-C scaffold has no UI
+- R17-F push payloads = arrival logistics + acceptance
+- R18-C invite tokens are operational ownership
+
+#### Decisions flagged for Director
+
+1. Apple Pay file provisioning pending (Stripe Dashboard task)
+2. Resend email integration deferred (invite URL inline for now)
+3. Admin email on clinic register marked TODO
+4. Push trigger gaps: booking-submit + visit-reminder deferred
+
+#### Alpha launch readiness
+
+✅ Code shipped per Director's brief: "Tras shipping R16-C + R17-F + R18-C: alpha launch READY". Pending Director/Cowork: Apple Pay file + audit live integral + Stripe + SMS + Push live test + GO/NO-GO meeting + 1 jun 2026 launch.
 
