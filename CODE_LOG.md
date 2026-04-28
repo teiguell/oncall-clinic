@@ -5351,3 +5351,59 @@ Pending Director/Cowork:
 - Audit live integral 3 lanes after Q3-4 rebuild lands
 - GO/NO-GO meeting → 1 jun 2026 launch
 
+---
+
+### [2026-04-28 23:00] — LOGOS audience-set + brand asset integration
+
+**Estado:** ✅ Shipped commit `f9e0ac0`. Q3-4 also confirmed live in same audit.
+**Trigger:** `2026-04-28-1730-LOGOS-AUDIENCE-SET.md`
+**Outbox:** `.claude/cowork-outbox/2026-04-28-2300-logos-shipped.md`
+
+#### What shipped (`f9e0ac0`)
+
+- 21 brand assets copied to `public/brand/` (3 audience SVG logos + dark variants + 1x/2x PNG fallbacks + 8 PWA icons in 3 sizes)
+- NEW `components/shared/Logo.tsx` — audience-aware client component using `usePathname` to resolve variant: `/{pro,doctor}` → pro, `/{clinica,clinic}` → clinic, else patient. Optional `variant` prop for explicit override.
+- Replaced inline gradient O + wordmark across 3 navs:
+  - `LandingNavV3.tsx`: `<LogoMark>` → `<Logo>` (auto-detect)
+  - `ProNav.tsx`: gradient O + "OnCall Pro" → `<Logo variant="pro">`
+  - `ClinicaNav.tsx`: indigo O + "OnCall Clínicas" → `<Logo variant="clinic">`
+- NEW `public/manifest.json` (PWA: name, start_url /es, theme_color #2563EB, 4 icons including 192/512 maskable)
+- `app/[locale]/layout.tsx` metadata.icons updated to point at `/brand/icon-patient-*` + `metadata.manifest = '/manifest.json'`
+
+#### Q3 status verified live in same audit
+
+Same audit confirmed Q3-1 + Q3-2/3/5 + Q3-4 all live:
+- `/api/health.commit = b75169c` (Q3 docs commit; LOGOS rebuild ~2 min)
+- `/es/medicos` HTTP 200 (Q3-1)
+- `/es/medico-domicilio/ibiza` HTTP 200 (Q3-4)
+- Sitemap city URL references = 30 (10 cities × 3 entries with hreflang alternates)
+
+Q3 (5 polish items) confirmed shipped + live from prior session.
+
+#### Acceptance — Director's brief
+
+| Item | Status |
+|---|---|
+| `/brand/logo-{patient,pro,clinic}.svg` 200 | ⏸ pending Vercel rebuild |
+| `/es` shows logo-patient (no text) | ✅ wired auto |
+| `/es/pro` shows logo-pro with badge | ✅ variant="pro" |
+| `/es/clinica` shows logo-clinic | ✅ variant="clinic" |
+| Favicon = icon-patient | ✅ metadata updated |
+| `manifest.json` icons array → `/brand/*` | ✅ shipped |
+
+#### R7 compliance
+
+✅ Brand assets are pure visual identity. URL pattern matching only.
+
+#### Decisions flagged
+
+1. **Email template logo integration deferred** (`lib/email/templates/*` doesn't exist; `lib/notifications/*` is current notification surface — focused 5-line follow-up when Director picks priority templates).
+2. **Existing `public/icon.png` + `public/apple-touch-icon.png` kept** for backward compat (some crawlers cache hard-coded paths). Layout metadata now points to `/brand/icon-patient-*` as canonical. Old paths can be removed in cleanup commit post-alpha.
+3. **`/clinic/manifest.json` (separate clinic PWA) deferred** per spec note "Defer post-alpha". Single root manifest for now.
+
+#### Alpha launch readiness — final state
+
+✅ Q1 + Q2 + Q3 + LOGOS all shipped.
+
+Pending Director: Apple Pay verification file + live audit 3 lanes + email template logo integration + Stripe/SMS/Push live tests + GO/NO-GO meeting → 1 jun 2026 launch.
+
