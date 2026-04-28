@@ -1640,7 +1640,8 @@
         "Tú decides"
       ],
       "floatingPagoLabel": "Pago recibido",
-      "floatingPagoValue": "+€135,00 · Stripe"
+      "floatingPagoValue": "+€135,00 · Stripe",
+      "seoSuffix": "Médico a domicilio en Ibiza, Mallorca y Madrid — únete a OnCall y atiende pacientes locales e internacionales."
     },
     "phone": {
       "appName": "OnCall Pro",
@@ -2119,7 +2120,8 @@
       "title3": "Más ingresos.",
       "subtitle": "Conecta tu clínica con miles de pacientes locales e internacionales que buscan atención médica a domicilio. 8% de comisión todo incluido. Sin cuotas mensuales. Sin exclusividad.",
       "ctaPrimary": "Asociar mi clínica",
-      "ctaSecondary": "Ver cómo funciona"
+      "ctaSecondary": "Ver cómo funciona",
+      "seoSuffix": "Asocia tu clínica con OnCall — médico a domicilio en Ibiza, Mallorca, Madrid, Barcelona y Valencia."
     },
     "stats": {
       "commission": {

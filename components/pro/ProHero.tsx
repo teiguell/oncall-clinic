@@ -92,6 +92,10 @@ export function ProHero({ locale }: { locale: string }) {
               >
                 {t('titleLine3')}
               </span>
+              {/* Round 20A-FIX: keyword-rich SEO suffix (visually hidden,
+                  indexed). Preserves the marketing visual while giving
+                  Google a clear topic anchor for "médico domicilio Ibiza". */}
+              <span className="sr-only">{t('seoSuffix')}</span>
             </h1>
 
             <p

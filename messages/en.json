@@ -1640,7 +1640,8 @@
         "You decide"
       ],
       "floatingPagoLabel": "Payment received",
-      "floatingPagoValue": "+€135.00 · Stripe"
+      "floatingPagoValue": "+€135.00 · Stripe",
+      "seoSuffix": "House-call doctor service in Ibiza, Mallorca and Madrid — join OnCall and attend local and international patients."
     },
     "phone": {
       "appName": "OnCall Pro",
@@ -2119,7 +2120,8 @@
       "title3": "More revenue.",
       "subtitle": "Connect your clinic with thousands of local and international patients seeking home medical care. 8% all-in commission. No monthly fee. No exclusivity.",
       "ctaPrimary": "Partner with us",
-      "ctaSecondary": "How it works"
+      "ctaSecondary": "How it works",
+      "seoSuffix": "Partner your clinic with OnCall — house-call doctor service in Ibiza, Mallorca, Madrid, Barcelona and Valencia."
     },
     "stats": {
       "commission": {

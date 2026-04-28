@@ -79,6 +79,10 @@ export function ClinicaHero({ locale }: { locale: string }) {
           >
             {t('title3')}
           </span>
+          {/* Round 20A-FIX: keyword-rich SEO suffix (visually hidden,
+              indexed by search engines). Preserves the marketing visual
+              while giving Google a clear topic anchor. */}
+          <span className="sr-only">{t('seoSuffix')}</span>
         </h1>
 
         <p
