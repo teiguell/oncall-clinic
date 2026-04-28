@@ -89,13 +89,20 @@ export async function generateMetadata(
       images: ['/og-image.jpg'],
     },
     icons: {
+      // LOGOS brief: brand-folder icons (patient variant for the public
+      // root). The /pro and /clinica surfaces inherit this favicon via
+      // shared root layout — that's by design (browser tab icon should
+      // be consistent across surfaces).
       icon: [
         { url: '/favicon.ico', sizes: 'any' },
-        { url: '/icon.png', type: 'image/png', sizes: '32x32' },
+        { url: '/brand/icon-patient.svg', type: 'image/svg+xml' },
+        { url: '/brand/icon-patient-32.png', type: 'image/png', sizes: '32x32' },
+        { url: '/brand/icon-patient-192.png', type: 'image/png', sizes: '192x192' },
       ],
-      apple: '/apple-touch-icon.png',
+      apple: '/brand/icon-patient-512.png',
       shortcut: '/favicon.ico',
     },
+    manifest: '/manifest.json',
     robots: {
       index: true,
       follow: true,

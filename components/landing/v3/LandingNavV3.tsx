@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Menu, X, Globe } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
-import { LogoMark } from './LogoMark'
+import { Logo } from '@/components/shared/Logo'
 
 /**
  * v3 sticky nav — client component for mobile menu state.
@@ -28,8 +28,11 @@ export function LandingNavV3({ locale }: { locale: string }) {
         style={{ height: 60, padding: '0 22px', maxWidth: 1280 }}
         aria-label="Main navigation"
       >
-        <Link href={`/${locale}`}>
-          <LogoMark size={26} />
+        <Link href={`/${locale}`} aria-label="OnCall Clinic">
+          {/* LOGOS brief: audience-aware logo replaces the inline wordmark.
+              Patient variant by default; the Logo component auto-switches
+              based on usePathname for /pro and /clinica routes. */}
+          <Logo width={130} height={32} priority />
         </Link>
 
         {/* Desktop links */}

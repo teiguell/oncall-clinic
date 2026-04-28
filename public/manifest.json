@@ -1,0 +1,39 @@
+{
+  "name": "OnCall Clinic",
+  "short_name": "OnCall",
+  "description": "Médico a domicilio en Ibiza · 24/7",
+  "start_url": "/es",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2563EB",
+  "lang": "es",
+  "dir": "ltr",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/brand/icon-patient.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/icon-patient-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-patient-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/icon-patient-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "health", "lifestyle"]
+}

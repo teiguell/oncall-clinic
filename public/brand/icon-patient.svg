@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 82" fill="none">
+  <!-- OnCall Clinic — Icon only (patient/pro) -->
+  <path d="M32 0C14.3 0 0 14.3 0 32c0 24 32 50 32 50s32-26 32-50C64 14.3 49.7 0 32 0z" fill="#2563EB"/>
+  <circle cx="32" cy="28" r="18" fill="rgba(255,255,255,0.12)"/>
+  <rect x="21" y="24.5" width="22" height="7" rx="2" fill="white"/>
+  <rect x="28.5" y="17" width="7" height="22" rx="2" fill="white"/>
+</svg>

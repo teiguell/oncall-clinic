@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Menu, X } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
+import { Logo } from '@/components/shared/Logo'
 
 /**
  * Sticky nav for /pro — Round 13 v3 design.
@@ -31,24 +32,11 @@ export function ProNav({ locale }: { locale: string }) {
         aria-label="Pro navigation"
         style={{ padding: '0 clamp(18px, 4vw, 56px)' }}
       >
-        <Link href={`/${locale}`} className="flex items-center gap-2.5">
-          <div
-            className="grid place-items-center text-white font-bold"
-            aria-hidden="true"
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
-              background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-              fontSize: 15,
-              letterSpacing: '-0.4px',
-            }}
-          >
-            O
-          </div>
-          <span className="text-[16px] font-semibold tracking-[-0.4px] text-[#0B1220]">
-            OnCall <span className="text-slate-500 font-medium">Pro</span>
-          </span>
+        <Link href={`/${locale}`} aria-label="OnCall Clinic Pro" className="flex items-center">
+          {/* LOGOS brief: brand logo-pro.svg with PRO badge replaces the
+              inline gradient O + wordmark. Width matches the prior
+              composite (~130px). */}
+          <Logo width={140} height={36} priority variant="pro" />
         </Link>
 
         {/* Desktop links */}

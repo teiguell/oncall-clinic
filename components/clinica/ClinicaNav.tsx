@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Menu, X } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
+import { Logo } from '@/components/shared/Logo'
 
 /**
  * Sticky nav for /clinica — Round 15 B2B clinic landing.
@@ -28,24 +29,10 @@ export function ClinicaNav({ locale }: { locale: string }) {
         aria-label="Clinic navigation"
         style={{ padding: '0 clamp(18px, 4vw, 56px)' }}
       >
-        <Link href={`/${locale}`} className="flex items-center gap-2.5">
-          <div
-            className="grid place-items-center text-white font-bold"
-            aria-hidden="true"
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
-              background: 'linear-gradient(135deg, #4F46E5, #1E1B4B)',
-              fontSize: 15,
-              letterSpacing: '-0.4px',
-            }}
-          >
-            O
-          </div>
-          <span className="text-[16px] font-semibold tracking-[-0.4px] text-[#0B1220]">
-            OnCall <span className="text-slate-500 font-medium">Clínicas</span>
-          </span>
+        <Link href={`/${locale}`} aria-label="OnCall Clinic — Clínicas Asociadas" className="flex items-center">
+          {/* LOGOS brief: navy + gold logo-clinic.svg replaces the inline
+              indigo O + wordmark. Width matches the prior composite. */}
+          <Logo width={150} height={36} priority variant="clinic" />
         </Link>
 
         <div className="hidden md:flex items-center gap-7 text-[14px] font-medium text-[#374151]">
