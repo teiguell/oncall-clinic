@@ -734,6 +734,39 @@
       "completedAt": "Finalizada {time}",
       "backToDashboard": "Volver al dashboard",
       "invalidStatus": "Esta consulta tiene un estado inesperado: {status}."
+    },
+    "availability": {
+      "title": "Tu agenda",
+      "subtitle": "Define cuándo recibes consultas. Los pacientes solo te asignan en tus franjas activas.",
+      "back": "Volver",
+      "addSlot": "Añadir franja",
+      "removeSlot": "Quitar franja",
+      "unavailable": "No disponible",
+      "save": "Guardar agenda",
+      "saved": "Guardado",
+      "skipToDashboard": "Volver al dashboard",
+      "days": {
+        "mon": "Lunes",
+        "tue": "Martes",
+        "wed": "Miércoles",
+        "thu": "Jueves",
+        "fri": "Viernes",
+        "sat": "Sábado",
+        "sun": "Domingo"
+      }
+    },
+    "coverage": {
+      "title": "Tu zona",
+      "subtitle": "Define el centro y el radio de tu área de atención. Solo recibirás consultas dentro de la zona.",
+      "back": "Volver",
+      "centerLabel": "Centro de tu zona",
+      "centerHint": "Tu casa o consulta. Usaremos esta ubicación + el radio para asignarte pacientes cercanos.",
+      "placeholder": "Calle, hotel o coordenadas en Ibiza",
+      "radiusLabel": "Radio de cobertura",
+      "zonesLabel": "Zonas que cubres",
+      "save": "Guardar zona",
+      "saved": "Guardado",
+      "locationRequired": "Selecciona una dirección o usa tu ubicación."
     }
   },
   "admin": {

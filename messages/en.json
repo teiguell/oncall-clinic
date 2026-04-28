@@ -734,6 +734,39 @@
       "completedAt": "Completed {time}",
       "backToDashboard": "Back to dashboard",
       "invalidStatus": "This consultation has an unexpected status: {status}."
+    },
+    "availability": {
+      "title": "Your schedule",
+      "subtitle": "Set when you receive consultations. Patients are only assigned in your active slots.",
+      "back": "Back",
+      "addSlot": "Add slot",
+      "removeSlot": "Remove slot",
+      "unavailable": "Unavailable",
+      "save": "Save schedule",
+      "saved": "Saved",
+      "skipToDashboard": "Back to dashboard",
+      "days": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      }
+    },
+    "coverage": {
+      "title": "Your zone",
+      "subtitle": "Set the center and radius of your service area. You'll only receive consultations within the zone.",
+      "back": "Back",
+      "centerLabel": "Zone center",
+      "centerHint": "Your home or office. We'll use this location + radius to assign nearby patients.",
+      "placeholder": "Street, hotel or coordinates in Ibiza",
+      "radiusLabel": "Coverage radius",
+      "zonesLabel": "Zones you cover",
+      "save": "Save zone",
+      "saved": "Saved",
+      "locationRequired": "Select an address or use your location."
     }
   },
   "admin": {
