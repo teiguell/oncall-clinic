@@ -2665,5 +2665,61 @@
     },
     "cta": "Reservar consulta a domicilio",
     "emptyState": "No hay médicos disponibles ahora mismo. Vuelve a intentarlo en unos minutos."
+  },
+  "cityPage": {
+    "breadcrumbCities": "Médicos",
+    "liveLabel": "Activo",
+    "faqTitle": "Preguntas frecuentes sobre médico a domicilio en {city}",
+    "hero": {
+      "title": "Médico a domicilio en {city}",
+      "subtitle": "Médicos colegiados a domicilio en {city}: visita en tu hotel, villa o casa. Pago con tarjeta, factura legal automática.",
+      "cta": "Reservar consulta",
+      "phone": "Llamar +34 871 183 415",
+      "trust": {
+        "licensed": "Médicos colegiados",
+        "247": "24/7 disponibilidad",
+        "languages": "ES · EN · DE · FR · IT"
+      }
+    },
+    "about": {
+      "title": "Médico a domicilio en {city}, sin complicaciones",
+      "body": "OnCall Clinic conecta turistas y residentes de {city} con médicos colegiados disponibles las 24 horas. {city} ({region}) cuenta con {population} habitantes y recibe miles de visitantes al año; nuestro servicio te permite reservar en menos de 5 minutos y recibir al médico en tu hotel, villa o domicilio. Pago con tarjeta, factura legal automática y atención en español, inglés, alemán, francés e italiano."
+    },
+    "comingSoon": {
+      "label": "Próximamente:",
+      "body": "Estamos reclutando médicos en {city}. Si reservas ahora te avisaremos en cuanto haya disponibilidad. Mientras tanto, puedes contactarnos por teléfono."
+    },
+    "sister": {
+      "title": "Otras ciudades cercanas",
+      "subtitle": "Médico a domicilio en provincias y ciudades próximas.",
+      "cardTitle": "Médico a domicilio en {city}",
+      "cardCta": "Ver disponibilidad"
+    },
+    "faq": {
+      "0": {
+        "q": "¿Cuánto cuesta un médico a domicilio en {city}?",
+        "a": "Una visita estándar de medicina general en {city} cuesta desde 150 €. Existe un recargo nocturno de 30 € entre las 22:00 y las 08:00. El precio se confirma antes del pago — sin sorpresas."
+      },
+      "1": {
+        "q": "¿Cuánto tarda en llegar el médico a {city}?",
+        "a": "En zonas céntricas de {city} la ETA típica es de 30 a 90 minutos. Recibirás un SMS de confirmación con el tiempo estimado en cuanto un médico acepte tu solicitud."
+      },
+      "2": {
+        "q": "¿Los médicos están colegiados en {region}?",
+        "a": "Sí. Todos los médicos están colegiados (COMIB o equivalente regional) y verificados por OnCall antes de aceptar consultas. Tienen RC profesional vigente."
+      },
+      "3": {
+        "q": "¿Recibo factura legal en {city}?",
+        "a": "Sí. Tras la consulta recibes por email una factura legal con todos los datos fiscales (médico, importe, fecha) que puedes presentar a tu seguro privado para reembolso."
+      },
+      "4": {
+        "q": "¿En qué idiomas atienden los médicos en {city}?",
+        "a": "Nuestros médicos en {city} atienden en español e inglés siempre, y muchos también en alemán, francés e italiano. Indica tu idioma preferido en la reserva y te asignaremos un médico que lo hable."
+      },
+      "5": {
+        "q": "¿Cómo pago la consulta en {city}?",
+        "a": "El pago se realiza al confirmar la reserva con tarjeta (Visa, Mastercard, Apple Pay, Google Pay). El médico cobra al completar la visita. Si la visita no se completa en 90 días, recibes reembolso completo automáticamente."
+      }
+    }
   }
 }

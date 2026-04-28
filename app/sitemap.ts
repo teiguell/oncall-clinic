@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { CITIES } from '@/lib/cities'
 
 const BASE_URL = 'https://oncall.clinic'
 
@@ -51,6 +52,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: now,
         changeFrequency,
         priority,
+        alternates: {
+          languages: {
+            es: `${BASE_URL}/es${path}`,
+            en: `${BASE_URL}/en${path}`,
+          },
+        },
+      })
+    }
+  }
+
+  // Round 20-B / Q3-4: programmatic per-city URLs.
+  // 10 cities × 2 locales = 20 entries. Live cities get priority 0.85;
+  // recruiting/coming-soon cities 0.7.
+  for (const city of CITIES) {
+    for (const locale of ['es', 'en'] as const) {
+      const path = `/medico-domicilio/${city.slug}`
+      entries.push({
+        url: `${BASE_URL}/${locale}${path}`,
+        lastModified: now,
+        changeFrequency: 'weekly',
+        priority: city.isLive ? 0.85 : 0.7,
         alternates: {
           languages: {
             es: `${BASE_URL}/es${path}`,

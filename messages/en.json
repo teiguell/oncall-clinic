@@ -2665,5 +2665,61 @@
     },
     "cta": "Book a home visit",
     "emptyState": "No doctors available right now. Try again in a few minutes."
+  },
+  "cityPage": {
+    "breadcrumbCities": "Doctors",
+    "liveLabel": "Live",
+    "faqTitle": "Home-call doctor FAQ in {city}",
+    "hero": {
+      "title": "Home-call doctor in {city}",
+      "subtitle": "Licensed home-call doctors in {city}: visits at your hotel, villa or home. Card payment, legal invoice automatically emailed.",
+      "cta": "Book a visit",
+      "phone": "Call +34 871 183 415",
+      "trust": {
+        "licensed": "Licensed doctors",
+        "247": "24/7 availability",
+        "languages": "ES · EN · DE · FR · IT"
+      }
+    },
+    "about": {
+      "title": "Home-call doctor in {city}, no friction",
+      "body": "OnCall Clinic connects tourists and residents of {city} with licensed doctors on call 24/7. {city} ({region}) has {population} residents and receives thousands of visitors yearly; our service lets you book in under 5 minutes and have the doctor visit your hotel, villa or home. Card payment, automatic legal invoice, and care in Spanish, English, German, French and Italian."
+    },
+    "comingSoon": {
+      "label": "Coming soon:",
+      "body": "We're recruiting doctors in {city}. Book now and we'll notify you as soon as availability opens. In the meantime, reach us by phone."
+    },
+    "sister": {
+      "title": "Nearby cities",
+      "subtitle": "Home-call doctor in nearby cities and provinces.",
+      "cardTitle": "Home-call doctor in {city}",
+      "cardCta": "Check availability"
+    },
+    "faq": {
+      "0": {
+        "q": "How much does a home-call doctor cost in {city}?",
+        "a": "A standard general-medicine visit in {city} starts from €150. A €30 night surcharge applies between 22:00 and 08:00. The price is confirmed before payment — no surprises."
+      },
+      "1": {
+        "q": "How long does it take the doctor to arrive in {city}?",
+        "a": "In central {city} the typical ETA is 30 to 90 minutes. You receive an SMS confirmation with the estimated time as soon as a doctor accepts your request."
+      },
+      "2": {
+        "q": "Are the doctors licensed in {region}?",
+        "a": "Yes. All doctors are licensed (COMIB or regional equivalent) and verified by OnCall before accepting visits. They carry active professional liability insurance."
+      },
+      "3": {
+        "q": "Do I get a legal invoice in {city}?",
+        "a": "Yes. After the visit you receive an email with a legal invoice including all tax fields (doctor, amount, date) that you can submit to your private insurer for reimbursement."
+      },
+      "4": {
+        "q": "What languages do the doctors speak in {city}?",
+        "a": "Our doctors in {city} always speak Spanish and English, and many also speak German, French and Italian. Indicate your preferred language at booking and we will assign a doctor who speaks it."
+      },
+      "5": {
+        "q": "How do I pay for the visit in {city}?",
+        "a": "Payment is captured at booking with card (Visa, Mastercard, Apple Pay, Google Pay). The doctor collects after completing the visit. If the visit is not completed within 90 days, you receive a full automatic refund."
+      }
+    }
   }
 }
