@@ -8,11 +8,18 @@ const STATUS_COLORS: Record<string, { dot: string; bg: string; text: string }> =
 }
 
 /**
- * /pro cities — Round 13 v3 design.
+ * /pro cities — Round 13 v3 design + Round 25-2 (Z-2) tourism pivot.
  *
- * Server component. 5 cards: Ibiza (Activo), Mallorca/Madrid/Barcelona
- * (Q3/Q4 2026), and "+6 ciudades" 2027 (Valencia/Sevilla/Málaga…) as
- * the 5th card. Mobile 2-col, desktop 5-col.
+ * Server component. 5 cards: Ibiza (Activo), Mallorca/Tenerife/Gran
+ * Canaria+Fuerteventura (Q3/Q4 2026), and "+3 destinos" 2027 (Costa
+ * del Sol / Costa Blanca / Formentera) as the 5th card. Mobile 2-col,
+ * desktop 5-col.
+ *
+ * Round 25-2 swapped the original metro-list (Madrid/Barcelona/
+ * Valencia/Sevilla/Málaga) for the Q5 tourism destinations to match
+ * the cities pivot landed in Round 23-1. Doctors recruiting on this
+ * page now see a roadmap that aligns with the user-facing /es/
+ * medico-domicilio/[city] coverage.
  *
  * Status colors per design source: active=emerald, soon=amber,
  * future=blue. Active card gets a soft green→white linear background.

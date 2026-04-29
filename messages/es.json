@@ -1829,7 +1829,7 @@
       ],
       "floatingPagoLabel": "Pago recibido",
       "floatingPagoValue": "+€135,00 · Stripe",
-      "seoSuffix": "Médico a domicilio en Ibiza, Mallorca y Madrid — únete a OnCall y atiende pacientes locales e internacionales."
+      "seoSuffix": "Médico a domicilio en Ibiza, Mallorca, Tenerife y Costa del Sol — únete a OnCall y atiende pacientes turistas internacionales."
     },
     "phone": {
       "appName": "OnCall Pro",
@@ -1976,7 +1976,7 @@
     },
     "cities": {
       "kicker": "Ciudades · 05",
-      "title": "Empezamos en Ibiza. Llegamos a toda España.",
+      "title": "Empezamos en Ibiza. Llegamos al resto de destinos turísticos.",
       "items": [
         {
           "name": "Ibiza",
@@ -1988,25 +1988,25 @@
           "name": "Mallorca",
           "status": "soon",
           "label": "Q3 2026",
+          "note": "Pre-registro disponible"
+        },
+        {
+          "name": "Tenerife",
+          "status": "soon",
+          "label": "Q4 2026",
           "note": "Lista de espera abierta"
         },
         {
-          "name": "Madrid",
+          "name": "Gran Canaria · Fuerteventura",
           "status": "soon",
           "label": "Q4 2026",
-          "note": "Pre-registro disponible"
+          "note": "Lista de espera abierta"
         },
         {
-          "name": "Barcelona",
-          "status": "soon",
-          "label": "Q4 2026",
-          "note": "Pre-registro disponible"
-        },
-        {
-          "name": "+6 ciudades",
+          "name": "+3 destinos",
           "status": "future",
           "label": "2027",
-          "note": "Valencia, Sevilla, Málaga…"
+          "note": "Costa del Sol · Costa Blanca · Formentera"
         }
       ]
     },
@@ -2225,7 +2225,7 @@
     "cities": {
       "overline": "Cobertura",
       "title": "Dónde estamos lanzando",
-      "subtitle": "Ibiza ya está activa. Mallorca, Madrid y Barcelona en cola para 2026. 6 ciudades más en 2027.",
+      "subtitle": "Ibiza ya está activa. Mallorca, Tenerife, Gran Canaria y Fuerteventura en cola para 2026. 3 destinos más en 2027.",
       "active": "Activo",
       "recruiting": "Próximamente",
       "soon2027": "+ 6 ciudades más en 2027"
@@ -2256,7 +2256,7 @@
         },
         {
           "q": "¿Qué cobertura geográfica tiene OnCall?",
-          "a": "Ibiza está operativa. Estamos reclutando en Madrid, Barcelona, Valencia, Sevilla, Málaga, Bilbao, Palma, Valencia, Alicante, San Sebastián y Tenerife (10 ciudades). Activamos cada ciudad cuando alcanzamos masa crítica de médicos."
+          "a": "Ibiza está operativa. Estamos reclutando en los principales destinos turísticos de España: Mallorca, Tenerife, Gran Canaria, Fuerteventura, Costa del Sol, Costa Blanca y Formentera (8 destinos). Activamos cada destino cuando alcanzamos masa crítica de médicos."
         },
         {
           "q": "¿Qué pasa si tengo una urgencia o complicación durante la visita?",
