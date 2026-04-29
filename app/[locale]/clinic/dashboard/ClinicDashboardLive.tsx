@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { PullToRefresh } from '@/components/shared/pull-to-refresh'
 
 /**
  * Round 25-1 (Z-1) — clinic dashboard realtime + polling.
@@ -47,36 +48,38 @@ export function ClinicDashboardLive({ clinicId, initial }: Props) {
   const [data, setData] = useState<KpiData>(initial)
   const lastRefetchRef = useRef<number>(0)
 
+  // Round 25-10 (Z-10): hoist `refetch` so the pull-to-refresh
+  // wrapper can call it on user gesture without re-implementing the
+  // throttle / parse / setState pipeline. Stable identity via
+  // useCallback so the realtime subscription effect doesn't tear down
+  // and re-subscribe on every render.
+  const refetch = useCallback(async () => {
+    const now = Date.now()
+    if (now - lastRefetchRef.current < 500) return
+    lastRefetchRef.current = now
+    try {
+      const res = await fetch('/api/clinic/metrics', { cache: 'no-store' })
+      if (!res.ok) return
+      const fresh = await res.json() as {
+        consultationsThisMonth: number
+        revenueThisMonthCents: number
+        activeDoctors: number
+        avgRating: number | null
+      }
+      setData({
+        consultationsThisMonth: fresh.consultationsThisMonth ?? 0,
+        revenueEur: (fresh.revenueThisMonthCents ?? 0) / 100,
+        activeDoctors: fresh.activeDoctors ?? 0,
+        avgRating: typeof fresh.avgRating === 'number' ? fresh.avgRating.toFixed(1) : '—',
+      })
+    } catch {
+      // network blip — next tick or next event will recover
+    }
+  }, [])
+
   useEffect(() => {
     if (!clinicId) return // bypass / no-clinic users render the static initial values
     const supabase = createClient()
-
-    async function refetch() {
-      // Throttle: if a realtime event fires while a fetch is already
-      // in-flight (or fired <500ms ago), skip — avoids stampedes when
-      // a batch update touches multiple rows of the same table.
-      const now = Date.now()
-      if (now - lastRefetchRef.current < 500) return
-      lastRefetchRef.current = now
-      try {
-        const res = await fetch('/api/clinic/metrics', { cache: 'no-store' })
-        if (!res.ok) return
-        const fresh = await res.json() as {
-          consultationsThisMonth: number
-          revenueThisMonthCents: number
-          activeDoctors: number
-          avgRating: number | null
-        }
-        setData({
-          consultationsThisMonth: fresh.consultationsThisMonth ?? 0,
-          revenueEur: (fresh.revenueThisMonthCents ?? 0) / 100,
-          activeDoctors: fresh.activeDoctors ?? 0,
-          avgRating: typeof fresh.avgRating === 'number' ? fresh.avgRating.toFixed(1) : '—',
-        })
-      } catch {
-        // network blip — next tick or next event will recover
-      }
-    }
 
     const consultationsChannel = supabase
       .channel(`clinic:${clinicId}:consultations`)
@@ -118,7 +121,7 @@ export function ClinicDashboardLive({ clinicId, initial }: Props) {
       void supabase.removeChannel(leadsChannel)
       clearInterval(pollHandle)
     }
-  }, [clinicId])
+  }, [clinicId, refetch])
 
   const kpis = [
     { label: tKpi('consultationsThisMonth'), value: String(data.consultationsThisMonth) },
@@ -128,27 +131,34 @@ export function ClinicDashboardLive({ clinicId, initial }: Props) {
   ]
 
   return (
-    <div
-      className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6"
-      // aria-live polite so screen readers hear the count change
-      // without interrupting the user's current focus context.
-      aria-live="polite"
-    >
-      {kpis.map((k, i) => (
-        <div
-          key={i}
-          className="bg-white border border-slate-200"
-          style={{ padding: '18px 20px', borderRadius: 14 }}
-        >
-          <div className="text-slate-500 text-[12.5px] uppercase tracking-wider">{k.label}</div>
+    // Round 25-10 (Z-10): pull-to-refresh wrapper for mobile. On
+    // desktop the touch events never fire so the wrapper renders
+    // children verbatim. Same `refetch` callback that the realtime
+    // subscription + polling use, so all three paths converge on the
+    // same /api/clinic/metrics call.
+    <PullToRefresh onRefresh={refetch}>
+      <div
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6"
+        // aria-live polite so screen readers hear the count change
+        // without interrupting the user's current focus context.
+        aria-live="polite"
+      >
+        {kpis.map((k, i) => (
           <div
-            className="font-bold text-[#0B1220] mt-2"
-            style={{ fontSize: 28, letterSpacing: '-0.02em' }}
+            key={i}
+            className="bg-white border border-slate-200"
+            style={{ padding: '18px 20px', borderRadius: 14 }}
           >
-            {k.value}
+            <div className="text-slate-500 text-[12.5px] uppercase tracking-wider">{k.label}</div>
+            <div
+              className="font-bold text-[#0B1220] mt-2"
+              style={{ fontSize: 28, letterSpacing: '-0.02em' }}
+            >
+              {k.value}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </PullToRefresh>
   )
 }

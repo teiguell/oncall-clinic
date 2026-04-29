@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Navbar } from '@/components/shared/navbar'
 import { PushSubscriber } from '@/components/shared/PushSubscriber'
+import { PullToRefresh } from '@/components/shared/pull-to-refresh'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -311,6 +312,11 @@ export default function DoctorDashboard() {
     <div className="min-h-screen bg-gray-50">
       <Navbar user={profile} />
 
+      {/* Round 25-10 (Z-10): pull-to-refresh wrapper for mobile.
+          Reuses the existing fetchData() useCallback which already
+          repopulates profile / pendingRequests / activeConsultation.
+          Desktop: touch events never fire → wrapper is a no-op. */}
+      <PullToRefresh onRefresh={fetchData}>
       <main className="container mx-auto px-4 py-6 max-w-2xl">
         {/* Round 17-F — push opt-in CTA */}
         <div className="mb-3">
@@ -547,6 +553,7 @@ export default function DoctorDashboard() {
         )}
 
       </main>
+      </PullToRefresh>
     </div>
   )
 }
