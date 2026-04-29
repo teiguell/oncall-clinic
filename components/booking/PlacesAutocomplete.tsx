@@ -109,10 +109,37 @@ function loadPlacesScript(locale: string): Promise<void> {
 
   window.__oncall_places_loading__ = new Promise<void>((resolve, reject) => {
     const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${locale}`
+    // Round 25-3 (Z-3): explicit `loading=async` is the parameter
+    // Google's new bootstrap loader uses to opt in to async/lazy
+    // initialisation — without it the browser sometimes fires the
+    // <script>'s `onload` event before the internal Maps namespace
+    // is fully populated, surfacing as
+    // `TypeError: Cannot read properties of undefined (reading 'YJ')`
+    // when downstream code touches `places.Autocomplete`.
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${locale}&loading=async`
     script.async = true
     script.defer = true
-    script.onload = () => resolve()
+    script.onload = () => {
+      // Round 25-3 (Z-3): even with onload firing, the namespace
+      // mounts on a microtask. If `places.Autocomplete` isn't yet
+      // a function, poll for up to ~500ms before giving up. Most
+      // browsers settle within 1 frame; this loop just guards the
+      // edge cases that triggered the YJ TypeError live.
+      let tries = 0
+      const tick = () => {
+        if (typeof window.google?.maps?.places?.Autocomplete === 'function') {
+          resolve()
+          return
+        }
+        tries += 1
+        if (tries > 30) {
+          reject(new Error('Google Maps places namespace did not initialise'))
+          return
+        }
+        setTimeout(tick, 16)
+      }
+      tick()
+    }
     script.onerror = () => reject(new Error('Google Maps script failed to load'))
     document.head.appendChild(script)
   })
@@ -134,6 +161,14 @@ export function PlacesAutocomplete({
   const [value, setValue] = useState(defaultValue)
   const [autocomplete, setAutocomplete] = useState<AutocompleteService | null>(null)
   const [scriptError, setScriptError] = useState<string | null>(null)
+  // Round 25-3 (Z-3): expose script-ready as state so the init effect
+  // re-runs after `loadPlacesScript()` resolves. Without this, the
+  // first effect mounted while `window.google` was still undefined,
+  // returned, and never fired again — the Autocomplete instance was
+  // never built and the input behaved like a plain text field.
+  const [scriptReady, setScriptReady] = useState<boolean>(
+    typeof window !== 'undefined' && !!window.google?.maps?.places,
+  )
   const [geolocating, setGeolocating] = useState(false)
 
   // Lazy-load the Places script when the input is first focused or as
@@ -141,6 +176,7 @@ export function PlacesAutocomplete({
   const ensureScript = useCallback(async () => {
     try {
       await loadPlacesScript(locale)
+      setScriptReady(true)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'script_error'
       setScriptError(msg)
@@ -155,27 +191,42 @@ export function PlacesAutocomplete({
   // Initialise the Autocomplete instance once the script + ref are ready.
   useEffect(() => {
     if (autocomplete || scriptError) return
-    if (!inputRef.current || !window.google?.maps?.places) return
-
-    const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
-      componentRestrictions: { country: 'es' },
-      bounds: new window.google.maps.LatLngBounds(IBIZA_SW, IBIZA_NE),
-      strictBounds: true,
-      fields: ['formatted_address', 'geometry', 'name'],
-      types: ['establishment', 'geocode'],
-    })
-    ac.addListener('place_changed', () => {
-      const place = ac.getPlace()
-      if (!place.geometry?.location) return
-      const lat = place.geometry.location.lat()
-      const lng = place.geometry.location.lng()
-      const address = place.formatted_address ?? place.name ?? value
-      setValue(address)
-      onChange?.(address)
-      onSelect({ address, lat, lng, name: place.name })
-    })
-    setAutocomplete(ac)
-  }, [autocomplete, scriptError, value, onChange, onSelect])
+    if (!scriptReady || !inputRef.current) return
+    // Round 25-3 (Z-3): wrap constructor in try/catch. The loader's
+    // ready-poll above should have ensured `Autocomplete` is a function
+    // by now, but if Google ships a new internal namespace surface we
+    // don't want to crash the booking flow — fall back to plain text.
+    try {
+      const places = window.google?.maps?.places
+      const LatLngBoundsCtor = window.google?.maps?.LatLngBounds
+      if (!places || !LatLngBoundsCtor) {
+        setScriptError('places_not_ready')
+        return
+      }
+      const ac = new places.Autocomplete(inputRef.current, {
+        componentRestrictions: { country: 'es' },
+        bounds: new LatLngBoundsCtor(IBIZA_SW, IBIZA_NE),
+        strictBounds: true,
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['establishment', 'geocode'],
+      })
+      ac.addListener('place_changed', () => {
+        const place = ac.getPlace()
+        if (!place.geometry?.location) return
+        const lat = place.geometry.location.lat()
+        const lng = place.geometry.location.lng()
+        const address = place.formatted_address ?? place.name ?? value
+        setValue(address)
+        onChange?.(address)
+        onSelect({ address, lat, lng, name: place.name })
+      })
+      setAutocomplete(ac)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'autocomplete_init_failed'
+      console.warn('[PlacesAutocomplete] init failed:', msg)
+      setScriptError(msg)
+    }
+  }, [autocomplete, scriptError, scriptReady, value, onChange, onSelect])
 
   /**
    * Click handler for the inline geolocate button. Falls back to the
