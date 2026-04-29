@@ -1071,6 +1071,7 @@
     "continueWith": "Continue with",
     "continueWithDoctor": "Continue with Dr. {name}",
     "payoutDisclaimer": "ⓘ Payment is captured when you confirm. The doctor receives their share once the visit is completed. If they don't set up payouts within 90 days, you receive a full automatic refund.",
+    "reassurance": "No-risk booking · 1-click cancel · Full refund if the visit isn't completed within 90 days",
     "trust": {
       "licensed": "Licensed COMIB doctor (verified)",
       "invoice": "Legal invoice auto-emailed",

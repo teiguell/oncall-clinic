@@ -328,6 +328,20 @@ export function Step3Confirm({
 
           <BookingFaq />
 
+          {/* Round 25-6 (Z-6): pre-checkout reassurance microcopy.
+              Single-line "no risk" message right above the pay button
+              that bundles the three highest-anxiety guarantees: no-risk
+              booking, 1-click cancel before doctor accepts, full refund
+              if the visit doesn't complete in 90 days. Reduces pre-pay
+              anxiety; audit estimates +12% conv. */}
+          <p
+            className="flex items-center gap-1.5 text-[12.5px] text-emerald-700 font-medium mb-2"
+            aria-live="polite"
+          >
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" aria-hidden="true" />
+            {tBooking('reassurance')}
+          </p>
+
           {/* Green pay button — emerald prototype palette */}
           <form onSubmit={onSubmit}>
             <div className="sticky bottom-0 -mx-4 md:mx-0 px-4 md:px-0 py-3 md:py-0 bg-background/95 backdrop-blur-sm border-t md:static md:bg-transparent md:border-0 z-10 safe-area-bottom md:pb-0">
