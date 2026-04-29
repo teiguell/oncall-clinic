@@ -14,6 +14,9 @@ export async function middleware(request: NextRequest) {
   // potentially for favicon/icon/manifest if they ever route-match.)
   // Round 17-F + R16-C: /sw.js (service worker) + /.well-known/ (Apple Pay
   // verification + future security.txt) must also pass through verbatim.
+  // Round 23-2 (Q5-2): /feed.xml — RSS feed must serve directly without a
+  // locale prefix so aggregators that crawl `<link rel="alternate"
+  // type="application/rss+xml">` find a canonical, non-redirecting URL.
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
@@ -23,6 +26,7 @@ export async function middleware(request: NextRequest) {
     pathname === '/robots.txt' ||
     pathname === '/favicon.ico' ||
     pathname === '/icon.png' ||
+    pathname === '/feed.xml' ||
     pathname.startsWith('/manifest')
   ) {
     return NextResponse.next()
