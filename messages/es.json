@@ -2072,9 +2072,9 @@
       }
     },
     "testimonial": {
-      "quote": "OnCall me dejó elegir mi horario. Atiendo en Ibiza solo en verano y gano más que en mi clínica de Madrid en el resto del año. La comisión es transparente y los pacientes turistas pagan sin fricción.",
-      "author": "Dr. Carlos R.",
-      "role": "Medicina general · COMIB 28301",
+      "quote": "OnCall me da +€800/mes extra los fines de semana. Acepto las consultas que quiero, sin presión. La comisión es transparente y los pacientes turistas pagan sin fricción.",
+      "author": "Dr. Carlos Ruiz Martínez",
+      "role": "Medicina general · COMIB 28301 · Eivissa",
       "initials": "CR"
     }
   },
@@ -2585,10 +2585,11 @@
       "year": "© {year} OnCall Clinic"
     },
     "logos": {
-      "eyebrow": "Confían en nosotros",
+      "eyebrow": "Próximas clínicas asociadas",
       "slot0": "Tu clínica aquí",
       "slot1": "Próximamente",
-      "slot2": "Próximamente"
+      "slot2": "Próximamente",
+      "cta": "Solicita ser de las primeras clínicas asociadas →"
     }
   },
   "clinicAuth": {
