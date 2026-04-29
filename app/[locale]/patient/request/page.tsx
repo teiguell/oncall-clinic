@@ -151,8 +151,15 @@ function RequestConsultationPage() {
         const { latitude: lat, longitude: lng } = position.coords
         setUserLocation({ lat, lng })
         try {
+          // Round 24-1 (Q4-D-1): use the consolidated Maps key (PLACES_KEY
+          // first, MAPS_API_KEY fallback) so this reverse-geocode doesn't
+          // cross-contaminate the script loader's key.
+          const apiKey =
+            process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY ||
+            process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+            ''
           const res = await fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&language=${locale}`
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=${locale}`
           )
           const data = await res.json()
           if (data.results[0]) {

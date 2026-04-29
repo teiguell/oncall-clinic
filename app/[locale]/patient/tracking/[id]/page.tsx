@@ -16,9 +16,13 @@ import { APIProvider, Map, AdvancedMarker, Pin, useMap } from '@vis.gl/react-goo
 import { ServiceTimeline } from '@/components/shared/service-timeline'
 import { useTranslations, useLocale } from 'next-intl'
 import { StarRating } from '@/components/star-rating'
+import { getGoogleMapsKey } from '@/lib/maps/api-key'
 import type { Consultation } from '@/types'
 
-const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+// Round 24-1 (Q4-D-1): consolidated key (PLACES_KEY → MAPS_API_KEY
+// fallback) to keep the tracking-page Map in lock-step with every
+// other Maps consumer. See lib/maps/api-key.ts for the rationale.
+const GOOGLE_MAPS_API_KEY = getGoogleMapsKey() ?? ''
 
 /** Auto-fits map bounds to show both patient and doctor markers */
 function MapFitBounds({ patientLoc, doctorLoc }: {

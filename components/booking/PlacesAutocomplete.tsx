@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { MapPin, Loader2 } from 'lucide-react'
+import { getGoogleMapsKey } from '@/lib/maps/api-key'
 
 /**
  * PlacesAutocomplete — Round 16-A.
@@ -92,12 +93,18 @@ const IBIZA_NE: LatLngLiteral = { lat: 39.1, lng: 1.65 }
  */
 function loadPlacesScript(locale: string): Promise<void> {
   if (typeof window === 'undefined') return Promise.resolve()
+  // If a sibling component already loaded the API (typically the
+  // <APIProvider> in <AddressMap> with libraries=['places']), bail out.
   if (window.google?.maps?.places) return Promise.resolve()
   if (window.__oncall_places_loading__) return window.__oncall_places_loading__
 
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY
+  // Round 24-1 (Q4-D-1): use the consolidated key resolver so this
+  // loader matches the @vis.gl APIProvider's key — otherwise the
+  // browser refuses the second script load and throws
+  // ApiNotActivatedMapError on the first key Google sees.
+  const apiKey = getGoogleMapsKey()
   if (!apiKey) {
-    return Promise.reject(new Error('NEXT_PUBLIC_GOOGLE_PLACES_KEY missing'))
+    return Promise.reject(new Error('Google Maps API key missing'))
   }
 
   window.__oncall_places_loading__ = new Promise<void>((resolve, reject) => {

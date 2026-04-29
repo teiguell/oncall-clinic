@@ -21,6 +21,11 @@ const nextConfig = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    // Round 24-1 (Q4-D-1): expose PLACES_KEY as a build-time public
+    // env so lib/maps/api-key.ts resolves it on the client.
+    // NEXT_PUBLIC_* are auto-inlined by Next, but keeping them here
+    // makes the public surface explicit + matches the existing pattern.
+    NEXT_PUBLIC_GOOGLE_PLACES_KEY: process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY,
   },
   async headers() {
     return [

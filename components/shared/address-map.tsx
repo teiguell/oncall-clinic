@@ -3,6 +3,14 @@
 import { useState } from 'react'
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 import { MapPin } from 'lucide-react'
+import { getGoogleMapsKey } from '@/lib/maps/api-key'
+
+// Round 24-1 (Q4-D-1): APIProvider needs to load the `places` library
+// up-front so the sibling <PlacesAutocomplete> on Step 0 sees a ready
+// `window.google.maps.places` and doesn't kick off a second script
+// load with a possibly-different key. One loader, one key, no
+// ApiNotActivatedMapError.
+const MAPS_LIBRARIES = ['places' as const]
 
 interface AddressMapProps {
   initialLat?: number
@@ -36,7 +44,7 @@ export function AddressMap({
   className,
 }: AddressMapProps) {
   const [pos, setPos] = useState({ lat: initialLat, lng: initialLng })
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  const apiKey = getGoogleMapsKey()
 
   if (!apiKey) {
     // Graceful degrade — no key configured (e.g. preview build).
@@ -57,7 +65,7 @@ export function AddressMap({
   }
 
   return (
-    <APIProvider apiKey={apiKey}>
+    <APIProvider apiKey={apiKey} libraries={MAPS_LIBRARIES}>
       <div
         className={
           'h-[200px] w-full rounded-[14px] overflow-hidden border border-border ' +
