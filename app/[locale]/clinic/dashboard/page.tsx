@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { getEffectiveSession } from '@/lib/supabase/auto-client'
+import { ClinicDashboardLive } from './ClinicDashboardLive'
 
 /**
  * /[locale]/clinic/dashboard — Round 15 Block 2.2.
@@ -24,7 +25,8 @@ export default async function ClinicDashboardPage({
   const { locale } = await params
   setRequestLocale(locale)
 
-  const tKpi = await getTranslations({ locale, namespace: 'clinicDashboard.kpis' })
+  // tKpi labels are now consumed inside <ClinicDashboardLive /> via
+  // useTranslations — no need to pre-fetch here.
   const tEmpty = await getTranslations({ locale, namespace: 'clinicDashboard.empty' })
   const tStripe = await getTranslations({ locale, namespace: 'clinicDashboard.stripe' })
 
@@ -89,34 +91,23 @@ export default async function ClinicDashboardPage({
     activeDoctors = docCount ?? 0
   }
 
-  const kpis = [
-    { label: tKpi('consultationsThisMonth'), value: String(consultationsThisMonth) },
-    { label: tKpi('revenueThisMonth'), value: `€${revenueThisMonth.toFixed(0)}` },
-    { label: tKpi('activeDoctors'), value: String(activeDoctors) },
-    { label: tKpi('avgRating'), value: '—' },
-  ]
-
   const isEmpty = consultationsThisMonth === 0 && activeDoctors === 0
 
   return (
     <div className="max-w-[1100px]">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        {kpis.map((k, i) => (
-          <div
-            key={i}
-            className="bg-white border border-slate-200"
-            style={{ padding: '18px 20px', borderRadius: 14 }}
-          >
-            <div className="text-slate-500 text-[12.5px] uppercase tracking-wider">{k.label}</div>
-            <div
-              className="font-bold text-[#0B1220] mt-2"
-              style={{ fontSize: 28, letterSpacing: '-0.02em' }}
-            >
-              {k.value}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Round 25-1 (Z-1): KPI grid moved into a client island so it
+          subscribes to realtime + polls /api/clinic/metrics. The
+          server-computed values above are passed as `initial` so the
+          first paint is identical to the previous server-only render. */}
+      <ClinicDashboardLive
+        clinicId={clinicId}
+        initial={{
+          consultationsThisMonth,
+          revenueEur: revenueThisMonth,
+          activeDoctors,
+          avgRating: '—',
+        }}
+      />
 
       {/* Stripe Connect status */}
       <div
