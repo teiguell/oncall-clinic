@@ -193,6 +193,25 @@ export default function TrackingPage() {
 
     fetchConsultation()
 
+    // Round 25-7 (Z-7): ask for browser Notification permission once
+    // when the user lands on the tracking page. This is consent-aware:
+    //   - Permission already granted → no-op.
+    //   - Already denied → no-op (browsers ignore subsequent prompts
+    //     anyway, and we don't want to re-prompt on every navigation).
+    //   - Default (never asked) → fire the prompt now. The page is
+    //     post-payment, so the request is contextually justified ("we
+    //     want to ping you when the doctor is on the way") and the
+    //     permission is reused by future tracking sessions.
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().catch(() => {
+          // Some browsers reject from a non-user-gesture context.
+          // We tried; future user gestures (e.g. clicking Refresh)
+          // can re-trigger if needed.
+        })
+      }
+    }
+
     // Realtime subscription
     const channel = supabase
       .channel(`consultation:${id}`)
@@ -203,7 +222,36 @@ export default function TrackingPage() {
         filter: `id=eq.${id}`,
       }, async (payload) => {
         const updated = payload.new as Consultation
-        setConsultation(prev => prev ? { ...prev, ...updated } : null)
+        // Round 25-7 (Z-7): if the browser granted Notification
+        // permission and the status actually changed, fire a native
+        // notification so the patient (who likely tabbed away) gets
+        // pinged instead of having to keep the tab visible. The
+        // setter callback gives us access to the previous status
+        // without a re-render race. Permission is requested once on
+        // first mount via the `requestNotificationPermission` ref
+        // below — we never auto-prompt on hover.
+        setConsultation(prev => {
+          if (
+            prev &&
+            prev.status !== updated.status &&
+            typeof window !== 'undefined' &&
+            'Notification' in window &&
+            Notification.permission === 'granted'
+          ) {
+            try {
+              // eslint-disable-next-line no-new
+              new Notification('OnCall Clinic', {
+                body: getStatusLabel(updated.status),
+                icon: '/brand/icon-patient-192.png',
+                tag: `consultation:${id}`, // collapse repeats
+              })
+            } catch {
+              // Some browsers throw on Notification in incognito —
+              // silently degrade.
+            }
+          }
+          return prev ? { ...prev, ...updated } : null
+        })
       })
       .on('postgres_changes', {
         event: 'UPDATE',
