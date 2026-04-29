@@ -23,20 +23,28 @@ import { LogoMark } from './LogoMark'
 export function FooterV3({ locale }: { locale: string }) {
   const t = useTranslations('landingV3.footer')
 
+  // Round 25-5 (Z-5): expand the audience-aware columns per Cowork's
+  // pre-launch audit. Each column now lists the primary acquisition
+  // links + a "talk to us" / soft-entry option for that audience.
+  // All destinations either are real pages (medicos, blog, pro, etc.)
+  // or anchor IDs already rendered (#contacto-pro / #contacto-clinica
+  // from Round 22-7, #income-calculator from the /pro v3 layout).
   const COLS: { titleKey: string; links: { labelKey: string; href: string }[] }[] = [
     {
       titleKey: 'patients',
       links: [
-        { labelKey: 'links.howItWorks', href: `/${locale}` },
-        { labelKey: 'links.doctors', href: `/${locale}/medicos` },
         { labelKey: 'links.request', href: `/${locale}/patient/request` },
-        { labelKey: 'links.contact', href: `/${locale}/contact` },
+        { labelKey: 'links.doctors', href: `/${locale}/medicos` },
+        { labelKey: 'links.howItWorks', href: `/${locale}` },
+        { labelKey: 'links.blog', href: `/${locale}/blog` },
       ],
     },
     {
       titleKey: 'professionals',
       links: [
         { labelKey: 'links.joinPro', href: `/${locale}/pro` },
+        { labelKey: 'links.proIncome', href: `/${locale}/pro#income-calculator` },
+        { labelKey: 'links.proContact', href: `/${locale}/pro#contacto-pro` },
         { labelKey: 'links.doctorOnboarding', href: `/${locale}/doctor/onboarding` },
       ],
     },
@@ -45,12 +53,14 @@ export function FooterV3({ locale }: { locale: string }) {
       links: [
         { labelKey: 'links.clinicLanding', href: `/${locale}/clinica` },
         { labelKey: 'links.clinicRegister', href: `/${locale}/clinic/register` },
+        { labelKey: 'links.clinicContact', href: `/${locale}/clinica#contacto-clinica` },
       ],
     },
     {
       titleKey: 'legal',
       links: [
         { labelKey: 'links.about', href: `/${locale}/about` },
+        { labelKey: 'links.contact', href: `/${locale}/contact` },
         { labelKey: 'links.noticeLegal', href: `/${locale}/legal/aviso-legal` },
         { labelKey: 'links.privacy', href: `/${locale}/legal/privacy` },
         { labelKey: 'links.cookies', href: `/${locale}/legal/cookies` },
