@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { ArrowRight, Phone, ShieldCheck, Lock, Clock, Star, Check } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Lock, Clock, Star, Check } from 'lucide-react'
 import { IPhoneMock } from './IPhoneMock'
 
 /**
@@ -114,20 +114,12 @@ export function HeroV3({ locale }: { locale: string }) {
               {t('ctaPrimary')}
               <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
             </Link>
-            <a
-              href={`tel:${t('phoneCta').replace(/\s/g, '')}`}
-              className="inline-flex items-center justify-center gap-2 bg-white text-[#0B1220] font-semibold border border-slate-200"
-              style={{
-                height: 56,
-                padding: '0 22px',
-                borderRadius: 14,
-                fontSize: 15.5,
-                letterSpacing: '-0.01em',
-              }}
-            >
-              <Phone className="h-[15px] w-[15px] text-[#3B82F6]" aria-hidden="true" />
-              {t('phoneCta')}
-            </a>
+            {/* Round 22-6 (Q4-17): phone CTA removed from hero. There is
+                no team answering calls at launch, and a phone shown on
+                the landing that nobody picks up destroys trust. The
+                support phone line lives only on /contact with a clear
+                "atención telefónica limitada" disclaimer. The booking
+                button is the single primary CTA. */}
           </div>
 
           {/* Trust line */}

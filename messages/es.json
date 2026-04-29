@@ -891,6 +891,7 @@
   "contact": {
     "title": "Contacto",
     "subtitle": "¿Tienes alguna pregunta? Estamos aquí para ayudarte.",
+    "phoneDisclaimer": "Email preferido — atención telefónica limitada al inicio. Si necesitas un médico ahora, solicita una visita desde la página principal.",
     "email": "Email general",
     "dpo": "Delegado de Protección de Datos (DPO)",
     "phone": "Teléfono",
@@ -1721,7 +1722,7 @@
     "finalCta": {
       "badge": "Ahora mismo · 3 médicos disponibles en Ibiza",
       "title1": "Disfruta de Ibiza.",
-      "title2": "Nosotros del resto.",
+      "title2": "Del resto nos ocupamos nosotros.",
       "subtitle": "Médico colegiado en tu hotel o villa. Menos de 60 min. 24/7.",
       "ctaPrimary": "Pedir médico ahora",
       "phoneCta": "+34 871 18 34 15",

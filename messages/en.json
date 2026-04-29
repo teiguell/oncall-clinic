@@ -891,6 +891,7 @@
   "contact": {
     "title": "Contact",
     "subtitle": "Got a question? We're here to help.",
+    "phoneDisclaimer": "Email preferred — phone support is limited at launch. If you need a doctor now, request a visit from the homepage.",
     "email": "General email",
     "dpo": "Data Protection Officer (DPO)",
     "phone": "Phone",
@@ -1721,7 +1722,7 @@
     "finalCta": {
       "badge": "Right now · 3 doctors available in Ibiza",
       "title1": "Enjoy Ibiza.",
-      "title2": "We handle the rest.",
+      "title2": "We've got the rest covered.",
       "subtitle": "Licensed doctor at your hotel or villa. Under 60 min. 24/7.",
       "ctaPrimary": "Request a doctor",
       "phoneCta": "+34 871 18 34 15",

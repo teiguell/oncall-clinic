@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { ArrowRight, Phone, ShieldCheck, Lock, Star, Clock } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Lock, Star, Clock } from 'lucide-react'
 
 /**
  * Final CTA — amber→orange gradient with white-glassmorphic trust pills.
@@ -99,23 +99,9 @@ export function FinalCtaV3({ locale }: { locale: string }) {
             {t('ctaPrimary')}
             <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
           </Link>
-          <a
-            href={`tel:${t('phoneCta').replace(/\s/g, '')}`}
-            className="inline-flex items-center justify-center gap-2 text-[#0B1220] font-semibold w-full sm:w-auto"
-            style={{
-              height: 56,
-              padding: '0 24px',
-              borderRadius: 14,
-              background: 'rgba(255,255,255,.6)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(11,18,32,.1)',
-              fontSize: 15.5,
-              letterSpacing: '-0.01em',
-            }}
-          >
-            <Phone className="h-[15px] w-[15px]" aria-hidden="true" />
-            {t('phoneCta')}
-          </a>
+          {/* Round 22-6 (Q4-17): phone CTA removed from final-CTA
+              section. Same reasoning as the hero — no team answering
+              calls at launch. Single primary CTA → /patient/request. */}
         </div>
 
         {/* Trust badges */}

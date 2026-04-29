@@ -7,8 +7,7 @@ import { routing } from '@/i18n/routing'
 import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 import { LandingNavV3 } from '@/components/landing/v3/LandingNavV3'
 import { FooterV3 } from '@/components/landing/v3/FooterV3'
-import { Check, Phone, Clock, Stethoscope, ArrowRight } from 'lucide-react'
-import { ONCALL_PHONE_TEL } from '@/lib/format/phone'
+import { Check, Clock, Stethoscope, ArrowRight } from 'lucide-react'
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
@@ -245,22 +244,11 @@ export default async function CityPage({
               {t('hero.cta')}
               <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden="true" />
             </Link>
-            <a
-              href={ONCALL_PHONE_TEL}
-              className="inline-flex items-center justify-center font-medium"
-              style={{
-                padding: '13px 18px',
-                borderRadius: 12,
-                border: '1px solid #E2E8F0',
-                background: 'white',
-                color: '#0B1220',
-                fontSize: 14.5,
-                minHeight: 46,
-              }}
-            >
-              <Phone className="h-4 w-4 mr-2" aria-hidden="true" />
-              {t('hero.phone')}
-            </a>
+            {/* Round 22-6 (Q4-17): city-page phone CTA removed. The
+                support phone line is unstaffed at launch, so showing
+                it on a public landing destroys trust. Phone lives only
+                on /contact with a clear "atención telefónica limitada"
+                disclaimer. The booking button is the single CTA. */}
           </div>
 
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-slate-700">

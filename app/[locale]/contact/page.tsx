@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import type { Metadata } from 'next'
-import { Mail, Shield, Phone, MapPin, MessageCircle } from 'lucide-react'
+import { Mail, Shield, Phone, MapPin, MessageCircle, AlertTriangle } from 'lucide-react'
 import { ONCALL_PHONE_DISPLAY, ONCALL_PHONE_TEL, ONCALL_WA } from '@/lib/format/phone'
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
@@ -46,6 +46,19 @@ export default async function ContactPage({
             value="dpo@oncall.clinic"
             href="mailto:dpo@oncall.clinic"
           />
+          {/* Round 22-6 (Q4-17): phone is the only place we surface
+              the support line — every other public surface dropped
+              the tel: link because there's no team answering at
+              launch. We render an amber disclaimer ABOVE the phone
+              row so visitors don't expect immediate pickup. */}
+          <div
+            role="note"
+            aria-live="polite"
+            className="flex items-start gap-3 rounded-card border border-amber-200 bg-amber-50 p-4"
+          >
+            <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+            <p className="text-sm text-amber-900 leading-relaxed">{t('phoneDisclaimer')}</p>
+          </div>
           <ContactRow
             icon={<Phone className="h-5 w-5 text-primary" aria-hidden="true" />}
             label={t('phone')}
