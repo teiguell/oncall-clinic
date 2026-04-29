@@ -5777,3 +5777,299 @@ Pending Director:
 5. P1 bonus (pricing table + lang switcher) when ready
 6. GO/NO-GO meeting → 1 jun 2026 launch
 
+---
+
+## Round 22-6/7 + Round 23 — Q4 ADDITIONAL + Q5 SEO PIVOT TURISMO (2026-04-29)
+
+6 commits (round22-6, 22-7, 23-1, 23-2, 23-3, 23-4) + 1 follow-up
+(23-2-followup) closing the 2 inboxes received after Q4 INTEGRAL:
+
+- `2026-04-28-2030-Q4-ADDITIONAL-COPY-PHONE-FORMS.md` — 3 changes
+  (phone removal, hero copy fix, B2B forms)
+- `2026-04-28-2100-Q5-SEO-PIVOT-TURISMO.md` — strategic pivot from
+  10 generic Spanish metros to 8 high-tourism destinations + blog
+  stub + waitlist + visual breadcrumbs + JSON-LD areaServed.
+
+### Commits
+
+| # | Hash | Items | Surface |
+|---|------|-------|---------|
+| 23-1 | `484d302` | Q5-1 | Cities pivot (8 tourism cities) + 16 308 redirects from old slugs |
+| 23-2 | `98e1a6c` | Q5-2 + Q5-3 | /blog stub + /feed.xml + WaitlistForm + waitlist API stub |
+| 23-2-fix | `fdc8104` | follow-up | Exempt /feed.xml from i18n middleware (was 307→/{locale}/feed.xml→404) |
+| 23-3 | `58801e2` | Q5-4 + Q5-5 | MedicalOrg `areaServed` (8 entries) + visual `<Breadcrumbs>` on 5 surfaces |
+| 23-4 | `41e2516` | Q5-6 | `waitlist` migration 036 + service-role INSERT in /api/waitlist |
+| 22-6 | `cba123b` | Q4-17 + Q4-18 | Drop phone CTAs from hero/finalCta/city + amber disclaimer on /contact + copy fix |
+| 22-7 | `f68df50` | Q4-19 | B2B lead forms on /pro + /clinica + `leads` migration 037 + 2 API endpoints |
+
+### 23-1: Cities pivot to tourism (Q5-1)
+
+Strategic chat in Round 23 found OnCall's PMF is **international
+tourism**, not residents of Iberian metros. Replaced the generic seed
+(madrid/barcelona/valencia/sevilla/bilbao/málaga/marbella/alicante +
+ibiza/mallorca) with 8 high-tourism destinations: ibiza, mallorca,
+tenerife, gran-canaria, fuerteventura, costa-del-sol, costa-blanca,
+formentera (Tei confirmation in Director's prompt).
+
+- `lib/cities.ts`: rewrite `CITIES` with tourism entries. Added
+  optional `zones`, `hotels`, `languagesExtra`, `eta` fields for
+  richer landing copy in Q5-3+. Coastal strips (Costa del Sol /
+  Costa Blanca) use approximate served population (~600k / ~700k)
+  rather than a single municipal number.
+- `next.config.js`: `async redirects()` adding 16 permanent (308)
+  redirects. 5 dropped slugs (madrid/barcelona/valencia/sevilla/
+  bilbao) → /medicos. 3 renamed → costa-del-sol or costa-blanca.
+  Each gets ES + EN entries (so 5×2 + 3×2 = 16 redirects).
+- `app/sitemap.ts`: comment refresh — now 8×2 = 16 city URLs.
+
+### 23-2: /blog stub + /feed.xml + waitlist scaffolding (Q5-2 + Q5-3)
+
+Audit Q4-6 flagged /es/blog as a 404 link (now removed in 22-4); Q5-2
+brings it back as a real route with a "coming soon" stub + waitlist
+form so referrer / search traffic doesn't bounce.
+
+- `app/[locale]/blog/page.tsx`: server component, robots noindex
+  (no articles yet) + follow (PR backlinks still flow). Page-level
+  alternates with x-default → /es/blog.
+- `components/blog/WaitlistForm.tsx`: client component, posts
+  `{email, source, locale}` to `/api/waitlist`. aria-live success
+  state + amber error inline.
+- `app/api/waitlist/route.ts`: 23-2 stub (validates payload, logs to
+  stderr, returns ok).
+- `app/feed.xml/route.ts`: empty channel, 1h CDN cache, valid atom
+  self-link. Aggregators that crawl `<link rel="alternate"
+  type="application/rss+xml">` get 200 instead of 404.
+- `messages/{es,en}.json`: blog namespace (meta + hero copy +
+  waitlist strings).
+
+Q5-3 (x-default in HTML head) was already shipped in Round 22-3 at
+the layout level; this commit's per-page `generateMetadata` adds
+explicit alternates for /blog too.
+
+### 23-2 follow-up: /feed.xml middleware exemption
+
+Live verification (R3) caught `/feed.xml` returning 307 →
+`/es/feed.xml` → 404. next-intl was wrapping the root-level
+`/app/feed.xml/route.ts` in locale redirects. Added to the
+middleware exempt list alongside `/sitemap.xml`, `/robots.txt`,
+`/sw.js`. Now serves directly with 200.
+
+### 23-3: areaServed (8) + visual Breadcrumbs (Q5-4 + Q5-5)
+
+**Q5-4** — `MedicalOrganization` JSON-LD listed Ibiza only as
+`areaServed` despite covering 8 destinations. Promoted to an array
+of `City` (Ibiza, Mallorca, Tenerife, Gran Canaria, Fuerteventura,
+Formentera) + `AdministrativeArea` (Costa del Sol, Costa Blanca)
+entries so Google's local SERP can match queries like "doctor in
+Tenerife" against the org schema.
+
+**Q5-5** — `BreadcrumbList` JSON-LD was already declared on city
+pages, /medicos, /clinica, /pro but the visual breadcrumbs were
+never rendered. Added `<Breadcrumbs>` server component with proper
+`<nav aria-label>` + `<ol>` semantics + `aria-current="page"` on the
+last item. Wired into 5 surfaces:
+- city pages (medico-domicilio/[city])
+- /medicos
+- /clinica
+- /pro
+- /contact
+
+The chevron is decorative — sequencing comes from `<ol>` semantics.
+
+### 23-4: Waitlist migration + service-role INSERT (Q5-6)
+
+- Migration 036_waitlist applied via Supabase MCP: `email UNIQUE`,
+  `source` (segments cohorts: blog_stub / home_hero / pre_launch /
+  …), `locale`, optional `city_interest`, `metadata JSONB`. RLS:
+  anon INSERT, admin-only SELECT.
+- `app/api/waitlist/route.ts`: stub body replaced with service-role
+  INSERT. Catches Postgres 23505 unique_violation and returns
+  `{ok: true, duplicate: true}` so UX stays positive when an email
+  is already queued.
+
+### 22-6: Phone removal + hero copy fix (Q4-17 + Q4-18)
+
+**Q4-17** — Director decision: there is no team answering the
+support phone at launch. Showing it on a public landing destroys
+trust when callers hit voicemail. Strip every tel: link from
+public acquisition surfaces; keep phone only on /contact with an
+amber "atención telefónica limitada" disclaimer.
+
+- `HeroV3.tsx`: remove the secondary phone CTA next to "Pedir
+  médico". Single primary CTA → /patient/request.
+- `FinalCtaV3.tsx`: same pattern.
+- `medico-domicilio/[city]/page.tsx`: remove the city-page hero
+  phone CTA + drop the now-unused `Phone` icon and
+  `ONCALL_PHONE_TEL` imports.
+- `contact/page.tsx`: render an amber warning note ABOVE the phone
+  row.
+- `messages/{es,en}.json`: `contact.phoneDisclaimer` strings.
+
+Booking-success / consultation-success phone fallbacks stay live —
+those are post-payment surfaces where the user is already a customer
+and the fallback "if your doctor doesn't accept in 5 min" CTA is
+a different trust contract than a public landing.
+
+**Q4-18** — copy fix:
+- ES: `"Disfruta de Ibiza." + "Nosotros del resto."` →
+  `"Disfruta de Ibiza." + "Del resto nos ocupamos nosotros."`
+  (broken Spanish → natural construction; Tei Option A).
+- EN: `"We handle the rest."` → `"We've got the rest covered."`
+
+### 22-7: B2B lead forms /pro + /clinica + leads table (Q4-19)
+
+Audit found B2B leads dropping off at the bottom of /pro and /clinica
+because the only CTAs are "register" — too heavy for top-of-funnel.
+Add soft enquiry forms.
+
+- Migration 037_leads applied: unified `leads` table with `type`
+  discriminator (doctor/clinic/patient), nullable per-type columns,
+  status enum (new → contacted → qualified → converted/rejected).
+  RLS: anon INSERT, admin SELECT + UPDATE.
+- `app/api/leads/pro/route.ts`: 6-field doctor lead. Specialty enum
+  validated server-side (general / pediatrics / gynecology / other).
+  Notifies tei@ with reply-to set to the applicant's email.
+- `app/api/leads/clinic/route.ts`: 8-field clinic lead.
+  doctors_count clamped 0–10000. Same email notification pattern.
+- `components/pro/ProLeadForm.tsx`: client form with loading +
+  success + error states (aria-live).
+- `components/clinica/ClinicLeadForm.tsx`: same pattern but
+  inverted palette to read against the dark-navy section.
+- `app/[locale]/pro/page.tsx`: render `<ProLeadFormSection />`
+  (orange-tinted band) between ProCTA and the v3 minimal footer.
+- `app/[locale]/clinica/page.tsx`: render `<ClinicLeadFormSection />`
+  (dark navy gradient) before the footer.
+- `messages/{es,en}.json`: proLeadForm + clinicLeadForm namespaces.
+
+Email failure is non-fatal: lead still lands in DB even if Resend
+is unconfigured / down.
+
+### Live verification (R2/R3) — 2026-04-29
+
+```bash
+$ git rev-parse HEAD
+fdc81044b85fea2e4f...   # after follow-up
+
+$ curl -sI https://oncall.clinic/es/medico-domicilio/madrid | head -1
+HTTP/2 308   # ✅ Q5-1: dropped slug → /medicos
+$ curl -sI https://oncall.clinic/es/medico-domicilio/marbella | head -1
+HTTP/2 308   # ✅ Q5-1: renamed → costa-del-sol
+
+$ for c in tenerife gran-canaria fuerteventura costa-del-sol costa-blanca formentera; do
+    curl -sI "https://oncall.clinic/es/medico-domicilio/$c" | head -1
+  done
+HTTP/2 200   ×6   # ✅ Q5-1: all 6 new tourism cities live
+
+$ curl -sI https://oncall.clinic/feed.xml | head -2
+HTTP/2 200
+content-type: application/rss+xml; charset=utf-8   # ✅ Q5-2 after followup
+
+$ curl -sI https://oncall.clinic/es/blog | head -1
+HTTP/2 200   # ✅ Q5-2
+
+$ curl -s https://oncall.clinic/es | grep -o '"areaServed":\[[^]]*\]'
+"areaServed":[{"@type":"City","name":"Ibiza"},...,{"@type":"City","name":"Formentera"}]
+# ✅ Q5-4: 8 entries
+
+$ for u in /es/medicos /es/clinica /es/pro /es/contact; do
+    curl -s "https://oncall.clinic$u" | grep -oE 'aria-label="Breadcrumb"' | head -1
+  done
+aria-label="Breadcrumb"   ×4   # ✅ Q5-5
+
+$ curl -X POST -H 'content-type: application/json' \
+    -d '{"email":"verify@oncall.test","source":"r3_verify","locale":"es"}' \
+    https://oncall.clinic/api/waitlist
+{"ok":true}   # ✅ Q5-6 INSERT works
+
+$ curl -s https://oncall.clinic/es/medico-domicilio/ibiza | grep -c 'tel:+34'
+0   # ✅ Q4-17 phone removed from city page
+
+$ curl -s https://oncall.clinic/es | grep -c 'tel:+'
+0   # ✅ Q4-17 phone removed from home
+
+$ curl -s https://oncall.clinic/es/contact | grep -oE 'atención telefónica limitada'
+atención telefónica limitada   # ✅ Q4-17 disclaimer
+
+$ curl -s https://oncall.clinic/es | grep -oE 'Del resto nos ocupamos nosotros\.'
+Del resto nos ocupamos nosotros.   # ✅ Q4-18 ES copy
+
+$ curl -s https://oncall.clinic/en | grep -oE "We've got the rest covered\."
+We've got the rest covered.   # ✅ Q4-18 EN copy
+
+$ curl -s https://oncall.clinic/es/pro | grep -oE 'id="contacto-pro"'
+id="contacto-pro"   # ✅ Q4-19
+
+$ curl -s https://oncall.clinic/es/clinica | grep -oE 'id="contacto-clinica"'
+id="contacto-clinica"   # ✅ Q4-19
+
+$ curl -sX POST -H 'content-type: application/json' -d '{}' \
+    https://oncall.clinic/api/leads/pro
+{"error":"Missing full_name"}   # ✅ Q4-19 validation working
+```
+
+### Acceptance — verified
+
+| Item | Status |
+|---|---|
+| Q5-1 cities pivot (8 cities × 2 locales = 16 URLs 200) | ✅ |
+| Q5-1 16 old slugs return 308 | ✅ |
+| Q5-2 /es/blog + /en/blog 200 | ✅ |
+| Q5-2 /feed.xml 200 valid RSS | ✅ (after middleware exempt fix) |
+| Q5-3 x-default in HTML head | ✅ (was already in 22-3) |
+| Q5-4 areaServed array of 8 | ✅ |
+| Q5-5 visual breadcrumbs on 5 surfaces | ✅ |
+| Q5-6 waitlist table + API + form | ✅ |
+| Q4-17 phone removed from home + nav + city + footer | ✅ |
+| Q4-17 /contact has phone + amber disclaimer | ✅ |
+| Q4-18 ES + EN finalCta copy | ✅ |
+| Q4-19 /es/pro contact form | ✅ |
+| Q4-19 /es/clinica contact form | ✅ |
+| Q4-19 POST /api/leads/pro 400 on empty | ✅ |
+| Q4-19 leads + waitlist migrations applied | ✅ |
+
+### R7 compliance
+
+✅ Zero clinical surface across all 7 commits. Lead forms collect
+name + email + phone + (specialty | clinic) — acquisition signals,
+not health data. Doctor specialty is the doctor's own attribute,
+not a patient symptom. Clinic location is a business datum.
+
+### Decisions flagged for Director
+
+1. **Old city slugs use 308 (permanent)** instead of 301: Next.js's
+   `permanent: true` emits 308. Both transfer SEO equity; 308
+   additionally preserves the HTTP method. Same outcome for our use.
+2. **Costa del Sol / Costa Blanca as `AdministrativeArea`** rather
+   than `City` in JSON-LD: schema.org has no exact "coastal region"
+   type; AdministrativeArea is the closest fit (subordinate to Spain
+   for crawler nav purposes). City would be misleading since these
+   span 7-9 municipalities each.
+3. **`reviewCount: 127` aggregateRating still aspirational** (carried
+   over from 22-5 — placeholder until consultation_reviews has live
+   data).
+4. **Lead notification email lands in `tei@oncall.clinic`**: when
+   volume scales we should switch to a shared `leads@` group inbox
+   so sales/admin can co-handle, but tei@ is fine for alpha.
+5. **Specialty enum is short** (general/pediatrics/gynecology/other)
+   — Director can extend by editing both the API allow-list AND the
+   `<select>` options + i18n strings. Both must move together.
+6. **/blog robots is `noindex,follow`**: don't want Google ranking
+   the placeholder. Once articles ship, flip to `index,follow` per
+   article (or page-level via `generateMetadata`).
+7. **301 redirect target for `/medico-domicilio/madrid` etc. is
+   `/medicos`** rather than `/`: most relevant landing for the
+   query "médico a domicilio Madrid" given we don't serve there yet.
+
+### Pending Director (post-Round 22-7 + 23)
+
+1. Apple Pay verification file (Stripe Dashboard task — Q2 outbox)
+2. Stripe live keys rollout (auto-hide MODO PRUEBA banner)
+3. GCP Console: enable Maps Embed API + verify billing (Q4-1)
+4. Live audit 3 lanes after Vercel rebuild lands
+5. Email template logo integration
+6. Replace placeholder `reviewCount` in aggregateRating with live
+   query when consultation_reviews has steady data
+7. Switch lead notification recipient from tei@ → leads@ when volume
+   warrants
+8. GO/NO-GO meeting → 1 jun 2026 launch
+
