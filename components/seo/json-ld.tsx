@@ -1,5 +1,50 @@
-export function MedicalOrganizationJsonLd() {
-  const schema = {
+import { createServiceRoleClient } from '@/lib/supabase/service'
+
+interface AggregateRating {
+  ratingValue: string
+  reviewCount: string
+}
+
+/**
+ * Round 24-2 (Q4-D-2): pull the live aggregate from
+ * `consultation_reviews` (is_public = true) so reviewCount + ratingValue
+ * track reality, not the placeholder "127" we shipped in 22-5.
+ *
+ * Returns `null` when the count is below Google's 5-review minimum
+ * for SERP star eligibility (Search Central → "Review snippet" docs).
+ * In that case the JSON-LD omits `aggregateRating` entirely so we
+ * don't get flagged for low-volume rating manipulation.
+ *
+ * Service-role client bypasses RLS for this read-only aggregate.
+ * Errors degrade silently to `null` — the homepage must always
+ * render.
+ */
+async function fetchAggregateRating(): Promise<AggregateRating | null> {
+  try {
+    const supabase = createServiceRoleClient()
+    const { data, error } = await supabase
+      .from('consultation_reviews')
+      .select('rating')
+      .eq('is_public', true)
+    if (error || !data) return null
+    const count = data.length
+    if (count < 5) return null // Google requires ≥5 to show stars
+    const sum = data.reduce((s, r) => s + (typeof r.rating === 'number' ? r.rating : 0), 0)
+    const avg = sum / count
+    // Format with one decimal — schema.org accepts both '4.6' and 4.6,
+    // but string is the conservative default per Google examples.
+    return {
+      ratingValue: avg.toFixed(1),
+      reviewCount: String(count),
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function MedicalOrganizationJsonLd() {
+  const aggregate = await fetchAggregateRating()
+  const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'MedicalOrganization',
     name: 'OnCall Clinic',
@@ -42,20 +87,19 @@ export function MedicalOrganizationJsonLd() {
       opens: '00:00',
       closes: '23:59',
     },
-    // Round 22-5 (Q4-16): aggregateRating mirrors the 4.8/5 visible
-    // in the landing hero (and on each doctor card). Surfacing it in
-    // structured data lets Google render review-stars in the SERP
-    // snippet, which audit estimates at +30% CTR for branded queries.
-    // The rating is a rolling aggregate of completed-consultation
-    // reviews; reviewCount is updated each release based on the
-    // current consultation_reviews table count.
-    aggregateRating: {
+  }
+
+  // Round 24-2 (Q4-D-2): only include aggregateRating when the live
+  // count is ≥5 (Google's threshold). Below that, omit the property —
+  // the rest of the org schema still renders, but no SERP stars.
+  if (aggregate) {
+    schema.aggregateRating = {
       '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '127',
+      ratingValue: aggregate.ratingValue,
+      reviewCount: aggregate.reviewCount,
       bestRating: '5',
       worstRating: '1',
-    },
+    }
   }
 
   return (
