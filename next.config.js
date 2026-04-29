@@ -35,6 +35,45 @@ const nextConfig = {
       },
     ]
   },
+  // Round 23-1 (Q5-1) — programmatic-SEO city seed pivoted from 10
+  // generic Spanish metros to 8 high-tourism destinations (islands +
+  // costas). The old slugs used to render under
+  // `/[locale]/medico-domicilio/[city]` and were indexed by Google.
+  // 301-redirect them so we don't lose the SEO equity:
+  //   - madrid / barcelona / valencia / sevilla / bilbao → /medicos
+  //     (no longer covered as a programmatic city; doctors listing is
+  //     the most relevant landing for these queries)
+  //   - marbella / malaga → /medico-domicilio/costa-del-sol
+  //     (Costa del Sol now covers the entire coastal strip including
+  //     these municipalities)
+  //   - alicante → /medico-domicilio/costa-blanca (same logic)
+  // Permanent (308) redirects so search engines transfer rank.
+  async redirects() {
+    const droppedToListing = ['madrid', 'barcelona', 'valencia', 'sevilla', 'bilbao']
+    const droppedRedirects = droppedToListing.flatMap((slug) => [
+      {
+        source: `/es/medico-domicilio/${slug}`,
+        destination: '/es/medicos',
+        permanent: true,
+      },
+      {
+        source: `/en/medico-domicilio/${slug}`,
+        destination: '/en/medicos',
+        permanent: true,
+      },
+    ])
+    const renamedRedirects = [
+      // Marbella + Málaga → Costa del Sol
+      { source: '/es/medico-domicilio/marbella', destination: '/es/medico-domicilio/costa-del-sol', permanent: true },
+      { source: '/en/medico-domicilio/marbella', destination: '/en/medico-domicilio/costa-del-sol', permanent: true },
+      { source: '/es/medico-domicilio/malaga', destination: '/es/medico-domicilio/costa-del-sol', permanent: true },
+      { source: '/en/medico-domicilio/malaga', destination: '/en/medico-domicilio/costa-del-sol', permanent: true },
+      // Alicante → Costa Blanca
+      { source: '/es/medico-domicilio/alicante', destination: '/es/medico-domicilio/costa-blanca', permanent: true },
+      { source: '/en/medico-domicilio/alicante', destination: '/en/medico-domicilio/costa-blanca', permanent: true },
+    ]
+    return [...droppedRedirects, ...renamedRedirects]
+  },
 }
 
 module.exports = withNextIntl(nextConfig)

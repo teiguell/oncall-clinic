@@ -62,9 +62,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  // Round 20-B / Q3-4: programmatic per-city URLs.
-  // 10 cities × 2 locales = 20 entries. Live cities get priority 0.85;
-  // recruiting/coming-soon cities 0.7.
+  // Round 20-B / Q3-4 + Round 23-1 (Q5-1) tourism pivot: programmatic
+  // per-city URLs. Now 8 cities × 2 locales = 16 entries (was 10×2
+  // pre-Round-23). Live cities get priority 0.85; recruiting/coming-
+  // soon cities 0.7. Old slugs (madrid, barcelona, … marbella, malaga,
+  // alicante) are 301-redirected from next.config.js, so they shouldn't
+  // appear in any future sitemap submissions.
   for (const city of CITIES) {
     for (const locale of ['es', 'en'] as const) {
       const path = `/medico-domicilio/${city.slug}`
