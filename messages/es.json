@@ -969,6 +969,53 @@
     "stripeSecure": "Pago seguro con Stripe",
     "heroLine": "Médicos colegiados verificados · Seguro RC incluido · Menos de 60 min"
   },
+  "proLeadForm": {
+    "heading": "¿Quieres saber más antes de registrarte?",
+    "subhead": "Cuéntanos quién eres y te llamamos en 24h.",
+    "fields": {
+      "fullName": "Nombre y apellidos",
+      "email": "Email",
+      "phone": "Teléfono",
+      "comib": "Nº de colegiado COMIB (opcional)",
+      "specialty": "Especialidad",
+      "specialtyPlaceholder": "Selecciona especialidad",
+      "specialty_general": "Medicina general",
+      "specialty_pediatrics": "Pediatría",
+      "specialty_gynecology": "Ginecología",
+      "specialty_other": "Otra",
+      "message": "¿Alguna pregunta? (opcional)"
+    },
+    "submit": "Enviar consulta",
+    "submitting": "Enviando...",
+    "success": {
+      "title": "¡Recibido!",
+      "body": "Te llamaremos en menos de 24 horas. Mientras, puedes empezar el registro completo cuando quieras."
+    },
+    "legal": "Al enviar este formulario aceptas que te contactemos por email o teléfono. No vendemos tus datos. Política de privacidad disponible en el footer.",
+    "unknownError": "No pudimos enviar el formulario. Inténtalo en un momento."
+  },
+  "clinicLeadForm": {
+    "heading": "¿Tienes una clínica en Ibiza?",
+    "subhead": "Cuéntanos sobre tu clínica y te programamos una llamada de 30 min.",
+    "fields": {
+      "clinicName": "Nombre de la clínica",
+      "contactName": "Tu nombre",
+      "email": "Email empresa",
+      "phone": "Teléfono",
+      "cif": "CIF (opcional)",
+      "city": "Ciudad",
+      "doctorsCount": "Nº médicos",
+      "message": "Cuéntanos sobre tu clínica (opcional)"
+    },
+    "submit": "Solicitar llamada",
+    "submitting": "Enviando...",
+    "success": {
+      "title": "¡Recibido!",
+      "body": "Te programamos una llamada en las próximas 24-48h."
+    },
+    "legal": "Al enviar este formulario aceptas que te contactemos por email o teléfono. Política de privacidad en el footer.",
+    "unknownError": "No pudimos enviar el formulario. Inténtalo en un momento."
+  },
   "blog": {
     "meta": {
       "title": "Blog",

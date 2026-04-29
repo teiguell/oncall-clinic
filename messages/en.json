@@ -969,6 +969,53 @@
     "stripeSecure": "Secure payment with Stripe",
     "heroLine": "Verified licensed doctors · RC insurance included · Under 60 min"
   },
+  "proLeadForm": {
+    "heading": "Want to know more before signing up?",
+    "subhead": "Tell us who you are and we'll call you within 24h.",
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "comib": "COMIB licence number (optional)",
+      "specialty": "Specialty",
+      "specialtyPlaceholder": "Select a specialty",
+      "specialty_general": "General medicine",
+      "specialty_pediatrics": "Paediatrics",
+      "specialty_gynecology": "Gynaecology",
+      "specialty_other": "Other",
+      "message": "Any questions? (optional)"
+    },
+    "submit": "Send enquiry",
+    "submitting": "Sending...",
+    "success": {
+      "title": "Got it!",
+      "body": "We'll call you within 24 hours. Meanwhile, you can start the full registration whenever you're ready."
+    },
+    "legal": "By submitting you agree we may contact you by email or phone. We don't sell your data. Privacy policy in the footer.",
+    "unknownError": "We couldn't send the form. Please try again in a moment."
+  },
+  "clinicLeadForm": {
+    "heading": "Do you run a clinic in Ibiza?",
+    "subhead": "Tell us about your clinic and we'll schedule a 30-min call.",
+    "fields": {
+      "clinicName": "Clinic name",
+      "contactName": "Your name",
+      "email": "Business email",
+      "phone": "Phone",
+      "cif": "CIF / Tax ID (optional)",
+      "city": "City",
+      "doctorsCount": "# doctors",
+      "message": "Tell us about your clinic (optional)"
+    },
+    "submit": "Request a call",
+    "submitting": "Sending...",
+    "success": {
+      "title": "Got it!",
+      "body": "We'll schedule a call within 24-48 hours."
+    },
+    "legal": "By submitting you agree we may contact you by email or phone. Privacy policy in the footer.",
+    "unknownError": "We couldn't send the form. Please try again in a moment."
+  },
   "blog": {
     "meta": {
       "title": "Blog",

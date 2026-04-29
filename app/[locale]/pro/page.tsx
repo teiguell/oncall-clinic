@@ -13,6 +13,7 @@ import { CitiesGrid } from '@/components/pro/CitiesGrid'
 import { ProFAQ } from '@/components/pro/ProFAQ'
 import { ProCTA } from '@/components/pro/ProCTA'
 import { ProTestimonial } from '@/components/pro/ProTestimonial'
+import { ProLeadForm } from '@/components/pro/ProLeadForm'
 import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 import { createServiceRoleClient } from '@/lib/supabase/service'
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
@@ -211,6 +212,13 @@ export default async function ProPage({
       <ProFAQ />
       <ProCTA locale={locale} />
 
+      {/* Round 22-7 (Q4-19): B2B doctor lead form. Doctors who aren't
+          ready for full registration drop email + phone + specialty;
+          we hand-route the lead via tei@ until volume justifies a
+          CRM dashboard. */}
+      <ProLeadFormSection />
+
+
       {/* Round 13 v3 footer — minimal one-line. Legal links + support email
           per the design spec. The richer 4-column footer was Round 10. */}
       <footer
@@ -257,5 +265,39 @@ export default async function ProPage({
         </div>
       </footer>
     </main>
+  )
+}
+
+/**
+ * Round 22-7 (Q4-19): /pro lead form wrapper.
+ *
+ * Server component for the section heading + intro copy (so the
+ * heading lands in SSR HTML for SEO), plus the client-component
+ * ProLeadForm. Sits between the closing CTA and the v3 minimal
+ * footer so the form has the user's intent fresh from the FAQ + CTA.
+ */
+async function ProLeadFormSection() {
+  const t = await getTranslations('proLeadForm')
+  return (
+    <section
+      id="contacto-pro"
+      className="bg-orange-50/70 border-t border-orange-100"
+      style={{ padding: 'clamp(48px, 6vw, 84px) clamp(18px, 4vw, 56px)' }}
+    >
+      <div className="max-w-[680px] mx-auto">
+        <h2
+          className="font-bold text-[#0B1220]"
+          style={{ fontSize: 'clamp(26px, 3vw, 36px)', letterSpacing: '-0.02em', lineHeight: 1.15 }}
+        >
+          {t('heading')}
+        </h2>
+        <p className="text-slate-600 mt-2.5" style={{ fontSize: 16 }}>
+          {t('subhead')}
+        </p>
+        <div className="mt-7">
+          <ProLeadForm />
+        </div>
+      </div>
+    </section>
   )
 }

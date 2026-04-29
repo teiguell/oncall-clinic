@@ -9,6 +9,7 @@ import { ClinicaTopSections } from '@/components/clinica/ClinicaTopSections'
 import { ClinicaMidSections } from '@/components/clinica/ClinicaMidSections'
 import { ClinicaBottomSections } from '@/components/clinica/ClinicaBottomSections'
 import { ClinicaLogos } from '@/components/clinica/ClinicaLogos'
+import { ClinicLeadForm } from '@/components/clinica/ClinicLeadForm'
 import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
@@ -203,6 +204,12 @@ export default async function ClinicaPage({
       <ClinicaMidSections />
       <ClinicaBottomSections locale={locale} />
 
+      {/* Round 22-7 (Q4-19): B2B clinic lead form. Clinics that
+          aren't ready for the full registration at /clinic/register
+          (CIF + RC + coverage zones + auth user) drop a soft enquiry
+          here; we hand-route via tei@ and schedule a 30-min call. */}
+      <ClinicLeadFormSection />
+
       <footer
         className="bg-white border-t border-[#EEF1F5] text-slate-500"
         style={{
@@ -245,5 +252,41 @@ export default async function ClinicaPage({
         </div>
       </footer>
     </main>
+  )
+}
+
+/**
+ * Round 22-7 (Q4-19): /clinica lead form wrapper.
+ *
+ * Dark-navy section to mirror the clinic landing's premium B2B
+ * palette. Section heading lives in the server component (good for
+ * SEO H2) and the actual form is the client-component ClinicLeadForm.
+ */
+async function ClinicLeadFormSection() {
+  const t = await getTranslations('clinicLeadForm')
+  return (
+    <section
+      id="contacto-clinica"
+      className="text-white"
+      style={{
+        background: 'linear-gradient(180deg, #1E1B4B 0%, #0F0E2C 100%)',
+        padding: 'clamp(56px, 7vw, 96px) clamp(18px, 4vw, 56px)',
+      }}
+    >
+      <div className="max-w-[760px] mx-auto">
+        <h2
+          className="font-bold"
+          style={{ fontSize: 'clamp(28px, 3.4vw, 40px)', letterSpacing: '-0.02em', lineHeight: 1.15 }}
+        >
+          {t('heading')}
+        </h2>
+        <p className="text-slate-300 mt-2.5" style={{ fontSize: 16 }}>
+          {t('subhead')}
+        </p>
+        <div className="mt-7">
+          <ClinicLeadForm />
+        </div>
+      </div>
+    </section>
   )
 }
