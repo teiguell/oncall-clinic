@@ -7,6 +7,7 @@ import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 import { LandingNavV3 } from '@/components/landing/v3/LandingNavV3'
 import { FooterV3 } from '@/components/landing/v3/FooterV3'
 import { Star, MapPin, CheckCircle2 } from 'lucide-react'
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
 
@@ -166,6 +167,14 @@ export default async function DoctorsListingPage({
         style={{ padding: 'clamp(40px, 6vw, 72px) clamp(18px, 4vw, 56px)' }}
       >
         <div className="max-w-[1240px] mx-auto">
+          {/* Round 23-3 (Q5-5): visual breadcrumbs above the H1. */}
+          <Breadcrumbs
+            className="text-[13px] text-slate-500 mb-4"
+            items={[
+              { label: locale === 'en' ? 'Home' : 'Inicio', href: `/${locale}` },
+              { label: locale === 'en' ? 'Doctors' : 'Médicos' },
+            ]}
+          />
           <h1
             className="font-bold text-[#0B1220]"
             style={{ fontSize: 'clamp(32px, 4.5vw, 52px)', letterSpacing: '-0.02em', lineHeight: 1.1 }}

@@ -10,6 +10,7 @@ import { ClinicaMidSections } from '@/components/clinica/ClinicaMidSections'
 import { ClinicaBottomSections } from '@/components/clinica/ClinicaBottomSections'
 import { ClinicaLogos } from '@/components/clinica/ClinicaLogos'
 import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
 
@@ -176,6 +177,23 @@ export default async function ClinicaPage({
       />
 
       <ClinicaNav locale={locale} />
+      {/* Round 23-3 (Q5-5): visual breadcrumbs slot just under the
+          sticky nav, before the hero. Pairs with the JSON-LD
+          BreadcrumbList already declared above. */}
+      <div
+        className="bg-white border-b border-slate-200"
+        style={{ padding: 'clamp(12px, 1.6vw, 16px) clamp(18px, 4vw, 56px)' }}
+      >
+        <div className="max-w-[1240px] mx-auto">
+          <Breadcrumbs
+            className="text-[13px] text-slate-500"
+            items={[
+              { label: locale === 'en' ? 'Home' : 'Inicio', href: `/${locale}` },
+              { label: locale === 'en' ? 'Clinics' : 'Clínicas' },
+            ]}
+          />
+        </div>
+      </div>
       <ClinicaHero locale={locale} />
       {/* Round 20 Q3-2: trusted-by logo cluster (placeholders until
           real partner clinics sign up). Sits right under the hero so

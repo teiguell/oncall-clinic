@@ -15,6 +15,7 @@ import { ProCTA } from '@/components/pro/ProCTA'
 import { ProTestimonial } from '@/components/pro/ProTestimonial'
 import { breadcrumbsSchema } from '@/lib/seo/breadcrumbs'
 import { createServiceRoleClient } from '@/lib/supabase/service'
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
 const FAQ_COUNT_FOR_JSONLD = 5 // first 5 questions go into FAQPage schema
@@ -183,6 +184,22 @@ export default async function ProPage({
       />
 
       <ProNav locale={locale} />
+      {/* Round 23-3 (Q5-5): visual breadcrumbs slot under the sticky
+          ProNav, before the hero. Mirrors the JSON-LD BreadcrumbList. */}
+      <div
+        className="bg-white border-b border-slate-200"
+        style={{ padding: 'clamp(12px, 1.6vw, 16px) clamp(18px, 4vw, 56px)' }}
+      >
+        <div className="max-w-[1240px] mx-auto">
+          <Breadcrumbs
+            className="text-[13px] text-slate-500"
+            items={[
+              { label: locale === 'en' ? 'Home' : 'Inicio', href: `/${locale}` },
+              { label: locale === 'en' ? 'For doctors' : 'Para médicos' },
+            ]}
+          />
+        </div>
+      </div>
       <ProHero locale={locale} activeDoctors={activeDoctors} />
       <StatsBar />
       <IncomeCalculator locale={locale} />

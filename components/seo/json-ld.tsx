@@ -17,10 +17,21 @@ export function MedicalOrganizationJsonLd() {
       latitude: 38.9067,
       longitude: 1.4206,
     },
-    areaServed: {
-      '@type': 'City',
-      name: 'Ibiza',
-    },
+    // Round 23-3 (Q5-4) tourism pivot: declare all 8 served regions.
+    // City for actual cities (Ibiza, Mallorca, Tenerife, Gran Canaria,
+    // Fuerteventura, Formentera) and AdministrativeArea for the costa
+    // strips (Costa del Sol, Costa Blanca) which are coastal regions
+    // spanning multiple municipalities. Mirrors lib/cities.ts.
+    areaServed: [
+      { '@type': 'City', name: 'Ibiza' },
+      { '@type': 'City', name: 'Mallorca' },
+      { '@type': 'City', name: 'Tenerife' },
+      { '@type': 'City', name: 'Gran Canaria' },
+      { '@type': 'City', name: 'Fuerteventura' },
+      { '@type': 'AdministrativeArea', name: 'Costa del Sol' },
+      { '@type': 'AdministrativeArea', name: 'Costa Blanca' },
+      { '@type': 'City', name: 'Formentera' },
+    ],
     availableLanguage: ['Spanish', 'English'],
     openingHoursSpecification: {
       '@type': 'OpeningHoursSpecification',

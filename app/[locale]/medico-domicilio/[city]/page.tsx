@@ -9,6 +9,7 @@ import { LandingNavV3 } from '@/components/landing/v3/LandingNavV3'
 import { FooterV3 } from '@/components/landing/v3/FooterV3'
 import { Check, Phone, Clock, Stethoscope, ArrowRight } from 'lucide-react'
 import { ONCALL_PHONE_TEL } from '@/lib/format/phone'
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
 const BASE_URL = 'https://oncall.clinic'
 const FAQ_COUNT = 6
@@ -191,6 +192,17 @@ export default async function CityPage({
         style={{ padding: 'clamp(48px, 7vw, 96px) clamp(18px, 4vw, 56px)' }}
       >
         <div className="max-w-[1240px] mx-auto">
+          {/* Round 23-3 (Q5-5): visual breadcrumbs above the H1.
+              Mirrors the existing JSON-LD BreadcrumbList structure
+              (Home → Medicos → {city}). */}
+          <Breadcrumbs
+            className="text-[13px] text-slate-500 mb-5"
+            items={[
+              { label: isEn ? 'Home' : 'Inicio', href: `/${locale}` },
+              { label: t('breadcrumbCities'), href: `/${locale}/medicos` },
+              { label: cityName },
+            ]}
+          />
           <div className="flex items-center gap-2 text-[12px] text-slate-500 mb-3 uppercase tracking-[0.16em] font-semibold">
             <span>{city.region}</span>
             {city.isLive && (

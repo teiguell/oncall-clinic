@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import type { Metadata } from 'next'
 import { Mail, Shield, Phone, MapPin, MessageCircle } from 'lucide-react'
 import { ONCALL_PHONE_DISPLAY, ONCALL_PHONE_TEL, ONCALL_WA } from '@/lib/format/phone'
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 
 // Round 22-5 (Q4-11): plain title — layout template appends "| OnCall Clinic".
 export const metadata: Metadata = {
@@ -10,12 +11,25 @@ export const metadata: Metadata = {
     'Contacta con OnCall Clinic: email general, DPO, teléfono, dirección y WhatsApp.',
 }
 
-export default async function ContactPage() {
-  const t = await getTranslations('contact')
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'contact' })
 
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto max-w-3xl px-4 py-12">
+        {/* Round 23-3 (Q5-5): visual breadcrumbs above the H1. */}
+        <Breadcrumbs
+          className="text-sm text-muted-foreground mb-3"
+          items={[
+            { label: locale === 'en' ? 'Home' : 'Inicio', href: `/${locale}` },
+            { label: locale === 'en' ? 'Contact' : 'Contacto' },
+          ]}
+        />
         <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">{t('title')}</h1>
         <p className="text-muted-foreground mb-8">{t('subtitle')}</p>
 
