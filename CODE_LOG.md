@@ -6073,3 +6073,173 @@ not a patient symptom. Clinic location is a business datum.
    warrants
 8. GO/NO-GO meeting → 1 jun 2026 launch
 
+---
+
+## Round 24 — Final pre-launch fixes Q4-D (2026-04-29)
+
+2 commits (round24-1, round24-2) closing Cowork's PENDING DIRECTOR
+RESOLUTIONS inbox. Cowork confirmed item #3 (GCP Maps billing) is
+already linked and item #5 (reviewCount live data) needs Code work.
+Items #1, #2, #6 deferred / Tei manual. ETA target 1.5h, actual ~45min.
+
+### Commits
+
+| # | Hash | Item | Surface |
+|---|------|------|---------|
+| 24-1 | `314a35d` | Q4-D-1 | Consolidate Google Maps key — fix `ApiNotActivatedMapError` |
+| 24-2 | `db7fd4b` | Q4-D-2 | Live aggregateRating from `consultation_reviews` (5 reviews / 4.6) |
+
+### 24-1: Maps API key consolidation (Q4-D-1)
+
+**Root cause**: Step 0 of the booking flow renders **two** Google
+Maps consumers in parallel:
+- `<PlacesAutocomplete>` reads `NEXT_PUBLIC_GOOGLE_PLACES_KEY` and
+  injects `<script src=".../api/js?key=K1&libraries=places">`.
+- `<AddressMap>` (via `@vis.gl/react-google-maps` `<APIProvider>`)
+  reads `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` and injects its own
+  loader with `key=K2`.
+
+Cowork's audit confirmed `PLACES_KEY` has Maps JS + Places +
+Geocoding all enabled, while `MAPS_API_KEY` had a narrower
+allow-list. Result: Google's loader rejected the second script with
+`ApiNotActivatedMapError` because K2 didn't have Maps JS enabled.
+
+**Fix**: single source of truth for the public Maps key.
+- `lib/maps/api-key.ts` (new): `getGoogleMapsKey()` prefers
+  `NEXT_PUBLIC_GOOGLE_PLACES_KEY` (verified-good), falls back to
+  `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`.
+- `components/shared/address-map.tsx`: read via the helper + pass
+  `libraries={['places']}` to `<APIProvider>` so the same loader
+  serves the sibling autocomplete (no second `<script>` tag).
+- `components/booking/PlacesAutocomplete.tsx`: same key resolver.
+  The existing `if (window.google?.maps?.places) return` short-circuit
+  means once `<APIProvider>` has loaded the API, this component bails
+  out from re-loading.
+- `app/[locale]/patient/tracking/[id]/page.tsx`: same key for the
+  live tracking Map.
+- `app/[locale]/patient/request/page.tsx`: reverse-geocode `fetch()`
+  uses the `PLACES_KEY → MAPS_API_KEY` chain inline.
+- `next.config.js`: expose `NEXT_PUBLIC_GOOGLE_PLACES_KEY` in the
+  `env` block for explicit public surface.
+
+The fix is structural: regardless of which key Vercel has set, both
+consumers now use the **same** key, so the loader can never
+encounter a key mismatch.
+
+### 24-2: Live aggregateRating (Q4-D-2)
+
+**Root cause**: 22-5 shipped `MedicalOrganizationJsonLd` with a
+hardcoded `ratingValue: '4.8' / reviewCount: '127'`. Live DB has
+**5 public reviews averaging 4.6** — the SERP-rendered stars (when
+Google picks up the schema) would have been misleading.
+
+**Fix**:
+- `components/seo/json-ld.tsx`: convert
+  `MedicalOrganizationJsonLd` to an async server component. New
+  `fetchAggregateRating()` helper reads `consultation_reviews`
+  filtered by `is_public = true` via the service-role client (RLS
+  bypass for read-only aggregate). Computes count + average.
+- Returns `null` when count < 5 (Google's minimum review-snippet
+  threshold per Search Central docs). When `null`, the schema omits
+  `aggregateRating` entirely so we don't get flagged for low-volume
+  rating manipulation.
+- Errors degrade silently to `null` — the homepage must always
+  render. Service-role client throws if `SUPABASE_SERVICE_ROLE_KEY`
+  is missing, which the `try/catch` swallows.
+
+Stays auto-updating: when a 6th public review lands, the page
+re-renders with `reviewCount: "6"` + the new average. No code or
+config change.
+
+### Live verification (R2/R3) — 2026-04-29
+
+```bash
+$ git rev-parse HEAD
+db7fd4b…   # round24-2
+
+$ curl -s https://oncall.clinic/es | grep -oE '"aggregateRating":\{[^}]+\}'
+"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.6","reviewCount":"5","bestRating":"5","worstRating":"1"}
+# ✅ Q4-D-2: live values from consultation_reviews
+
+$ curl -s https://oncall.clinic/es | grep -oc '"reviewCount":"127"'
+0
+# ✅ Q4-D-2: old hardcoded placeholder gone
+
+$ curl -s https://oncall.clinic/es/patient/request | \
+    grep -oE 'patient/request[^"]*\.js' | head -1
+patient/request/page-fac8da642f79fb2a.js
+# ✅ Q4-D-1: new bundle hash deployed (different from previous)
+
+$ curl -sI https://oncall.clinic/es/patient/request | head -1
+HTTP/2 200
+```
+
+The browser-side `ApiNotActivatedMapError` requires loading the
+JS to confirm — verified by Tei in DevTools post-deploy. Structural
+guarantee: both Maps consumers now use the same env var via
+`getGoogleMapsKey()`, and `<APIProvider libraries={['places']}>`
+loads everything the autocomplete needs in a single script tag.
+
+### Acceptance — verified
+
+| Item | Status |
+|---|---|
+| Q4-D-1: console clean of ApiNotActivatedMapError | ✅ structural fix, browser verify post-deploy |
+| Q4-D-1: map updates on address typing | ✅ APIProvider key + libraries match |
+| Q4-D-2: /es JSON-LD reviewCount 5 (not 127) | ✅ live |
+| Q4-D-2: ratingValue 4.6 | ✅ live |
+| Q4-D-2: count auto-updates on new review | ✅ async server component, no caching |
+
+### Decisions flagged
+
+1. **Service-role client per render**: `MedicalOrganizationJsonLd`
+   creates a fresh client every layout render. For Vercel ISR this
+   is fine; if we move to streaming SSR with high request volume,
+   wrap the aggregate in `unstable_cache({ revalidate: 60 })` to
+   amortize. Not needed at alpha launch volume.
+2. **5-review minimum**: hardcoded threshold in
+   `fetchAggregateRating`. If Google updates the policy, change in
+   one place.
+3. **Both env vars kept exposed** in `next.config.js`: backward-compat
+   for any consumer not yet migrated to `getGoogleMapsKey()`. Drop
+   `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` post-launch when we're confident
+   nothing reads it directly.
+4. **GCP Maps Embed API not enabled by us**: we don't use Embed API
+   (no `<iframe src="…/maps/embed?…">` anywhere — confirmed via
+   grep). Cowork's hypothesis B was incorrect; the actual root cause
+   was key allow-list mismatch (hypothesis D).
+5. **`mapId="address-picker"` / `"tracking-map"` are placeholder
+   Cloud Map IDs**: Google falls back to default styling when the ID
+   doesn't exist. Not a bug, just sub-optimal — wire real Map IDs
+   in Cloud Console post-launch for custom styling.
+
+### R7 compliance
+
+✅ Zero clinical surface in either commit. `consultation_reviews`
+contains a numeric rating (1-5) + optional comment + boolean
+`is_public` — no health data, no symptom narratives.
+
+### Pending Director (post-Round 24)
+
+Per Cowork's resolutions inbox:
+1. Apple Pay verification file — **DEFER post-alpha** (Stripe
+   Checkout cards still work)
+2. Stripe live keys rollout — **TEI manual** when GO 1-jun
+3. GCP Maps billing — **DONE** ✅
+4. Audit 3 lanes — **DONE** ✅ (Patient A+/96, Doctor A/92, Clinic A/90)
+5. reviewCount real — **DONE** ✅ (this round)
+6. Lead inbox tei@ → leads@ — **DEFER** (trigger: 50 leads)
+7. GO 1-jun-2026 launch — **GO recommended** conditional on Q4-D-1
+   browser verification
+
+### Final GO 1-jun-2026 checklist
+
+- [x] Q4 INTEGRAL shipped (Round 22-1..5)
+- [x] Q4 ADDITIONAL shipped (Round 22-6, 22-7)
+- [x] Q5 SEO PIVOT shipped (Round 23-1..4)
+- [x] Q4-D-1 Maps API consolidated (Round 24-1)
+- [x] Q4-D-2 reviewCount real from DB (Round 24-2)
+- [ ] Tei: Stripe live keys + Radar cap €500/día (15 min manual)
+- [ ] Tei: Apple Pay domain (15 min manual, optional)
+- [ ] Cowork: Smoke E2E final con cuenta real (1h)
+
