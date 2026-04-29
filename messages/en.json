@@ -968,6 +968,26 @@
     "stripeSecure": "Secure payment with Stripe",
     "heroLine": "Verified licensed doctors · RC insurance included · Under 60 min"
   },
+  "blog": {
+    "meta": {
+      "title": "Blog",
+      "description": "Coming soon: articles on health for tourists in Spain."
+    },
+    "title": "OnCall Blog",
+    "comingSoon": "Coming soon.",
+    "description": "We're preparing content on health for international tourists in Spain: what to do if you fall ill on holiday, how Spanish private healthcare works, what your travel insurance covers, and when to call a home-call doctor.",
+    "meanwhile": "Meanwhile, if you need a doctor in Ibiza you can request a visit right now from the homepage.",
+    "waitlist": {
+      "heading": "Notify me at launch",
+      "subhead": "Drop your email and we'll let you know when the first articles go live. No spam.",
+      "placeholder": "your@email.com",
+      "submit": "Notify me",
+      "submitting": "Sending...",
+      "success": "All set! We'll email you when we publish.",
+      "invalidEmail": "Please check your email.",
+      "unknownError": "We couldn't save your email. Try again in a moment."
+    }
+  },
   "booking2": {
     "loading_doctors": "Finding available doctors near you...",
     "cancel_free": "Free cancellation until a doctor accepts",

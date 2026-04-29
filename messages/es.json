@@ -968,6 +968,26 @@
     "stripeSecure": "Pago seguro con Stripe",
     "heroLine": "Médicos colegiados verificados · Seguro RC incluido · Menos de 60 min"
   },
+  "blog": {
+    "meta": {
+      "title": "Blog",
+      "description": "Próximamente: artículos sobre salud para turistas en España."
+    },
+    "title": "Blog OnCall",
+    "comingSoon": "Próximamente.",
+    "description": "Estamos preparando contenido sobre salud para turistas internacionales en España: qué hacer si te pones malo en vacaciones, cómo funciona la sanidad privada, qué cubre tu seguro de viaje y cuándo llamar a un médico a domicilio.",
+    "meanwhile": "Mientras tanto, si necesitas un médico en Ibiza puedes solicitar una visita ahora mismo desde la página principal.",
+    "waitlist": {
+      "heading": "Avísame del lanzamiento",
+      "subhead": "Déjanos tu email y te avisaremos cuando publiquemos los primeros artículos. Sin spam.",
+      "placeholder": "tu@email.com",
+      "submit": "Avisarme",
+      "submitting": "Enviando...",
+      "success": "¡Listo! Te avisaremos en cuanto publiquemos.",
+      "invalidEmail": "Verifica tu email.",
+      "unknownError": "No pudimos guardar tu email. Inténtalo en un momento."
+    }
+  },
   "booking2": {
     "loading_doctors": "Buscando médicos disponibles cerca de ti...",
     "cancel_free": "Cancelación gratuita hasta que el médico acepte",
