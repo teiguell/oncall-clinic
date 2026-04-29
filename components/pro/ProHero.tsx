@@ -150,6 +150,25 @@ export function ProHero({
               >
                 {t('ctaSecondary')}
               </a>
+              {/* Round 25-4 (Z-4): tertiary anchor CTA jumps to the
+                  B2B lead form at the bottom of the page. The form
+                  was Q4-19 work; pre-Round-25 a doctor with questions
+                  had to scroll the entire page to find it, and many
+                  bounced before reaching it. The arrow signals the
+                  in-page jump (smooth-scroll set globally in
+                  globals.css). */}
+              <a
+                href="#contacto-pro"
+                className="inline-flex items-center justify-center text-[#0B1220] font-medium hover:text-[#3B82F6] transition-colors"
+                style={{
+                  padding: '14px 18px',
+                  fontSize: 14.5,
+                  letterSpacing: '-0.2px',
+                  minHeight: 44,
+                }}
+              >
+                {t('ctaTertiary')}
+              </a>
             </div>
 
             <div className="flex flex-wrap gap-x-6 gap-y-2.5 text-[13.5px] font-medium text-slate-700">

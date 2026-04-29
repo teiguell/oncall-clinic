@@ -2092,6 +2092,7 @@
       "subtitle": "Únete a la red de médicos colegiados que atienden en domicilio en España. Pon tu precio, elige cuándo trabajas y cobra en 2 días.",
       "ctaPrimary": "Empezar registro · 5 min",
       "ctaSecondary": "Cómo funciona",
+      "ctaTertiary": "¿Preguntas antes de registrarte? →",
       "trustNote": "⭐ 50+ médicos · Pago al instante · Sin permanencia"
     },
     "stats": {
@@ -2315,7 +2316,8 @@
       "subtitle": "Comparte médicos colaboradores con OnCall. 8% comisión todo incluido. Sin cuotas mensuales. Sin exclusividad.",
       "ctaPrimary": "Asociar mi clínica",
       "ctaSecondary": "Ver cómo funciona",
-      "seoSuffix": "Asocia tu clínica con OnCall — médico a domicilio en Ibiza, Mallorca, Madrid, Barcelona y Valencia."
+      "ctaTertiary": "¿Tu clínica encaja? Cuéntanos →",
+      "seoSuffix": "Asocia tu clínica con OnCall — médico a domicilio en Ibiza, Mallorca, Tenerife, Gran Canaria y Costa del Sol."
     },
     "stats": {
       "commission": {

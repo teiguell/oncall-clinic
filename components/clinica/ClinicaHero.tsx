@@ -130,6 +130,23 @@ export function ClinicaHero({ locale }: { locale: string }) {
           >
             {t('ctaSecondary')}
           </a>
+          {/* Round 25-4 (Z-4): tertiary anchor CTA — clinic admins
+              with questions about the program jump to the B2B form
+              at the bottom of the page (Round 22-7 work) instead of
+              having to scroll past every section. */}
+          <a
+            href="#contacto-clinica"
+            className="inline-flex items-center justify-center font-medium hover:text-white"
+            style={{
+              padding: '14px 18px',
+              fontSize: 14.5,
+              letterSpacing: '-0.2px',
+              color: 'rgba(255,255,255,0.8)',
+              minHeight: 44,
+            }}
+          >
+            {t('ctaTertiary')}
+          </a>
         </div>
       </div>
     </section>
