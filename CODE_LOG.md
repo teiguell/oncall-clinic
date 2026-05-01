@@ -6243,3 +6243,271 @@ Per Cowork's resolutions inbox:
 - [ ] Tei: Apple Pay domain (15 min manual, optional)
 - [ ] Cowork: Smoke E2E final con cuenta real (1h)
 
+---
+
+## Round 25 — Pre-launch UX/UI excellence (2026-04-29)
+
+9 commits closing Cowork's PRE-LAUNCH-FINAL-FIXES inbox: 3 P0 + 4 P1
++ 3 P2 (Z-1..Z-10, Z-8/9 batched). ETA target 3-4h, actual ~2.5h.
+
+### Commits
+
+| # | Hash | Item | Surface |
+|---|------|------|---------|
+| 25-1 | `3f3a7a8` | Z-1 (P0) | `ClinicDashboardLive` client island — realtime + 30s polling |
+| 25-2 | `3cfd65a` | Z-2 (P0) | /pro cities pivoted to Q5 tourism (8 destinations) |
+| 25-3 | `817492c` | Z-3 (P0) | Maps loader race — `loading=async` + ready-poll + scriptReady state |
+| 25-4 | `ad920fa` | Z-4 (P1) | Hero ghost CTAs anchored to #contacto-pro / #contacto-clinica |
+| 25-5 | `375e76c` | Z-5 (P1) | FooterV3 expanded with deep audience-aware links |
+| 25-6 | `890fd09` | Z-6 (P1) | Pre-checkout reassurance microcopy on Step 3 |
+| 25-7 | `fc15586` | Z-7 (P1) | Browser Notification on tracking status change |
+| 25-8/9 | `741a9ed` | Z-8 + Z-9 (P2) | Doctor testimonial copy + clinic logo placeholders |
+| 25-10 | `2b097de` | Z-10 (P2) | Custom PullToRefresh on doctor + clinic dashboards |
+
+### 25-1: clinic dashboard realtime (Z-1)
+
+Pre-Round-25 the clinic dashboard was a pure server component — KPIs
+computed on first render, never refreshed without manual reload.
+Doctor + patient surfaces already had realtime (R17 / R18); clinic
+admins had a strictly worse UX.
+
+- `ClinicDashboardLive.tsx` (new client island): subscribes to 3
+  postgres_changes channels (`consultations` + `clinic_doctors`
+  filtered by clinic_id, `leads` INSERTs broadly) and polls
+  `/api/clinic/metrics` every 30s as a safety net for silent
+  websocket disconnects (Vercel proxies sometimes drop without
+  closing).
+- `page.tsx`: KPI grid moved into the island; SSR-computed values
+  pass as `initial` so first paint is identical.
+- Refetch throttled to 500ms to avoid stampedes on batch updates.
+- aria-live="polite" on the grid.
+
+### 25-2: /pro cities → Q5 tourism (Z-2)
+
+The /pro CitiesGrid still listed Madrid/Barcelona Q4 2026 +
+Valencia/Sevilla/Málaga 2027 — copy that pre-dated R23-1's pivot.
+Internal contradiction (a doctor reading /pro saw one roadmap; the
+public city pages showed another).
+
+Updated `proV3.cities.items` and the FAQ geographic-coverage answer
++ pro/clinic seoSuffix strings to the 8-destination tourism list.
+
+### 25-3: Maps loader race condition (Z-3)
+
+Live console showed `TypeError: Cannot read properties of undefined
+(reading 'YJ')` on /es/patient/request. Two issues stacked:
+
+1. `script.onload` was firing before `places.Autocomplete` was
+   actually a function on `window.google.maps.places`.
+2. The autocomplete-init `useEffect` ran on mount with `window.google`
+   undefined, returned, and never re-ran (no dep change after the
+   script eventually loaded).
+
+Fixes:
+- Append `loading=async` to the script URL (Google's recommended
+  parameter for the new bootstrap loader).
+- After `script.onload`, poll up to ~500ms for `Autocomplete` being
+  a function before resolving the loader promise.
+- Add a `scriptReady` state set after `loadPlacesScript()` resolves;
+  include it in the autocomplete-init effect's deps. Wrap
+  `new Autocomplete(...)` in try/catch so a future Google namespace
+  shift degrades to plain text instead of crashing the booking flow.
+
+### 25-4: hero anchor CTAs to B2B forms (Z-4)
+
+Round 22-7 forms sit at the bottom of /pro and /clinica. Audit
+flagged B2B leads dropping off before scrolling that deep. Added a
+tertiary "ghost" CTA in each hero anchored to `#contacto-pro` /
+`#contacto-clinica`. Smooth-scroll already global in globals.css.
+
+i18n: `proV3.hero.ctaTertiary` + `clinicLanding.hero.ctaTertiary`.
+
+### 25-5: footer 3-col deep links (Z-5)
+
+Expanded each footer column with the deeper acquisition + soft-entry
+links Cowork's audit listed:
+- Patients: request, doctors, howItWorks, blog
+- Professionals: joinPro, proIncome, proContact, doctorOnboarding
+- Clinics: clinicLanding, clinicRegister, clinicContact
+- Legal: about, contact, + 4 legal docs
+
+All destinations are real pages or anchor IDs already in the DOM.
+
+### 25-6: pre-checkout reassurance microcopy (Z-6)
+
+Single emerald-tinted line directly above the Step 3 pay button:
+"Reserva sin riesgo · Cancela en 1 click · Reembolso completo si la
+visita no se completa en 90 días" (ES + EN equivalent). Bundles the
+three highest-anxiety guarantees at the conversion-critical moment.
+aria-live="polite".
+
+### 25-7: browser Notification on status change (Z-7)
+
+Tracking page already had a postgres_changes channel updating UI on
+status moves. Patients tab away (especially on mobile) and miss the
+update. Added:
+- On first mount, request `Notification.permission` if `default`
+  (post-payment context justifies the prompt; never re-prompt if
+  already chose).
+- In the UPDATE handler, when `prev.status !== updated.status` and
+  permission is granted, fire `new Notification('OnCall Clinic',
+  {body: getStatusLabel(updated.status), icon, tag})`. The `tag`
+  collapses repeats to a single banner.
+- Wrapped in try/catch — incognito Firefox / mobile WebViews throw
+  on `new Notification(...)`, silent degrade.
+
+### 25-8/9: testimonial + clinic logos polish (Z-8, Z-9)
+
+- `proV3.testimonial.quote/author/role`: refresh to Cowork's spec
+  copy ("OnCall me da +€800/mes extra los fines de semana…", Dr.
+  Carlos Ruiz Martínez, COMIB 28301 · Eivissa).
+- `ClinicaLogos.tsx`: dashed-border + `+` icon placeholder slots
+  with hover state. Eyebrow "Próximas clínicas asociadas" replaces
+  the misleading "Confían en nosotros". CTA below the row anchors
+  to `#contacto-clinica` ("Solicita ser de las primeras clínicas
+  asociadas →").
+
+### 25-10: pull-to-refresh dashboards (Z-10)
+
+Custom 30-LOC `PullToRefresh` component (no new deps):
+- touchstart/touchmove/touchend at window level.
+- Engages only when `scrollingElement.scrollTop === 0` at start.
+- Half-speed rubber drag, capped at 120px visual.
+- Trigger at ≥70px → calls `onRefresh()` and shows spinner.
+- Indicator (RefreshCw / Loader2) is fixed/floating, doesn't shift
+  content. Slate→emerald color transition at threshold.
+- Desktop: touch events never fire → wrapper is a no-op.
+
+Wired into:
+- `ClinicDashboardLive.tsx` — refactored `refetch` to a
+  `useCallback` so PullToRefresh + realtime + 30s poll all share
+  the same fetch path.
+- `app/[locale]/doctor/dashboard/page.tsx` — wraps `<main>`,
+  reuses the existing `fetchData()` useCallback.
+
+Patient tracking page deliberately not wrapped — already realtime,
+high-attention context where the gesture would add friction.
+
+### Live verification (R2/R3) — 2026-04-29
+
+```bash
+$ git rev-parse HEAD
+2b097de…   # round25-10
+
+$ curl -s https://oncall.clinic/es/pro | grep -oE 'Tenerife|Gran Canaria|Fuerteventura|Costa del Sol|Costa Blanca|Formentera' | sort -u
+Costa Blanca · Costa del Sol · Formentera · Fuerteventura · Gran Canaria · Tenerife
+# ✅ Z-2: 6 new tourism destinations on /pro (+ Mallorca + Ibiza = 8)
+
+$ curl -s https://oncall.clinic/es/pro | grep -c '"name":"Madrid"'
+0
+# ✅ Z-2: old metro list gone
+
+$ curl -s https://oncall.clinic/es/pro | grep -oE 'Preguntas antes de registrarte'
+Preguntas antes de registrarte
+# ✅ Z-4: /pro hero ctaTertiary
+
+$ curl -s https://oncall.clinic/es/clinica | grep -oE 'Tu clínica encaja'
+Tu clínica encaja
+# ✅ Z-4: /clinica hero ctaTertiary
+
+$ curl -s https://oncall.clinic/es | grep -oE 'href="/es/(pro#income-calculator|pro#contacto-pro|clinica#contacto-clinica|blog)"' | sort -u
+href="/es/blog"
+href="/es/clinica#contacto-clinica"
+href="/es/pro#contacto-pro"
+href="/es/pro#income-calculator"
+# ✅ Z-5: 4 new deep links in footer
+
+$ curl -s https://oncall.clinic/es/patient/request | grep -oE 'patient/request[^"]*\.js' | head -1
+patient/request/page-a20f191b7ff34655.js
+# ✅ Z-3: new bundle hash deployed (different from prev)
+
+$ curl -s https://oncall.clinic/es/patient/request | grep -oE 'Reserva sin riesgo|Cancela en 1 click'
+Reserva sin riesgo · Cancela en 1 click
+# ✅ Z-6 reassurance copy in HTML
+
+$ curl -s https://oncall.clinic/es/clinica | grep -oE 'Próximas clínicas asociadas|Solicita ser de las primeras'
+Próximas clínicas asociadas · Solicita ser de las primeras
+# ✅ Z-9 placeholder eyebrow + CTA
+
+$ curl -s https://oncall.clinic/es/pro | grep -oE 'Carlos Ruiz Martínez|COMIB 28301'
+Carlos Ruiz Martínez · COMIB 28301
+# ✅ Z-8 testimonial refreshed
+
+$ curl -sI https://oncall.clinic/es/clinic/dashboard | head -1
+HTTP/2 307   # ✅ Z-1 redirects unauthed (expected; KPIs are gated)
+```
+
+Z-1 (clinic realtime), Z-7 (browser Notification), Z-10 (pull-to-
+refresh) require authenticated/touch-device sessions to fully verify
+behavior — structural fixes (websocket subscriptions, useEffect
+plumbing, touch listeners) all deploy correctly. Smoke E2E will
+confirm runtime.
+
+### Acceptance — verified
+
+| Item | Status |
+|---|---|
+| Z-1 clinic dashboard realtime + polling fallback | ✅ structural |
+| Z-2 /pro cities aligned to Q5 tourism | ✅ live |
+| Z-3 console clean of YJ TypeError + map loads | ✅ structural |
+| Z-4 hero CTAs anchor to B2B forms | ✅ live |
+| Z-5 footer 3-col with deep links | ✅ live |
+| Z-6 pre-checkout reassurance copy | ✅ live |
+| Z-7 browser Notification on status change | ✅ structural |
+| Z-8 testimonial refreshed | ✅ live |
+| Z-9 clinic logo placeholders + CTA | ✅ live |
+| Z-10 pull-to-refresh on dashboards | ✅ structural |
+
+### Decisions flagged
+
+1. **PullToRefresh threshold 70px** chosen for parity with iOS
+   native (~70-80px). Tweakable via `TRIGGER_DISTANCE` const if
+   QA finds it too sensitive / too sluggish.
+2. **Browser Notification permission requested on tracking-page
+   mount** rather than a separate "Allow notifications" CTA. The
+   page is post-payment so the request is contextually justified;
+   if Cowork wants the explicit CTA pattern instead, swap to
+   `<PushSubscriber />`-style component (Round 17-F).
+3. **Tracking page Notification body** uses
+   `getStatusLabel(updated.status)` which is ES-only labels right
+   now (lib/utils/index.ts). Not a regression; English-locale users
+   see Spanish labels in the notification only. Internationalize
+   in a future i18n sweep alongside the doctor SMS templates.
+4. **PullToRefresh registers listeners at `window`** rather than a
+   container ref. Simpler, but means a long list inside an inner
+   scroll container (e.g. doctor dashboard's pendingRequests list)
+   can't trigger the pull while at the inner scrollTop. Acceptable
+   trade-off — most users land at the page top.
+5. **Refactored `refetch` in ClinicDashboardLive** into a
+   useCallback so PullToRefresh, realtime, and the 30s poll share
+   the same path. If the ESLint exhaustive-deps rule complains
+   anywhere, that's the real `[refetch]` dep — not a stale-closure
+   warning.
+
+### R7 compliance
+
+✅ Zero clinical surface across all 9 commits. Realtime channels are
+on `consultations` (status flag, no symptom/note columns),
+`clinic_doctors` (link table), `leads` (acquisition contact data).
+Browser Notification body shows status label only.
+
+### Pending Director (post-Round 25)
+
+1. Stripe live keys rollout (auto-hide MODO PRUEBA banner) — Tei manual
+2. Apple Pay verification file — Tei manual, optional
+3. Cowork: smoke E2E final con cuenta real (~1h) — covers Z-1 + Z-3 +
+   Z-7 + Z-10 runtime verification
+4. GO 1-jun-2026 launch — go recommended
+
+### Final GO 1-jun-2026 checklist
+
+- [x] Q4 INTEGRAL shipped (R22-1..5)
+- [x] Q4 ADDITIONAL shipped (R22-6, 22-7)
+- [x] Q5 SEO PIVOT shipped (R23-1..4)
+- [x] Q4-D shipped (R24-1, 24-2)
+- [x] Z-1..10 pre-launch UX/UI shipped (R25-1..10)
+- [ ] Tei: Stripe live keys + Radar cap €500/día
+- [ ] Tei: Apple Pay domain (optional)
+- [ ] Cowork: Smoke E2E final con cuenta real
+- [ ] Tei: verify console clean en browser real /patient/request
+
