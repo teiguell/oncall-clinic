@@ -1869,27 +1869,27 @@
       ]
     },
     "stats": {
-      "kicker": "Data · 01",
+      "kicker": "By the numbers · 01",
       "items": [
         {
-          "value": "850+",
-          "label": "visits/month",
-          "sub": "Ibiza, April 2026"
+          "value": "9+",
+          "label": "active doctors",
+          "sub": "Ibiza · COMIB registered"
         },
         {
-          "value": "€132",
-          "label": "net average per visit",
-          "sub": "after Stripe + commission"
+          "value": "€150",
+          "label": "from per visit",
+          "sub": "base rate · VAT included"
         },
         {
-          "value": "94%",
-          "label": "doctors keep accepting month over month",
-          "sub": "last 90-day retention"
+          "value": "24/7",
+          "label": "coverage",
+          "sub": "urgent and scheduled"
         },
         {
-          "value": "<7 days",
-          "label": "to first earnings",
-          "sub": "from verified onboarding"
+          "value": "60 min",
+          "label": "avg arrival",
+          "sub": "operational target"
         }
       ]
     },

@@ -1869,27 +1869,27 @@
       ]
     },
     "stats": {
-      "kicker": "Datos · 01",
+      "kicker": "En números · 01",
       "items": [
         {
-          "value": "850+",
-          "label": "visitas/mes",
-          "sub": "Ibiza, abril 2026"
+          "value": "9+",
+          "label": "médicos activos",
+          "sub": "Ibiza · colegiados COMIB"
         },
         {
-          "value": "€132",
-          "label": "neto medio por visita",
-          "sub": "tras Stripe + comisión"
+          "value": "€150",
+          "label": "desde por visita",
+          "sub": "tarifa base · IVA incluido"
         },
         {
-          "value": "94 %",
-          "label": "médicos repiten mes a mes",
-          "sub": "retención últimos 90 días"
+          "value": "24/7",
+          "label": "cobertura",
+          "sub": "urgencias y programadas"
         },
         {
-          "value": "<7 días",
-          "label": "al primer ingreso",
-          "sub": "desde el alta verificada"
+          "value": "60 min",
+          "label": "media de llegada",
+          "sub": "objetivo operativo"
         }
       ]
     },
