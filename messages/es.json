@@ -1648,7 +1648,7 @@
         "etaLabel": "Llegada estimada",
         "etaValue": "~ 45 min",
         "priceLabel": "Total",
-        "priceValue": "129 €",
+        "priceValue": "150 €",
         "submit": "Confirmar y pagar"
       }
     },
@@ -1739,7 +1739,7 @@
         },
         {
           "q": "¿Cuánto cuesta la visita?",
-          "a": "Tarifa estándar 129 € de día (08:00–22:00) y 169 € en horario nocturno o festivos. Incluye visita, diagnóstico, tratamiento básico, receta digital y justificante para el seguro. Pago seguro con Stripe — Visa, Mastercard, Apple Pay y Google Pay."
+          "a": "Tarifa estándar 150 € de día (08:00–22:00) y 180 € en horario nocturno o festivos. Incluye visita, diagnóstico, tratamiento básico, receta digital y justificante para el seguro. Pago seguro con Stripe — Visa, Mastercard, Apple Pay y Google Pay."
         },
         {
           "q": "¿En qué idiomas atienden?",

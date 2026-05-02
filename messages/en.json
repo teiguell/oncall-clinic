@@ -1648,7 +1648,7 @@
         "etaLabel": "Estimated arrival",
         "etaValue": "~ 45 min",
         "priceLabel": "Total",
-        "priceValue": "€129",
+        "priceValue": "€150",
         "submit": "Confirm and pay"
       }
     },
@@ -1739,7 +1739,7 @@
         },
         {
           "q": "How much does a visit cost?",
-          "a": "Standard rate €129 daytime (08:00–22:00) and €169 at night or on holidays. Includes the visit, diagnosis, basic treatment, digital prescription and insurance receipt. Secure payment via Stripe — Visa, Mastercard, Apple Pay and Google Pay."
+          "a": "Standard rate €150 daytime (08:00–22:00) and €180 at night or on holidays. Includes the visit, diagnosis, basic treatment, digital prescription and insurance receipt. Secure payment via Stripe — Visa, Mastercard, Apple Pay and Google Pay."
         },
         {
           "q": "Which languages do you cover?",
