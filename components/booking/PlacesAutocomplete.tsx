@@ -116,7 +116,10 @@ function loadPlacesScript(locale: string): Promise<void> {
     // is fully populated, surfacing as
     // `TypeError: Cannot read properties of undefined (reading 'YJ')`
     // when downstream code touches `places.Autocomplete`.
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${locale}&loading=async`
+    // Round 27-1 (P0): add v=quarterly so this fallback path also uses
+    // the stable channel that retains google.maps.places.Autocomplete.
+    // Mirrors the version pin on <APIProvider> in address-map.tsx.
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${locale}&loading=async&v=quarterly`
     script.async = true
     script.defer = true
     script.onload = () => {

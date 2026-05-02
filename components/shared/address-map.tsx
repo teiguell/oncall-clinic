@@ -94,7 +94,17 @@ export function AddressMap({
   }
 
   return (
-    <APIProvider apiKey={apiKey} libraries={MAPS_LIBRARIES}>
+    {/*
+      * Round 27-1 (P0): pin version="quarterly" so Google serves the
+      * legacy Autocomplete class. New API keys created after March 2025
+      * default to a channel that drops google.maps.places.Autocomplete,
+      * causing `TypeError: Cannot read properties of undefined (reading 'aK')`.
+      * "quarterly" is the stable release channel that retains the class.
+      * PlacesAutocomplete.tsx does an early-return when window.google.maps.places
+      * already exists (set by this APIProvider), so the version pin propagates
+      * to the sibling autocomplete input automatically.
+      */}
+    <APIProvider apiKey={apiKey} libraries={MAPS_LIBRARIES} version="quarterly">
       <div
         className={
           'h-[200px] w-full rounded-[14px] overflow-hidden border border-border ' +
