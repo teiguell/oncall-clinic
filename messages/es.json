@@ -1629,7 +1629,7 @@
       "subtitleHours": "Menos de 60 min",
       "ctaPrimary": "Pedir médico ahora",
       "phoneCta": "+34 871 18 34 15",
-      "trustRating": "4.8/5",
+      "trustRating": "4.6/5",
       "trustComib": "Médicos colegiados COMIB",
       "trustStripe": "Pago seguro Stripe",
       "trust247": "24/7",
@@ -1699,8 +1699,8 @@
     "testimonials": {
       "eyebrow": "Confianza",
       "title": "Turistas reales. Vacaciones salvadas.",
-      "subtitle": "4.8/5 sobre 1.247 valoraciones verificadas en 2025.",
-      "ratingShort": "4.8 · 1.247 reseñas",
+      "subtitle": "4.6/5 · 5 valoraciones verificadas.",
+      "ratingShort": "4.6 · 5 reseñas",
       "items": [
         {
           "flag": "🇬🇧",
@@ -1776,7 +1776,7 @@
       "phoneCta": "+34 871 18 34 15",
       "trustComib": "Colegiados COMIB",
       "trustStripe": "Stripe · pago seguro",
-      "trustRating": "4.8 / 1.247 reseñas",
+      "trustRating": "4.6 · 5 reseñas",
       "trust247": "24/7 todo el año"
     },
     "footer": {
