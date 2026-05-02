@@ -257,7 +257,13 @@ export function Step0Type({
           {detecting ? '...' : t('request.myLocation')}
         </button>
 
+        {/* Round 26-5 (Z-15): externalCenter wires the PlacesAutocomplete
+            place_changed → map pan. When the user picks a hotel from the
+            dropdown, lastLocation is set via onSelect → setLastLocation,
+            which passes down here as externalCenter so MapController
+            (inside AddressMap) calls map.setCenter + setZoom(16). */}
         <AddressMap
+          externalCenter={lastLocation}
           onChange={(lat, lng) => {
             // Round 16-A: when user drags the map pin, propagate coords
             // to the parent so checkout submits accurate coordinates.

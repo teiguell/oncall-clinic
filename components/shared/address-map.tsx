@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'
+import { useEffect, useState } from 'react'
+import { APIProvider, Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps'
 import { MapPin } from 'lucide-react'
 import { getGoogleMapsKey } from '@/lib/maps/api-key'
 
@@ -12,11 +12,39 @@ import { getGoogleMapsKey } from '@/lib/maps/api-key'
 // ApiNotActivatedMapError.
 const MAPS_LIBRARIES = ['places' as const]
 
+interface LatLng { lat: number; lng: number }
+
 interface AddressMapProps {
   initialLat?: number
   initialLng?: number
+  /** Round 26-5 (Z-15): when PlacesAutocomplete fires place_changed the
+   *  parent can pass the resolved lat/lng here and the map will pan +
+   *  zoom to that location automatically. */
+  externalCenter?: LatLng | null
   onChange: (lat: number, lng: number) => void
   className?: string
+}
+
+/**
+ * MapController — Round 26-5 (Z-15).
+ *
+ * Rendered inside <Map> so it can call useMap() to get the underlying
+ * google.maps.Map instance. When `center` changes (i.e. PlacesAutocomplete
+ * resolved a new place) we imperatively call setCenter + setZoom so the
+ * map pans to the selected address without a remount.
+ *
+ * This is the canonical @vis.gl/react-google-maps pattern for imperative
+ * map control — the Map component's `defaultCenter` is static (set once),
+ * so external re-centering must go through the map instance directly.
+ */
+function MapController({ center }: { center: LatLng | null | undefined }) {
+  const map = useMap()
+  useEffect(() => {
+    if (!map || !center) return
+    map.setCenter(center)
+    map.setZoom(16)
+  }, [map, center])
+  return null
 }
 
 /**
@@ -40,6 +68,7 @@ interface AddressMapProps {
 export function AddressMap({
   initialLat = 38.98,
   initialLng = 1.42,
+  externalCenter,
   onChange,
   className,
 }: AddressMapProps) {
@@ -79,6 +108,9 @@ export function AddressMap({
           disableDefaultUI
           mapId="address-picker"
         >
+          {/* Round 26-5: imperatively re-centre when PlacesAutocomplete
+              resolves a place so the map tracks the user's typed address. */}
+          <MapController center={externalCenter} />
           <AdvancedMarker
             position={pos}
             draggable
