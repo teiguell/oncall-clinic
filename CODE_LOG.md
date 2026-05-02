@@ -6511,3 +6511,89 @@ Browser Notification body shows status label only.
 - [ ] Cowork: Smoke E2E final con cuenta real
 - [ ] Tei: verify console clean en browser real /patient/request
 
+
+---
+
+## Round 26 — Surgical audit fixes (5 commits, 2026-05-01)
+
+**Inbox**: `.claude/cowork-inbox/2026-04-29-0100-SURGICAL-AUDIT-FIXES.md`
+
+### 26-1 `946aa6b` — /patient/booking → /patient/request 308
+`next.config.js` `bookingRedirects` array. Source: `/:locale(es|en)/patient/booking`.
+Old route name survived Round 9 rename; audit PDF flagged external links 404ing.
+
+### 26-2 `89c46d6` — StatsBar real numbers, remove count-up
+Previous animated values (850 visitas, €132 neto, 94% retención, <7 días) were
+fabricated projections — LGCU art.20 risk. Replaced with verifiable figures:
+`9+` médicos activos · `€150` tarifa base · `24/7` cobertura · `60 min` ETA.
+Removed ~100 LOC IntersectionObserver + requestAnimationFrame machinery.
+Updated `proV3.stats.items` in both `messages/es.json` and `messages/en.json`.
+
+### 26-3 `3ca8d35` — Canonical €150 pricing
+`lib/pricing.ts`: added `export const PRICING = { base: 150, night: 30, holiday: 20 }`.
+`messages/es.json`: `booking2.mockup.priceValue` 129→150; FAQ answer 129/169→150/180.
+`messages/en.json`: same two keys updated.
+Post-fix grep: `\b129\b|\b169\b` in `.tsx/.ts/.json` → 0 pricing hits
+(only `rgba(16,185,129)` CSS color and Registro Mercantil `IB-21129` remain).
+
+### 26-4 `5c26aa0` — i18n specialty labels
+`lib/specialty-labels.ts` (new): `SPECIALTY_LABELS` record + `getSpecialtyLabel(specialty, locale)`.
+`components/doctor-card.tsx`: `useLocale()` + `getSpecialtyLabel()` replaces raw `specialty` prop.
+`app/[locale]/medicos/page.tsx`: server-side inline card also uses `getSpecialtyLabel`.
+`general_medicine` → "Medicina general" (ES) / "General medicine" (EN). 11 specialties mapped.
+
+### 26-5 `e7aeba5` — Map setCenter on place_changed
+`components/shared/address-map.tsx`: `MapController` child (uses `useMap()` from @vis.gl).
+On `externalCenter` change: `map.setCenter(center)` + `map.setZoom(16)`.
+`components/booking/Step0Type.tsx`: `externalCenter={lastLocation}` passed to AddressMap.
+`lastLocation` set by PlacesAutocomplete `onSelect` → map auto-pans to selected place.
+
+### R2 — Deploy verification
+
+```bash
+# Pre-push HEAD (local)
+e7aeba5e3b2ecb3903e031579c6f86e062dc46be
+```
+
+Live bundle check pending (Vercel ~3 min build):
+
+### R2 — Live verification (2026-05-01)
+
+```bash
+# Bundle hash before Round 26 (from Round 25): unknown (prev session)
+# Bundle hash after Round 26 (live):
+$ curl -s https://oncall.clinic/es | grep -oE 'layout-[a-f0-9]{16}\.js' | head -1
+layout-fcc94608ff9f298d.js
+
+# Z-11 redirect (cache-bypass required — old 404 was CDN-cached for 28h):
+$ curl -sI -H "Cache-Control: no-cache" https://oncall.clinic/es/patient/booking | head -5
+HTTP/2 308
+location: /es/patient/request  ✅
+
+# Z-12 StatsBar real values:
+$ curl -s https://oncall.clinic/es/pro | grep -oE '9\+|€150|24/7|60 min' | sort -u
+24/7 · 60 min · 9+ · €150  ✅
+
+# Z-14 Specialty i18n:
+$ curl -s https://oncall.clinic/es/medicos | grep -oE 'Medicina general' | head -1
+Medicina general  ✅
+
+# Z-13 Pricing canonical:
+# (booking2 priceValue + FAQ confirmed 150/180, grep -E '\b129\b|\b169\b' → 0 hits)
+
+# Z-15 Map setCenter: requires browser interaction (PlacesAutocomplete → MapController)
+# Structural: externalCenter prop wired, MapController uses useMap().setCenter(center)
+```
+
+### GO 1-jun-2026 — Checklist updated
+
+- [x] Q4 INTEGRAL shipped (R22-1..5)
+- [x] Q4 ADDITIONAL shipped (R22-6, 22-7)
+- [x] Q5 SEO PIVOT shipped (R23-1..4)
+- [x] Q4-D shipped (R24-1, 24-2)
+- [x] Z-1..10 pre-launch UX/UI shipped (R25-1..10)
+- [x] Z-11..15 surgical audit fixes shipped (R26-1..5)
+- [ ] Tei: Stripe live keys + Radar cap €500/día (15 min manual)
+- [ ] Tei: Apple Pay domain (15 min manual, optional)
+- [ ] Cowork: Smoke E2E final (~1h) — covers Z-1, Z-3, Z-7, Z-10, Z-15 runtime
+- [ ] Tei: verify console clean en browser real /patient/request
