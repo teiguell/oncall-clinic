@@ -77,7 +77,18 @@ const nextConfig = {
       { source: '/es/medico-domicilio/alicante', destination: '/es/medico-domicilio/costa-blanca', permanent: true },
       { source: '/en/medico-domicilio/alicante', destination: '/en/medico-domicilio/costa-blanca', permanent: true },
     ]
-    return [...droppedRedirects, ...renamedRedirects]
+    // Round 26-1 (Z-11): /patient/booking was the old route name before
+    // Round 9 renamed it to /patient/request. Any external links or
+    // bookmarks pointing to the old path now get a permanent 308 redirect
+    // so they land on the correct booking flow.
+    const bookingRedirects = [
+      {
+        source: '/:locale(es|en)/patient/booking',
+        destination: '/:locale/patient/request',
+        permanent: true,
+      },
+    ]
+    return [...droppedRedirects, ...renamedRedirects, ...bookingRedirects]
   },
 }
 
