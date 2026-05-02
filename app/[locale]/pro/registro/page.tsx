@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { permanentRedirect } from 'next/navigation'
 
 /**
  * /[locale]/pro/registro — Round 14 P0 #2 (Opción A confirmed by Director).
@@ -25,5 +25,5 @@ export default async function ProRegistroEntry({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  redirect(`/${locale}/doctor/onboarding`)
+  permanentRedirect(`/${locale}/doctor/onboarding`)
 }

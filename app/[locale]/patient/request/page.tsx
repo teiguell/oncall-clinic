@@ -36,7 +36,7 @@ type FormData = {
  * Structure:
  *   Step 0 (Type)       → Step0Type.tsx
  *   Step 1 (Doctor)     → Step1Doctor.tsx
- *   Step 2 (Details)    → Step2Details.tsx
+ *   Step 2 (Confirm)    → Step3Confirm.tsx
  *   Step 3 (Confirm)    → Step3Confirm.tsx (inline auth OR payment summary)
  *
  * This file owns all state + handlers; each sub-component is a dumb view
