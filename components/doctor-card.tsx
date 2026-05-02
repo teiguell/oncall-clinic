@@ -1,9 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Star, ShieldCheck } from 'lucide-react'
+import { getSpecialtyLabel } from '@/lib/specialty-labels'
 
 interface DoctorCardProps {
   name: string
@@ -33,6 +34,10 @@ export function DoctorCard({
   onRequest,
 }: DoctorCardProps) {
   const t = useTranslations('doctorCard')
+  // Round 26-4: use locale-aware label so "general_medicine" → "Medicina
+  // general" in ES and "General medicine" in EN (not "general medicine").
+  const locale = useLocale() as 'es' | 'en'
+  const specialtyLabel = getSpecialtyLabel(specialty, locale)
   const initials = name
     .split(' ')
     .map(n => n[0])
@@ -67,7 +72,7 @@ export function DoctorCard({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="font-display font-semibold text-base truncate">{name}</h3>
-              <p className="text-xs text-muted-foreground truncate">{specialty}</p>
+              <p className="text-xs text-muted-foreground truncate">{specialtyLabel}</p>
             </div>
             {verified && (
               <span className="pill-success flex-shrink-0">

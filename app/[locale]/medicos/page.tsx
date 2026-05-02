@@ -8,6 +8,7 @@ import { LandingNavV3 } from '@/components/landing/v3/LandingNavV3'
 import { FooterV3 } from '@/components/landing/v3/FooterV3'
 import { Star, MapPin, CheckCircle2 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
+import { getSpecialtyLabel } from '@/lib/specialty-labels'
 
 const BASE_URL = 'https://oncall.clinic'
 
@@ -285,7 +286,7 @@ function DoctorCard({
             {doctor.fullName}
           </p>
           <p className="text-[13px] text-slate-600 mt-0.5 truncate">
-            {doctor.specialty?.replace(/_/g, ' ')}
+            {getSpecialtyLabel(doctor.specialty, locale as 'es' | 'en')}
             {doctor.city && (
               <span>
                 {' · '}
